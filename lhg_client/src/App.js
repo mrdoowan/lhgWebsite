@@ -10,9 +10,10 @@ import Leagues from "./components/Leagues";
 import Schedule from "./components/Schedule";
 import Error from "./components/Error";
 import Navigation from './components/Navigation';
-import { TournamentBase, TournamentRoster, TournamentScouting, TournamentRegular, TournamentPost, TournamentStats, TournamentPickBans } from './components/Tournament';
-import { TeamBase, TeamPlayers, TeamTournaments, TeamGames, TeamStats } from './components/Team';
-import { PlayerBase, PlayerTournaments, PlayerGames, PlayerStats } from './components/Player';
+import { SeasonBase, SeasonRoster, SeasonRegular, SeasonPlayoffs } from './components/Season';
+import { TournamentBase, TournamentPickBans } from './components/Tournament';
+import { TeamBase, TeamPlayers, TeamGames, TeamStats } from './components/Team';
+import { ProfileBase, ProfileGames, ProfileStats } from './components/Profile';
 import { ChampionBase, ChampionName } from './components/Champ';
 import { MatchBase } from './components/Match';
 
@@ -37,32 +38,32 @@ class App extends Component {
                 <Navigation />
                 <Switch>
                     { /* Home Page and Basic Nav */ }
-                    <Route path="/" component={Home} exact />
+                    <Route path="/" component={Home} exact/>
+                    <Route path="/login" component={Login} exact/>
                     <Route path="/about" component={About} exact/>
                     <Route path="/leagues" component={Leagues} exact/>
                     <Route path="/schedule" component={Schedule} exact/>
 
+                    { /* Season Links */ }
+                    <Route path="/season/:seasonShortName" component={SeasonBase} exact/>
+                    <Route path="/season/:seasonShortName/roster" component={SeasonRoster} exact/>
+                    <Route path="/season/:seasonShortName/regular" component={SeasonRegular} exact/>
+                    <Route path="/season/:seasonShortName/playoffs" component={SeasonPlayoffs} exact/>
+
                     { /* Tournament Links */ }
-                    <Route path="/tournament/:tourneyShortName" component={TournamentBase} exact/>
-                    <Route path="/tournament/:tourneyShortName/rosters" component={TournamentRoster} exact/>
-                    <Route path="/tournament/:tourneyShortName/scouting/:teamName" component={TournamentScouting} exact/>
-                    <Route path="/tournament/:tourneyShortName/regular" component={TournamentRegular} exact/>
-                    <Route path="/tournament/:tourneyShortName/playoffs" component={TournamentPost} exact/>
-                    <Route path="/tournament/:tourneyShortName/stats" component={TournamentStats} exact/>
-                    <Route path="/tournament/:tourneyShortName/pickbans" component={TournamentPickBans} exact/>
+                    <Route path="/tournament/:tournamentShortName" component={TournamentBase} exact/>
+                    <Route path="/tournament/:tournamentShortName/pickbans" component={TournamentPickBans} exact/>
 
                     { /* Team Links */ }
                     <Route path="/team/:teamName" component={TeamBase} exact/>
                     <Route path="/team/:teamName/players" component={TeamPlayers} exact/>
-                    <Route path="/team/:teamName/tournaments" component={TeamTournaments} exact/>
-                    <Route path="/team/:teamName/games" component={TeamGames} exact/>
-                    <Route path="/team/:teamName/stats" component={TeamStats} exact/>
+                    <Route path="/team/:teamName/games/:seasonShortName" component={TeamGames} exact/>
+                    <Route path="/team/:teamName/stats/:tournamentShortName" component={TeamStats} exact/>
 
-                    { /* Player Links */ }
-                    <Route path="/player/:playerName" component={PlayerBase} exact/>
-                    <Route path="/player/:playerName/tournaments" component={PlayerTournaments} exact/>
-                    <Route path="/player/:playerName/games" component={PlayerGames} exact/>
-                    <Route path="/player/:playerName/stats" component={PlayerStats} exact/>
+                    { /* Profile Links */ }
+                    <Route path="/profile/:profileName" component={ProfileBase} exact/>
+                    <Route path="/profile/:profileName/games/:seasonShortName" component={ProfileGames} exact/>
+                    <Route path="/profile/:profileName/stats/:tournamentShortName" component={ProfileStats} exact/>
 
                     { /* Match Links */ }
                     <Route path="/match/:matchPID" component={MatchBase} exact/>

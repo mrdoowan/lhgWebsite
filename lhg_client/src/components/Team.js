@@ -5,7 +5,7 @@ import './Basic.css';
 
 //  - ADDITIONAL TEAM RENDER HERE
 
-// {MAIN}/team/<teamName>
+// {MAIN}/team/:teamName
 export const TeamBase = (props) => {
     const teamName = props.match.params.teamName;
 
@@ -16,7 +16,7 @@ export const TeamBase = (props) => {
     );
 };
 
-// {MAIN}/team/<teamName>/players
+// {MAIN}/team/:teamName/players
 export const TeamPlayers = (props) => {
     const teamName = props.match.params.teamName;
 
@@ -27,35 +27,26 @@ export const TeamPlayers = (props) => {
     );
 };
 
-// {MAIN}/team/<teamName>/tournaments
-export const TeamTournaments = (props) => {
-    const teamName = props.match.params.teamName;
-
-    return (
-        <div className="body">
-            <p>Team PID: {teamName} [LIST OF TOURNAMENTS]</p>
-        </div>
-    );
-};
-
-// {MAIN}/team/<teamName>/games
+// {MAIN}/team/:teamName/games/:seasonShortName
 export const TeamGames = (props) => {
     const teamName = props.match.params.teamName;
+    const seasonName = props.match.params.seasonShortName;
 
     return (
         <div className="body">
-            <p>Team PID: {teamName} [LIST OF GAMES]</p>
+            <p>Team PID: {teamName} [LIST OF GAMES IN {seasonShortName}]</p>
         </div>
     );
 };
 
-// {MAIN}/team/<teamName>/stats
+// {MAIN}/team/:teamName/stats/:tournamentShortName
 export const TeamStats = (props) => {
     const teamName = props.match.params.teamName;
+    const tourneyName = props.match.params.tournamentShortName;
 
     return (
         <div className="body">
-            <p>Team PID: {teamName} [STATS PAGE]</p>
+            <p>Team PID: {teamName} [STATS PAGE IN {tourneyName}]</p>
         </div>
     );
 };
