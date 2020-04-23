@@ -5,6 +5,7 @@ import './App.css';
 
 import Customers from './components/customers/customers';
 import Home from "./components/Home";
+import Login from "./components/Login";
 import About from "./components/About";
 import Leagues from "./components/Leagues";
 import Schedule from "./components/Schedule";

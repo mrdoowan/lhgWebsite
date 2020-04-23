@@ -34,7 +34,7 @@ export const TeamGames = (props) => {
 
     return (
         <div className="body">
-            <p>Team PID: {teamName} [LIST OF GAMES IN {seasonShortName}]</p>
+            <p>Team PID: {teamName} [LIST OF GAMES IN {seasonName}]</p>
         </div>
     );
 };
