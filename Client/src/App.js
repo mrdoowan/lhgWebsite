@@ -12,7 +12,7 @@ import Schedule from "./components/Schedule";
 import Error from "./components/Error";
 import Navigation from './components/Navigation';
 import { SeasonBase, SeasonRoster, SeasonRegular, SeasonPlayoffs } from './components/Season';
-import { TournamentBase, TournamentPickBans } from './components/Tournament';
+import { TournamentBase, TournamentPlayers, TournamentTeams, TournamentPickBans } from './components/Tournament';
 import { TeamBase, TeamPlayers, TeamGames, TeamStats } from './components/Team';
 import { ProfileBase, ProfileGames, ProfileStats } from './components/Profile';
 import { ChampionBase, ChampionName } from './components/Champ';
@@ -40,10 +40,10 @@ class App extends Component {
                 <Switch>
                     { /* Home Page and Basic Nav */ }
                     <Route path="/" component={Home} exact/>
-                    <Route path="/login" component={Login} exact/>
                     <Route path="/about" component={About} exact/>
                     <Route path="/leagues" component={Leagues} exact/>
                     <Route path="/schedule" component={Schedule} exact/>
+                    <Route path="/login" component={Login} exact/>
 
                     { /* Season Links */ }
                     <Route path="/season/:seasonShortName" component={SeasonBase} exact/>
@@ -53,6 +53,8 @@ class App extends Component {
 
                     { /* Tournament Links */ }
                     <Route path="/tournament/:tournamentShortName" component={TournamentBase} exact/>
+                    <Route path="/tournament/:tournamentShortName/players" component={TournamentPlayers} exact/>
+                    <Route path="/tournament/:tournamentShortName/teams" component={TournamentTeams} exact/>
                     <Route path="/tournament/:tournamentShortName/pickbans" component={TournamentPickBans} exact/>
 
                     { /* Team Links */ }

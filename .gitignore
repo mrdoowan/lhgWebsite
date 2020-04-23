@@ -40,7 +40,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-lhg_client/node_modules/
+Client/node_modules/
+external/
 .pnp/
 .pnp.js
 

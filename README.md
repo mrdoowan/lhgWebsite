@@ -18,15 +18,15 @@ The following npm modules are (or should be) used in the client:
 * hashids
 (Note: I could be missing a few...)
 
-When you pull this repo, you will not have the npm modules. Those need to be installed yourself with "npm install <module>". Either that or the "package.json" should do it for you. 
+When you pull this repo, you will not have the npm modules. Those need to be installed yourself with "npm install" with the "package.json".
 - For training purposes, [I got everything setup by watching this video](https://www.youtube.com/watch?v=v0t42xBIYI)
-- 
 
 ## Running the Server & Client
 
 Run the following command lines in the root directory.
 
 To get the server running only: (Server is running on Port 5000)
+**NOTE:** The /external/env file is needed from Doowan
 ```sh
 npm run server
 ```

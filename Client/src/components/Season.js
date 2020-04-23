@@ -45,7 +45,7 @@ export const SeasonPlayoffs = (props) => {
 
     return (
         <div className="body">
-            <p>LHG Shortname Tournament: {shortName} [POST SEASON]</p>
+            <p>LHG Shortname Tournament: {shortName} [PLAYOFFS]</p>
         </div>
     );
 };
