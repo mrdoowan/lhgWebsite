@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import logo from './logo.svg';
 import './App.css';
 
-import Customers from './components/customers/customers';
 import Home from "./components/Home";
 import Login from "./components/Login";
 import About from "./components/About";
@@ -13,25 +11,12 @@ import Error from "./components/Error";
 import Navigation from './components/Navigation';
 import { SeasonBase, SeasonRoster, SeasonRegular, SeasonPlayoffs } from './components/Season';
 import { TournamentBase, TournamentPlayers, TournamentTeams, TournamentPickBans } from './components/Tournament';
-import { TeamBase, TeamPlayers, TeamGames, TeamStats } from './components/Team';
+import { TeamBase, TeamPlayers, TeamScouting, TeamGames, TeamStats } from './components/Team';
 import { ProfileBase, ProfileGames, ProfileStats } from './components/Profile';
 import { ChampionBase, ChampionName } from './components/Champ';
 import { MatchBase } from './components/Match';
 
 class App extends Component {
-
-    /*
-        Below was the example from the video that took the GET API request from customer.js
-    */
-    /*
-    render() {
-        return (
-            <div className="App">
-                <Customers />
-            </div>
-        );
-    }
-    */
 
     render() {
         return (
@@ -60,6 +45,7 @@ class App extends Component {
                     { /* Team Links */ }
                     <Route path="/team/:teamName" component={TeamBase} exact/>
                     <Route path="/team/:teamName/players" component={TeamPlayers} exact/>
+                    <Route path="/team/:teamName/scouting/:seasonShortName" component={TeamScouting} exact/>
                     <Route path="/team/:teamName/games/:seasonShortName" component={TeamGames} exact/>
                     <Route path="/team/:teamName/stats/:tournamentShortName" component={TeamStats} exact/>
 
@@ -69,7 +55,7 @@ class App extends Component {
                     <Route path="/profile/:profileName/stats/:tournamentShortName" component={ProfileStats} exact/>
 
                     { /* Match Links */ }
-                    <Route path="/match/:matchPID" component={MatchBase} exact/>
+                    <Route path="/match/:matchPId" component={MatchBase} exact/>
 
                     { /* League Champions Links */ }
                     <Route path="/champion/" component={ChampionBase} exact/>

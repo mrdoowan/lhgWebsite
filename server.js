@@ -39,6 +39,7 @@ function strPadZeroes(num, size) {
 */
 
 app.get('/api/match/:matchId', async (req, res) => {
+    console.log("GET Request Match '" + req.params.matchId + "'.")
     var matchJson = await dynamoDb.getItem('Matches', 'MatchPId', req.params.matchId);
     // Replace the HIds with the actual Names (will have to learn how to cache on the server side later)
     var seasonPId = matchJson['SeasonPId'];

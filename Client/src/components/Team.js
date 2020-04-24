@@ -27,6 +27,18 @@ export const TeamPlayers = (props) => {
     );
 };
 
+// {MAIN}/team/:teamName/scouting/:seasonShortName
+export const TeamScouting = (props) => {
+    const teamName = props.match.params.teamName;
+    const seasonName = props.match.params.seasonShortName;
+
+    return (
+        <div className="body">
+            <p>Team PID: {teamName} [SCOUTING PAGE IN {seasonName}]</p>
+        </div>
+    );
+};
+
 // {MAIN}/team/:teamName/games/:seasonShortName
 export const TeamGames = (props) => {
     const teamName = props.match.params.teamName;

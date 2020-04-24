@@ -1,5 +1,8 @@
 # Client
 
+## 0.0.4
+* Cleaned up App.js and Match.js to successfully call a GET request from server
+
 ## 0.0.3
 * Renamed directory to Client. Modified routes again
 
