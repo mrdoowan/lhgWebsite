@@ -18,14 +18,20 @@ const PUT_INTO_DYNAMO = false;       // 'true' when comfortable to push into Dyn
 /*  Put 'false' to not debug. */
 const DEBUG_DYNAMO = false;
 
+const GET_ITEM_NUM_ARGS = 3;
 // DETAILED FUNCTION DESCRIPTION XD
-function getItemInDynamoDB(tableName, partitionName, key) {
+function getItemInDynamoDB(tableName, partitionName, itemName) {
     var params = {
         TableName: tableName,
         Key: {
-            [partitionName]: key
+            [partitionName]: itemName
         }
     };
+    if (arguments.length > GET_ITEM_NUM_ARGS) {
+        var argArray = Array.prototype.slice.call(arguments);
+        var itemNames = argArray.slice(GET_ITEM_NUM_ARGS);
+        params['AttributesToGet'] = itemNames;
+    }
     return new Promise(function(resolve, reject) {
         try {
             dynamoDB.get(params, function(err, data) {
@@ -33,13 +39,13 @@ function getItemInDynamoDB(tableName, partitionName, key) {
                     reject(err);
                 }
                 else {
-                    console.log("Dynamo DB: Get Item \'" + key + "\' from Table \"" + tableName + "\"");
+                    console.log("Dynamo DB: Get Item \'" + itemName + "\' from Table \"" + tableName + "\"");
                     resolve(data['Item']);
                 }
             });
         }
         catch (error) {
-            console.error("ERROR - getItemInDynamoDB \'" + tableName + "\' Promise rejected.")
+            console.error("ERROR - getItemInDynamoDB \'" + tableName + "\' Promise rejected with Item \'" + itemName + "\'.")
             reject(error);
         }
     });
@@ -125,6 +131,7 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, expAttNa
     }
 }
 
+const SCAN_ITEM_NUM_ARGS = 1;
 // DETAILED FUNCTION DESCRIPTION XD
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#scan-property
 // https://stackoverflow.com/questions/44589967/how-to-fetch-scan-all-items-from-aws-dynamodb-using-node-js
@@ -132,6 +139,11 @@ function scanTableLoopInDynamoDB(tableName) {
     const params = {
         TableName: tableName
     };
+    if (arguments.length > SCAN_ITEM_NUM_ARGS) {
+        var argArray = Array.prototype.slice.call(arguments);
+        var itemNames = argArray.slice(GET_ITEM_NUM_ARGS);
+        params['ProjectionExpression'] = itemNames.join();
+    }
     return new Promise(async function(resolve, reject) {
         try {
             let scanResults = [];

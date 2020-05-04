@@ -16,6 +16,17 @@ export const ProfileBase = (props) => {
     );
 };
 
+// {MAIN}/profile/:profileName/champs
+export const ProfileChamps = (props) => {
+    const profileName = props.match.params.profileName;
+
+    return (
+        <div className="body">
+            <p>Profile Name: {profileName} [LIST OF CHAMPS]</p>
+        </div>
+    );
+};
+
 // {MAIN}/profile/:profileName/games/:seasonShortName
 export const ProfileGames = (props) => {
     const profileName = props.match.params.profileName;

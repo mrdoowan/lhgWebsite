@@ -12,7 +12,7 @@ import Navigation from './components/Navigation';
 import { SeasonBase, SeasonRoster, SeasonRegular, SeasonPlayoffs } from './components/Season';
 import { TournamentBase, TournamentPlayers, TournamentTeams, TournamentPickBans } from './components/Tournament';
 import { TeamBase, TeamPlayers, TeamScouting, TeamGames, TeamStats } from './components/Team';
-import { ProfileBase, ProfileGames, ProfileStats } from './components/Profile';
+import { ProfileBase, ProfileChamps, ProfileGames, ProfileStats } from './components/Profile';
 import { ChampionBase, ChampionName } from './components/Champ';
 import { MatchBase } from './components/Match';
 
@@ -51,6 +51,7 @@ class App extends Component {
 
                     { /* Profile Links */ }
                     <Route path="/profile/:profileName" component={ProfileBase} exact/>
+                    <Route path="/profile/:profileName/champs" component={ProfileChamps} exact/>
                     <Route path="/profile/:profileName/games/:seasonShortName" component={ProfileGames} exact/>
                     <Route path="/profile/:profileName/stats/:tournamentShortName" component={ProfileStats} exact/>
 
