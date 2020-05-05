@@ -141,7 +141,7 @@ function scanTableLoopInDynamoDB(tableName) {
     };
     if (arguments.length > SCAN_ITEM_NUM_ARGS) {
         var argArray = Array.prototype.slice.call(arguments);
-        var itemNames = argArray.slice(GET_ITEM_NUM_ARGS);
+        var itemNames = argArray.slice(SCAN_ITEM_NUM_ARGS);
         params['ProjectionExpression'] = itemNames.join();
     }
     return new Promise(async function(resolve, reject) {

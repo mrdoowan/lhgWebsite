@@ -14,23 +14,26 @@ export class MatchBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
         fetch('/api/match/' + params.matchPId)
-        .then(res => {
+        .then(res => res.json())
+        .then(data => {
             this.setState({
-                match: res.json()
-            })
+                match: data
+            });
         })
         .catch(err => console.error(err));
     }
 
     render() {
         let matchIdMarkup = this.state.match ? (
-            <p>Match Page for ID: {this.state.match.MatchPId}</p>
+            <div className="body">
+                <p>Match Page for ID: {this.state.match.MatchPId}</p>
+            </div>
         ) : (
             <p>Loading...</p>
-        )
+        );
 
         return (
-            <div className="body">
+            <div>
                 {matchIdMarkup}
             </div>
         );

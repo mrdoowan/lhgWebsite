@@ -58,20 +58,19 @@ async function getTeamName(tHId) {
 //#region League
 app.get('/api/leagues', async (req, res) => {
     console.log("GET Request Leagues.");
-    var leaguesJson = {};
     var seasonList = await dynamoDb.scanTable('Season', 'Information');
-    for (var i = 0; i < seasonList.length; ++i) {
-        var seasonInfoDb = seasonList[i]['Information'];
-        var seasonTime = seasonInfoDb['SeasonTime'];
-        if (seasonTime in leaguesJson) {
-            leaguesJson[seasonTime] = {};
+    var leagueObject = {};
+    seasonList.map((seasonInfoDb) => {
+        const { SeasonTime, DateOpened, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
+        if (!(SeasonTime in leagueObject)) {
+            leagueObject[SeasonTime] = { 'SeasonTime': SeasonTime }
         }
-        leaguesJson[seasonTime]['Date'] = seasonInfoDb['DateOpened'];
-        var leagueType = seasonInfoDb['LeagueType'];
-        leaguesJson[seasonTime][leagueType] = {};
-        leaguesJson[seasonTime][leagueType]['ShortName'] = seasonInfoDb['SeasonShortName'];
-    }
-    res.json(leaguesJson);
+        leagueObject[SeasonTime]['Date'] = DateOpened;
+        leagueObject[SeasonTime][LeagueType] = {};
+        leagueObject[SeasonTime][LeagueType]['ShortName'] = SeasonShortName;
+    });
+    var leagueList = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
+    res.json(leagueList);
 });
 
 //#endregion
