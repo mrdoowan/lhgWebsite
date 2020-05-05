@@ -7,27 +7,31 @@ import './Basic.css';
 
 // {MAIN}/match/:matchPId
 export class MatchBase extends Component {
-    constructor() {
-        super();
-        this.state = {
-            match: {}
-        }
+    state = {
+        match: null
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
         fetch('/api/match/' + params.matchPId)
-        .then(res => res.json())
-        .then(match => {
-            this.setState({ match });
-            console.log(this.state);
-        });
+        .then(res => {
+            this.setState({
+                match: res.json()
+            })
+        })
+        .catch(err => console.error(err));
     }
 
     render() {
+        let matchIdMarkup = this.state.match ? (
+            <p>Match Page for ID: {this.state.match.MatchPId}</p>
+        ) : (
+            <p>Loading...</p>
+        )
+
         return (
             <div className="body">
-                <p>Match Page for ID: {this.state.match.MatchPId}</p>
+                {matchIdMarkup}
             </div>
         );
     }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from 'react';
 import './Basic.css';
 
 // {MAIN}/leagues
@@ -17,13 +17,17 @@ export class Leagues extends Component {
             this.setState({ leagues });
             console.log(this.state);
         });
-
     }
 
     render() {
+        let table = [];
+
         return (
             <div className="body">
                 <p>List of All LHG Leagues</p>
+                <table class="tg">
+
+                </table>
             </div>
         );
     }
