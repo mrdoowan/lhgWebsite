@@ -6,7 +6,7 @@ import './Basic.css';
 //  - ADDITIONAL PLAYER RENDER HERE
 
 // {MAIN}/match/:matchPId
-export class MatchBase extends Component {
+export class matchBase extends Component {
     state = {
         match: null
     }

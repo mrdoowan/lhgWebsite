@@ -7,7 +7,7 @@ import './Basic.css';
 
 
 // {MAIN}/season/:seasonShortName
-export const SeasonBase = (props) => {
+export const seasonBase = (props) => {
     const shortName = props.match.params.tourneyShortName;
 
     return (
@@ -18,7 +18,7 @@ export const SeasonBase = (props) => {
 };
 
 // {MAIN}/tournament/<tournamentShortName>/roster
-export const SeasonRoster = (props) => {
+export const seasonRoster = (props) => {
     const shortName = props.match.params.tourneyShortName;
 
     return (
@@ -29,7 +29,7 @@ export const SeasonRoster = (props) => {
 };
 
 // {MAIN}/tournament/<tournamentShortName>/regular
-export const SeasonRegular = (props) => {
+export const seasonRegular = (props) => {
     const shortName = props.match.params.tourneyShortName;
 
     return (
@@ -40,7 +40,7 @@ export const SeasonRegular = (props) => {
 };
 
 // {MAIN}/tournament/<tournamentShortName>/playoffs
-export const SeasonPlayoffs = (props) => {
+export const seasonPlayoffs = (props) => {
     const shortName = props.match.params.tourneyShortName;
 
     return (
