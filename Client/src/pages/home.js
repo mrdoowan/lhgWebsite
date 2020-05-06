@@ -1,7 +1,7 @@
 import React from "react";
 import './Basic.css';
 
-const Home = () => {
+const home = () => {
     return (
         <div className="body">
             <p>LHG Home Page! Yay!</p>
@@ -9,4 +9,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default home;

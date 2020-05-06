@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import LeagueTable from '../components/LeagueTable';
 
 // {MAIN}/leagues
-export class Leagues extends Component {
+export class leagues extends Component {
     state = {
         leagues: null
     }
@@ -14,7 +14,6 @@ export class Leagues extends Component {
             this.setState({ 
                 leagues: data
             });
-            console.log(this.state);
         })
         .catch(err => console.error(err));
     }

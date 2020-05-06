@@ -1,7 +1,7 @@
 import React from "react";
 import './Basic.css';
 
-const Login = () => {
+const login = () => {
     return (
         <div className="body">
             <p>Login panel for Moderators and Admins only</p>
@@ -9,4 +9,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default login;

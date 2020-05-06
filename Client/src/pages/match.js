@@ -28,9 +28,7 @@ export class matchBase extends Component {
             <div className="body">
                 <p>Match Page for ID: {this.state.match.MatchPId}</p>
             </div>
-        ) : (
-            <p>Loading...</p>
-        );
+        ) : ( <div></div> );
 
         return (
             <div>

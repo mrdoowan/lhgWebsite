@@ -1,7 +1,7 @@
 import React from "react";
 import './Basic.css';
 
-const Error = () => {
+const error = () => {
     return (
         <div className="body">
             <p>404 ERROR: Path does not exist.</p>
@@ -9,4 +9,4 @@ const Error = () => {
     );
 };
 
-export default Error;
+export default error;

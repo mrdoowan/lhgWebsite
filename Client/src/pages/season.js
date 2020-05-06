@@ -3,12 +3,30 @@ import './Basic.css';
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
 
-//  - ADDITIONAL TOURNAMENT RENDER HERE
-
-
 // {MAIN}/season/:seasonShortName
+export class seasonBase extends Component {
+    state = {
+        season: null
+    }
+
+    componentDidMount() {
+        const { match: { params } } = this.props;
+        fetch('/api/season' + params.seasonShortName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                season: data
+            });
+        })
+        .catch(err => console.error(err));
+    }
+
+    render() {
+        
+    }
+}
 export const seasonBase = (props) => {
-    const shortName = props.match.params.tourneyShortName;
+    const shortName = props.match.params.seasonShortName;
 
     return (
         <div className="body">
@@ -19,7 +37,7 @@ export const seasonBase = (props) => {
 
 // {MAIN}/tournament/<tournamentShortName>/roster
 export const seasonRoster = (props) => {
-    const shortName = props.match.params.tourneyShortName;
+    const shortName = props.match.params.seasonShortName;
 
     return (
         <div className="body">
@@ -30,7 +48,7 @@ export const seasonRoster = (props) => {
 
 // {MAIN}/tournament/<tournamentShortName>/regular
 export const seasonRegular = (props) => {
-    const shortName = props.match.params.tourneyShortName;
+    const shortName = props.match.params.seasonShortName;
 
     return (
         <div className="body">
@@ -41,7 +59,7 @@ export const seasonRegular = (props) => {
 
 // {MAIN}/tournament/<tournamentShortName>/playoffs
 export const seasonPlayoffs = (props) => {
-    const shortName = props.match.params.tourneyShortName;
+    const shortName = props.match.params.seasonShortName;
 
     return (
         <div className="body">

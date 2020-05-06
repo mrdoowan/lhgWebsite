@@ -6,11 +6,11 @@ import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
 // Components
 import NavBar from "./components/NavBar";
 // Pages
-import Home from "./pages/home";
-import Login from "./pages/login";
-import About from "./pages/about";
-import { Leagues } from "./pages/league";
-import Schedule from "./pages/schedule";
+import home from "./pages/home";
+import login from "./pages/login";
+import about from "./pages/about";
+import { leagues } from "./pages/league";
+import schedule from "./pages/schedule";
 import Error from "./pages/error";
 import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/season';
 import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans } from './pages/tournament';
@@ -38,49 +38,49 @@ class App extends Component {
                 <BrowserRouter>
                 <NavBar />
                     <div className="container">
-                        <Switch>
-                            { /* Home Page and Basic Nav */ }
-                            <Route path="/" component={Home} exact/>
-                            <Route path="/about" component={About} exact/>
-                            <Route path="/leagues" component={Leagues} exact/>
-                            <Route path="/schedule" component={Schedule} exact/>
-                            <Route path="/login" component={Login} exact/>
+                    <Switch>
+                        { /* Home Page and Basic Nav */ }
+                        <Route path="/" component={home} exact/>
+                        <Route path="/about" component={about} exact/>
+                        <Route path="/leagues" component={leagues} exact/>
+                        <Route path="/schedule" component={schedule} exact/>
+                        <Route path="/login" component={login} exact/>
 
-                            { /* Season Links */ }
-                            <Route path="/season/:seasonShortName" component={seasonBase} exact/>
-                            <Route path="/season/:seasonShortName/roster" component={seasonRoster} exact/>
-                            <Route path="/season/:seasonShortName/regular" component={seasonRegular} exact/>
-                            <Route path="/season/:seasonShortName/playoffs" component={seasonPlayoffs} exact/>
+                        { /* Season Links */ }
+                        <Route path="/season/:seasonShortName" component={seasonBase} exact/>
+                        <Route path="/season/:seasonShortName/roster" component={seasonRoster} exact/>
+                        <Route path="/season/:seasonShortName/regular" component={seasonRegular} exact/>
+                        <Route path="/season/:seasonShortName/playoffs" component={seasonPlayoffs} exact/>
 
-                            { /* Tournament Links */ }
-                            <Route path="/tournament/:tournamentShortName" component={tournamentBase} exact/>
-                            <Route path="/tournament/:tournamentShortName/players" component={tournamentPlayers} exact/>
-                            <Route path="/tournament/:tournamentShortName/teams" component={tournamentTeams} exact/>
-                            <Route path="/tournament/:tournamentShortName/pickbans" component={tournamentPickBans} exact/>
+                        { /* Tournament Links */ }
+                        <Route path="/tournament/:tournamentShortName" component={tournamentBase} exact/>
+                        <Route path="/tournament/:tournamentShortName/players" component={tournamentPlayers} exact/>
+                        <Route path="/tournament/:tournamentShortName/teams" component={tournamentTeams} exact/>
+                        <Route path="/tournament/:tournamentShortName/pickbans" component={tournamentPickBans} exact/>
 
-                            { /* Team Links */ }
-                            <Route path="/team/:teamName" component={teamBase} exact/>
-                            <Route path="/team/:teamName/players" component={teamPlayers} exact/>
-                            <Route path="/team/:teamName/scouting/:seasonShortName" component={teamScouting} exact/>
-                            <Route path="/team/:teamName/games/:seasonShortName" component={teamGames} exact/>
-                            <Route path="/team/:teamName/stats/:tournamentShortName" component={teamStats} exact/>
+                        { /* Team Links */ }
+                        <Route path="/team/:teamName" component={teamBase} exact/>
+                        <Route path="/team/:teamName/players" component={teamPlayers} exact/>
+                        <Route path="/team/:teamName/scouting/:seasonShortName" component={teamScouting} exact/>
+                        <Route path="/team/:teamName/games/:seasonShortName" component={teamGames} exact/>
+                        <Route path="/team/:teamName/stats/:tournamentShortName" component={teamStats} exact/>
 
-                            { /* Profile Links */ }
-                            <Route path="/profile/:profileName" component={ProfileBase} exact/>
-                            <Route path="/profile/:profileName/champs" component={ProfileChamps} exact/>
-                            <Route path="/profile/:profileName/games/:seasonShortName" component={ProfileGames} exact/>
-                            <Route path="/profile/:profileName/stats/:tournamentShortName" component={ProfileStats} exact/>
+                        { /* Profile Links */ }
+                        <Route path="/profile/:profileName" component={ProfileBase} exact/>
+                        <Route path="/profile/:profileName/champs" component={ProfileChamps} exact/>
+                        <Route path="/profile/:profileName/games/:seasonShortName" component={ProfileGames} exact/>
+                        <Route path="/profile/:profileName/stats/:tournamentShortName" component={ProfileStats} exact/>
 
-                            { /* Match Links */ }
-                            <Route path="/match/:matchPId" component={matchBase} exact/>
+                        { /* Match Links */ }
+                        <Route path="/match/:matchPId" component={matchBase} exact/>
 
-                            { /* League Champions Links */ }
-                            <Route path="/champion/" component={ChampionBase} exact/>
-                            <Route path="/champion/:champName" component={ChampionName} exact/>
+                        { /* League Champions Links */ }
+                        <Route path="/champion/" component={ChampionBase} exact/>
+                        <Route path="/champion/:champName" component={ChampionName} exact/>
 
-                            { /* ERROR 404: Path does not exist */ }
-                            <Route component={Error} />
-                        </Switch>
+                        { /* ERROR 404: Path does not exist */ }
+                        <Route component={Error} />
+                    </Switch>
                     </div>
                 </BrowserRouter>
             </MuiThemeProvider>

@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+// MUI
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -32,6 +34,15 @@ const useStyles = makeStyles({
     },
 });
 
+function SeasonTableCell({ item }) {
+    if (!item) {
+        return (<StyledTableCell align="center"></StyledTableCell>);
+    }
+    else {
+        return (<StyledTableCell align="center"><Link to={`/season/${item.ShortName}`}>{item.League}</Link></StyledTableCell>);
+    }
+}
+
 export default function LeagueTable(props) {
     const classes = useStyles();
     const { seasonList } = props;
@@ -50,10 +61,10 @@ export default function LeagueTable(props) {
             <TableBody>
             {seasonList.map((season) => (
                 <StyledTableRow key={season.SeasonTime}>
-                <StyledTableCell component="th" scope="row">{season.SeasonTime}</StyledTableCell>
-                <StyledTableCell align="center">{season.Champions ? season.Champions.ShortName : ''}</StyledTableCell>
-                <StyledTableCell align="center">{season.Premier ? season.Premier.ShortName : ''}</StyledTableCell>
-                <StyledTableCell align="center">{season.Academy ? season.Academy.ShortName : ''}</StyledTableCell>
+                    <StyledTableCell component="th" scope="row" align="center">{season.SeasonTime}</StyledTableCell>
+                    <SeasonTableCell item={season.Champions} />
+                    <SeasonTableCell item={season.Premier} />
+                    <SeasonTableCell item={season.Academy} />
                 </StyledTableRow>
             ))}
             </TableBody>

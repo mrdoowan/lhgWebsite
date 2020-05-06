@@ -1,7 +1,7 @@
 import React from "react";
 import './Basic.css';
 
-const Schedule = () => {
+const schedule = () => {
     return (
         <div className="body">
             <p>Google Calendar of LHG Schedule</p>
@@ -9,4 +9,4 @@ const Schedule = () => {
     );
 };
 
-export default Schedule;
+export default schedule;

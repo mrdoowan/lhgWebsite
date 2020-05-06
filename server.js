@@ -67,6 +67,7 @@ app.get('/api/leagues', async (req, res) => {
         }
         leagueObject[SeasonTime]['Date'] = DateOpened;
         leagueObject[SeasonTime][LeagueType] = {};
+        leagueObject[SeasonTime][LeagueType]['League'] = LeagueType;
         leagueObject[SeasonTime][LeagueType]['ShortName'] = SeasonShortName;
     });
     var leagueList = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
@@ -83,11 +84,11 @@ app.get('/api/leagues', async (req, res) => {
 //#region Season
 app.get('/api/season/:seasonId/information', async (req, res) => {
     console.log("GET Request Season'" + req.params.seasonId + "' Information.");
-    var seasonInfoJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Information');
+    var seasonInfoJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Information')['Information'];
     if ('FinalStandings' in seasonInfoJson) {
-        for (var i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
-            seasonInfoJson[i]['TeamName'] = getTeamName(seasonInfoJson['FinalStandings'][i]['TeamHId']);
-        }
+        seasonInfoJson['FinalStandings'].map((teamObject) => {
+            teamObject['TeamName'] = getTeamName(teamObject['TeamHId']);
+        })
     }
     if ('FinalsMvpHId' in seasonInfoJson) {
         seasonInfoJson['FinalsMvpName'] = getProfileName(seasonInfoJson['FinalsMvpHId']);
@@ -104,74 +105,65 @@ app.get('/api/season/:seasonId/information', async (req, res) => {
 
 app.get('/api/season/:seasonId/roster', async (req, res) => {
     console.log("GET Request Season'" + req.params.seasonId + "' Roster.");
-    var seasonRosterJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Roster');
+    var seasonRosterJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Roster')['Roster'];
     if ('Teams' in seasonRosterJson) {
-        for (var i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
-            var teamHId = Object.keys(seasonRosterJson['Teams'])[i];
+        Object.keys(seasonRosterJson['Teams']).map((teamHId) => {
             var teamJson = seasonRosterJson['Teams'][teamHId];
             teamJson['TeamName'] = getTeamName(teamHId);
-            for (var j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                var profileHId = Object.keys(teamJson['Players'])[j];
+            Object.keys(teamJson['Players']).map((profileHId) => {
                 var playerJson = teamJson['Players'][profileHId];
                 playerJson['ProfileName'] = getProfileName(profileHId);
-            }
-        }
+            });
+        });
     }
     if ('FreeAgents' in seasonRosterJson) {
-        for (var i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
-            var profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
+        Object.keys(seasonRosterJson['FreeAgents']).map((profileHId) => {
             var playerJson = seasonRosterJson['FreeAgents'][profileHId];
             playerJson['ProfileName'] = getProfileName(profileHId);
-        }
+        });
     }
     if ('ESubs' in seasonRosterJson) {
-        for (var i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
-            var profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
+        Object.keys(seasonRosterJson['ESubs']).map((profileHId) => {
             var playerJson = seasonRosterJson['ESubs'][profileHId];
             playerJson['ProfileName'] = getProfileName(profileHId);
-        }
+        });
     }
 });
 
 app.get('/api/season/:seasonId/regular', async (req, res) => {
     console.log("GET Request Season'" + req.params.seasonId + "' Regular.");
-    var seasonRegularJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Roster');
-    for (var i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
-        var divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
-        for (var j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
-            var teamJson = divisionJson['RegularSeasonTeams'][j];
+    var seasonRegularJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Roster')['Roster'];
+    seasonRegularJson['RegularSeasonDivisions'].map((divisionJson) => {
+        divisionJson['RegularSeasonTeams'].map((teamJson) => {
             teamJson['TeamName'] = getTeamName(teamJson['TeamHId']);
-        }
-    }
-    for (var i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
-        var gameJson = seasonRegularJson['RegularSeasonGames'][i];
+        });
+    });
+    seasonRegularJson['RegularSeasonGames'].map((gameJson) => {
         gameJson['BlueTeamName'] = getTeamName(gameJson['BlueTeamHId']);
         gameJson['RedTeamName'] = getTeamName(gameJson['RedTeamHid']);
         gameJson['ModeratorName'] = getProfileName(gameJson['ModeratorHId']);
         gameJson['MvpName'] = getProfileName(gameJson['MvpHId']);
-    }
+    });
+    res.json(seasonRegularJson);
 });
 
 app.get('/api/season/:seasonId/playoffs', async (req, res) => {
     console.log("GET Request Season'" + req.params.seasonId + "' Playoffs.");
-    var playoffJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Playoffs');
-    for (var i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
-        // Quarterfinals, Semifinals, Championships
-        var roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
-        for (var j = 0; j < roundTypeArray.length; ++j) {
-            var seriesJson = roundTypeArray[j];
+    var playoffJson = await dynamoDb.getItem('Season', 'SeasonPId', req.params.seasonId, 'Playoffs')['Playoffs'];
+    Object.values(playoffJson['PlayoffBracket']).map((roundTypeArray) => {
+        roundTypeArray.map((seriesJson) => {
             seriesJson['HigherTeamName'] = getProfileName(seriesJson['HigherTeamHId']);
             seriesJson['LowerTeamName'] = getProfileName(seriesJson['LowerTeamHId']);
             seriesJson['SeriesMvpName'] = getProfileName(seriesJson['SeriesMvpHId']);
-        }
-    }
-    for (var i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
-        var gameJson = playoffJson['PlayoffGames'][i];
+        });
+    });
+    playoffJson['PlayoffGames'].map((gameJson) => {
         gameJson['BlueTeamName'] = getTeamName(gameJson['BlueTeamHId']);
         gameJson['RedTeamName'] = getTeamName(gameJson['RedTeamHId']);
         gameJson['ModeratorName'] = getProfileName(gameJson['ModeratorHId']);
         gameJson['MvpName'] = getProfileName(gameJson['MvpHId']);
-    }
+    });
+    res.json(playoffJson);
 });
 //#endregion
 
@@ -275,17 +267,14 @@ app.get('/api/match/:matchId', async (req, res) => {
     var tourneyInfoObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tourneyPId, 'Information');
     matchJson['TournamentShortName'] = tourneyInfoObject['TournamentShortName'];
     matchJson['TournamentName'] = tourneyInfoObject['TournamentName'];
-    for (var i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
-        var teamId = Object.keys(matchJson['Teams'])[i];
+    Object.keys(matchJson['Teams']).map((teamId) => {
         var teamJson = matchJson['Teams'][teamId];
         teamJson['TeamName'] = getTeamName(teamJson['TeamHId']);
-
-        for (var j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-            var partId = Object.keys(teamJson['Players'])[j];
+        Object.keys(teamJson['Players']).map((partId) => {
             var playerJson = teamJson['Players'][partId];
             playerJson['ProfileName'] = getProfileName(playerJson['ProfileHId']);
-        }
-    }
+        });
+    });
     res.json(matchJson);
 });
 //#endregion
