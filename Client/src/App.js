@@ -15,8 +15,7 @@ import Error from "./pages/error";
 import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/season';
 import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans } from './pages/tournament';
 import { teamBase, teamPlayers, teamScouting, teamGames, teamStats } from './pages/team';
-import { ProfileBase, ProfileChamps, ProfileGames, ProfileStats } from './pages/profile';
-import { ChampionBase, ChampionName } from './pages/champ';
+import { profileBase, profileChamps, profileGames, profileStats } from './pages/profile';
 import { matchBase } from './pages/match';
 
 const theme = createMuiTheme({
@@ -66,17 +65,13 @@ class App extends Component {
                         <Route path="/team/:teamName/stats/:tournamentShortName" component={teamStats} exact/>
 
                         { /* Profile Links */ }
-                        <Route path="/profile/:profileName" component={ProfileBase} exact/>
-                        <Route path="/profile/:profileName/champs" component={ProfileChamps} exact/>
-                        <Route path="/profile/:profileName/games/:seasonShortName" component={ProfileGames} exact/>
-                        <Route path="/profile/:profileName/stats/:tournamentShortName" component={ProfileStats} exact/>
+                        <Route path="/profile/:profileName" component={profileBase} exact/>
+                        <Route path="/profile/:profileName/champs" component={profileChamps} exact/>
+                        <Route path="/profile/:profileName/games/:seasonShortName" component={profileGames} exact/>
+                        <Route path="/profile/:profileName/stats/:tournamentShortName" component={profileStats} exact/>
 
                         { /* Match Links */ }
                         <Route path="/match/:matchPId" component={matchBase} exact/>
-
-                        { /* League Champions Links */ }
-                        <Route path="/champion/" component={ChampionBase} exact/>
-                        <Route path="/champion/:champName" component={ChampionName} exact/>
 
                         { /* ERROR 404: Path does not exist */ }
                         <Route component={Error} />

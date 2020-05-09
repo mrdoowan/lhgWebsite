@@ -1,5 +1,5 @@
-import React from "react";
-import './Basic.css';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
 
@@ -11,29 +11,33 @@ export class seasonBase extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/season' + params.seasonShortName)
+        fetch('/api/season/information/name/' + params.seasonShortName)
         .then(res => res.json())
         .then(data => {
             this.setState({
                 season: data
             });
+            console.log(data);
         })
         .catch(err => console.error(err));
     }
 
     render() {
-        
+        const { season } = this.state;
+        let seasonBaseMarkup = season ? (
+            <div className="body">
+                <p><Link to={`/tournament/${season.TournamentPIds.RegTournamentShortName}`}>Regular Season Tournament Stats</Link></p>
+                <p><Link to={`/tournament/${season.TournamentPIds.PostTournamentShortName}`}>Post Season Tournament Stats</Link></p>
+            </div>
+        ) : ( <div></div> );
+
+        return (
+            <div>
+                {seasonBaseMarkup}
+            </div>
+        );
     }
 }
-export const seasonBase = (props) => {
-    const shortName = props.match.params.seasonShortName;
-
-    return (
-        <div className="body">
-            <p>LHG Shortname Tournament: {shortName}</p>
-        </div>
-    );
-};
 
 // {MAIN}/tournament/<tournamentShortName>/roster
 export const seasonRoster = (props) => {

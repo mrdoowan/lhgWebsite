@@ -1,5 +1,8 @@
 # Client
 
+## 0.0.5
+* Used material-ui, prototype league.js + season.js finished, started tournament.js
+
 ## 0.0.4
 * Cleaned up App.js and Match.js to successfully call a GET request from server
 
@@ -13,6 +16,9 @@
 * First Github commit for collaboration purposes.
 
 # Server
+
+## 0.0.3
+* Finished (most) server.js API GETs. Laid groundwork for cache.
 
 ## 0.0.2
 * Included DynamoDB connection into server and interfaced with Matches table

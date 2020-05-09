@@ -24,9 +24,10 @@ export class matchBase extends Component {
     }
 
     render() {
-        let matchIdMarkup = this.state.match ? (
+        const { match } = this.state;
+        let matchIdMarkup = match ? (
             <div className="body">
-                <p>Match Page for ID: {this.state.match.MatchPId}</p>
+                <p>Match Page for ID: {match.MatchPId}</p>
             </div>
         ) : ( <div></div> );
 
