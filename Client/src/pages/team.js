@@ -6,7 +6,7 @@ import './Basic.css';
 //  - ADDITIONAL TEAM RENDER HERE
 
 // {MAIN}/team/:teamName
-export const TeamBase = (props) => {
+export const teamBase = (props) => {
     const teamName = props.match.params.teamName;
 
     return (
@@ -17,7 +17,7 @@ export const TeamBase = (props) => {
 };
 
 // {MAIN}/team/:teamName/players
-export const TeamPlayers = (props) => {
+export const teamPlayers = (props) => {
     const teamName = props.match.params.teamName;
 
     return (
@@ -28,7 +28,7 @@ export const TeamPlayers = (props) => {
 };
 
 // {MAIN}/team/:teamName/scouting/:seasonShortName
-export const TeamScouting = (props) => {
+export const teamScouting = (props) => {
     const teamName = props.match.params.teamName;
     const seasonName = props.match.params.seasonShortName;
 
@@ -40,7 +40,7 @@ export const TeamScouting = (props) => {
 };
 
 // {MAIN}/team/:teamName/games/:seasonShortName
-export const TeamGames = (props) => {
+export const teamGames = (props) => {
     const teamName = props.match.params.teamName;
     const seasonName = props.match.params.seasonShortName;
 
@@ -52,7 +52,7 @@ export const TeamGames = (props) => {
 };
 
 // {MAIN}/team/:teamName/stats/:tournamentShortName
-export const TeamStats = (props) => {
+export const teamStats = (props) => {
     const teamName = props.match.params.teamName;
     const tourneyName = props.match.params.tournamentShortName;
 

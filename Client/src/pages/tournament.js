@@ -7,7 +7,7 @@ import './Basic.css';
 
 
 // {MAIN}/tournament/:tournamentShortName
-export const TournamentBase = (props) => {
+export const tournamentBase = (props) => {
     const shortName = props.match.params.tournamentShortName;
 
     return (
@@ -18,7 +18,7 @@ export const TournamentBase = (props) => {
 };
 
 // {MAIN}/tournament/:tournamentShortName/players
-export const TournamentPlayers = (props) => {
+export const tournamentPlayers = (props) => {
     const shortName = props.match.params.tournamentShortName;
 
     return (
@@ -29,7 +29,7 @@ export const TournamentPlayers = (props) => {
 };
 
 // {MAIN}/tournament/:tournamentShortName/teams
-export const TournamentTeams = (props) => {
+export const tournamentTeams = (props) => {
     const shortName = props.match.params.tournamentShortName;
 
     return (
@@ -40,7 +40,7 @@ export const TournamentTeams = (props) => {
 };
 
 // {MAIN}/tournament/:tournamentShortName/pickbans
-export const TournamentPickBans = (props) => {
+export const tournamentPickBans = (props) => {
     const shortName = props.match.params.tournamentShortName;
 
     return (

@@ -19,7 +19,8 @@ The following npm modules are (or should be) used in the client:
 (Note: I could be missing a few...)
 
 When you pull this repo, you will not have the npm modules. Those need to be installed yourself with "npm install" with the "package.json".
-- For training purposes, [I got everything setup by watching this video](https://www.youtube.com/watch?v=v0t42xBIYI)
+- I use Windows 10 WSL, Ubuntu, and VS Code for my development environment. [Video](https://www.youtube.com/watch?v=A0eqZujVfYU)
+- To start your own React setup from afresh. [Video](https://www.youtube.com/watch?v=v0t42xBIYIs)
 
 ## Running the Server & Client
 

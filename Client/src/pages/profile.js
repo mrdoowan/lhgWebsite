@@ -6,7 +6,7 @@ import './Basic.css';
 //  - ADDITIONAL PLAYER RENDER HERE
 
 // {MAIN}/profile/:profileName
-export const ProfileBase = (props) => {
+export const profileBase = (props) => {
     const profileName = props.match.params.profileName;
 
     return (
@@ -16,8 +16,19 @@ export const ProfileBase = (props) => {
     );
 };
 
+// {MAIN}/profile/:profileName/champs
+export const profileChamps = (props) => {
+    const profileName = props.match.params.profileName;
+
+    return (
+        <div className="body">
+            <p>Profile Name: {profileName} [LIST OF CHAMPS]</p>
+        </div>
+    );
+};
+
 // {MAIN}/profile/:profileName/games/:seasonShortName
-export const ProfileGames = (props) => {
+export const profileGames = (props) => {
     const profileName = props.match.params.profileName;
     const seasonName = props.match.params.seasonShortName;
 
@@ -29,7 +40,7 @@ export const ProfileGames = (props) => {
 };
 
 // {MAIN}/profile/:profileName/stats/:tournamentShortName
-export const ProfileStats = (props) => {
+export const profileStats = (props) => {
     const profileName = props.match.params.profileName;
     const tourneyName = props.match.params.tournamentShortName;
 

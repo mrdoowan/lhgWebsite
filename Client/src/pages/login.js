@@ -1,12 +1,12 @@
 import React from "react";
 import './Basic.css';
 
-const Leagues = () => {
+const login = () => {
     return (
         <div className="body">
-            <p>List of Past LHG Leagues and the Current One</p>
+            <p>Login panel for Moderators and Admins only</p>
         </div>
     );
 };
 
-export default Leagues;
+export default login;

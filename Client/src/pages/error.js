@@ -1,12 +1,12 @@
 import React from "react";
 import './Basic.css';
 
-const Login = () => {
+const error = () => {
     return (
         <div className="body">
-            <p>Login panel for Moderators and Admins only</p>
+            <p>404 ERROR: Path does not exist.</p>
         </div>
     );
 };
 
-export default Login;
+export default error;

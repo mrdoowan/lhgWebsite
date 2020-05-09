@@ -1,12 +1,12 @@
 import React from "react";
 import './Basic.css';
 
-const Home = () => {
+const schedule = () => {
     return (
         <div className="body">
-            <p>LHG Home Page! Yay!</p>
+            <p>Google Calendar of LHG Schedule</p>
         </div>
     );
 };
 
-export default Home;
+export default schedule;

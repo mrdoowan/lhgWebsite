@@ -42,6 +42,7 @@ node_modules/
 jspm_packages/
 Client/node_modules/
 external/
+intermediates/
 .pnp/
 .pnp.js
 
