@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './Basic.css';
 
 // If riotMatchID is not in the database, redirect to 404 - FUNCTION HERE
 

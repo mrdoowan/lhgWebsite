@@ -1,5 +1,4 @@
 import React from "react";
-import './Basic.css';
 
 // If profileName is not in the database, redirect to 404 - FUNCTION HERE
 
