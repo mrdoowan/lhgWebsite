@@ -3,6 +3,7 @@ Client/node_modules/
 external/
 intermediates/
 Client/src/test
+cache/
 
 # Logs
 logs
