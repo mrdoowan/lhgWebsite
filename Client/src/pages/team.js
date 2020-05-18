@@ -1,63 +1,128 @@
-import React from "react";
+import React, { Component } from 'react';
 
 // If teamName is not in the database, redirect to 404 - FUNCTION HERE
 
 //  - ADDITIONAL TEAM RENDER HERE
 
 // {MAIN}/team/:teamName
-export const teamBase = (props) => {
-    const teamName = props.match.params.teamName;
+export class teamBase extends Component {
+    state = {
+        info: null,
+    }
 
-    return (
-        <div className="body">
-            <p>Team PID: {teamName}</p>
-        </div>
-    );
-};
+    componentDidMount() {
+        const { match: { params } } = this.props;
 
-// {MAIN}/team/:teamName/players
-export const teamPlayers = (props) => {
-    const teamName = props.match.params.teamName;
+        fetch('/api/team/information/name/' + params.teamName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                info: data
+            });
+        })
+        .catch(err => console.error(err));
+    }
 
-    return (
-        <div className="body">
-            <p>Team PID: {teamName} [LIST OF PLAYERS]</p>
-        </div>
-    );
-};
+    render() {
+        console.log(this.state);
+        const { info } = this.state;
 
-// {MAIN}/team/:teamName/scouting/:seasonShortName
-export const teamScouting = (props) => {
-    const teamName = props.match.params.teamName;
-    const seasonName = props.match.params.seasonShortName;
-
-    return (
-        <div className="body">
-            <p>Team PID: {teamName} [SCOUTING PAGE IN {seasonName}]</p>
-        </div>
-    );
-};
+        return (
+            <div>
+                
+            </div>
+        )
+    }
+}
 
 // {MAIN}/team/:teamName/games/:seasonShortName
-export const teamGames = (props) => {
-    const teamName = props.match.params.teamName;
-    const seasonName = props.match.params.seasonShortName;
+export class teamGames extends Component {
+    state = {
+        info: null,
+        scouting: null,
+        games: null,
+    }
 
-    return (
-        <div className="body">
-            <p>Team PID: {teamName} [LIST OF GAMES IN {seasonName}]</p>
-        </div>
-    );
-};
+    componentDidMount() {
+        const { match: { params } } = this.props;
+
+        fetch('/api/team/information/name/' + params.teamName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                info: data
+            });
+        })
+        .catch(err => console.error(err));
+
+        fetch('/api/team/scouting/name/' + params.teamName + '/' + params.seasonShortName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                scouting: data
+            });
+        })
+        .catch(err => console.error(err));
+
+        fetch('/api/team/games/name/' + params.teamName + '/' + params.seasonShortName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                games: data
+            });
+        })
+        .catch(err => console.error(err));
+    }
+
+    render() {
+        console.log(this.state);
+        const { info } = this.state;
+
+        return (
+            <div>
+                
+            </div>
+        )
+    }
+}
 
 // {MAIN}/team/:teamName/stats/:tournamentShortName
-export const teamStats = (props) => {
-    const teamName = props.match.params.teamName;
-    const tourneyName = props.match.params.tournamentShortName;
+export class teamStats extends Component {
+    state = {
+        info: null,
+        stats: null,
+    }
 
-    return (
-        <div className="body">
-            <p>Team PID: {teamName} [STATS PAGE IN {tourneyName}]</p>
-        </div>
-    );
-};
+    componentDidMount() {
+        const { match: { params } } = this.props;
+
+        fetch('/api/team/information/name/' + params.teamName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                info: data
+            });
+        })
+        .catch(err => console.error(err));
+
+        fetch('/api/team/stats/name/' + params.teamName + '/' + params.seasonShortName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                stats: data
+            });
+        })
+        .catch(err => console.error(err));
+    }
+
+    render() {
+        console.log(this.state);
+        const { info } = this.state;
+
+        return (
+            <div>
+                
+            </div>
+        )
+    }
+}

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+// Components
+import SeasonHeader from '../components/SeasonHeader';
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
 
@@ -24,17 +26,9 @@ export class seasonBase extends Component {
 
     render() {
         const { season } = this.state;
-        let seasonBaseMarkup = season ? (
-            <div className="body">
-                <p><Link to={`/tournament/${season.TournamentPIds.RegTournamentShortName}`}>Regular Season Tournament Stats</Link></p>
-                <p><Link to={`/tournament/${season.TournamentPIds.PostTournamentShortName}`}>Post Season Tournament Stats</Link></p>
-            </div>
-        ) : ( <div></div> );
 
         return (
-            <div>
-                {seasonBaseMarkup}
-            </div>
+            <div> <SeasonHeader info={season} /> </div>
         );
     }
 }

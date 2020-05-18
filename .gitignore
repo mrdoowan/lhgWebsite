@@ -5,6 +5,9 @@ intermediates/
 Client/src/test
 cache/
 
+# Redis
+*.rdb
+
 # Logs
 logs
 *.log

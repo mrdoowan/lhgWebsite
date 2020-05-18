@@ -11,15 +11,23 @@ import { leagues } from "./pages/league";
 import schedule from "./pages/schedule";
 import error from "./pages/error";
 import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/season';
-import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans } from './pages/tournament';
-import { teamBase, teamPlayers, teamScouting, teamGames, teamStats } from './pages/team';
-import { profileBase, profileChamps, profileGames, profileStats } from './pages/profile';
+import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames } from './pages/tournament';
+import { teamBase, teamGames, teamStats } from './pages/team';
+import { profileBase, profileGames, profileStats } from './pages/profile';
 import { matchBase } from './pages/match';
+// MUI
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
+const theme = createMuiTheme({
+    palette: {
+        type: 'light',
+    },
+});
 
 class App extends Component {
     render() {
         return (
-            <BrowserRouter>
+            <ThemeProvider theme={theme}><BrowserRouter>
             <NavBar />
                 <div className="container">
                 <Switch>
@@ -41,17 +49,15 @@ class App extends Component {
                     <Route path="/tournament/:tournamentShortName/players" component={tournamentPlayers} exact/>
                     <Route path="/tournament/:tournamentShortName/teams" component={tournamentTeams} exact/>
                     <Route path="/tournament/:tournamentShortName/pickbans" component={tournamentPickBans} exact/>
+                    <Route path="/tournament/:tournamentShortName/games" component={tournamentGames} exact/>
 
                     { /* Team Links */ }
                     <Route path="/team/:teamName" component={teamBase} exact/>
-                    <Route path="/team/:teamName/players" component={teamPlayers} exact/>
-                    <Route path="/team/:teamName/scouting/:seasonShortName" component={teamScouting} exact/>
                     <Route path="/team/:teamName/games/:seasonShortName" component={teamGames} exact/>
                     <Route path="/team/:teamName/stats/:tournamentShortName" component={teamStats} exact/>
 
                     { /* Profile Links */ }
                     <Route path="/profile/:profileName" component={profileBase} exact/>
-                    <Route path="/profile/:profileName/champs" component={profileChamps} exact/>
                     <Route path="/profile/:profileName/games/:seasonShortName" component={profileGames} exact/>
                     <Route path="/profile/:profileName/stats/:tournamentShortName" component={profileStats} exact/>
 
@@ -62,7 +68,7 @@ class App extends Component {
                     <Route component={error} />
                 </Switch>
                 </div>
-            </BrowserRouter>
+            </BrowserRouter></ThemeProvider>
         );
     }
 }
