@@ -23,7 +23,7 @@ export class profileBase extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        //const { info } = this.state;
 
         return (
             <div>
@@ -64,7 +64,7 @@ export class profileGames extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        //const { info } = this.state;
 
         return (
             <div>
@@ -105,7 +105,7 @@ export class profileStats extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        //const { info } = this.state;
 
         return (
             <div>

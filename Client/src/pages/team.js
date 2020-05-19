@@ -25,7 +25,7 @@ export class teamBase extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        //const { info } = this.state;
 
         return (
             <div>
@@ -76,7 +76,7 @@ export class teamGames extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        //const { info } = this.state;
 
         return (
             <div>
@@ -117,7 +117,7 @@ export class teamStats extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        //const { info } = this.state;
 
         return (
             <div>

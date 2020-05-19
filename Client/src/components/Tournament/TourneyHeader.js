@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 // Components
-import TourneyTab from '../components/TourneyTab';
+import TourneyTab from './TourneyTab';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
         color: theme.palette.text.primary,
         background: '#A9A9A9',
+        'font-weight': 'bold',
     },
 }));
 
@@ -36,10 +37,12 @@ export default function TourneyHeader({ info, type }) {
     return (
         <div className={classes.root}>
             <Grid container spacing={3}>
-                <Grid item xs={12}><Paper className={classes.paper}>
-                    {titleMarkUp}
-                    {tourneyBar}    
-                </Paper></Grid>
+                <Grid item xs={12}>
+                    <Paper className={classes.paper}>
+                        {titleMarkUp}
+                        {tourneyBar}
+                    </Paper>
+                </Grid>
             </Grid>
         </div>
     );

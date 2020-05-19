@@ -25,7 +25,7 @@ export default function SeasonHeader({ info }) {
     let seasonBaseMarkup = info ? (
         <div className="body">
             <p><Link to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Tournament Stats</Link></p>
-            <p><Link to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Post Season Tournament Stats</Link></p>
+            <p><Link to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Playoffs Tournament Stats</Link></p>
         </div>
     ) : ( <div></div> );
 

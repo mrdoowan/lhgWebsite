@@ -31,10 +31,6 @@ export default function TourneyTab({ shortName, type }) {
             url: '',
         },
         {
-            text: 'Champs',
-            url: '/pickbans',
-        },
-        {
             text: 'Players',
             url: '/players',
         },
@@ -43,18 +39,19 @@ export default function TourneyTab({ shortName, type }) {
             url: '/teams',
         },
         {
-            text: 'Games',
-            url: '/games',
-        }
+            text: 'Champs',
+            url: '/pickbans',
+        },
     ];
 
     return (
-    <div className={classes.root}>
-        <ButtonGroup>{tabList.map((tab) => (
-            <Button variant="contained" color={isPrimary(type, tab.text)} component={Link} to={`/tournament/${shortName}${tab.url}`}>{tab.text}</Button>
-        ))}
-        </ButtonGroup>
-    </div>
+        <div className={classes.root}>
+            <ButtonGroup>
+            {tabList.map((tab) => (
+                <Button key={tab.text.toLowerCase()} variant="contained" color={isPrimary(type, tab.text)} component={Link} to={`/tournament/${shortName}${tab.url}`}>{tab.text}</Button>
+            ))}
+            </ButtonGroup>
+        </div>
     );
 }
 

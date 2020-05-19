@@ -19,7 +19,6 @@ The following npm modules are (or should be) used in the client:
 * react
 * react-scripts
 * react-router-dom
-* kayn
 * hashids
 * devextreme
 

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-//import { Link } from 'react-router-dom';
-// Components
-import TourneyHeader from '../components/TourneyHeader';
-import TourneyStats from '../components/TourneyStats';
+// Util
+import TourneyBaseSkeleton from '../util/Tournament/TourneyBaseSkeleton';
+import TourneyTeamsSkeleton from '../util/Tournament/TourneyTeamsSkeleton';
+import TourneyPlayersSkeleton from '../util/Tournament/TourneyPlayersSkeleton';
+import TourneyChampsSkeleton from '../util/Tournament/TourneyChampsSkeleton';
+// Note: Nothing MUI can be done here because of how React Hooks work.
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
 
@@ -49,18 +51,9 @@ export class tournamentBase extends Component {
         console.log(this.state);
         const { info, stats, leaderboards } = this.state;
 
-        let headerMarkup = info ? (
-            <div><TourneyHeader info={info} type='Tournament' /></div>
-        ) : (<div></div>);
-
-        let statsMarkup = stats ? (
-            <div><TourneyStats /></div>
-        ) : (<div>Loading...</div>)
-
         return (
             <div>
-                {headerMarkup}
-                {statsMarkup}
+                <TourneyBaseSkeleton info={info} stats={stats} lb={leaderboards} />
             </div>
         )
     }
@@ -97,11 +90,11 @@ export class tournamentPlayers extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        const { info, players } = this.state;
 
         return (
             <div>
-                <TourneyHeader info={info} type="Players" />
+                <TourneyPlayersSkeleton info={info} players={players} />
             </div>
         )
     }
@@ -138,11 +131,11 @@ export class tournamentTeams extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        const { info, teams } = this.state;
 
         return (
             <div>
-                <TourneyHeader info={info} type="Teams" />
+                <TourneyTeamsSkeleton info={info} teams={teams} />
             </div>
         )
     }
@@ -179,52 +172,11 @@ export class tournamentPickBans extends Component {
 
     render() {
         console.log(this.state);
-        const { info } = this.state;
+        const { info, pickBans } = this.state;
 
         return (
             <div>
-                <TourneyHeader info={info} type="Champs" />
-            </div>
-        )
-    }
-}
-
-// {MAIN}/tournament/:tournamentShortName/games
-export class tournamentGames extends Component {
-    state = {
-        info: null,
-        games: null,
-    }
-
-    componentDidMount() {
-        const { match: { params } } = this.props;
-
-        fetch('/api/tournament/information/name/' + params.tournamentShortName)
-        .then(res => res.json())
-        .then(data => {
-            this.setState({
-                info: data
-            });
-        })
-        .catch(err => console.error(err));
-
-        fetch('/api/tournament/games/name/' + params.tournamentShortName)
-        .then(res => res.json())
-        .then(data => {
-            this.setState({
-                games: data
-            });
-        })
-        .catch(err => console.error(err));
-    }
-
-    render() {
-        console.log(this.state);
-        const { info } = this.state;
-
-        return (
-            <div>
-                <TourneyHeader info={info} type="Games" />
+                <TourneyChampsSkeleton info={info} pb={pickBans} type="Champs" />
             </div>
         )
     }

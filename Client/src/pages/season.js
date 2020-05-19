@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 // Components
 import SeasonHeader from '../components/SeasonHeader';
 
@@ -28,7 +27,7 @@ export class seasonBase extends Component {
         const { season } = this.state;
 
         return (
-            <div> <SeasonHeader info={season} /> </div>
+            <div><SeasonHeader info={season} /></div>
         );
     }
 }
