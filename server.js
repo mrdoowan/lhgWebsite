@@ -64,7 +64,7 @@ const MATCH_PREFIX = 'Match-';
 
 // Turn number into string
 function strPadZeroes(num, size) {
-    var s = num+"";
+    let s = num+"";
     while (s.length < size) s = "0" + s;
     return s;
 }
@@ -85,12 +85,12 @@ function filterName(name) {
 
 // Get ProfileName from DynamoDb
 function getProfileName(pHId) {
-    var pPId = getPIdString(pHId, profileHashIds);
-    var cacheKey = PROFILE_NAME_PREFIX + pPId;
+    let pPId = getPIdString(pHId, profileHashIds);
+    let cacheKey = PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['ProfileName'])
                 .then((obj) => {
@@ -104,16 +104,16 @@ function getProfileName(pHId) {
 
 // Get ProfilePId from ProfileName
 function getProfilePId(name) {
-    var simpleName = filterName(name);
-    var cacheKey = PROFILE_PID_PREFIX + simpleName;
+    let simpleName = filterName(name);
+    let cacheKey = PROFILE_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
                 .then((obj) => {
-                    var pPId = getPIdString(obj['ProfileHId'], profileHashIds);
+                    let pPId = getPIdString(obj['ProfileHId'], profileHashIds);
                     cache.set(cacheKey, pPId);
                     resolve(pPId);
                 });
@@ -124,16 +124,16 @@ function getProfilePId(name) {
 
 // Get TeamName from DynamoDb
 function getTeamName(tHId) {
-    var tPId = getPIdString(tHId, teamHashIds);
-    var cacheKey = TEAM_NAME_PREFIX + tPId;
+    let tPId = getPIdString(tHId, teamHashIds);
+    let cacheKey = TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Team', 'TeamPId', tPId, ['TeamName'])
                 .then((obj) => {
-                    var name = obj['TeamName'];
+                    let name = obj['TeamName'];
                     cache.set(cacheKey, name);
                     resolve(name);
                 });
@@ -144,16 +144,16 @@ function getTeamName(tHId) {
 
 // Get TeamPId from TeamName
 function getTeamPId(name) {
-    var simpleName = filterName(name);
-    var cacheKey = TEAM_PID_PREFIX + simpleName;
+    let simpleName = filterName(name);
+    let cacheKey = TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('TeamNameMap', 'TeamName', simpleName)
                 .then((obj) => {
-                    var tPId = getPIdString(obj['TeamHId'], teamHashIds);
+                    let tPId = getPIdString(obj['TeamHId'], teamHashIds);
                     cache.set(cacheKey, tPId);
                     resolve(tPId);
                 });
@@ -164,15 +164,15 @@ function getTeamPId(name) {
 
 // Get TournamentShortName from DynamoDb
 function getTournamentShortName(tPId) {
-    var cacheKey = TN_CODE_PREFIX + tPId;
+    let cacheKey = TN_CODE_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TournamentShortName'])
                 .then((obj) => {
-                    var shortName = obj['TournamentShortName'];
+                    let shortName = obj['TournamentShortName'];
                     cache.set(cacheKey, shortName);
                     resolve(shortName);
                 });
@@ -183,15 +183,15 @@ function getTournamentShortName(tPId) {
 
 // Get TournamentName from DynamoDb
 function getTournamentName(tPId) {
-    var cacheKey = TN_NAME_PREFIX + tPId;
+    let cacheKey = TN_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information'])
                 .then((obj) => {
-                    var name = obj['Information']['TournamentName'];
+                    let name = obj['Information']['TournamentName'];
                     cache.set(cacheKey, name);
                     resolve(name);
                 });
@@ -202,15 +202,15 @@ function getTournamentName(tPId) {
 
 // Get SeasonShortName from DynamoDb
 function getSeasonShortName(sPId) {
-    var cacheKey = SEASON_CODE_PREFIX + sPId;
+    let cacheKey = SEASON_CODE_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['SeasonShortName'])
                 .then((obj) => {
-                    var shortName = obj['SeasonShortName'];
+                    let shortName = obj['SeasonShortName'];
                     cache.set(cacheKey, shortName);
                     resolve(shortName);
                 });
@@ -221,15 +221,15 @@ function getSeasonShortName(sPId) {
 
 // Get SeasonName from DynamoDb
 function getSeasonName(sPId) {
-    var cacheKey = SEASON_NAME_PREFIX + sPId;
+    let cacheKey = SEASON_NAME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
                 .then((obj) => {
-                    var name = obj['Information']['SeasonName'];
+                    let name = obj['Information']['SeasonName'];
                     cache.set(cacheKey, name);
                     resolve(name);
                 });
@@ -239,15 +239,15 @@ function getSeasonName(sPId) {
 }
 
 function getSeasonTime(sPId) {
-    var cacheKey = SEASON_TIME_PREFIX + sPId;
+    let cacheKey = SEASON_TIME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(data);
+            if (data != null) resolve(data);
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
                 .then((obj) => {
-                    var time = obj['Information']['SeasonTime'];
+                    let time = obj['Information']['SeasonTime'];
                     cache.set(cacheKey, time);
                     resolve(time);
                 });
@@ -258,16 +258,16 @@ function getSeasonTime(sPId) {
 
 // Get SeasonPId from DynamoDb
 function getSeasonId(shortName) {
-    var simpleName = filterName(shortName);
-    var cacheKey = SEASON_ID_PREFIX + simpleName;
+    let simpleName = filterName(shortName);
+    let cacheKey = SEASON_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(parseInt(data)); // NOTE: Needs to be number
+            if (data != null) resolve(parseInt(data)); // NOTE: Needs to be number
             else {
                 dynamoDb.scanTable('Season', ['SeasonPId'], 'SeasonShortName', simpleName)
                 .then((obj) => {
-                    var Id = obj[0]['SeasonPId'];
+                    let Id = obj[0]['SeasonPId'];
                     cache.set(cacheKey, Id);
                     resolve(Id);
                 });
@@ -278,16 +278,16 @@ function getSeasonId(shortName) {
 
 // Get TournamentPId from DynamoDb
 function getTournamentPId(shortName) {
-    var simpleName = filterName(shortName);
-    var cacheKey = TN_ID_PREFIX + simpleName;
+    let simpleName = filterName(shortName);
+    let cacheKey = TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(parseInt(data)); // NOTE: Needs to be number
+            if (data != null) resolve(parseInt(data)); // NOTE: Needs to be number
             else {
                 dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
                 .then((obj) => {
-                    var Id = obj[0]['TournamentPId'];
+                    let Id = obj[0]['TournamentPId'];
                     cache.set(cacheKey, Id);
                     resolve(Id);
                 });
@@ -309,10 +309,10 @@ app.get('/api/leagues', (req, res) => {
     console.log("GET Request Leagues.");
     cache.get(LEAGUE_KEY, async (err, data) => {
         if (err) res.status(500).json(err);
-        if (data !== null) res.json(JSON.parse(data));
+        if (data != null) res.json(JSON.parse(data));
         else {
-            var seasonList = await dynamoDb.scanTable('Season', ['Information']);
-            var leagueObject = {};
+            let seasonList = await dynamoDb.scanTable('Season', ['Information']);
+            let leagueObject = {};
             seasonList.map((seasonInfoDb) => {
                 const { SeasonTime, DateOpened, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
                 if (!(SeasonTime in leagueObject)) {
@@ -323,7 +323,7 @@ app.get('/api/leagues', (req, res) => {
                 leagueObject[SeasonTime][LeagueType]['League'] = LeagueType;
                 leagueObject[SeasonTime][LeagueType]['ShortName'] = SeasonShortName;
             });
-            var leagueList = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
+            let leagueList = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
             cache.set(LEAGUE_KEY, JSON.stringify(leagueList, null, 2));
             res.json(leagueList);     
         }
@@ -340,18 +340,18 @@ app.get('/api/leagues', (req, res) => {
 //#region Season
 
 function getSeasonInformation(sPId) {
-    var cacheKey = SEASON_INFO_PREFIX + sPId;
+    let cacheKey = SEASON_INFO_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information']))['Information'];
+                let seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information']))['Information'];
                 seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
                 seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
                 if ('FinalStandings' in seasonInfoJson) {
-                    for (var i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
-                        var teamObject = seasonInfoJson['FinalStandings'][i];
+                    for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
+                        let teamObject = seasonInfoJson['FinalStandings'][i];
                         teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
                     }
                 }
@@ -373,40 +373,40 @@ function getSeasonInformation(sPId) {
 }
 app.get('/api/season/information/name/:seasonShortName', async (req, res) => {
     console.log("GET Request Season '" + req.params.seasonShortName + "' Information.");
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getSeasonInformation(sPId));
 });
 
 function getSeasonRoster(sPId) {
-    var cacheKey = SEASON_ROSTER_PREFIX + sPId;
+    let cacheKey = SEASON_ROSTER_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var seasonRosterJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Roster']))['Roster'];
+                let seasonRosterJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Roster']))['Roster'];
                 if ('Teams' in seasonRosterJson) {
-                    for (var i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
-                        var teamHId = Object.keys(seasonRosterJson['Teams'])[i];
-                        var teamJson = seasonRosterJson['Teams'][teamHId];
+                    for (let i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
+                        let teamHId = Object.keys(seasonRosterJson['Teams'])[i];
+                        let teamJson = seasonRosterJson['Teams'][teamHId];
                         teamJson['TeamName'] = await getTeamName(teamHId);
-                        for (var j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                            var profileHId = Object.keys(teamJson['Players'])[j];
-                            var playerJson = teamJson['Players'][profileHId];
+                        for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
+                            let profileHId = Object.keys(teamJson['Players'])[j];
+                            let playerJson = teamJson['Players'][profileHId];
                             playerJson['ProfileName'] = await getProfileName(profileHId);
                         }
                     }
                 }
                 if ('FreeAgents' in seasonRosterJson) {
-                    for (var i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
-                        var profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
-                        var playerJson = seasonRosterJson['FreeAgents'][profileHId];
+                    for (let i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
+                        let profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
+                        let playerJson = seasonRosterJson['FreeAgents'][profileHId];
                         playerJson['ProfileName'] = await getProfileName(profileHId);
                     }
                 }
                 if ('ESubs' in seasonRosterJson) {
-                    for (var i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
-                        var profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
+                    for (let i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
+                        let profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
                         playerJson['ProfileName'] = await getProfileName(profileHId);
                     }
                 }
@@ -418,27 +418,27 @@ function getSeasonRoster(sPId) {
 }
 app.get('/api/season/roster/name/:seasonShortName', async (req, res) => {
     console.log("GET Request Season '" + req.params.seasonShortName + "' Roster.");
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getSeasonRoster(sPId));
 });
 
 function getSeasonRegular(sPId) {
-    var cacheKey = SEASON_REGULAR_PREFIX + sPId;
+    let cacheKey = SEASON_REGULAR_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var seasonRegularJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Regular']))['Regular'];
-                for (var i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
-                    var divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
-                    for (var j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
-                        var teamJson = divisionJson['RegularSeasonTeams'][j];
+                let seasonRegularJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Regular']))['Regular'];
+                for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
+                    let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
+                    for (let j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
+                        let teamJson = divisionJson['RegularSeasonTeams'][j];
                         teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
                     }
                 }
-                for (var i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
-                    var gameJson = seasonRegularJson['RegularSeasonGames'][i];
+                for (let i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
+                    let gameJson = seasonRegularJson['RegularSeasonGames'][i];
                     gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
                     gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHid']);
                     gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
@@ -452,29 +452,29 @@ function getSeasonRegular(sPId) {
 }
 app.get('/api/season/regular/name/:seasonShortName', async (req, res) => {
     console.log("GET Request Season '" + req.params.seasonShortName + "' Regular.");
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getSeasonRegular(sPId));
 });
 
 function getSeasonPlayoffs(sPId) {
-    var cacheKey = SEASON_PLAYOFF_PREFIX + sPId;
+    let cacheKey = SEASON_PLAYOFF_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var playoffJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Playoffs']))['Playoffs'];
-                for (var i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
-                    var roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
-                    for (var j = 0; j < roundTypeArray.length; ++j) {
-                        var seriesJson = roundTypeArray[j];
+                let playoffJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Playoffs']))['Playoffs'];
+                for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
+                    let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
+                    for (let j = 0; j < roundTypeArray.length; ++j) {
+                        let seriesJson = roundTypeArray[j];
                         seriesJson['HigherTeamName'] = await getProfileName(seriesJson['HigherTeamHId']);
                         seriesJson['LowerTeamName'] = await getProfileName(seriesJson['LowerTeamHId']);
                         seriesJson['SeriesMvpName'] = await getProfileName(seriesJson['SeriesMvpHId']);
                     }
                 }
-                for (var i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
-                    var gameJson = playoffJson['PlayoffGames'][i];
+                for (let i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
+                    let gameJson = playoffJson['PlayoffGames'][i];
                     gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
                     gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
                     gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
@@ -488,7 +488,7 @@ function getSeasonPlayoffs(sPId) {
 }
 app.get('/api/season/playoffs/name/:seasonShortName', async (req, res) => {
     console.log("GET Request Season '" + req.params.seasonShortName + "' Playoffs.");
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getSeasonPlayoffs(sPId));
 });
 
@@ -502,13 +502,13 @@ app.get('/api/season/playoffs/name/:seasonShortName', async (req, res) => {
 //#region Profile
 
 function getProfileInfo(pPId) {
-    var cacheKey = PROFILE_INFO_PREFIX + pPId;
+    let cacheKey = PROFILE_INFO_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['Information']))['Information'];
+                let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['Information']))['Information'];
                 if ('ActiveSeasonPId' in profileInfoJson) {
                     profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
                     profileInfoJson['ActiveSeasonName'] = await getSeasonName(profileInfoJson['ActiveSeasonPId']);
@@ -524,21 +524,21 @@ function getProfileInfo(pPId) {
 }
 app.get('/api/profile/information/name/:profileName', async (req, res) => {
     console.log("GET Request Profile '" + req.params.profileName + "' Information.");
-    var pPId = await getProfilePId(req.params.profileName);
+    let pPId = await getProfilePId(req.params.profileName);
     res.json(await getProfileInfo(pPId));
 });
 
 function getProfileGamesBySeason(pPId, sPId) {
-    var cacheKey = PROFILE_GAMES_PREFIX + pPId + '-' + sPId;
+    let cacheKey = PROFILE_GAMES_PREFIX + pPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var profileGamesJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'][sPId];
+                let profileGamesJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'][sPId];
                 profileGamesJson['SeasonTime'] = await getSeasonTime(sPId);
-                for (var i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
-                    var matchJson = Object.values(profileGamesJson['Matches'])[i];
+                for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
+                    let matchJson = Object.values(profileGamesJson['Matches'])[i];
                     matchJson['TeamName'] = await getTeamName(matchJson['TeamHId']);
                     matchJson['EnemyTeamName'] = await getTeamName(matchJson['EnemyTeamHId']);
                     matchJson['KillPct'] = ((matchJson['Kills'] + matchJson['Assists']) / matchJson['TeamKills']).toFixed(4);
@@ -554,24 +554,24 @@ function getProfileGamesBySeason(pPId, sPId) {
 }
 app.get('/api/profile/games/name/:profileName/:seasonShortName', async (req, res) => {
     console.log("GET Request Profile '" + req.params.profileName + "' Game Log for Season '" + req.params.seasonShortName +  "'.");
-    var pPId = await getProfilePId(req.params.profileName);
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let pPId = await getProfilePId(req.params.profileName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getProfileGamesBySeason(pPId, sPId));
 });
 
 function getProfileStatsByTourney(pPId, tPId) {
-    var cacheKey = PROFILE_STATS_PREFIX + pPId + '-' + tPId;
+    let cacheKey = PROFILE_STATS_PREFIX + pPId + '-' + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var profileStatsJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'][tPId];
+                let profileStatsJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'][tPId];
                 profileStatsJson['TournamentName'] = await getTournamentName(tPId);
-                for (var i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
-                    var role = Object.keys(profileStatsJson['RoleStats'])[i];
-                    var statsJson = profileStatsJson['RoleStats'][role];
-                    var gameDurationMinute = statsJson['TotalGameDuration'] / 60;
+                for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
+                    let role = Object.keys(profileStatsJson['RoleStats'])[i];
+                    let statsJson = profileStatsJson['RoleStats'][role];
+                    let gameDurationMinute = statsJson['TotalGameDuration'] / 60;
                     statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
                     statsJson['KillPct'] = ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
                     statsJson['DeathPct'] = (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
@@ -601,8 +601,8 @@ function getProfileStatsByTourney(pPId, tPId) {
 }
 app.get('/api/profile/stats/name/:profileName/:tournamentShortName', async (req, res) => {
     console.log("GET Request Profile '" + req.params.profileName + "' Stats Log for Tournament '" + req.params.tournamentShortName +  "'.");
-    var pPId = await getProfilePId(req.params.profileName);
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let pPId = await getProfilePId(req.params.profileName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getProfileStatsByTourney(pPId, tPId));
 });
 
@@ -617,16 +617,16 @@ app.get('/api/profile/stats/name/:profileName/:tournamentShortName', async (req,
 //#region Team
 
 function getTeamInfo(teamPId) {
-    var cacheKey = TEAM_INFO_PREFIX + teamPId;
+    let cacheKey = TEAM_INFO_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var teamInfoJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Information']))['Information'];
+                let teamInfoJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Information']))['Information'];
                 if ('TrophyCase' in teamInfoJson) {
-                    for (var i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
-                        var sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
+                    for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
+                        let sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
                         teamInfoJson['TrophyCase'][sPId]['Seasonname'] = getSeasonName(sPId);
                         teamInfoJson['TrophyCase'][sPId]['SeasonShortName'] = getSeasonShortName(sPId);
                     }
@@ -639,24 +639,24 @@ function getTeamInfo(teamPId) {
 }
 app.get('/api/team/information/name/:teamName', async (req, res) => {
     console.log("GET Request Team '" + req.params.teamName + "' Information.");
-    var teamId = await getTeamPId(req.params.teamName);
+    let teamId = await getTeamPId(req.params.teamName);
     res.json(await getTeamInfo(teamId));
 });
 
 function getTeamScoutingBySeason(teamPId, sPId) {
-    var cacheKey = TEAM_SCOUT_PREFIX + teamPId + '-' + sPId;
+    let cacheKey = TEAM_SCOUT_PREFIX + teamPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var teamScoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'][sPId];
+                let teamScoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'][sPId];
                 teamScoutingJson['SeasonTime'] = await getSeasonTime(sPId);
-                for (var i = 0; i < Object.values(teamScoutingJson['PlayerLog']).length; ++i) {
-                    var roleMap = Object.values(teamScoutingJson['PlayerLog'])[i];
-                    for (var j = 0; j < Object.keys(roleMap).length; ++j) {
-                        var profileHId = Object.keys(roleMap)[j];
-                        var statsJson = roleMap[profileHId];
+                for (let i = 0; i < Object.values(teamScoutingJson['PlayerLog']).length; ++i) {
+                    let roleMap = Object.values(teamScoutingJson['PlayerLog'])[i];
+                    for (let j = 0; j < Object.keys(roleMap).length; ++j) {
+                        let profileHId = Object.keys(roleMap)[j];
+                        let statsJson = roleMap[profileHId];
                         statsJson['ProfileName'] = await getProfileName(profileHId);
                         statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
                         statsJson['KillPctPlayer'] = ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalKillsTeam']).toFixed(4);
@@ -673,24 +673,24 @@ function getTeamScoutingBySeason(teamPId, sPId) {
 }
 app.get('/api/team/scouting/name/:teamName/:seasonShortName', async (req, res) => {
     console.log("GET Request Team '" + req.params.teamName + "' Scouting for Season '" + req.params.seasonShortName +  "'.");
-    var teamId = await getTeamPId(req.params.teamName);
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let teamId = await getTeamPId(req.params.teamName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getTeamScoutingBySeason(teamId, sPId));
 });
 
 function getTeamGamesBySeason(teamPId, sPId) {
-    var cacheKey = TEAM_GAMES_PREFIX + teamPId + '-' + sPId;
+    let cacheKey = TEAM_GAMES_PREFIX + teamPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'][sPId];
+                let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'][sPId];
                 gameLogJson['SeasonTime'] = getSeasonTime(sPId);
-                for (var i = 0; i < Object.values(gameLogJson['Matches']).length; ++i) {
-                    var matchObject = Object.values(gameLogJson['Matches'])[i];
-                    for (var j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
-                        var champObject = Object.values(matchObject['ChampPicks'])[j];
+                for (let i = 0; i < Object.values(gameLogJson['Matches']).length; ++i) {
+                    let matchObject = Object.values(gameLogJson['Matches'])[i];
+                    for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
+                        let champObject = Object.values(matchObject['ChampPicks'])[j];
                         champObject['ProfileName'] = await getProfileName(champObject['ProfileHId']);
                     }
                     matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
@@ -703,31 +703,37 @@ function getTeamGamesBySeason(teamPId, sPId) {
 }
 app.get('/api/team/games/name/:teamName/:seasonShortName', async (req, res) => {
     console.log("GET Request Team '" + req.params.teamName + "' Game Log for Season '" + req.params.seasonShortName +  "'.");
-    var teamId = await getTeamPId(req.params.teamName);
-    var sPId = await getSeasonId(req.params.seasonShortName);
+    let teamId = await getTeamPId(req.params.teamName);
+    let sPId = await getSeasonId(req.params.seasonShortName);
     res.json(await getTeamGamesBySeason(teamId, sPId));
 });
 
 function getTeamStatsByTourney(teamPId, tPId) {
-    var cacheKey = TEAM_STATS_PREFIX + teamPId + '-' + tPId;
+    let cacheKey = TEAM_STATS_PREFIX + teamPId + '-' + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var statsJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'][tPId];
-                var totalGameDurationMinute = statsJson['TotalGameDuration'] / 60;
+                let statsJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'][tPId];
+                let totalGameDurationMinute = statsJson['TotalGameDuration'] / 60;
                 statsJson['TournamentName'] = await getTournamentName(tPId);
                 statsJson['GamesPlayedOnRed'] = statsJson['GamesPlayed'] - statsJson['GamesPlayedOnBlue'];
                 statsJson['RedWins'] = statsJson['GamesWon'] - statsJson['BlueWins'];
                 statsJson['AverageGameDuration'] = (statsJson['TotalGameDuration'] / statsJson['GamesPlayed']).toFixed(2);
                 statsJson['AverageKills'] = (statsJson['TotalKills'] / statsJson['GamesPlayed']).toFixed(1);
                 statsJson['AverageDeaths'] = (statsJson['TotalDeaths'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['KilLDeathRatio'] = (statsJson['TotalDeaths'] > 0) ? (statsJson['TotalKills'] / statsJson['TotalDeaths']).toFixed(1).toString : "Perfect";
+                statsJson['KillDeathRatio'] = (statsJson['TotalDeaths'] > 0) ? (statsJson['TotalKills'] / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
                 statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / statsJson['GamesPlayed']).toFixed(1);
+                statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / totalGameDurationMinute).toFixed(2);
+                statsJson['DamagePerMinute'] = (statsJson['TotalDamageDealt'] / totalGameDurationMinute).toFixed(2);
+                statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / totalGameDurationMinute).toFixed(2);
+                statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / totalGameDurationMinute).toFixed(2);
+                statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / totalGameDurationMinute).toFixed(2);
+                statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / totalGameDurationMinute).toFixed(2);
+                statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / totalGameDurationMinute).toFixed(2);
                 statsJson['AverageTowersTaken'] = (statsJson['TotalTowersTaken'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['TotalTowersLost'] = (statsJson['TotalTowersLost'] / statsJson['GamesPlayed']).toFixed(1);
+                statsJson['AverageTowersLost'] = (statsJson['TotalTowersLost'] / statsJson['GamesPlayed']).toFixed(1);
                 statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
                 statsJson['FirstTowerPct'] = (statsJson['TotalFirstTowers'] / statsJson['GamesPlayed']).toFixed(4);
                 statsJson['AverageDragonsTaken'] = (statsJson['TotalDragonsTaken'] / statsJson['GamesPlayed']).toFixed(1);
@@ -736,11 +742,6 @@ function getTeamStatsByTourney(teamPId, tPId) {
                 statsJson['HeraldPct'] = (statsJson['TotalHeraldsTaken'] / (statsJson['TotalHeraldsTaken'] + statsJson['TotalEnemyHeralds'])).toFixed(4);
                 statsJson['AverageBaronsTaken'] = (statsJson['TotalBaronsTaken'] / statsJson['GamesPlayed']).toFixed(1);
                 statsJson['BaronPct'] = (statsJson['TotalBaronsTaken'] / (statsJson['TotalBaronsTaken'] + statsJson['TotalEnemyBarons'])).toFixed(4);
-                statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / totalGameDurationMinute).toFixed(2);
-                statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / totalGameDurationMinute).toFixed(2);
-                statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / totalGameDurationMinute).toFixed(2);
-                statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / totalGameDurationMinute).toFixed(2);
-                statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / totalGameDurationMinute).toFixed(2);
                 statsJson['WardsClearedPct'] = (statsJson['TotalWardsCleared'] / statsJson['TotalEnemyWardsPlaced']).toFixed(4);
                 statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
                 statsJson['AverageXpDiffMid'] = (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
@@ -757,8 +758,8 @@ function getTeamStatsByTourney(teamPId, tPId) {
 }
 app.get('/api/team/stats/name/:teamName/:tournamentName', async (req, res) => {
     console.log("GET Request Team '" + req.params.teamName + "' Stats Log for Tournament '" + req.params.tournamentName +  "'.");
-    var teamId = await getTeamPId(req.params.teamName);
-    var tPId = await getTournamentPId(req.params.tournamentName);
+    let teamId = await getTeamPId(req.params.teamName);
+    let tPId = await getTournamentPId(req.params.tournamentName);
     res.json(await getTeamStatsByTourney(teamId, tPId));
 });
 
@@ -773,16 +774,18 @@ app.get('/api/team/stats/name/:teamName/:tournamentName', async (req, res) => {
 //#region Tournament
 
 function getTourneyInfo(tPId) {
-    var cacheKey = TN_INFO_PREFIX + tPId;
+    let cacheKey = TN_INFO_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information']))['Information'];
-                tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
-                tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
-                cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2));
+                let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information']))['Information'];
+                if (tourneyInfoJson != null) {
+                    tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
+                    tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
+                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2));
+                }
                 resolve(tourneyInfoJson);
             }
         });
@@ -790,19 +793,21 @@ function getTourneyInfo(tPId) {
 }
 app.get('/api/tournament/information/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Information.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyInfo(tPId));
 });
 
 function getTourneyStats(tPId) {
-    var cacheKey = TN_STATS_PREFIX + tPId;
+    let cacheKey = TN_STATS_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TourneyStats']))['TourneyStats'];
-                cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2));
+                let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TourneyStats']))['TourneyStats'];
+                if (tourneyStatsJson != null) {
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2));
+                }
                 resolve(tourneyStatsJson);
             }
         });
@@ -810,45 +815,47 @@ function getTourneyStats(tPId) {
 }
 app.get('/api/tournament/stats/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Tourney Stats.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyStats(tPId));
 });
 
 function getTourneyLeaderboards(tPId) {
-    var cacheKey = TN_LEADER_PREFIX + tPId;
+    let cacheKey = TN_LEADER_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Leaderboards']))['Leaderboards'];
-                var gameRecords = leaderboardJson['GameRecords'];
-                for (var i = 0; i < Object.values(gameRecords).length; ++i) {
-                    var gameObject = Object.values(gameRecords)[i];
-                    gameObject['BlueTeamName'] = await getTeamName(gameObject['BlueTeamHId']);
-                    gameObject['RedTeamName'] = await getTeamName(gameObject['RedTeamHId']);
-                }
-                var playerRecords = leaderboardJson['PlayerSingleRecords'];
-                for (var i = 0; i < Object.values(playerRecords).length; ++i) {
-                    var playerList = Object.values(playerRecords)[i];
-                    for (var j = 0; j < playerList.length; ++j) {
-                        var playerObject = playerList[j];
-                        playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
-                        playerObject['BlueTeamName'] = await getTeamName(playerObject['BlueTeamHId']);
-                        playerObject['RedTeamName'] = await getTeamName(playerObject['RedTeamHId']);
+                let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Leaderboards']))['Leaderboards'];
+                if (leaderboardJson != null) {
+                    let gameRecords = leaderboardJson['GameRecords'];
+                    for (let i = 0; i < Object.values(gameRecords).length; ++i) {
+                        let gameObject = Object.values(gameRecords)[i];
+                        gameObject['BlueTeamName'] = await getTeamName(gameObject['BlueTeamHId']);
+                        gameObject['RedTeamName'] = await getTeamName(gameObject['RedTeamHId']);
                     }
-                }
-                var teamRecords = leaderboardJson['TeamSingleRecords'];
-                for (var i = 0; i < Object.values(teamRecords).length; ++i) {
-                    var teamList = Object.values(teamRecords)[i];
-                    for (var j = 0; j < teamList.length; ++j) {
-                        var teamObject = teamList[j];
-                        teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
-                        teamObject['BlueTeamName'] = await getTeamName(teamObject['BlueTeamHId']);
-                        teamObject['RedTeamName'] = await getTeamName(teamObject['RedTeamHId']);
+                    let playerRecords = leaderboardJson['PlayerSingleRecords'];
+                    for (let i = 0; i < Object.values(playerRecords).length; ++i) {
+                        let playerList = Object.values(playerRecords)[i];
+                        for (let j = 0; j < playerList.length; ++j) {
+                            let playerObject = playerList[j];
+                            playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
+                            playerObject['BlueTeamName'] = await getTeamName(playerObject['BlueTeamHId']);
+                            playerObject['RedTeamName'] = await getTeamName(playerObject['RedTeamHId']);
+                        }
                     }
+                    let teamRecords = leaderboardJson['TeamSingleRecords'];
+                    for (let i = 0; i < Object.values(teamRecords).length; ++i) {
+                        let teamList = Object.values(teamRecords)[i];
+                        for (let j = 0; j < teamList.length; ++j) {
+                            let teamObject = teamList[j];
+                            teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
+                            teamObject['BlueTeamName'] = await getTeamName(teamObject['BlueTeamHId']);
+                            teamObject['RedTeamName'] = await getTeamName(teamObject['RedTeamHId']);
+                        }
+                    }
+                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2));
                 }
-                cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2));
                 resolve(leaderboardJson);
             }
         });
@@ -857,61 +864,64 @@ function getTourneyLeaderboards(tPId) {
 }
 app.get('/api/tournament/leaderboards/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Leaderboards.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyLeaderboards(tPId));
 });
 
 function getTourneyPlayerStats(tPId) {
-    var cacheKey = TN_PLAYER_PREFIX + tPId;
+    let cacheKey = TN_PLAYER_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['ProfileHIdList']))['ProfileHIdList'];
-                var profileData = [];
-                for (var i = 0; i < profileHIdList.length; ++i) {
-                    var pPId = getPIdString(profileHIdList[i], profileHashIds);
-                    var profileStatsLog = await getProfileStatsByTourney(pPId, tPId);
-                    for (var j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
-                        var role = Object.keys(profileStatsLog['RoleStats'])[j];
-                        var statsObj = profileStatsLog['RoleStats'][role];
-                        profileData.push({
-                            'ProfileName': await getProfileName(profileHIdList[i]),
-                            'Role': role,
-                            'GamesPlayed': statsObj.GamesPlayed,
-                            'GamesWin': statsObj.GamesWin,
-                            'Kda': statsObj.Kda,
-                            'TotalKills': statsObj.TotalKills,
-                            'TotalDeaths': statsObj.TotalDeaths,
-                            'TotalAssists': statsObj.TotalAssists,
-                            'KillPct': statsObj.KillPct,
-                            'DeathPct': statsObj.DeathPct,
-                            'GoldPct': statsObj.GoldPct,
-                            'FirstBloodPct': statsObj.FirstBloodPct,
-                            'DamagePct': statsObj.DamagePct,
-                            'VisionScorePct': statsObj.VisionScorePct,
-                            'CreepScorePerMinute': statsObj.CreepScorePerMinute,
-                            'GoldPerMinute': statsObj.GoldPerMinute,
-                            'DamagePerMinute': statsObj.DamagePerMinute,
-                            'VisionScorePerMinute': statsObj.VisionScorePerMinute,
-                            'WardsPerMinute': statsObj.WardsPerMinute,
-                            'ControlWardsPerMinute': statsObj.ControlWardsPerMinute,
-                            'AverageCsAtEarly': statsObj.AverageCsAtEarly,
-                            'AverageGoldAtEarly': statsObj.AverageGoldAtEarly,
-                            'AverageXpAtEarly': statsObj.AverageXpAtEarly,
-                            'AverageCsDiffEarly': statsObj.AverageCsDiffEarly,
-                            'AverageGoldDiffEarly': statsObj.AverageGoldDiffEarly,
-                            'AverageXpDiffEarly': statsObj.AverageXpDiffEarly,
-                            'TotalDoubleKills': statsObj.TotalDoubleKills,
-                            'TotalTripleKills': statsObj.TotalTripleKills,
-                            'TotalQuadraKills': statsObj.TotalQuadraKills,
-                            'TotalPentaKills': statsObj.TotalPentaKills,
-                            'TotalSoloKills': statsObj.TotalSoloKills,
-                        });
+                let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['ProfileHIdList']))['ProfileHIdList'];
+                let profileData = [];
+                if (profileHIdList != null) {
+                    for (let i = 0; i < profileHIdList.length; ++i) {
+                        let pPId = getPIdString(profileHIdList[i], profileHashIds);
+                        let profileStatsLog = await getProfileStatsByTourney(pPId, tPId);
+                        for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
+                            let role = Object.keys(profileStatsLog['RoleStats'])[j];
+                            let statsObj = profileStatsLog['RoleStats'][role];
+                            profileData.push({
+                                'ProfileName': await getProfileName(profileHIdList[i]),
+                                'Role': role,
+                                'GamesPlayed': statsObj.GamesPlayed,
+                                'GamesWin': statsObj.GamesWin,
+                                'Kda': statsObj.Kda,
+                                'TotalKills': statsObj.TotalKills,
+                                'TotalDeaths': statsObj.TotalDeaths,
+                                'TotalAssists': statsObj.TotalAssists,
+                                'KillPct': statsObj.KillPct,
+                                'DeathPct': statsObj.DeathPct,
+                                'GoldPct': statsObj.GoldPct,
+                                'FirstBloodPct': statsObj.FirstBloodPct,
+                                'DamagePct': statsObj.DamagePct,
+                                'VisionScorePct': statsObj.VisionScorePct,
+                                'CreepScorePerMinute': statsObj.CreepScorePerMinute,
+                                'GoldPerMinute': statsObj.GoldPerMinute,
+                                'DamagePerMinute': statsObj.DamagePerMinute,
+                                'VisionScorePerMinute': statsObj.VisionScorePerMinute,
+                                'WardsPerMinute': statsObj.WardsPerMinute,
+                                'WardsClearedPerMinute': statsObj.WardsClearedPerMinute,
+                                'ControlWardsPerMinute': statsObj.ControlWardsPerMinute,
+                                'AverageCsAtEarly': statsObj.AverageCsAtEarly,
+                                'AverageGoldAtEarly': statsObj.AverageGoldAtEarly,
+                                'AverageXpAtEarly': statsObj.AverageXpAtEarly,
+                                'AverageCsDiffEarly': statsObj.AverageCsDiffEarly,
+                                'AverageGoldDiffEarly': statsObj.AverageGoldDiffEarly,
+                                'AverageXpDiffEarly': statsObj.AverageXpDiffEarly,
+                                'TotalDoubleKills': statsObj.TotalDoubleKills,
+                                'TotalTripleKills': statsObj.TotalTripleKills,
+                                'TotalQuadraKills': statsObj.TotalQuadraKills,
+                                'TotalPentaKills': statsObj.TotalPentaKills,
+                                'TotalSoloKills': statsObj.TotalSoloKills,
+                            });
+                        }
                     }
+                    cache.set(cacheKey, JSON.stringify(profileData, null, 2));
                 }
-                cache.set(cacheKey, JSON.stringify(profileData, null, 2));
                 resolve(profileData);
             }
         });
@@ -919,57 +929,60 @@ function getTourneyPlayerStats(tPId) {
 }
 app.get('/api/tournament/players/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Players.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyPlayerStats(tPId));
 });
 
 function getTourneyTeamStats(tPId) {
-    var cacheKey = TN_TEAM_PREFIX + tPId;
+    let cacheKey = TN_TEAM_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TeamHIdList']))['TeamHIdList'];
-                var teamData = [];
-                for (var i = 0; i < teamHIdList.length; ++i) {
-                    var teamId = getPIdString(teamHIdList[i], teamHashIds);
-                    var teamStatsLog = await getTeamStatsByTourney(teamId, tPId);
-                    teamData.push({
-                        'TeamName': await getTeamName(teamHIdList[i]),
-                        'GamesPlayed': teamStatsLog.GamesPlayed,
-                        'GamesWin': teamStatsLog.GamesWon,
-                        'AverageGameDuration': teamStatsLog.AverageGameDuration,
-                        'KillDeathRatio': teamStatsLog.KillDeathRatio,
-                        'AverageKills': teamStatsLog.AverageKills,
-                        'AverageDeaths': teamStatsLog.AverageDeaths,
-                        'AverageAssists': teamStatsLog.AverageAssists,
-                        'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
-                        'GoldPerMinute': teamStatsLog.GoldPerMinute,
-                        'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
-                        'WardsPerMinute': teamStatsLog.WardsPerMinute,
-                        'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
-                        'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
-                        'FirstBloodPct': teamStatsLog.FirstBloodPct,
-                        'FirstTowerPct': teamStatsLog.FirstTowerPct,
-                        'DragonPct': teamStatsLog.DragonPct,
-                        'HeraldPct': teamStatsLog.HeraldPct,
-                        'BaronPct': teamStatsLog.BaronPct,
-                        'WardsClearedPct': teamStatsLog.WardsClearedPct,
-                        'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
-                        'AverageTowersLost': teamStatsLog.AverageTowersLost,
-                        'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
-                        'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
-                        'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
-                        'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
-                        'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
-                        'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
-                        'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
-                        'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
-                        'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
-                    });
+                let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TeamHIdList']))['TeamHIdList'];
+                let teamData = [];
+                if (teamHIdList != null) {
+                    for (let i = 0; i < teamHIdList.length; ++i) {
+                        let teamId = getPIdString(teamHIdList[i], teamHashIds);
+                        let teamStatsLog = await getTeamStatsByTourney(teamId, tPId);
+                        teamData.push({
+                            'TeamName': await getTeamName(teamHIdList[i]),
+                            'GamesPlayed': teamStatsLog.GamesPlayed,
+                            'GamesWin': teamStatsLog.GamesWon,
+                            'AverageGameDuration': teamStatsLog.AverageGameDuration,
+                            'KillDeathRatio': teamStatsLog.KillDeathRatio,
+                            'AverageKills': teamStatsLog.AverageKills,
+                            'AverageDeaths': teamStatsLog.AverageDeaths,
+                            'AverageAssists': teamStatsLog.AverageAssists,
+                            'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
+                            'DamagePerMinute': teamStatsLog.DamagePerMinute,
+                            'GoldPerMinute': teamStatsLog.GoldPerMinute,
+                            'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
+                            'WardsPerMinute': teamStatsLog.WardsPerMinute,
+                            'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
+                            'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
+                            'FirstBloodPct': teamStatsLog.FirstBloodPct,
+                            'FirstTowerPct': teamStatsLog.FirstTowerPct,
+                            'DragonPct': teamStatsLog.DragonPct,
+                            'HeraldPct': teamStatsLog.HeraldPct,
+                            'BaronPct': teamStatsLog.BaronPct,
+                            'WardsClearedPct': teamStatsLog.WardsClearedPct,
+                            'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
+                            'AverageTowersLost': teamStatsLog.AverageTowersLost,
+                            'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
+                            'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
+                            'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
+                            'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
+                            'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
+                            'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
+                            'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
+                            'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
+                            'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
+                        });
+                    }
+                    cache.set(cacheKey, JSON.stringify(teamData, null, 2));
                 }
-                cache.set(cacheKey, JSON.stringify(teamData, null, 2));
                 resolve(teamData);
             }
         });
@@ -977,27 +990,36 @@ function getTourneyTeamStats(tPId) {
 }
 app.get('/api/tournament/teams/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Teams.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyTeamStats(tPId));
 });
 
 function getTourneyPickBans(tPId) {
-    var cacheKey = TN_PICKBANS_PREFIX + tPId;
+    let cacheKey = TN_PICKBANS_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['PickBans', 'TourneyStats']));
-                var pickBansJson = tourneyJson['PickBans'];
-                var numberGames = tourneyJson['TourneyStats']['NumberGames'];
-                for (var i = 0; i < Object.values(pickBansJson).length; ++i) {
-                    var champObject = Object.values(pickBansJson)[i];
-                    champObject['TimesPicked'] = champObject['Phase1Bans'] + champObject['Phase2Bans'];
-                    champObject['TimesBanned'] = champObject['BluePicks'] + champObject['RedPicks'];
-                    champObject['Presence'] = ((champObject['TimesPicked'] + champObject['TimesBanned']) / numberGames).toFixed(4);
+                let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['PickBans', 'TourneyStats']));
+                let pickBansJson = {}
+                if (Object.keys(tourneyJson).length > 0) {
+                    pbList = [];
+                    let numberGames = tourneyJson['TourneyStats']['NumberGames'];
+                    pickBansJson['NumberGames'] = numberGames;
+                    for (let i = 0; i < Object.keys(tourneyJson['PickBans']).length; ++i) {
+                        let champId = Object.keys(tourneyJson['PickBans'])[i];
+                        let champObject = tourneyJson['PickBans'][champId];
+                        champObject['Id'] = champId;
+                        champObject['TimesPicked'] = champObject['BluePicks'] + champObject['RedPicks'];
+                        champObject['TimesBanned'] = champObject['Phase1Bans'] + champObject['Phase2Bans'];
+                        champObject['Presence'] = ((champObject['TimesPicked'] + champObject['TimesBanned']) / numberGames).toFixed(4);
+                        champObject['NumLosses'] = champObject['TimesPicked'] - champObject['NumWins'];
+                        pbList.push(champObject);
+                    }
+                    pickBansJson['PickBanList'] = pbList;
+                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2));
                 }
-                cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2));
                 resolve(pickBansJson);
             }
         });
@@ -1005,24 +1027,26 @@ function getTourneyPickBans(tPId) {
 }
 app.get('/api/tournament/pickbans/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Pick Bans.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyPickBans(tPId));
 });
 
 function getTourneyGames(tPId) {
-    var cacheKey = TN_GAMES_PREFIX + tPId;
+    let cacheKey = TN_GAMES_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) reject(err);
-            if (data !== null) resolve(JSON.parse(data));
+            if (data != null) resolve(JSON.parse(data));
             else {
-                var gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['GameLog']))['GameLog'];
-                for (var i = 0; i < Object.values(gameLogJson).length; ++i) {
-                    var gameJson = Object.values(gameLogJson)[i];
-                    gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
-                    gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
+                let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['GameLog']))['GameLog'];
+                if (gameLogJson != null) {
+                    for (let i = 0; i < Object.values(gameLogJson).length; ++i) {
+                        let gameJson = Object.values(gameLogJson)[i];
+                        gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
+                        gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
+                    }
+                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2));
                 }
-                cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2));
                 resolve(gameLogJson);
             }
         });
@@ -1030,7 +1054,7 @@ function getTourneyGames(tPId) {
 }
 app.get('/api/tournament/games/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Game Log.");
-    var tPId = await getTournamentPId(req.params.tournamentShortName);
+    let tPId = await getTournamentPId(req.params.tournamentShortName);
     res.json(await getTourneyGames(tPId));
 });
 
@@ -1043,30 +1067,29 @@ app.get('/api/tournament/games/name/:tournamentShortName', async (req, res) => {
 */
 //#region Match
 
-// TODO: Caching
 app.get('/api/match/:matchId', (req, res) => {
     console.log("GET Request Match '" + req.params.matchId + "'.");
-    var cacheKey = MATCH_PREFIX + req.params.matchId;
+    let cacheKey = MATCH_PREFIX + req.params.matchId;
     cache.get(cacheKey, async (err, data) => {
         if (err) res.status(500).json(err);
-        if (data !== null) res.json(JSON.parse(data));
+        if (data != null) res.json(JSON.parse(data));
         else {
-            var matchJson = await dynamoDb.getItem('Matches', 'MatchPId', req.params.matchId);
+            let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', req.params.matchId);
             // Replace the HIds with the actual Names (will have to learn how to cache on the server side later)
-            var seasonPId = matchJson['SeasonPId'];
+            let seasonPId = matchJson['SeasonPId'];
             matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
             matchJson['SeasonName'] = await getSeasonName(seasonPId);
-            var tourneyPId = matchJson['TournamentPId'];
+            let tourneyPId = matchJson['TournamentPId'];
             matchJson['TournamentShortName'] = await getTournamentShortName(tourneyPId);
             matchJson['TournamentName'] = await getTournamentName(tourneyPId);
-            var gameDurationMinute = matchJson['GameDuration'] / 60;
-            for (var i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
-                var teamId = Object.keys(matchJson['Teams'])[i];
-                var teamJson = matchJson['Teams'][teamId];
+            let gameDurationMinute = matchJson['GameDuration'] / 60;
+            for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
+                let teamId = Object.keys(matchJson['Teams'])[i];
+                let teamJson = matchJson['Teams'][teamId];
                 teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
-                for (var j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                    var partId = Object.keys(teamJson['Players'])[j];
-                    var playerJson = teamJson['Players'][partId];
+                for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
+                    let partId = Object.keys(teamJson['Players'])[j];
+                    let playerJson = teamJson['Players'][partId];
                     playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']);
                     playerJson['Kda'] = (playerJson['Deaths'] > 0) ? (((playerJson['Kills'] + playerJson['Assists']) / playerJson['Deaths']).toFixed(2)).toString() : "Perfect";
                     playerJson['KillPct'] = ((playerJson['Kills'] + playerJson['Assists']) / teamJson['TeamKills']).toFixed(4);

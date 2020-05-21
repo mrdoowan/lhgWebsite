@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function TourneyGameRecords({ gameRecords }) {
+export default function LeaderboardGames({ gameRecords }) {
     const classes = useStyles();
     const { ShortestGame, LongestGame, MostKillGame } = gameRecords;
 

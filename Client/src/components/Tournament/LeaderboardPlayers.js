@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TourneyPlayerRecords({ playerRecords }) {
+export default function LeaderboardPlayers({ playerRecords }) {
     const classes = useStyles();
     const titles = {
         'PlayerMostDamage': "Highest Damage Dealt",
@@ -53,8 +53,6 @@ export default function TourneyPlayerRecords({ playerRecords }) {
         'PlayerMostGoldDiffEarly': "Highest Gold Diff @15",
         'PlayerMostXpDiffEarly': "Highest XP Diff @15",
         'PlayerMostVision': "Highest Vision",
-        'TeamTopBaronPowerPlay': "Highest Baron Power Play",
-        'TeamEarliestTower': "Earliest Tower", 
     }
 
     return (
@@ -93,10 +91,6 @@ function recordString(type, item) {
             return '+' + item.XpDiffEarly + ' XPD@15 - ' + item.XpAtEarly + ' XP';
         case 'PlayerMostVision':
             return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + fxn.timeString(item.GameDuration);
-        case 'TeamTopBaronPowerPlay':
-            return '';
-        case 'TeamEarliestTower':
-            return '';
         default:
             return '';
     }

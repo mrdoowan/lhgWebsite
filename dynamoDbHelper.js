@@ -18,7 +18,7 @@ const PUT_INTO_DYNAMO = false;       // 'true' when comfortable to push into Dyn
 /*  Put 'false' to not debug. */
 const DEBUG_DYNAMO = false;
 
-// DETAILED FUNCTION DESCRIPTION XD
+// Returns 'undefined' if key item does NOT EXIST
 function getItemInDynamoDB(tableName, partitionName, keyValue, attributeNames=[]) {
     var params = {
         TableName: tableName,
@@ -131,7 +131,7 @@ function updateItemInDynamoDB(tableName, partitionName, keyValue, updateExp, exp
 // Returns a List based on the Scan
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#scan-property
 // https://stackoverflow.com/questions/44589967/how-to-fetch-scan-all-items-from-aws-dynamodb-using-node-js
-// DETAILED FUNCTION DESCRIPTION XD
+// Returns empty array [] if key item does NOT EXIST
 function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null, attributeValue=null) {
     const params = {
         TableName: tableName

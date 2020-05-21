@@ -2,10 +2,12 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Components
+import Loading from '../../components/Loading';
 import TourneyHeader from '../../components/Tournament/TourneyHeader';
 import TourneyStats from '../../components/Tournament/TourneyStats';
-import TourneyGameRecords from '../../components/Tournament/TourneyGameRecords';
-import TourneyPlayerRecords from '../../components/Tournament/TourneyPlayerRecords';
+import LeaderboardGames from '../../components/Tournament/LeaderboardGames';
+import LeaderboardPlayers from '../../components/Tournament/LeaderboardPlayers';
+import LeaderboardTeams from '../../components/Tournament/LeaderboardTeams';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -27,22 +29,22 @@ export default function TourneyBaseSkeleton({info, stats, lb}) {
 
     let titleInfo = stats ? (
         <div className={classes.title}>Tournament Information</div>
-    ) : (<div></div>)
+    ) : (<div><Loading /></div>)
 
     let statsMarkup = stats ? (
         <div><TourneyStats stats={stats} /></div>
     ) : (<div></div>);
 
     let gameMarkup = lb ? (
-        <div><TourneyGameRecords gameRecords={lb.GameRecords} /></div>
-    ) : (<div></div>);
+        <div><LeaderboardGames gameRecords={lb.GameRecords} /></div>
+    ) : (<div><Loading /></div>);
 
     let titlePlayer = lb ? (
         <div className={classes.title}>Player Leaderboards</div>
     ) : (<div></div>);
 
     let playerLBMarkup = lb ? (
-        <div><TourneyPlayerRecords playerRecords={lb.PlayerSingleRecords} /></div>
+        <div><LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} /></div>
     ) : (<div></div>);
 
     let titleTeam = lb ? (
@@ -50,7 +52,7 @@ export default function TourneyBaseSkeleton({info, stats, lb}) {
     ) : (<div></div>);
 
     let teamLBMarkup = lb ? (
-        <div></div>
+        <div><LeaderboardTeams teamRecords={lb.TeamSingleRecords} /></div>
     ) : (<div></div>);
 
     return (

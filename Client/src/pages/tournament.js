@@ -4,6 +4,7 @@ import TourneyBaseSkeleton from '../util/Tournament/TourneyBaseSkeleton';
 import TourneyTeamsSkeleton from '../util/Tournament/TourneyTeamsSkeleton';
 import TourneyPlayersSkeleton from '../util/Tournament/TourneyPlayersSkeleton';
 import TourneyChampsSkeleton from '../util/Tournament/TourneyChampsSkeleton';
+import TourneyGamesSkeleton from '../util/Tournament/TourneyGamesSkeleton';
 // Note: Nothing MUI can be done here because of how React Hooks work.
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
@@ -176,7 +177,48 @@ export class tournamentPickBans extends Component {
 
         return (
             <div>
-                <TourneyChampsSkeleton info={info} pb={pickBans} type="Champs" />
+                <TourneyChampsSkeleton info={info} pb={pickBans} />
+            </div>
+        )
+    }
+}
+
+// {MAIN}/tournament/:tournamentShortName/games
+export class tournamentGames extends Component {
+    state = {
+        info: null,
+        games: null,
+    }
+
+    componentDidMount() {
+        const { match: { params } } = this.props;
+
+        fetch('/api/tournament/information/name/' + params.tournamentShortName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                info: data
+            });
+        })
+        .catch(err => console.error(err));
+
+        fetch('/api/tournament/games/name/' + params.tournamentShortName)
+        .then(res => res.json())
+        .then(data => {
+            this.setState({
+                games: data
+            });
+        })
+        .catch(err => console.error(err));
+    }
+
+    render() {
+        console.log(this.state);
+        const { info, games } = this.state;
+
+        return (
+            <div>
+                <TourneyGamesSkeleton info={info} games={games} />
             </div>
         )
     }

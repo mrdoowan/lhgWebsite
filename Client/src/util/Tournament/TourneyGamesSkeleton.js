@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 // Components
 import Loading from '../../components/Loading';
 import TourneyHeader from '../../components/Tournament/TourneyHeader';
-import TeamDataGrid from '../../components/Tournament/TeamDataGrid';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -12,21 +11,21 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TourneyTeamsSkeleton({info, teams}) {
+export default function TourneyGamesSkeleton({info, games}) {
     const classes = useStyles();
 
     let headerMarkup = info ? (
-        <div><TourneyHeader info={info} type='Teams' /></div>
+        <div><TourneyHeader info={info} type='Games' /></div>
     ) : (<div></div>);
 
-    let teamsTable = teams ? (
-        <div><TeamDataGrid teams={teams} /></div>
+    let gamesMarkup = games ? (
+        <div></div>
     ) : (<div><Loading /></div>)
 
     return (
         <div className={classes.root}>
             {headerMarkup}
-            {teamsTable}
+            {gamesMarkup}
         </div>
     )
 }

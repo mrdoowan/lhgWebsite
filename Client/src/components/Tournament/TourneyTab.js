@@ -42,6 +42,10 @@ export default function TourneyTab({ shortName, type }) {
             text: 'Champs',
             url: '/pickbans',
         },
+        {
+            text: 'Games',
+            url: '/games',
+        }
     ];
 
     return (

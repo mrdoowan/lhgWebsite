@@ -36,9 +36,18 @@ body {
   color: 'white';
 }
 a {
-  color: #0000FF;
+  color: inherit;
   text-decoration: none;
 }
 a:hover {
   text-decoration: underline;
+}
+#gridContainer {
+  height: 600px;
+}
+.myClass {
+  vertical-align: middle !important;
+}
+.dx-filterbuilder-overlay .dx-scrollable-container {
+  max-height: 550px;
 }

@@ -5,7 +5,7 @@ module.exports = {
 }
 
 function getTimeString(seconds) {
-    return Math.floor(seconds / 60) + ':' + (pad(seconds % 60));
+    return Math.floor(seconds / 60) + ':' + pad(Math.floor(seconds % 60));
 }
 
 function pad(num) {
