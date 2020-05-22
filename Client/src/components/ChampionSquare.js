@@ -34,7 +34,7 @@ export default function ChampionSquare({ id, version='', withName=false}) {
     let name = getChampName(id);
     version = (version === '') ? getCurrentVersion() : version;
     let url = 'http://ddragon.leagueoflegends.com/cdn/' + version + '/img/champion/' + urlId + '.png';
-    return (withName) ? 
+    return (!withName) ? 
         (<img src={url} alt={urlId} width="30" height="30" />) :
         (<div><table className="table">
             <tr>

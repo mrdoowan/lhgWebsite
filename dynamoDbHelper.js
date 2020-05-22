@@ -2,8 +2,10 @@
 module.exports = {
     getItem: getItemInDynamoDB,
     updateItem: updateItemInDynamoDB,
+    updateTest: updateTestInDynamoDB,
     doesItemExist: doesItemExistInDynamoDB,
     putItem: putItemInDynamoDB,
+    putTest: putTestInDynamoDB,
     scanTable: scanTableLoopInDynamoDB,
 }
 
@@ -95,10 +97,26 @@ function putItemInDynamoDB(tableName, items, keyValue) {
             });
         });
     }
-    else {
-        // debugging
-        if (DEBUG_DYNAMO) { console.log("DynamoDB Table", "\'" + tableName + "\'"); console.log(JSON.stringify(items)); }
-    }
+}
+
+function putTestInDynamoDB(items, keyValue) {
+    items['TestId'] = keyValue;
+    let params = {
+        TableName: 'Test',
+        Item: items
+    };
+    return new Promise(function(resolve, reject) {
+        dynamoDB.put(params, function(err, data) {
+            if (err) {
+                console.error("ERROR - putTestInDynamoDB Promise rejected.");
+                reject(err);
+            }
+            else {
+                console.log("Dynamo DB TEST: Put Item \'" + keyValue + "\'");
+                resolve(data);
+            }
+        });
+    });
 }
 
 // DETAILED FUNCTION DESCRIPTION XD
@@ -126,6 +144,30 @@ function updateItemInDynamoDB(tableName, partitionName, keyValue, updateExp, exp
             });
         });
     }
+}
+
+function updateTestInDynamoDB(keyValue, keyName, valueObject) {
+    let params = {
+        TableName: 'Test',
+        Key: {
+            'TestId': keyValue
+        },
+        UpdateExpression: 'SET #key = :val',
+        ExpressionAttributeNames: { '#key': keyName },
+        ExpressionAttributeValues: { ':val': valueObject },
+    };
+    return new Promise(function(resolve, reject) {
+        dynamoDB.update(params, function(err, data) {
+            if (err) {
+                console.error("ERROR - updateTestInDynamoDB Promise rejected.")
+                reject(err); 
+            }
+            else {
+                console.log("Dynamo DB TEST: Update Item \'" + keyValue + "\'");
+                resolve(data);
+            }
+        });
+    });
 }
 
 // Returns a List based on the Scan

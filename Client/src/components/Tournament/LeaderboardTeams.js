@@ -23,13 +23,13 @@ const useStyles = makeStyles((theme) => ({
         fontSize: 'large',
     },
     columnName: {
-        width: "20%",
+        width: "25%",
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
     },
     columnData: {
-        width: "80%",
+        width: "75%",
         padding: '5px 20px 5px 20px',
         textAlign: 'left',
         wordWrap: 'break-word',
@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
     row: {
         padding: theme.spacing(1),
     },
+    link: {
+        color: 'blue',
+    }
 }));
 
 export default function LeaderboardTeams({ teamRecords }) {
@@ -56,8 +59,8 @@ export default function LeaderboardTeams({ teamRecords }) {
                         <table>
                             {teamRecords[recordType].map((item) => (
                             <tr className={classes.row}>
-                                <td className={classes.columnName}><Link to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
-                                <td className={classes.columnData}>{recordString(recordType, item)} (<Link to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item.TeamName, item.BlueTeamName, item.RedTeamName)}</Link>)</td>
+                                <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
+                                <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item.TeamName, item.BlueTeamName, item.RedTeamName)}</Link>)</td>
                             </tr>
                             ))}
                         </table>

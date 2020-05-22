@@ -29,19 +29,24 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'right',
     },
     columnName: {
-        width: "15%",
+        width: "20%",
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
+        paddingBottom: '10px',
     },
     columnData: {
-        width: "80%",
+        width: "75%",
         padding: '5px 20px 5px 20px',
         textAlign: 'left',
         wordWrap: 'break-word',
+        paddingBottom: '10px',
     },
     row: {
         padding: theme.spacing(1),
+    },
+    link: {
+        color: 'blue',
     },
 }));
 
@@ -65,9 +70,9 @@ export default function LeaderboardPlayers({ playerRecords }) {
                         <table>
                             {playerRecords[recordType].map((item) => (
                             <tr className={classes.row}>
-                                <td className={classes.columnImage}><ChampionSquare id={item.ChampId} /></td>
-                                <td className={classes.columnName}><Link to={`/profile/${item.ProfileName}`}>{item.ProfileName}</Link></td>
-                                <td className={classes.columnData}>{recordString(recordType, item)} (<Link to={`/match/${item.MatchPId}`}>{item.BlueTeamName} vs. {item.RedTeamName}</Link>)</td>
+                                <td className={classes.columnImage}><ChampionSquare id={item.ChampId}  /></td>
+                                <td className={classes.columnName}><Link className={classes.link} to={`/profile/${item.ProfileName}`}>{item.ProfileName}</Link></td>
+                                <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>{item.BlueTeamName} vs. {item.RedTeamName}</Link>)</td>
                             </tr>
                             ))}
                         </table>
