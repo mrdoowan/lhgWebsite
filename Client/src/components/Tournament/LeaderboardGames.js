@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Util
-const fxn = require('../../util/Helper');
+const lhgString = require('../../util/StringHelper');
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -33,19 +33,19 @@ export default function LeaderboardGames({ gameRecords }) {
             <Grid item xs={4}>
                 <Paper className={classes.paper}>
                     <div className={classes.title}>Shortest Game</div>
-                    <p><Link to={`/match/${ShortestGame.MatchPId}`}>{ShortestGame.BlueTeamName} vs. {ShortestGame.RedTeamName}</Link> in {fxn.timeString(ShortestGame.GameDuration)}</p>
+                    <p><Link to={`/match/${ShortestGame.MatchPId}`}>{ShortestGame.BlueTeamName} vs. {ShortestGame.RedTeamName}</Link> in {lhgString.timeString(ShortestGame.GameDuration)}</p>
                 </Paper>
             </Grid>
             <Grid item xs={4}>
                 <Paper className={classes.paper}>
                     <div className={classes.title}>Longest Game</div>
-                    <p><Link to={`/match/${LongestGame.MatchPId}`}>{LongestGame.BlueTeamName} vs. {LongestGame.RedTeamName}</Link> in {fxn.timeString(LongestGame.GameDuration)}</p>
+                    <p><Link to={`/match/${LongestGame.MatchPId}`}>{LongestGame.BlueTeamName} vs. {LongestGame.RedTeamName}</Link> in {lhgString.timeString(LongestGame.GameDuration)}</p>
                 </Paper>
             </Grid>
             <Grid item xs={4}>
                 <Paper className={classes.paper}>
                     <div className={classes.title}>Bloodiest Game</div>
-                    <p><Link to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.BlueTeamName} vs. {MostKillGame.RedTeamName}</Link> {MostKillGame.Kills} Kills in {fxn.timeString(MostKillGame.GameDuration)}</p>
+                    <p><Link to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.BlueTeamName} vs. {MostKillGame.RedTeamName}</Link> {MostKillGame.Kills} Kills in {lhgString.timeString(MostKillGame.GameDuration)}</p>
                 </Paper>
             </Grid>
         </Grid>

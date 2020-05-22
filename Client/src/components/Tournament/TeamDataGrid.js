@@ -14,7 +14,7 @@ import DataGrid, {
     Paging
 } from 'devextreme-react/data-grid';
 // Util
-const fxn = require('../../util/Helper');
+const lhgString = require('../../util/StringHelper');
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -108,7 +108,7 @@ function fixedPercent() {
 
 function formatTime() {
     return {
-        formatter: fxn.timeString,
+        formatter: lhgString.timeString,
     }
 }
 

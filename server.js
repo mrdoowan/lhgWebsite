@@ -1040,8 +1040,10 @@ function getTourneyGames(tPId) {
             else {
                 let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['GameLog']))['GameLog'];
                 if (gameLogJson != null) {
-                    for (let i = 0; i < Object.values(gameLogJson).length; ++i) {
-                        let gameJson = Object.values(gameLogJson)[i];
+                    for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
+                        let matchId = Object.keys(gameLogJson)[i];
+                        let gameJson = gameLogJson[matchId];
+                        gameJson['MatchPId'] = matchId;
                         gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
                         gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
                     }

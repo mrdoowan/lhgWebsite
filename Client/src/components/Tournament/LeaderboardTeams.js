@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Util
-const fxn = require('../../util/Helper');
+const lhgString = require('../../util/StringHelper');
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -73,9 +73,9 @@ function recordString(type, item) {
     let tsSeconds = Math.floor(item.Timestamp / 1000);
     switch (type) {
         case 'TeamTopBaronPowerPlay':
-            return '+' + item.BaronPowerPlay + ' Power Play - Taken at ' + fxn.timeString(tsSeconds);
+            return '+' + item.BaronPowerPlay + ' Power Play - Taken at ' + lhgString.timeString(tsSeconds);
         case 'TeamEarliestTower':
-            return item.Lane + ' ' + item.TowerType + ' Tower - Taken at ' + fxn.timeString(tsSeconds);
+            return item.Lane + ' ' + item.TowerType + ' Tower - Taken at ' + lhgString.timeString(tsSeconds);
         default:
             return '';
     }
