@@ -4,17 +4,17 @@ import './App.css';
 // Components
 import NavBar from "./components/NavBar";
 // Pages
-import home from "./pages/home";
-import login from "./pages/login";
-import about from "./pages/about";
-import { leagues } from "./pages/league";
-import schedule from "./pages/schedule";
-import error from "./pages/error";
-import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/season';
-import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames } from './pages/tournament';
-import { teamBase, teamGames, teamStats } from './pages/team';
-import { profileBase, profileGames, profileStats } from './pages/profile';
-import { matchBase } from './pages/match';
+import home from "./pages/Home";
+import login from "./pages/Login";
+import about from "./pages/About";
+import { leagues } from "./pages/League";
+import schedule from "./pages/Schedule";
+import { Error404 } from "./pages/Error";
+import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/Season';
+import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames } from './pages/Tournament';
+import { teamBase, teamGames, teamStats } from './pages/Team';
+import { profileBase, profileGames, profileStats } from './pages/Profile';
+import { matchBase } from './pages/Match';
 // MUI
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
@@ -65,7 +65,7 @@ class App extends Component {
                         <Route path="/match/:matchPId" component={matchBase} exact/>
 
                         { /* ERROR 404: Path does not exist */ }
-                        <Route component={error} />
+                        <Route component={Error404} />
                     </Switch>
                     <div className="footer">"LHG Competitive Leagues is not affiliated with or sponsored by Riot Games, Inc. or LoLEsports."</div>
                 </div>

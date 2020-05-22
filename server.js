@@ -83,6 +83,94 @@ function filterName(name) {
 
 //#region DynamoDb Helper Functions (w/ Caching)
 
+//#region Return 404s based on name / shortname
+
+// Get ProfilePId from ProfileName
+function getProfilePId(name) {
+    let simpleName = filterName(name);
+    let cacheKey = PROFILE_PID_PREFIX + simpleName;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console.error(err); reject(500); }
+            if (data != null) { resolve(data); }
+            else {
+                dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
+                .then((obj) => {
+                    if (obj == null) { reject(400); }
+                    else {
+                        let pPId = getPIdString(obj['ProfileHId'], profileHashIds);
+                        cache.set(cacheKey, pPId);
+                        resolve(pPId);
+                    }
+                })
+                .catch(err => { console.error(err); reject(500) });
+            }
+        });
+    });
+}
+
+// Get TeamPId from TeamName
+function getTeamPId(name) {
+    let simpleName = filterName(name);
+    let cacheKey = TEAM_PID_PREFIX + simpleName;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) reject(err);
+            if (data != null) resolve(data);
+            else {
+                dynamoDb.getItem('TeamNameMap', 'TeamName', simpleName)
+                .then((obj) => {
+                    let tPId = getPIdString(obj['TeamHId'], teamHashIds);
+                    cache.set(cacheKey, tPId);
+                    resolve(tPId);
+                });
+            }
+        });
+    });
+}
+
+// Get SeasonPId from DynamoDb
+function getSeasonId(shortName) {
+    let simpleName = filterName(shortName);
+    let cacheKey = SEASON_ID_PREFIX + simpleName;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) reject(err);
+            if (data != null) resolve(parseInt(data)); // NOTE: Needs to be number
+            else {
+                dynamoDb.scanTable('Season', ['SeasonPId'], 'SeasonShortName', simpleName)
+                .then((obj) => {
+                    let Id = obj[0]['SeasonPId'];
+                    cache.set(cacheKey, Id);
+                    resolve(Id);
+                });
+            }
+        });
+    });
+}
+
+// Get TournamentPId from DynamoDb
+function getTournamentPId(shortName) {
+    let simpleName = filterName(shortName);
+    let cacheKey = TN_ID_PREFIX + simpleName;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) reject(err);
+            if (data != null) resolve(parseInt(data)); // NOTE: Needs to be number
+            else {
+                dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
+                .then((obj) => {
+                    let Id = obj[0]['TournamentPId'];
+                    cache.set(cacheKey, Id);
+                    resolve(Id);
+                });
+            }
+        });
+    });
+}
+
+//#endregion
+
 // Get ProfileName from DynamoDb
 function getProfileName(pHId) {
     let pPId = getPIdString(pHId, profileHashIds);
@@ -96,26 +184,6 @@ function getProfileName(pHId) {
                 .then((obj) => {
                     cache.set(cacheKey, obj['ProfileName']);
                     resolve(obj['ProfileName']);
-                });
-            }
-        });
-    });
-}
-
-// Get ProfilePId from ProfileName
-function getProfilePId(name) {
-    let simpleName = filterName(name);
-    let cacheKey = PROFILE_PID_PREFIX + simpleName;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, (err, data) => {
-            if (err) reject(err);
-            if (data != null) resolve(data);
-            else {
-                dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
-                .then((obj) => {
-                    let pPId = getPIdString(obj['ProfileHId'], profileHashIds);
-                    cache.set(cacheKey, pPId);
-                    resolve(pPId);
                 });
             }
         });
@@ -136,26 +204,6 @@ function getTeamName(tHId) {
                     let name = obj['TeamName'];
                     cache.set(cacheKey, name);
                     resolve(name);
-                });
-            }
-        });
-    });
-}
-
-// Get TeamPId from TeamName
-function getTeamPId(name) {
-    let simpleName = filterName(name);
-    let cacheKey = TEAM_PID_PREFIX + simpleName;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, (err, data) => {
-            if (err) reject(err);
-            if (data != null) resolve(data);
-            else {
-                dynamoDb.getItem('TeamNameMap', 'TeamName', simpleName)
-                .then((obj) => {
-                    let tPId = getPIdString(obj['TeamHId'], teamHashIds);
-                    cache.set(cacheKey, tPId);
-                    resolve(tPId);
                 });
             }
         });
@@ -256,46 +304,6 @@ function getSeasonTime(sPId) {
     });
 }
 
-// Get SeasonPId from DynamoDb
-function getSeasonId(shortName) {
-    let simpleName = filterName(shortName);
-    let cacheKey = SEASON_ID_PREFIX + simpleName;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, (err, data) => {
-            if (err) reject(err);
-            if (data != null) resolve(parseInt(data)); // NOTE: Needs to be number
-            else {
-                dynamoDb.scanTable('Season', ['SeasonPId'], 'SeasonShortName', simpleName)
-                .then((obj) => {
-                    let Id = obj[0]['SeasonPId'];
-                    cache.set(cacheKey, Id);
-                    resolve(Id);
-                });
-            }
-        });
-    });
-}
-
-// Get TournamentPId from DynamoDb
-function getTournamentPId(shortName) {
-    let simpleName = filterName(shortName);
-    let cacheKey = TN_ID_PREFIX + simpleName;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, (err, data) => {
-            if (err) reject(err);
-            if (data != null) resolve(parseInt(data)); // NOTE: Needs to be number
-            else {
-                dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
-                .then((obj) => {
-                    let Id = obj[0]['TournamentPId'];
-                    cache.set(cacheKey, Id);
-                    resolve(Id);
-                });
-            }
-        });
-    });
-}
-
 //#endregion
 
 /*  
@@ -308,8 +316,8 @@ function getTournamentPId(shortName) {
 app.get('/api/leagues', (req, res) => {
     console.log("GET Request Leagues.");
     cache.get(LEAGUE_KEY, async (err, data) => {
-        if (err) res.status(500).json(err);
-        if (data != null) res.json(JSON.parse(data));
+        if (err) res.status(500).send("GET League Error.");
+        if (data != null) { res.json(JSON.parse(data)); }
         else {
             let seasonList = await dynamoDb.scanTable('Season', ['Information']);
             let leagueObject = {};
@@ -505,8 +513,8 @@ function getProfileInfo(pPId) {
     let cacheKey = PROFILE_INFO_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) reject(err);
-            if (data != null) resolve(JSON.parse(data));
+            if (err) { console.error(err); reject(500); }
+            if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['Information']))['Information'];
                 if ('ActiveSeasonPId' in profileInfoJson) {
@@ -522,10 +530,13 @@ function getProfileInfo(pPId) {
         });
     });
 }
-app.get('/api/profile/information/name/:profileName', async (req, res) => {
+app.get('/api/profile/information/name/:profileName', (req, res) => {
     console.log("GET Request Profile '" + req.params.profileName + "' Information.");
-    let pPId = await getProfilePId(req.params.profileName);
-    res.json(await getProfileInfo(pPId));
+    getProfilePId(req.params.profileName).then((pPId) => {
+        getProfileInfo(pPId).then((data) => {
+            res.json(data);
+        }).catch(errCode => res.status(errCode).send("GET Profile Information Error."));
+    }).catch(errCode => res.status(errCode).send("GET Profile ID Error."));
 });
 
 function getProfileGamesBySeason(pPId, sPId) {

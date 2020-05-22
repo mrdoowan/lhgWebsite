@@ -2,7 +2,6 @@
 module.exports = {
     getItem: getItemInDynamoDB,
     updateItem: updateItemInDynamoDB,
-    doesItemExist: doesItemExistInDynamoDB,
     putItem: putItemInDynamoDB,
     scanTable: scanTableLoopInDynamoDB,
 }
@@ -43,33 +42,6 @@ function getItemInDynamoDB(tableName, partitionName, keyValue, attributeNames=[]
         }
         catch (error) {
             console.error("ERROR - getItemInDynamoDB \'" + tableName + "\' Promise rejected with Item \'" + keyValue + "\'.")
-            reject(error);
-        }
-    });
-}
-
-// DETAILED FUNCTION DESCRIPTION XD
-function doesItemExistInDynamoDB(tableName, partitionName, keyValue) {
-    var params = {
-        TableName: tableName,
-        Key: {
-            [partitionName]: keyValue
-        },
-        AttributesToGet: [partitionName],
-    };
-    return new Promise(function(resolve, reject) {
-        try {
-            dynamoDB.get(params, function(err, data) {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve('Item' in data);
-                }
-            });
-        }
-        catch (error) {
-            console.error("ERROR - doesItemExistInDynamoDB \'" + tableName + "\' Promise rejected.");
             reject(error);
         }
     });

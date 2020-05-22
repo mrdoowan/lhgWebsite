@@ -5,9 +5,8 @@ import TourneyTeamsSkeleton from '../util/Tournament/TourneyTeamsSkeleton';
 import TourneyPlayersSkeleton from '../util/Tournament/TourneyPlayersSkeleton';
 import TourneyChampsSkeleton from '../util/Tournament/TourneyChampsSkeleton';
 import TourneyGamesSkeleton from '../util/Tournament/TourneyGamesSkeleton';
-// Note: Nothing MUI can be done here because of how React Hooks work.
 
-// If shortname is not in the database, redirect to 404 - FUNCTION HERE
+// TODO: Error Handling
 
 // {MAIN}/tournament/:tournamentShortName
 export class tournamentBase extends Component {

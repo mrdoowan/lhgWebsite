@@ -27,43 +27,37 @@ export default function TourneyBaseSkeleton({info, stats, lb}) {
         <div><TourneyHeader info={info} type='Tournament' /></div>
     ) : (<div></div>);
 
-    let titleInfo = stats ? (
-        <div className={classes.title}>Tournament Information</div>
-    ) : (<div><Loading /></div>)
-
     let statsMarkup = stats ? (
-        <div><TourneyStats stats={stats} /></div>
+        <div>
+            <p className={classes.title}>Tournament Information</p>
+            <TourneyStats stats={stats} />
+        </div>
     ) : (<div></div>);
 
     let gameMarkup = lb ? (
         <div><LeaderboardGames gameRecords={lb.GameRecords} /></div>
     ) : (<div><Loading /></div>);
 
-    let titlePlayer = lb ? (
-        <div className={classes.title}>Player Leaderboards</div>
-    ) : (<div></div>);
-
     let playerLBMarkup = lb ? (
-        <div><LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} /></div>
-    ) : (<div></div>);
-
-    let titleTeam = lb ? (
-        <div className={classes.title}>Team Leaderboards</div>
+        <div>
+            <p className={classes.title}>Player Leaderboards</p>
+            <LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} />
+        </div>
     ) : (<div></div>);
 
     let teamLBMarkup = lb ? (
-        <div><LeaderboardTeams teamRecords={lb.TeamSingleRecords} /></div>
+        <div>
+            <p className={classes.title}>Team Leaderboards</p>
+            <LeaderboardTeams teamRecords={lb.TeamSingleRecords} />
+        </div>
     ) : (<div></div>);
 
     return (
         <div className={classes.root}>
             {headerMarkup}
-            {titleInfo}
             {statsMarkup}
             {gameMarkup}
-            {titlePlayer}
             {playerLBMarkup}
-            {titleTeam}
             {teamLBMarkup}
         </div>
     )
