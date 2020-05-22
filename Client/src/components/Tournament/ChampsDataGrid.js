@@ -39,7 +39,8 @@ export default function ChampsDataGrid({ pickbans }) {
                 <div className={classes.title}>{pickbans.NumberGames} Games Played</div>
                 <DataGrid
                     id="gridContainer"
-                    columnWidth={100}
+                    width="inherit"
+                    columnAutoWidth={true}
                     dataSource={pickbans.PickBanList}
                     hoverStateEnabled={true}
                     showBorders={true}
@@ -52,9 +53,9 @@ export default function ChampsDataGrid({ pickbans }) {
                     <Paging enabled={false} />
 
                     <Column dataField="Id" caption="Champ" width={150} fixed={true} cellRender={champCell} />
+                    <Column dataField="Presence" alignment="center" dataType="number" caption="Presence" format={fixedPercent()} cssClass="myClass" />
                     <Column dataField="TimesPicked" alignment="center" dataType="number" caption="Picks" cssClass="myClass" />
                     <Column dataField="TimesBanned" alignment="center" dataType="number" caption="Bans" cssClass="myClass" />
-                    <Column dataField="Presence" alignment="center" dataType="number" caption="Presence" format={fixedPercent()} cssClass="myClass" />
                     <Column dataField="NumWins" alignment="center" dataType="number" caption="Wins" cssClass="myClass" />
                     <Column dataField="NumLosses" alignment="center" dataType="number" caption="Losses" cssClass="myClass" />
                     <Column dataField="BluePicks" alignment="center" dataType="number" caption="Blue Picks" cssClass="myClass" />
@@ -87,5 +88,5 @@ function fixedPercent() {
 }
 
 function champCell(data) {
-    return (<ChampionSquare id={data.value} />);
+    return (<ChampionSquare id={data.value} withName={true} />);
 }

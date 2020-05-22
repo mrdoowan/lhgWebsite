@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 // Components
 import Loading from '../../components/Loading';
 import TourneyHeader from '../../components/Tournament/TourneyHeader';
+import TourneyGames from '../../components/Tournament/TourneyGames';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -19,7 +20,7 @@ export default function TourneyGamesSkeleton({info, games}) {
     ) : (<div></div>);
 
     let gamesMarkup = games ? (
-        <div></div>
+        <div><TourneyGames games={games} /></div>
     ) : (<div><Loading /></div>)
 
     return (

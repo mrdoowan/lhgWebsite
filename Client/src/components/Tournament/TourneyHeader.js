@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
         'font-weight': 'bold',
     },
+    link: {
+        color: 'blue',
+    },
 }));
 
 export default function TourneyHeader({ info, type }) {
@@ -25,7 +28,7 @@ export default function TourneyHeader({ info, type }) {
 
     let titleMarkUp = info ? (
         <div className="body">
-            <p><Link to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {tourneyTypeString(info.TournamentType)}</p>
+            <p><Link className={classes.link} to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {tourneyTypeString(info.TournamentType)}</p>
             <p>Tournament Stats</p>
         </div>
     ) : (<div></div>);

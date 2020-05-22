@@ -1,5 +1,8 @@
 # Client
 
+## 0.0.6
+* Tournament pages completed; utilizing dev-extreme graphs
+
 ## 0.0.5
 * Used material-ui, prototype league.js + season.js finished, started tournament.js
 
@@ -16,6 +19,9 @@
 * First Github commit for collaboration purposes.
 
 # Server
+
+## 0.0.4
+* Redis cache implemented
 
 ## 0.0.3
 * Finished (most) server.js API GETs. Laid groundwork for cache.

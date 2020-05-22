@@ -17,6 +17,7 @@ export default function PieGraph({dataSource, palette, title}) {
     const graphTitle = {
         text: title,
         font: {
+            color: 'black',
             size: 20,
         },
     }

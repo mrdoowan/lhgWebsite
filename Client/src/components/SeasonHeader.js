@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
+    link: {
+        color: 'blue',
+    },
 }));
 
 export default function SeasonHeader({ info }) {
@@ -24,8 +27,8 @@ export default function SeasonHeader({ info }) {
 
     let seasonBaseMarkup = info ? (
         <div className="body">
-            <p><Link to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Tournament Stats</Link></p>
-            <p><Link to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Playoffs Tournament Stats</Link></p>
+            <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Tournament Stats</Link></p>
+            <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Playoffs Tournament Stats</Link></p>
         </div>
     ) : ( <div></div> );
 

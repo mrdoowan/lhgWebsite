@@ -16,5 +16,5 @@ function pad(num) {
 }
 
 function getDateString(unix, timeZone='EST') {
-    return moment.unix(unix).tz(timeZone).format('YYYY/MM/DD');
+    return moment.unix(unix).tz(timeZone).format('MM/DD/YYYY - hh:mmA');
 }
