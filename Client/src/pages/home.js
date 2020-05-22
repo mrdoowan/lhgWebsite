@@ -1,10 +1,9 @@
 import React from "react";
-import './Basic.css';
 
 const home = () => {
     return (
         <div className="body">
-            <p>LHG Home Page! Yay!</p>
+            <p>Home Page! Yay!</p>
         </div>
     );
 };

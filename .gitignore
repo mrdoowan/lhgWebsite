@@ -1,3 +1,13 @@
+# Custom dependencies
+Client/node_modules/
+external/
+intermediates/
+Client/src/test
+cache/
+
+# Redis
+*.rdb
+
 # Logs
 logs
 *.log
@@ -40,9 +50,6 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-Client/node_modules/
-external/
-intermediates/
 .pnp/
 .pnp.js
 

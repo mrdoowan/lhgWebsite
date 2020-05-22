@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+// Components
 import LeagueTable from '../components/LeagueTable';
 
 // {MAIN}/leagues
@@ -19,10 +20,12 @@ export class leagues extends Component {
     }
 
     render() {
+        const { leagues } = this.state;
+
         return (
             <div>
-                {this.state.leagues ? (
-                    <LeagueTable seasonList={this.state.leagues} />
+                {leagues ? (
+                    <LeagueTable seasonList={leagues} />
                 ) : (
                     <div></div>
                 )}

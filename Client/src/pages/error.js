@@ -1,5 +1,4 @@
 import React from "react";
-import './Basic.css';
 
 const error = () => {
     return (

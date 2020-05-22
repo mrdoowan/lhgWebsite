@@ -23,6 +23,9 @@ const StyledTableCell = withStyles((theme) => ({
 const StyledTableRow = withStyles((theme) => ({
     root: {
         '&:nth-of-type(odd)': {
+            backgroundColor: theme.palette.action.disabledBackground,
+        },
+        '&:nth-of-type(even)': {
             backgroundColor: theme.palette.action.hover,
         },
     },
@@ -53,9 +56,9 @@ export default function LeagueTable(props) {
             <TableHead>
                 <TableRow>
                     <StyledTableCell align="center">Season Time</StyledTableCell>
-                    <StyledTableCell align="center">Champions</StyledTableCell>
-                    <StyledTableCell align="center">Premier</StyledTableCell>
-                    <StyledTableCell align="center">Academy</StyledTableCell>
+                    <StyledTableCell align="center"></StyledTableCell>
+                    <StyledTableCell align="center"></StyledTableCell>
+                    <StyledTableCell align="center"></StyledTableCell>
                 </TableRow>
             </TableHead>
             <TableBody>

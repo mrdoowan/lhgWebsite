@@ -2,8 +2,10 @@
 module.exports = {
     getItem: getItemInDynamoDB,
     updateItem: updateItemInDynamoDB,
+    updateTest: updateTestInDynamoDB,
     doesItemExist: doesItemExistInDynamoDB,
     putItem: putItemInDynamoDB,
+    putTest: putTestInDynamoDB,
     scanTable: scanTableLoopInDynamoDB,
 }
 
@@ -18,7 +20,7 @@ const PUT_INTO_DYNAMO = false;       // 'true' when comfortable to push into Dyn
 /*  Put 'false' to not debug. */
 const DEBUG_DYNAMO = false;
 
-// DETAILED FUNCTION DESCRIPTION XD
+// Returns 'undefined' if key item does NOT EXIST
 function getItemInDynamoDB(tableName, partitionName, keyValue, attributeNames=[]) {
     var params = {
         TableName: tableName,
@@ -95,10 +97,26 @@ function putItemInDynamoDB(tableName, items, keyValue) {
             });
         });
     }
-    else {
-        // debugging
-        if (DEBUG_DYNAMO) { console.log("DynamoDB Table", "\'" + tableName + "\'"); console.log(JSON.stringify(items)); }
-    }
+}
+
+function putTestInDynamoDB(items, keyValue) {
+    items['TestId'] = keyValue;
+    let params = {
+        TableName: 'Test',
+        Item: items
+    };
+    return new Promise(function(resolve, reject) {
+        dynamoDB.put(params, function(err, data) {
+            if (err) {
+                console.error("ERROR - putTestInDynamoDB Promise rejected.");
+                reject(err);
+            }
+            else {
+                console.log("Dynamo DB TEST: Put Item \'" + keyValue + "\'");
+                resolve(data);
+            }
+        });
+    });
 }
 
 // DETAILED FUNCTION DESCRIPTION XD
@@ -128,10 +146,34 @@ function updateItemInDynamoDB(tableName, partitionName, keyValue, updateExp, exp
     }
 }
 
+function updateTestInDynamoDB(keyValue, keyName, valueObject) {
+    let params = {
+        TableName: 'Test',
+        Key: {
+            'TestId': keyValue
+        },
+        UpdateExpression: 'SET #key = :val',
+        ExpressionAttributeNames: { '#key': keyName },
+        ExpressionAttributeValues: { ':val': valueObject },
+    };
+    return new Promise(function(resolve, reject) {
+        dynamoDB.update(params, function(err, data) {
+            if (err) {
+                console.error("ERROR - updateTestInDynamoDB Promise rejected.")
+                reject(err); 
+            }
+            else {
+                console.log("Dynamo DB TEST: Update Item \'" + keyValue + "\'");
+                resolve(data);
+            }
+        });
+    });
+}
+
 // Returns a List based on the Scan
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#scan-property
 // https://stackoverflow.com/questions/44589967/how-to-fetch-scan-all-items-from-aws-dynamodb-using-node-js
-// DETAILED FUNCTION DESCRIPTION XD
+// Returns empty array [] if key item does NOT EXIST
 function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null, attributeValue=null) {
     const params = {
         TableName: tableName

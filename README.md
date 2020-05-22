@@ -4,19 +4,23 @@ As of 4/8/2020, the following are installed to make this functional:
 * npm: 6.14.4
 * nodejs: v12.16.1
 
+The following need to be installed into Linux (sudo apt update):
+* awscli
+* redis-server
+
 The following npm modules are (or should be) used in the server:
 * aws-sdk
 * express
 * concurrently
 * nodemon
+* redis
 
 The following npm modules are (or should be) used in the client:
 * react
 * react-scripts
 * react-router-dom
-* kayn
 * hashids
-(Note: I could be missing a few...)
+* devextreme
 
 When you pull this repo, you will not have the npm modules. Those need to be installed yourself with "npm install" with the "package.json".
 - I use Windows 10 WSL, Ubuntu, and VS Code for my development environment. [Video](https://www.youtube.com/watch?v=A0eqZujVfYU)
