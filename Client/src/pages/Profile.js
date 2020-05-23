@@ -6,19 +6,23 @@ import React, { Component } from 'react';
 export class profileBase extends Component {
     state = {
         info: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
 
         fetch('/api/profile/information/name/' + params.profileName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                info: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    info: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -38,28 +42,35 @@ export class profileGames extends Component {
     state = {
         info: null,
         games: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
 
         fetch('/api/profile/information/name/' + params.profileName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                info: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    info: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/profile/games/name/' + params.profileName + '/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                games: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    games: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -79,28 +90,35 @@ export class profileStats extends Component {
     state = {
         info: null,
         stats: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
 
         fetch('/api/profile/information/name/' + params.profileName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                info: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    info: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/profile/stats/name/' + params.profileName + '/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                stats: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    stats: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {

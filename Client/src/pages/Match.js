@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-
-// If riotMatchID is not in the database, redirect to 404 - FUNCTION HERE
-
-//  - ADDITIONAL PLAYER RENDER HERE
+// Components
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
 
 // {MAIN}/match/:matchPId
 export class matchBase extends Component {
@@ -22,9 +21,8 @@ export class matchBase extends Component {
                 this.setState({ 
                     match: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -36,7 +34,7 @@ export class matchBase extends Component {
         );
 
         return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Tournament" />) :
+            (<Error code={statusCode} page="Match" />) :
             (<Markup data={match} component={matchIdMarkup} code={statusCode} />)
         );
     }

@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+// Components
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
 // Util
 import TourneyBaseSkeleton from '../util/Tournament/TourneyBaseSkeleton';
 import TourneyTeamsSkeleton from '../util/Tournament/TourneyTeamsSkeleton';
@@ -27,9 +30,8 @@ export class tournamentBase extends Component {
                 this.setState({
                     info: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/tournament/stats/name/' + params.tournamentShortName)
         .then(res => {
@@ -40,9 +42,8 @@ export class tournamentBase extends Component {
                 this.setState({
                     stats: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/tournament/leaderboards/name/'  + params.tournamentShortName)
         .then(res => {
@@ -53,19 +54,22 @@ export class tournamentBase extends Component {
                 this.setState({
                     leaderboards: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
         console.log(this.state);
         const { info, stats, leaderboards, statusCode } = this.state;
 
-        return (
-            <div>
-                <TourneyBaseSkeleton info={info} stats={stats} lb={leaderboards} />
-            </div>
+        let data = {
+            stats: stats,
+            lb: leaderboards,
+        }
+
+        return ((statusCode != null && statusCode !== 200) ? 
+            (<Error code={statusCode} page="Tournament" />) :
+            (<Markup data={data} component={<TourneyBaseSkeleton info={info} stats={stats} lb={leaderboards} />} code={statusCode} />)
         )
     }
 }
@@ -90,9 +94,8 @@ export class tournamentPlayers extends Component {
                 this.setState({
                     info: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/tournament/players/name/' + params.tournamentShortName)
         .then(res => {
@@ -103,9 +106,8 @@ export class tournamentPlayers extends Component {
                 this.setState({
                     players: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -139,9 +141,8 @@ export class tournamentTeams extends Component {
                 this.setState({
                     info: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/tournament/teams/name/' + params.tournamentShortName)
         .then(res => {
@@ -152,9 +153,8 @@ export class tournamentTeams extends Component {
                 this.setState({
                     teams: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -188,9 +188,8 @@ export class tournamentPickBans extends Component {
                 this.setState({
                     info: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/tournament/pickbans/name/' + params.tournamentShortName)
         .then(res => {
@@ -201,9 +200,8 @@ export class tournamentPickBans extends Component {
                 this.setState({
                     pickBans: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -237,9 +235,8 @@ export class tournamentGames extends Component {
                 this.setState({
                     info: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/tournament/games/name/' + params.tournamentShortName)
         .then(res => {

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 // Components
 import SeasonHeader from '../components/SeasonHeader';
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
 
@@ -22,16 +24,15 @@ export class seasonBase extends Component {
                 this.setState({ 
                     season: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
         const { season, statusCode } = this.state;
 
         return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Tournament" />) :
+            (<Error code={statusCode} page="Season" />) :
             (<Markup data={season} component={<SeasonHeader info={season} />} code={statusCode} />)
         );
     }

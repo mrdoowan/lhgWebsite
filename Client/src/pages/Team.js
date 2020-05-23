@@ -8,19 +8,23 @@ import React, { Component } from 'react';
 export class teamBase extends Component {
     state = {
         info: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
 
         fetch('/api/team/information/name/' + params.teamName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                info: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    info: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -41,37 +45,47 @@ export class teamGames extends Component {
         info: null,
         scouting: null,
         games: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
 
         fetch('/api/team/information/name/' + params.teamName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                info: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    info: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/team/scouting/name/' + params.teamName + '/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                scouting: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    scouting: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/team/games/name/' + params.teamName + '/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                games: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    games: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -91,28 +105,35 @@ export class teamStats extends Component {
     state = {
         info: null,
         stats: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
 
         fetch('/api/team/information/name/' + params.teamName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                info: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    info: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
 
         fetch('/api/team/stats/name/' + params.teamName + '/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                stats: data
+                statusCode: res.status
             });
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({
+                    stats: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {

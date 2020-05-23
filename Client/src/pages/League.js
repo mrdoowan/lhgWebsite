@@ -21,9 +21,8 @@ export class leagues extends Component {
                 this.setState({ 
                     leagues: data
                 });
-            });
-        })
-        .catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {

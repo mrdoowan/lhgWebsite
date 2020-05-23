@@ -83,7 +83,7 @@ function filterName(name) {
 
 //#region DynamoDb Helper Functions (w/ Caching)
 
-//#region Return 400s based on name / shortname
+//#region Return 404s based on name / shortname
 
 // Get ProfilePId from ProfileName
 function getProfilePId(name) {
@@ -91,18 +91,18 @@ function getProfilePId(name) {
     let cacheKey = PROFILE_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
                 .then((obj) => {
-                    if (obj == null) { reject(400); } // Not Found 
+                    if (obj == null) { reject(404); } // Not Found 
                     else {
                         let pPId = getPIdString(obj['ProfileHId'], profileHashIds);
                         cache.set(cacheKey, pPId);
                         resolve(pPId);
                     }
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -114,18 +114,18 @@ function getTeamPId(name) {
     let cacheKey = TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console.error(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('TeamNameMap', 'TeamName', simpleName)
                 .then((obj) => {
-                    if (obj == null) { reject(400); } // Not Found
+                    if (obj == null) { reject(404); } // Not Found
                     else {
                         let tPId = getPIdString(obj['TeamHId'], teamHashIds);
                         cache.set(cacheKey, tPId);
                         resolve(tPId);
                     }
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -137,41 +137,41 @@ function getSeasonId(shortName) {
     let cacheKey = SEASON_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500) }
+            if (err) { console.error(err); reject(500) }
             else if (data != null) { resolve(parseInt(data)); } // NOTE: Needs to be number
             else {
                 dynamoDb.scanTable('Season', ['SeasonPId'], 'SeasonShortName', simpleName)
                 .then((obj) => {
-                    if (obj.length == 0) { reject(400); } // Not Found
+                    if (obj.length === 0) { reject(404); } // Not Found
                     else {
                         let Id = obj[0]['SeasonPId'];
                         cache.set(cacheKey, Id);
                         resolve(Id);
                     }
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
 }
 
 // Get TournamentPId from DynamoDb
-function getTournamentPId(shortName) {
+function getTournamentId(shortName) {
     let simpleName = filterName(shortName);
     let cacheKey = TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { reject(500) }
-            else if (data != null) resolve((data)); // NOTE: Needs to be number
+            else if (data != null) { resolve(parseInt(data)); } // NOTE: Needs to be number
             else {
                 dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
                 .then((obj) => {
-                    if (obj.length == 0) { reject(400); }
+                    if (obj.length === 0) { reject(404); }
                     else {
                         let Id = obj[0]['TournamentPId'];
                         cache.set(cacheKey, Id);
                         resolve(Id);
                     }
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -193,7 +193,7 @@ function getProfileName(pHId) {
                     if (obj == null) { reject(400); } // Not Found
                     cache.set(cacheKey, obj['ProfileName']);
                     resolve(obj['ProfileName']);
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -214,7 +214,7 @@ function getTeamName(tHId) {
                     let name = obj['TeamName'];
                     cache.set(cacheKey, name);
                     resolve(name);
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -225,7 +225,7 @@ function getTournamentShortName(tPId) {
     let cacheKey = TN_CODE_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TournamentShortName'])
@@ -234,7 +234,7 @@ function getTournamentShortName(tPId) {
                     let shortName = obj['TournamentShortName'];
                     cache.set(cacheKey, shortName);
                     resolve(shortName);
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -245,7 +245,7 @@ function getTournamentName(tPId) {
     let cacheKey = TN_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information'])
@@ -254,7 +254,7 @@ function getTournamentName(tPId) {
                     let name = obj['Information']['TournamentName'];
                     cache.set(cacheKey, name);
                     resolve(name);
-                }).catch(err => { reject(500); });
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -265,7 +265,7 @@ function getSeasonShortName(sPId) {
     let cacheKey = SEASON_CODE_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['SeasonShortName'])
@@ -273,7 +273,7 @@ function getSeasonShortName(sPId) {
                     let shortName = obj['SeasonShortName'];
                     cache.set(cacheKey, shortName);
                     resolve(shortName);
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -284,7 +284,7 @@ function getSeasonName(sPId) {
     let cacheKey = SEASON_NAME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
@@ -292,7 +292,7 @@ function getSeasonName(sPId) {
                     let name = obj['Information']['SeasonName'];
                     cache.set(cacheKey, name);
                     resolve(name);
-                }).catch(err => { reject(500); });
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -302,7 +302,7 @@ function getSeasonTime(sPId) {
     let cacheKey = SEASON_TIME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
@@ -310,7 +310,7 @@ function getSeasonTime(sPId) {
                     let time = obj['Information']['SeasonTime'];
                     cache.set(cacheKey, time);
                     resolve(time);
-                }).catch( reject(500) );
+                }).catch((err) => { console.error(err); reject(500) });
             }
         });
     });
@@ -363,7 +363,7 @@ function getSeasonInformation(sPId) {
     let cacheKey = SEASON_INFO_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information']))['Information'];
@@ -404,7 +404,7 @@ function getSeasonRoster(sPId) {
     let cacheKey = SEASON_ROSTER_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let seasonRosterJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Roster']))['Roster'];
@@ -452,7 +452,7 @@ function getSeasonRegular(sPId) {
     let cacheKey = SEASON_REGULAR_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let seasonRegularJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Regular']))['Regular'];
@@ -489,7 +489,7 @@ function getSeasonPlayoffs(sPId) {
     let cacheKey = SEASON_PLAYOFF_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let playoffJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Playoffs']))['Playoffs'];
@@ -537,7 +537,7 @@ function getProfileInfo(pPId) {
     let cacheKey = PROFILE_INFO_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['Information']))['Information'];
@@ -567,7 +567,7 @@ function getProfileGamesBySeason(pPId, sPId) {
     let cacheKey = PROFILE_GAMES_PREFIX + pPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileGamesJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'][sPId];
@@ -602,7 +602,7 @@ function getProfileStatsByTourney(pPId, tPId) {
     let cacheKey = PROFILE_STATS_PREFIX + pPId + '-' + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileStatsJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'][tPId];
@@ -641,7 +641,7 @@ function getProfileStatsByTourney(pPId, tPId) {
 app.get('/api/profile/stats/name/:profileName/:tournamentShortName', async (req, res) => {
     console.log("GET Request Profile '" + req.params.profileName + "' Stats Log for Tournament '" + req.params.tournamentShortName +  "'.");
     getProfilePId(req.params.profileName).then((pPId) => {
-        getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+        getTournamentId(req.params.tournamentShortName).then((tPId) => {
             getProfileStatsByTourney(pPId, tPId).then((data) => {
                 res.json(data);
             }).catch(errCode => res.status(errCode).send("GET Profile Stats Error."));
@@ -663,7 +663,7 @@ function getTeamInfo(teamPId) {
     let cacheKey = TEAM_INFO_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let teamInfoJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Information']))['Information'];
@@ -693,7 +693,7 @@ function getTeamScoutingBySeason(teamPId, sPId) {
     let cacheKey = TEAM_SCOUT_PREFIX + teamPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let teamScoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'][sPId];
@@ -732,7 +732,7 @@ function getTeamGamesBySeason(teamPId, sPId) {
     let cacheKey = TEAM_GAMES_PREFIX + teamPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'][sPId];
@@ -766,7 +766,7 @@ function getTeamStatsByTourney(teamPId, tPId) {
     let cacheKey = TEAM_STATS_PREFIX + teamPId + '-' + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) resolve(JSON.parse(data));
             else {
                 let statsJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'][tPId];
@@ -813,7 +813,7 @@ function getTeamStatsByTourney(teamPId, tPId) {
 app.get('/api/team/stats/name/:teamName/:tournamentName', async (req, res) => {
     console.log("GET Request Team '" + req.params.teamName + "' Stats Log for Tournament '" + req.params.tournamentName +  "'.");
     getTeamPId(req.params.teamName).then((teamId) => {
-        getTournamentPId(req.params.tournamentName).then((tPId) => {
+        getTournamentId(req.params.tournamentName).then((tPId) => {
             getTeamStatsByTourney(teamId, tPId).then((data) => {
                 res.json(data);
             }).catch(errCode => res.status(errCode).send("GET Team Stats Error."));
@@ -835,7 +835,7 @@ function getTourneyInfo(tPId) {
     let cacheKey = TN_INFO_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information']))['Information'];
@@ -851,7 +851,7 @@ function getTourneyInfo(tPId) {
 }
 app.get('/api/tournament/information/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Information.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyInfo(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Information Error."));
@@ -862,7 +862,7 @@ function getTourneyStats(tPId) {
     let cacheKey = TN_STATS_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TourneyStats']))['TourneyStats'];
@@ -876,7 +876,7 @@ function getTourneyStats(tPId) {
 }
 app.get('/api/tournament/stats/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Tourney Stats.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyStats(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Information Error."));
@@ -887,7 +887,7 @@ function getTourneyLeaderboards(tPId) {
     let cacheKey = TN_LEADER_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Leaderboards']))['Leaderboards'];
@@ -928,7 +928,7 @@ function getTourneyLeaderboards(tPId) {
 }
 app.get('/api/tournament/leaderboards/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Leaderboards.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyLeaderboards(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Leaderboard Error."));
@@ -939,7 +939,7 @@ function getTourneyPlayerStats(tPId) {
     let cacheKey = TN_PLAYER_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['ProfileHIdList']))['ProfileHIdList'];
@@ -996,7 +996,7 @@ function getTourneyPlayerStats(tPId) {
 }
 app.get('/api/tournament/players/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Players.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyPlayerStats(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Players Error."));
@@ -1007,7 +1007,7 @@ function getTourneyTeamStats(tPId) {
     let cacheKey = TN_TEAM_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TeamHIdList']))['TeamHIdList'];
@@ -1060,7 +1060,7 @@ function getTourneyTeamStats(tPId) {
 }
 app.get('/api/tournament/teams/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Teams.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyTeamStats(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Teams Error."));
@@ -1071,7 +1071,7 @@ function getTourneyPickBans(tPId) {
     let cacheKey = TN_PICKBANS_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['PickBans', 'TourneyStats']));
@@ -1100,7 +1100,7 @@ function getTourneyPickBans(tPId) {
 }
 app.get('/api/tournament/pickbans/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Pick Bans.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyPickBans(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Pick Bans Error."));
@@ -1111,7 +1111,7 @@ function getTourneyGames(tPId) {
     let cacheKey = TN_GAMES_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
-            if (err) { reject(500); }
+            if (err) { console(err); reject(500); }
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['GameLog']))['GameLog'];
@@ -1132,7 +1132,7 @@ function getTourneyGames(tPId) {
 }
 app.get('/api/tournament/games/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Game Log.");
-    getTournamentPId(req.params.tournamentShortName).then((tPId) => {
+    getTournamentId(req.params.tournamentShortName).then((tPId) => {
         getTourneyGames(tPId).then((data) => {
             res.json(data);
         }).catch(errCode => res.status(errCode).send("GET Tourney Games Error."));
