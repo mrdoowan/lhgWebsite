@@ -7,33 +7,37 @@ import React, { Component } from 'react';
 // {MAIN}/match/:matchPId
 export class matchBase extends Component {
     state = {
-        match: null
+        match: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
         fetch('/api/match/' + params.matchPId)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                match: data
+                statusCode: res.status
+            });
+            res.json().then((data) => {
+                this.setState({ 
+                    match: data
+                });
             });
         })
         .catch(err => console.error(err));
     }
 
     render() {
-        const { match } = this.state;
-        let matchIdMarkup = match ? (
+        const { match, statusCode } = this.state;
+        let matchIdMarkup = (
             <div className="body">
                 <p>Match Page for ID: {match.MatchPId}</p>
             </div>
-        ) : ( <div></div> );
+        );
 
-        return (
-            <div>
-                {matchIdMarkup}
-            </div>
+        return ((statusCode != null && statusCode !== 200) ? 
+            (<Error code={statusCode} page="Tournament" />) :
+            (<Markup data={match} component={matchIdMarkup} code={statusCode} />)
         );
     }
 }

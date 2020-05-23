@@ -7,27 +7,32 @@ import SeasonHeader from '../components/SeasonHeader';
 // {MAIN}/season/:seasonShortName
 export class seasonBase extends Component {
     state = {
-        season: null
+        season: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
         fetch('/api/season/information/name/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        .then(res => {
             this.setState({
-                season: data
+                statusCode: res.status
             });
-            console.log(data);
+            res.json().then((data) => {
+                this.setState({ 
+                    season: data
+                });
+            });
         })
         .catch(err => console.error(err));
     }
 
     render() {
-        const { season } = this.state;
+        const { season, statusCode } = this.state;
 
-        return (
-            <div><SeasonHeader info={season} /></div>
+        return ((statusCode != null && statusCode !== 200) ? 
+            (<Error code={statusCode} page="Tournament" />) :
+            (<Markup data={season} component={<SeasonHeader info={season} />} code={statusCode} />)
         );
     }
 }

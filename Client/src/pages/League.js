@@ -28,16 +28,10 @@ export class leagues extends Component {
 
     render() {
         const { leagues, statusCode } = this.state;
-        console.log(this.state);
-        
-        let leagueMarkup = 
-            (statusCode != null && statusCode !== 200) ? (<Error code={statusCode} page="League" />) :
-            (<Markup data={leagues} component={<LeagueTable seasonList={leagues} />} code={statusCode} />);
 
-        return (
-            <div>
-                {leagueMarkup}
-            </div>
+        return ((statusCode != null && statusCode !== 200) ? 
+            (<Error code={statusCode} page="League" />) :
+            (<Markup data={leagues} component={<LeagueTable seasonList={leagues} />} code={statusCode} />)
         );
     }
 }

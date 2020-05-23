@@ -5,8 +5,11 @@ As of 4/8/2020, the following are installed to make this functional:
 * nodejs: v12.16.1
 
 The following need to be installed into Linux (sudo apt update):
-* awscli
-* redis-server
++ awscli
+    + "aws configure" with the keys given
++ redis-server (run ")
+    + Linux: sudo systemctl restart redis.servis
+    + WSL: sudo system redis-server start
 
 The following npm modules are (or should be) used in the server:
 * aws-sdk
