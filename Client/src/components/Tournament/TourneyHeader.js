@@ -26,16 +26,13 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyHeader({ info, type }) {
     const classes = useStyles();
 
-    let titleMarkUp = info ? (
+    let titleMarkUp = (
         <div className="body">
             <p><Link className={classes.link} to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {tourneyTypeString(info.TournamentType)}</p>
             <p>Tournament Stats</p>
         </div>
-    ) : (<div></div>);
-
-    let tourneyBar = info ? (
-        <TourneyTab shortName={info.TournamentShortName} type={type}/>
-    ) : (<div></div>);
+    );
+    let tourneyBar = ( <TourneyTab shortName={info.TournamentShortName} type={type}/> );
 
     return (
         <div className={classes.root}>

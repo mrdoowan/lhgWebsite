@@ -27,7 +27,8 @@ export class matchBase extends Component {
 
     render() {
         const { match, statusCode } = this.state;
-        let matchIdMarkup = (
+
+        let matchComponent = (
             <div className="body">
                 <p>Match Page for ID: {match.MatchPId}</p>
             </div>
@@ -35,7 +36,7 @@ export class matchBase extends Component {
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Match" />) :
-            (<Markup data={match} component={matchIdMarkup} code={statusCode} />)
+            (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
         );
     }
 }

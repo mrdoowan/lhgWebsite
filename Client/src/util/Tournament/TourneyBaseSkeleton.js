@@ -2,7 +2,7 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Components
-import Loading from '../../components/Loading';
+import DataWrapper from '../../components/DataWrapper';
 import TourneyHeader from '../../components/Tournament/TourneyHeader';
 import TourneyStats from '../../components/Tournament/TourneyStats';
 import LeaderboardGames from '../../components/Tournament/LeaderboardGames';
@@ -13,52 +13,34 @@ const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
     },
-    title: {
-        padding: theme.spacing(2),
-        'text-decoration': 'underline',
-        fontSize: 'large',
-    },
 }));
 
 export default function TourneyBaseSkeleton({info, stats, lb}) {
     const classes = useStyles();
 
-    let headerMarkup = info ? (
-        <div><TourneyHeader info={info} type='Tournament' /></div>
-    ) : (<div></div>);
+    let headerComponent = (<TourneyHeader info={info} type='Tournament' />);
+    let statsComponent = (<TourneyStats stats={stats} />);
+    let gameComponent = (<LeaderboardGames gameRecords={lb.GameRecords} />);
+    let playerLBComponent = (<LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} />);
+    let teamLBComponent = (<LeaderboardTeams teamRecords={lb.TeamSingleRecords} />);
 
-    let statsMarkup = stats ? (
+    let headerEmpty = "There is no information regarding this Tournament.";
+    let statsEmpty = "There are no stats regarding this Tournament.";
+    let lbEmpty = "There are no leaderboards regarding this Tournament.";
+
+    let lbComponents = (
         <div>
-            <p className={classes.title}>Tournament Information</p>
-            <TourneyStats stats={stats} />
+            {gameComponent}
+            {playerLBComponent}
+            {teamLBComponent}
         </div>
-    ) : (<div></div>);
-
-    let gameMarkup = lb ? (
-        <div><LeaderboardGames gameRecords={lb.GameRecords} /></div>
-    ) : (<div><Loading /></div>);
-
-    let playerLBMarkup = lb ? (
-        <div>
-            <p className={classes.title}>Player Leaderboards</p>
-            <LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} />
-        </div>
-    ) : (<div></div>);
-
-    let teamLBMarkup = lb ? (
-        <div>
-            <p className={classes.title}>Team Leaderboards</p>
-            <LeaderboardTeams teamRecords={lb.TeamSingleRecords} />
-        </div>
-    ) : (<div></div>);
+    )
 
     return (
         <div className={classes.root}>
-            {headerMarkup}
-            {statsMarkup}
-            {gameMarkup}
-            {playerLBMarkup}
-            {teamLBMarkup}
+            <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
+            <DataWrapper data={stats} component={statsComponent} emptyMessage={statsEmpty} />
+            <DataWrapper data={lb} component={lbComponents} emptyMessage={lbEmpty} />
         </div>
     )
 }

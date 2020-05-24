@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
     },
     title: {
+        padding: theme.spacing(2),
         'text-decoration': 'underline',
         fontSize: 'large',
     },
@@ -32,6 +33,7 @@ export default function LeaderboardGames({ gameRecords }) {
 
     return (
         <div>
+        <p className={classes.title}>Game Leaderboards</p>
         <Grid container spacing={3}>
             <Grid item xs={4}>
                 <Paper className={classes.paper}>

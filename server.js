@@ -185,14 +185,16 @@ function getProfileName(pHId) {
     let cacheKey = PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { reject(500) }
+            if (err) { console.error(err); reject(500) }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['ProfileName'])
                 .then((obj) => {
-                    if (obj == null) { reject(400); } // Not Found
-                    cache.set(cacheKey, obj['ProfileName']);
-                    resolve(obj['ProfileName']);
+                    if (obj == null) { reject(404); } // Not Found
+                    else {
+                        cache.set(cacheKey, obj['ProfileName']);
+                        resolve(obj['ProfileName']);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -210,10 +212,12 @@ function getTeamName(tHId) {
             else {
                 dynamoDb.getItem('Team', 'TeamPId', tPId, ['TeamName'])
                 .then((obj) => {
-                    if (obj == null) { reject(400); } // Not Found
-                    let name = obj['TeamName'];
-                    cache.set(cacheKey, name);
-                    resolve(name);
+                    if (obj == null) { reject(404); } // Not Found
+                    else { 
+                        let name = obj['TeamName'];
+                        cache.set(cacheKey, name);
+                        resolve(name);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -230,10 +234,12 @@ function getTournamentShortName(tPId) {
             else {
                 dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TournamentShortName'])
                 .then((obj) => {
-                    if (obj == null) { reject(400); } // Not Found
-                    let shortName = obj['TournamentShortName'];
-                    cache.set(cacheKey, shortName);
-                    resolve(shortName);
+                    if (obj == null) { reject(404); } // Not Found
+                    else {
+                        let shortName = obj['TournamentShortName'];
+                        cache.set(cacheKey, shortName);
+                        resolve(shortName);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -250,10 +256,12 @@ function getTournamentName(tPId) {
             else {
                 dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information'])
                 .then((obj) => {
-                    if (obj == null) { reject(400); } // Not Found
-                    let name = obj['Information']['TournamentName'];
-                    cache.set(cacheKey, name);
-                    resolve(name);
+                    if (obj == null) { reject(404); } // Not Found
+                    else {
+                        let name = obj['Information']['TournamentName'];
+                        cache.set(cacheKey, name);
+                        resolve(name);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -270,9 +278,12 @@ function getSeasonShortName(sPId) {
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['SeasonShortName'])
                 .then((obj) => {
-                    let shortName = obj['SeasonShortName'];
-                    cache.set(cacheKey, shortName);
-                    resolve(shortName);
+                    if (obj == null) { reject(404); }
+                    else {
+                        let shortName = obj['SeasonShortName'];
+                        cache.set(cacheKey, shortName);
+                        resolve(shortName);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -289,9 +300,12 @@ function getSeasonName(sPId) {
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
                 .then((obj) => {
-                    let name = obj['Information']['SeasonName'];
-                    cache.set(cacheKey, name);
-                    resolve(name);
+                    if (obj == null) { reject(404); }
+                    else {
+                        let name = obj['Information']['SeasonName'];
+                        cache.set(cacheKey, name);
+                        resolve(name);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -307,9 +321,12 @@ function getSeasonTime(sPId) {
             else {
                 dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
                 .then((obj) => {
-                    let time = obj['Information']['SeasonTime'];
-                    cache.set(cacheKey, time);
-                    resolve(time);
+                    if (obj == null) { reject(404); }
+                    else {
+                        let time = obj['Information']['SeasonTime'];
+                        cache.set(cacheKey, time);
+                        resolve(time);
+                    }
                 }).catch((err) => { console.error(err); reject(500) });
             }
         });
@@ -332,20 +349,26 @@ app.get('/api/leagues', (req, res) => {
         else if (data != null) { res.json(JSON.parse(data)); }
         else {
             let seasonList = await dynamoDb.scanTable('Season', ['Information']);
-            let leagueObject = {};
-            seasonList.map((seasonInfoDb) => {
-                const { SeasonTime, DateOpened, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
-                if (!(SeasonTime in leagueObject)) {
-                    leagueObject[SeasonTime] = { 'SeasonTime': SeasonTime }
-                }
-                leagueObject[SeasonTime]['Date'] = DateOpened;
-                leagueObject[SeasonTime][LeagueType] = {};
-                leagueObject[SeasonTime][LeagueType]['League'] = LeagueType;
-                leagueObject[SeasonTime][LeagueType]['ShortName'] = SeasonShortName;
-            });
-            let leagueList = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
-            cache.set(LEAGUE_KEY, JSON.stringify(leagueList, null, 2));
-            res.json(leagueList);     
+            if (seasonList != null) {
+                let leagueObject = {};
+                seasonList.map((seasonInfoDb) => {
+                    const { SeasonTime, DateOpened, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
+                    if (!(SeasonTime in leagueObject)) {
+                        leagueObject[SeasonTime] = { 'SeasonTime': SeasonTime }
+                    }
+                    leagueObject[SeasonTime]['Date'] = DateOpened;
+                    leagueObject[SeasonTime][LeagueType] = {};
+                    leagueObject[SeasonTime][LeagueType]['League'] = LeagueType;
+                    leagueObject[SeasonTime][LeagueType]['ShortName'] = SeasonShortName;
+                });
+                let returnObject = {};
+                returnObject['Leagues'] = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
+                cache.set(LEAGUE_KEY, JSON.stringify(returnObject, null, 2));
+                res.json(returnObject);
+            }
+            else {
+                res.json({});   // Return empty if does not exist
+            }               
         }
     });
 });
@@ -367,26 +390,31 @@ function getSeasonInformation(sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information']))['Information'];
-                seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
-                seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
-                if ('FinalStandings' in seasonInfoJson) {
-                    for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
-                        let teamObject = seasonInfoJson['FinalStandings'][i];
-                        teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
+                if (seasonInfoJson != null) {
+                    seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
+                    seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
+                    if ('FinalStandings' in seasonInfoJson) {
+                        for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
+                            let teamObject = seasonInfoJson['FinalStandings'][i];
+                            teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
+                        }
                     }
+                    if ('FinalsMvpHId' in seasonInfoJson) {
+                        seasonInfoJson['FinalsMvpName'] = await getProfileName(seasonInfoJson['FinalsMvpHId']);
+                    }
+                    if ('AllStars' in seasonInfoJson) {
+                        seasonInfoJson['AllStars']['TopName'] = await getProfileName(seasonInfoJson['AllStars']['TopHId']);
+                        seasonInfoJson['AllStars']['JungleName'] = await getProfileName(seasonInfoJson['AllStars']['JungleHId']);
+                        seasonInfoJson['AllStars']['MidName'] = await getProfileName(seasonInfoJson['AllStars']['MidHId']);
+                        seasonInfoJson['AllStars']['BotName'] = await getProfileName(seasonInfoJson['AllStars']['BotHId']);
+                        seasonInfoJson['AllStars']['SupportName'] = await getProfileName(seasonInfoJson['AllStars']['SupportHId']);
+                    }
+                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2));
+                    resolve(seasonInfoJson);
                 }
-                if ('FinalsMvpHId' in seasonInfoJson) {
-                    seasonInfoJson['FinalsMvpName'] = await getProfileName(seasonInfoJson['FinalsMvpHId']);
+                else {
+                    resolve({});    // If 'Information' does not exist
                 }
-                if ('AllStars' in seasonInfoJson) {
-                    seasonInfoJson['AllStars']['TopName'] = await getProfileName(seasonInfoJson['AllStars']['TopHId']);
-                    seasonInfoJson['AllStars']['JungleName'] = await getProfileName(seasonInfoJson['AllStars']['JungleHId']);
-                    seasonInfoJson['AllStars']['MidName'] = await getProfileName(seasonInfoJson['AllStars']['MidHId']);
-                    seasonInfoJson['AllStars']['BotName'] = await getProfileName(seasonInfoJson['AllStars']['BotHId']);
-                    seasonInfoJson['AllStars']['SupportName'] = await getProfileName(seasonInfoJson['AllStars']['SupportHId']);
-                }
-                cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2));
-                resolve(seasonInfoJson);
             }
         });
     });
@@ -408,33 +436,38 @@ function getSeasonRoster(sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let seasonRosterJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Roster']))['Roster'];
-                if ('Teams' in seasonRosterJson) {
-                    for (let i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
-                        let teamHId = Object.keys(seasonRosterJson['Teams'])[i];
-                        let teamJson = seasonRosterJson['Teams'][teamHId];
-                        teamJson['TeamName'] = await getTeamName(teamHId);
-                        for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                            let profileHId = Object.keys(teamJson['Players'])[j];
-                            let playerJson = teamJson['Players'][profileHId];
+                if (seasonRosterJson != null) {
+                    if ('Teams' in seasonRosterJson) {
+                        for (let i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
+                            let teamHId = Object.keys(seasonRosterJson['Teams'])[i];
+                            let teamJson = seasonRosterJson['Teams'][teamHId];
+                            teamJson['TeamName'] = await getTeamName(teamHId);
+                            for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
+                                let profileHId = Object.keys(teamJson['Players'])[j];
+                                let playerJson = teamJson['Players'][profileHId];
+                                playerJson['ProfileName'] = await getProfileName(profileHId);
+                            }
+                        }
+                    }
+                    if ('FreeAgents' in seasonRosterJson) {
+                        for (let i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
+                            let profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
+                            let playerJson = seasonRosterJson['FreeAgents'][profileHId];
                             playerJson['ProfileName'] = await getProfileName(profileHId);
                         }
                     }
-                }
-                if ('FreeAgents' in seasonRosterJson) {
-                    for (let i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
-                        let profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
-                        let playerJson = seasonRosterJson['FreeAgents'][profileHId];
-                        playerJson['ProfileName'] = await getProfileName(profileHId);
+                    if ('ESubs' in seasonRosterJson) {
+                        for (let i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
+                            let profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
+                            playerJson['ProfileName'] = await getProfileName(profileHId);
+                        }
                     }
+                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2));
+                    resolve(seasonRosterJson);
                 }
-                if ('ESubs' in seasonRosterJson) {
-                    for (let i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
-                        let profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
-                        playerJson['ProfileName'] = await getProfileName(profileHId);
-                    }
+                else {
+                    resolve({});    // If 'Roster' does not exist
                 }
-                cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2));
-                resolve(seasonRosterJson);
             }
         });
     });
@@ -456,22 +489,27 @@ function getSeasonRegular(sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let seasonRegularJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Regular']))['Regular'];
-                for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
-                    let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
-                    for (let j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
-                        let teamJson = divisionJson['RegularSeasonTeams'][j];
-                        teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
+                if (seasonRegularJson != null) {
+                    for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
+                        let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
+                        for (let j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
+                            let teamJson = divisionJson['RegularSeasonTeams'][j];
+                            teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
+                        }
                     }
+                    for (let i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
+                        let gameJson = seasonRegularJson['RegularSeasonGames'][i];
+                        gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
+                        gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHid']);
+                        gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
+                        gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
+                    }
+                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2));
+                    resolve(seasonRegularJson);
                 }
-                for (let i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
-                    let gameJson = seasonRegularJson['RegularSeasonGames'][i];
-                    gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
-                    gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHid']);
-                    gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
-                    gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
+                else {
+                    resolve({});    // If 'Season' does not exist
                 }
-                cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2));
-                resolve(seasonRegularJson);
             }
         });
     });
@@ -493,24 +531,29 @@ function getSeasonPlayoffs(sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let playoffJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Playoffs']))['Playoffs'];
-                for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
-                    let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
-                    for (let j = 0; j < roundTypeArray.length; ++j) {
-                        let seriesJson = roundTypeArray[j];
-                        seriesJson['HigherTeamName'] = await getProfileName(seriesJson['HigherTeamHId']);
-                        seriesJson['LowerTeamName'] = await getProfileName(seriesJson['LowerTeamHId']);
-                        seriesJson['SeriesMvpName'] = await getProfileName(seriesJson['SeriesMvpHId']);
+                if (playoffJson != null) {
+                    for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
+                        let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
+                        for (let j = 0; j < roundTypeArray.length; ++j) {
+                            let seriesJson = roundTypeArray[j];
+                            seriesJson['HigherTeamName'] = await getProfileName(seriesJson['HigherTeamHId']);
+                            seriesJson['LowerTeamName'] = await getProfileName(seriesJson['LowerTeamHId']);
+                            seriesJson['SeriesMvpName'] = await getProfileName(seriesJson['SeriesMvpHId']);
+                        }
                     }
+                    for (let i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
+                        let gameJson = playoffJson['PlayoffGames'][i];
+                        gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
+                        gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
+                        gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
+                        gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
+                    }
+                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2));
+                    resolve(playoffJson);
                 }
-                for (let i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
-                    let gameJson = playoffJson['PlayoffGames'][i];
-                    gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
-                    gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
-                    gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
-                    gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
+                else {
+                    resolve({});    // If 'Playoffs' does not exist
                 }
-                cache.set(cacheKey, JSON.stringify(playoffJson, null, 2));
-                resolve(playoffJson);
             }
         });
     });
@@ -606,34 +649,39 @@ function getProfileStatsByTourney(pPId, tPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileStatsJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'][tPId];
-                profileStatsJson['TournamentName'] = await getTournamentName(tPId);
-                for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
-                    let role = Object.keys(profileStatsJson['RoleStats'])[i];
-                    let statsJson = profileStatsJson['RoleStats'][role];
-                    let gameDurationMinute = statsJson['TotalGameDuration'] / 60;
-                    statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
-                    statsJson['KillPct'] = ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
-                    statsJson['DeathPct'] = (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
-                    statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
-                    statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / gameDurationMinute).toFixed(2);
-                    statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
-                    statsJson['DamagePerMinute'] = (statsJson['TotalDamage'] / gameDurationMinute).toFixed(2);
-                    statsJson['DamagePct'] = (statsJson['TotalDamage'] / statsJson['TotalTeamDamage']).toFixed(4);
-                    statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / gameDurationMinute).toFixed(2);
-                    statsJson['VisionScorePct'] = (statsJson['TotalVisionScore'] / statsJson['TotalTeamVisionScore']).toFixed(4);
-                    statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / gameDurationMinute).toFixed(2);
-                    statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / gameDurationMinute).toFixed(2);
-                    statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / gameDurationMinute).toFixed(2);
-                    statsJson['AverageCsAtEarly'] = (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                    statsJson['AverageGoldAtEarly'] = (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                    statsJson['AverageXpAtEarly'] = (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                    statsJson['AverageCsDiffEarly'] = (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                    statsJson['AverageGoldDiffEarly'] = (statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                    statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                    statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
+                if (profileStatsJson != null) {
+                    profileStatsJson['TournamentName'] = await getTournamentName(tPId);
+                    for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
+                        let role = Object.keys(profileStatsJson['RoleStats'])[i];
+                        let statsJson = profileStatsJson['RoleStats'][role];
+                        let gameDurationMinute = statsJson['TotalGameDuration'] / 60;
+                        statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
+                        statsJson['KillPct'] = ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
+                        statsJson['DeathPct'] = (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
+                        statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
+                        statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / gameDurationMinute).toFixed(2);
+                        statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
+                        statsJson['DamagePerMinute'] = (statsJson['TotalDamage'] / gameDurationMinute).toFixed(2);
+                        statsJson['DamagePct'] = (statsJson['TotalDamage'] / statsJson['TotalTeamDamage']).toFixed(4);
+                        statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / gameDurationMinute).toFixed(2);
+                        statsJson['VisionScorePct'] = (statsJson['TotalVisionScore'] / statsJson['TotalTeamVisionScore']).toFixed(4);
+                        statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / gameDurationMinute).toFixed(2);
+                        statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / gameDurationMinute).toFixed(2);
+                        statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / gameDurationMinute).toFixed(2);
+                        statsJson['AverageCsAtEarly'] = (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageGoldAtEarly'] = (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageXpAtEarly'] = (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageCsDiffEarly'] = (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageGoldDiffEarly'] = (statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
+                    }
+                    cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2));
+                    resolve(profileStatsJson);
                 }
-                cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2));
-                resolve(profileStatsJson);
+                else {
+                    resolve({});    // If 'StatsLog' does not exist
+                }
             }
         });
     });
@@ -667,15 +715,20 @@ function getTeamInfo(teamPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let teamInfoJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Information']))['Information'];
-                if ('TrophyCase' in teamInfoJson) {
-                    for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
-                        let sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
-                        teamInfoJson['TrophyCase'][sPId]['Seasonname'] = getSeasonName(sPId);
-                        teamInfoJson['TrophyCase'][sPId]['SeasonShortName'] = getSeasonShortName(sPId);
+                if (teamInfoJson != null) {
+                    if ('TrophyCase' in teamInfoJson) {
+                        for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
+                            let sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
+                            teamInfoJson['TrophyCase'][sPId]['Seasonname'] = getSeasonName(sPId);
+                            teamInfoJson['TrophyCase'][sPId]['SeasonShortName'] = getSeasonShortName(sPId);
+                        }
                     }
+                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2));
+                    resolve(teamInfoJson);
                 }
-                cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2));
-                resolve(teamInfoJson);
+                else {
+                    resolve({});    // If 'Information' does not exist
+                }
             }
         });
     });
@@ -697,22 +750,27 @@ function getTeamScoutingBySeason(teamPId, sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let teamScoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'][sPId];
-                teamScoutingJson['SeasonTime'] = await getSeasonTime(sPId);
-                for (let i = 0; i < Object.values(teamScoutingJson['PlayerLog']).length; ++i) {
-                    let roleMap = Object.values(teamScoutingJson['PlayerLog'])[i];
-                    for (let j = 0; j < Object.keys(roleMap).length; ++j) {
-                        let profileHId = Object.keys(roleMap)[j];
-                        let statsJson = roleMap[profileHId];
-                        statsJson['ProfileName'] = await getProfileName(profileHId);
-                        statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
-                        statsJson['KillPctPlayer'] = ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalKillsTeam']).toFixed(4);
-                        statsJson['DamagePctPlayer'] = (statsJson['TotalDamagePlayer'] / statsJson['TotalDamageTeam']).toFixed(4);
-                        statsJson['GoldPctPlayer'] = (statsJson['TotalGoldPlayer'] / statsJson['TotalGoldTeam']).toFixed(4);
-                        statsJson['VsPctPlayer'] = (statsJson['TotalVsPlayer'] / statsJson['TotalVsTeam']).toFixed(4);
+                if (teamScoutingJson != null) {
+                    teamScoutingJson['SeasonTime'] = await getSeasonTime(sPId);
+                    for (let i = 0; i < Object.values(teamScoutingJson['PlayerLog']).length; ++i) {
+                        let roleMap = Object.values(teamScoutingJson['PlayerLog'])[i];
+                        for (let j = 0; j < Object.keys(roleMap).length; ++j) {
+                            let profileHId = Object.keys(roleMap)[j];
+                            let statsJson = roleMap[profileHId];
+                            statsJson['ProfileName'] = await getProfileName(profileHId);
+                            statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
+                            statsJson['KillPctPlayer'] = ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalKillsTeam']).toFixed(4);
+                            statsJson['DamagePctPlayer'] = (statsJson['TotalDamagePlayer'] / statsJson['TotalDamageTeam']).toFixed(4);
+                            statsJson['GoldPctPlayer'] = (statsJson['TotalGoldPlayer'] / statsJson['TotalGoldTeam']).toFixed(4);
+                            statsJson['VsPctPlayer'] = (statsJson['TotalVsPlayer'] / statsJson['TotalVsTeam']).toFixed(4);
+                        }
                     }
+                    cache.set(cacheKey, JSON.stringify(teamScoutingJson, null, 2));
+                    resolve(teamScoutingJson);
                 }
-                cache.set(cacheKey, JSON.stringify(teamScoutingJson, null, 2));
-                resolve(teamScoutingJson);
+                else {
+                    resolve({});    // If 'Scouting' does not exist
+                }
             }
         });
     });
@@ -736,17 +794,22 @@ function getTeamGamesBySeason(teamPId, sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'][sPId];
-                gameLogJson['SeasonTime'] = getSeasonTime(sPId);
-                for (let i = 0; i < Object.values(gameLogJson['Matches']).length; ++i) {
-                    let matchObject = Object.values(gameLogJson['Matches'])[i];
-                    for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
-                        let champObject = Object.values(matchObject['ChampPicks'])[j];
-                        champObject['ProfileName'] = await getProfileName(champObject['ProfileHId']);
+                if (gameLogJson != null) {
+                    gameLogJson['SeasonTime'] = getSeasonTime(sPId);
+                    for (let i = 0; i < Object.values(gameLogJson['Matches']).length; ++i) {
+                        let matchObject = Object.values(gameLogJson['Matches'])[i];
+                        for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
+                            let champObject = Object.values(matchObject['ChampPicks'])[j];
+                            champObject['ProfileName'] = await getProfileName(champObject['ProfileHId']);
+                        }
+                        matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
                     }
-                    matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
+                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2));
+                    resolve(gameLogJson);
                 }
-                cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2));
-                resolve(gameLogJson);
+                else {
+                    resolve({});    // If 'GameLog' does not exist
+                }
             }
         });
     });
@@ -770,41 +833,46 @@ function getTeamStatsByTourney(teamPId, tPId) {
             else if (data != null) resolve(JSON.parse(data));
             else {
                 let statsJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'][tPId];
-                let totalGameDurationMinute = statsJson['TotalGameDuration'] / 60;
-                statsJson['TournamentName'] = await getTournamentName(tPId);
-                statsJson['GamesPlayedOnRed'] = statsJson['GamesPlayed'] - statsJson['GamesPlayedOnBlue'];
-                statsJson['RedWins'] = statsJson['GamesWon'] - statsJson['BlueWins'];
-                statsJson['AverageGameDuration'] = (statsJson['TotalGameDuration'] / statsJson['GamesPlayed']).toFixed(2);
-                statsJson['AverageKills'] = (statsJson['TotalKills'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['AverageDeaths'] = (statsJson['TotalDeaths'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['KillDeathRatio'] = (statsJson['TotalDeaths'] > 0) ? (statsJson['TotalKills'] / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
-                statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / totalGameDurationMinute).toFixed(2);
-                statsJson['DamagePerMinute'] = (statsJson['TotalDamageDealt'] / totalGameDurationMinute).toFixed(2);
-                statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / totalGameDurationMinute).toFixed(2);
-                statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / totalGameDurationMinute).toFixed(2);
-                statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / totalGameDurationMinute).toFixed(2);
-                statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / totalGameDurationMinute).toFixed(2);
-                statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / totalGameDurationMinute).toFixed(2);
-                statsJson['AverageTowersTaken'] = (statsJson['TotalTowersTaken'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['AverageTowersLost'] = (statsJson['TotalTowersLost'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
-                statsJson['FirstTowerPct'] = (statsJson['TotalFirstTowers'] / statsJson['GamesPlayed']).toFixed(4);
-                statsJson['AverageDragonsTaken'] = (statsJson['TotalDragonsTaken'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['DragonPct'] = (statsJson['TotalDragonsTaken'] / (statsJson['TotalDragonsTaken'] + statsJson['TotalEnemyDragons'])).toFixed(4);
-                statsJson['AverageHeraldsTaken'] = (statsJson['TotalHeraldsTaken'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['HeraldPct'] = (statsJson['TotalHeraldsTaken'] / (statsJson['TotalHeraldsTaken'] + statsJson['TotalEnemyHeralds'])).toFixed(4);
-                statsJson['AverageBaronsTaken'] = (statsJson['TotalBaronsTaken'] / statsJson['GamesPlayed']).toFixed(1);
-                statsJson['BaronPct'] = (statsJson['TotalBaronsTaken'] / (statsJson['TotalBaronsTaken'] + statsJson['TotalEnemyBarons'])).toFixed(4);
-                statsJson['WardsClearedPct'] = (statsJson['TotalWardsCleared'] / statsJson['TotalEnemyWardsPlaced']).toFixed(4);
-                statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                statsJson['AverageXpDiffMid'] = (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                statsJson['AverageGoldDiffEarly'] = (statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                statsJson['AverageGoldDiffMid'] = (statsJson['TotalGoldDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                statsJson['AverageCsDiffEarly'] = (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                statsJson['AverageCsDiffMid'] = (statsJson['TotalCsDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                cache.set(cacheKey, JSON.stringify(statsJson, null, 2));
-                resolve(statsJson);
+                if (statsJson != null) {
+                    let totalGameDurationMinute = statsJson['TotalGameDuration'] / 60;
+                    statsJson['TournamentName'] = await getTournamentName(tPId);
+                    statsJson['GamesPlayedOnRed'] = statsJson['GamesPlayed'] - statsJson['GamesPlayedOnBlue'];
+                    statsJson['RedWins'] = statsJson['GamesWon'] - statsJson['BlueWins'];
+                    statsJson['AverageGameDuration'] = (statsJson['TotalGameDuration'] / statsJson['GamesPlayed']).toFixed(2);
+                    statsJson['AverageKills'] = (statsJson['TotalKills'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['AverageDeaths'] = (statsJson['TotalDeaths'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['KillDeathRatio'] = (statsJson['TotalDeaths'] > 0) ? (statsJson['TotalKills'] / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
+                    statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['DamagePerMinute'] = (statsJson['TotalDamageDealt'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / totalGameDurationMinute).toFixed(2);
+                    statsJson['AverageTowersTaken'] = (statsJson['TotalTowersTaken'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['AverageTowersLost'] = (statsJson['TotalTowersLost'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
+                    statsJson['FirstTowerPct'] = (statsJson['TotalFirstTowers'] / statsJson['GamesPlayed']).toFixed(4);
+                    statsJson['AverageDragonsTaken'] = (statsJson['TotalDragonsTaken'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['DragonPct'] = (statsJson['TotalDragonsTaken'] / (statsJson['TotalDragonsTaken'] + statsJson['TotalEnemyDragons'])).toFixed(4);
+                    statsJson['AverageHeraldsTaken'] = (statsJson['TotalHeraldsTaken'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['HeraldPct'] = (statsJson['TotalHeraldsTaken'] / (statsJson['TotalHeraldsTaken'] + statsJson['TotalEnemyHeralds'])).toFixed(4);
+                    statsJson['AverageBaronsTaken'] = (statsJson['TotalBaronsTaken'] / statsJson['GamesPlayed']).toFixed(1);
+                    statsJson['BaronPct'] = (statsJson['TotalBaronsTaken'] / (statsJson['TotalBaronsTaken'] + statsJson['TotalEnemyBarons'])).toFixed(4);
+                    statsJson['WardsClearedPct'] = (statsJson['TotalWardsCleared'] / statsJson['TotalEnemyWardsPlaced']).toFixed(4);
+                    statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                    statsJson['AverageXpDiffMid'] = (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                    statsJson['AverageGoldDiffEarly'] = (statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                    statsJson['AverageGoldDiffMid'] = (statsJson['TotalGoldDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                    statsJson['AverageCsDiffEarly'] = (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                    statsJson['AverageCsDiffMid'] = (statsJson['TotalCsDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                    cache.set(cacheKey, JSON.stringify(statsJson, null, 2));
+                    resolve(statsJson);
+                }
+                else {
+                    resolve({});    // If 'StatsLog' does not exist
+                }
             }
         });
     });
@@ -843,8 +911,11 @@ function getTourneyInfo(tPId) {
                     tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
                     cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2));
+                    resolve(tourneyInfoJson);
                 }
-                resolve(tourneyInfoJson);
+                else {
+                    resolve({});    // If 'Information' does not exist
+                }
             }
         });
     });
@@ -868,8 +939,11 @@ function getTourneyStats(tPId) {
                 let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TourneyStats']))['TourneyStats'];
                 if (tourneyStatsJson != null) {
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2));
+                    resolve(tourneyStatsJson);
                 }
-                resolve(tourneyStatsJson);
+                else {
+                    resolve({});    // If 'TourneyStats' does not exist
+                }
             }
         });
     });
@@ -919,8 +993,11 @@ function getTourneyLeaderboards(tPId) {
                         }
                     }
                     cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2));
+                    resolve(leaderboardJson);
                 }
-                resolve(leaderboardJson);
+                else {
+                    resolve({});    // If 'Leaderboards' does not exist
+                }
             }
         });
     });
@@ -943,9 +1020,9 @@ function getTourneyPlayerStats(tPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['ProfileHIdList']))['ProfileHIdList'];
-                let profileData = [];
                 if (profileHIdList != null) {
                     for (let i = 0; i < profileHIdList.length; ++i) {
+                        let profileData = [];
                         let pPId = getPIdString(profileHIdList[i], profileHashIds);
                         let profileStatsLog = await getProfileStatsByTourney(pPId, tPId);
                         for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
@@ -987,9 +1064,14 @@ function getTourneyPlayerStats(tPId) {
                             });
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(profileData, null, 2));
+                    let profileObject = {};
+                    profileObject['PlayerList'] = profileData;
+                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2));
+                    resolve(profileObject);
                 }
-                resolve(profileData);
+                else {
+                    resolve({});    // If 'ProfileHIdList' does not exist
+                }
             }
         });
     });
@@ -1011,8 +1093,8 @@ function getTourneyTeamStats(tPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TeamHIdList']))['TeamHIdList'];
-                let teamData = [];
                 if (teamHIdList != null) {
+                    let teamData = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
                         let teamId = getPIdString(teamHIdList[i], teamHashIds);
                         let teamStatsLog = await getTeamStatsByTourney(teamId, tPId);
@@ -1052,8 +1134,11 @@ function getTourneyTeamStats(tPId) {
                         });
                     }
                     cache.set(cacheKey, JSON.stringify(teamData, null, 2));
+                    resolve(teamData);
                 }
-                resolve(teamData);
+                else {
+                    resolve({});    // If 'TeamHIdList' does not exist
+                }
             }
         });
     });
@@ -1124,8 +1209,12 @@ function getTourneyGames(tPId) {
                         gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
                     }
                     cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2));
+                    resolve(gameLogJson);
                 }
-                resolve(gameLogJson);
+                else {
+                    resolve({});    // If 'GameLog' does not exist
+                }
+                
             }
         });
     });
@@ -1157,40 +1246,42 @@ app.get('/api/match/:matchId', (req, res) => {
         else {
             let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', req.params.matchId);
             if (matchJson == null) { res.status(400).send("Wrong Match ID."); }
-            // Replace the HIds with the actual Names (will have to learn how to cache on the server side later)
-            let seasonPId = matchJson['SeasonPId'];
-            matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
-            matchJson['SeasonName'] = await getSeasonName(seasonPId);
-            let tourneyPId = matchJson['TournamentPId'];
-            matchJson['TournamentShortName'] = await getTournamentShortName(tourneyPId);
-            matchJson['TournamentName'] = await getTournamentName(tourneyPId);
-            let gameDurationMinute = matchJson['GameDuration'] / 60;
-            for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
-                let teamId = Object.keys(matchJson['Teams'])[i];
-                let teamJson = matchJson['Teams'][teamId];
-                teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
-                for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                    let partId = Object.keys(teamJson['Players'])[j];
-                    let playerJson = teamJson['Players'][partId];
-                    playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']);
-                    playerJson['Kda'] = (playerJson['Deaths'] > 0) ? (((playerJson['Kills'] + playerJson['Assists']) / playerJson['Deaths']).toFixed(2)).toString() : "Perfect";
-                    playerJson['KillPct'] = ((playerJson['Kills'] + playerJson['Assists']) / teamJson['TeamKills']).toFixed(4);
-                    playerJson['DeathPct'] = (playerJson['Deaths'] / teamJson['TeamDeaths']).toFixed(4);
-                    playerJson['GoldPct'] = (playerJson['Gold'] / teamJson['TeamGold']).toFixed(4);
-                    playerJson['GoldPerMinute'] = (playerJson['Gold'] / gameDurationMinute).toFixed(2);
-                    playerJson['DamageDealtPct'] = (playerJson['TotalDamageDealt'] / teamJson['TeamDamageDealt']).toFixed(4);
-                    playerJson['DamagePerMinute'] = (playerJson['TotalDamageDealt'] / gameDurationMinute).toFixed(2);
-                    playerJson['CreepScorePct'] = (playerJson['CreepScore'] / teamJson['TeamCreepScore']).toFixed(4);
-                    playerJson['CreepScorePerMinute'] = (playerJson['CreepScore'] / gameDurationMinute).toFixed(2);
-                    playerJson['VisionScorePct'] = (playerJson['VisionScore'] / teamJson['TeamVisionScore']).toFixed(4);
-                    playerJson['VisionScorePerMinute'] = (playerJson['VisionScore'] / gameDurationMinute).toFixed(2);
-                    playerJson['WardsPlacedPerMinute'] = (playerJson['WardsPlaced'] / gameDurationMinute).toFixed(2);
-                    playerJson['ControlWardsBoughtPerMinute'] = (playerJson['ControlWardsBought'] / gameDurationMinute).toFixed(2);
-                    playerJson['WardsClearedPerMinute'] = (playerJson['WardsCleared'] / gameDurationMinute).toFixed(2);
+            else {
+                let seasonPId = matchJson['SeasonPId'];
+                matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
+                matchJson['SeasonName'] = await getSeasonName(seasonPId);
+                let tourneyPId = matchJson['TournamentPId'];
+                matchJson['TournamentShortName'] = await getTournamentShortName(tourneyPId);
+                matchJson['TournamentName'] = await getTournamentName(tourneyPId);
+                let gameDurationMinute = matchJson['GameDuration'] / 60;
+                for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
+                    let teamId = Object.keys(matchJson['Teams'])[i];
+                    let teamJson = matchJson['Teams'][teamId];
+                    teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
+                    for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
+                        let partId = Object.keys(teamJson['Players'])[j];
+                        let playerJson = teamJson['Players'][partId];
+                        playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']);
+                        playerJson['Kda'] = (playerJson['Deaths'] > 0) ? (((playerJson['Kills'] + playerJson['Assists']) / playerJson['Deaths']).toFixed(2)).toString() : "Perfect";
+                        playerJson['KillPct'] = ((playerJson['Kills'] + playerJson['Assists']) / teamJson['TeamKills']).toFixed(4);
+                        playerJson['DeathPct'] = (playerJson['Deaths'] / teamJson['TeamDeaths']).toFixed(4);
+                        playerJson['GoldPct'] = (playerJson['Gold'] / teamJson['TeamGold']).toFixed(4);
+                        playerJson['GoldPerMinute'] = (playerJson['Gold'] / gameDurationMinute).toFixed(2);
+                        playerJson['DamageDealtPct'] = (playerJson['TotalDamageDealt'] / teamJson['TeamDamageDealt']).toFixed(4);
+                        playerJson['DamagePerMinute'] = (playerJson['TotalDamageDealt'] / gameDurationMinute).toFixed(2);
+                        playerJson['CreepScorePct'] = (playerJson['CreepScore'] / teamJson['TeamCreepScore']).toFixed(4);
+                        playerJson['CreepScorePerMinute'] = (playerJson['CreepScore'] / gameDurationMinute).toFixed(2);
+                        playerJson['VisionScorePct'] = (playerJson['VisionScore'] / teamJson['TeamVisionScore']).toFixed(4);
+                        playerJson['VisionScorePerMinute'] = (playerJson['VisionScore'] / gameDurationMinute).toFixed(2);
+                        playerJson['WardsPlacedPerMinute'] = (playerJson['WardsPlaced'] / gameDurationMinute).toFixed(2);
+                        playerJson['ControlWardsBoughtPerMinute'] = (playerJson['ControlWardsBought'] / gameDurationMinute).toFixed(2);
+                        playerJson['WardsClearedPerMinute'] = (playerJson['WardsCleared'] / gameDurationMinute).toFixed(2);
+                    }
                 }
+                cache.set(cacheKey, JSON.stringify(matchJson, null, 2));
+                res.json(matchJson);
             }
-            cache.set(cacheKey, JSON.stringify(matchJson, null, 2));
-            res.json(matchJson);
+            
         }
     });
 });

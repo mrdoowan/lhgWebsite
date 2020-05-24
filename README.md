@@ -6,19 +6,19 @@ As of 4/8/2020, the following are installed to make this functional:
 
 The following need to be installed into Linux (sudo apt update):
 + awscli
-    + "aws configure" with the keys given
+    + "aws configure"
 + redis-server (run ")
-    + Linux: sudo systemctl restart redis.servis
-    + WSL: sudo system redis-server start
+    + Linux: "sudo systemctl restart redis.servis"
+    + WSL: "sudo system redis-server start"
 
-The following npm modules are (or should be) used in the server:
+The following npm modules are used in the server:
 * aws-sdk
 * express
 * concurrently
 * nodemon
 * redis
 
-The following npm modules are (or should be) used in the client:
+The following npm modules are used in the client:
 * react
 * react-scripts
 * react-router-dom

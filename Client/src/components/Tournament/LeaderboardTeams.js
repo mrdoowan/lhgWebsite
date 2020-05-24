@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     },
     title: {
         'text-decoration': 'underline',
-        padding: theme.spacing(1),
+        padding: theme.spacing(2),
         fontSize: 'large',
     },
     columnName: {
@@ -51,6 +51,7 @@ export default function LeaderboardTeams({ teamRecords }) {
 
     return (
         <div>
+        <p className={classes.title}>Team Leaderboards</p>
         <Grid container spacing={3}>
             {Object.keys(teamRecords).map((recordType) => (
                 <Grid item xs={6}>

@@ -31,9 +31,11 @@ export class seasonBase extends Component {
     render() {
         const { season, statusCode } = this.state;
 
+        let component = (<SeasonHeader info={season} />);
+
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Season" />) :
-            (<Markup data={season} component={<SeasonHeader info={season} />} code={statusCode} />)
+            (<Markup data={season} dataComponent={component} code={statusCode} />)
         );
     }
 }

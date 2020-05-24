@@ -62,7 +62,7 @@ export default function LeagueTable(props) {
                 </TableRow>
             </TableHead>
             <TableBody>
-            {seasonList.map((season) => (
+            {seasonList.Leagues.map((season) => (
                 <StyledTableRow key={season.SeasonTime}>
                     <StyledTableCell component="th" scope="row" align="center">{season.SeasonTime}</StyledTableCell>
                     <SeasonTableCell item={season.Champions} />
