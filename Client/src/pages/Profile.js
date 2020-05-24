@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-// If profileName is not in the database, redirect to 404 - FUNCTION HERE
-
 // {MAIN}/profile/:profileName
 export class profileBase extends Component {
     state = {
@@ -14,13 +12,11 @@ export class profileBase extends Component {
 
         fetch('/api/profile/information/name/' + params.profileName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    info: data
-                });
+                this.setState({ info: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }
@@ -50,25 +46,21 @@ export class profileGames extends Component {
 
         fetch('/api/profile/information/name/' + params.profileName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    info: data
-                });
+                this.setState({ info: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
         fetch('/api/profile/games/name/' + params.profileName + '/' + params.seasonShortName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    games: data
-                });
+                this.setState({ games: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }
@@ -98,25 +90,21 @@ export class profileStats extends Component {
 
         fetch('/api/profile/information/name/' + params.profileName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    info: data
-                });
+                this.setState({ info: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
         fetch('/api/profile/stats/name/' + params.profileName + '/' + params.seasonShortName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    stats: data
-                });
+                this.setState({ stats: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }

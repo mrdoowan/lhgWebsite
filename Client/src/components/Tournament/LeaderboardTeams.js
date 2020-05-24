@@ -51,24 +51,26 @@ export default function LeaderboardTeams({ teamRecords }) {
 
     return (
         <div>
-        <p className={classes.title}>Team Leaderboards</p>
-        <Grid container spacing={3}>
-            {Object.keys(teamRecords).map((recordType) => (
-                <Grid item xs={6}>
-                    <Paper className={classes.paper}>
-                        <div className={classes.title}>{titles[recordType]}</div>
-                        <table>
-                            {teamRecords[recordType].map((item) => (
-                            <tr className={classes.row}>
-                                <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
-                                <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item.TeamName, item.BlueTeamName, item.RedTeamName)}</Link>)</td>
-                            </tr>
-                            ))}
-                        </table>
-                    </Paper>
-                </Grid>
-            ))}
-        </Grid>
+            <p className={classes.title}>Team Leaderboards</p>
+            <Grid container spacing={3}>
+                {Object.keys(teamRecords).map((recordType) => (
+                    <Grid key={recordType} item xs={6}>
+                        <Paper className={classes.paper}>
+                            <div className={classes.title}>{titles[recordType]}</div>
+                            <table>
+                                <tbody>
+                                {teamRecords[recordType].map((item, i) => (
+                                    <tr key={i} className={classes.row}>
+                                        <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
+                                        <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item.TeamName, item.BlueTeamName, item.RedTeamName)}</Link>)</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </Paper>
+                    </Grid>
+                ))}
+            </Grid>
         </div>
     )
 }

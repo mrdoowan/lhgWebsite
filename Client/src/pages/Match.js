@@ -28,11 +28,11 @@ export class matchBase extends Component {
     render() {
         const { match, statusCode } = this.state;
 
-        let matchComponent = (
+        let matchComponent = (match) ? (
             <div className="body">
                 <p>Match Page for ID: {match.MatchPId}</p>
             </div>
-        );
+        ) : (<div></div>);
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Match" />) :

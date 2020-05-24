@@ -8,9 +8,6 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
     paper: {
         padding: theme.spacing(2),
         textAlign: 'center',
@@ -35,7 +32,7 @@ export default function TourneyHeader({ info, type }) {
     let tourneyBar = ( <TourneyTab shortName={info.TournamentShortName} type={type}/> );
 
     return (
-        <div className={classes.root}>
+        <div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>

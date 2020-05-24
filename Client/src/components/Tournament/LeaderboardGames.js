@@ -33,27 +33,27 @@ export default function LeaderboardGames({ gameRecords }) {
 
     return (
         <div>
-        <p className={classes.title}>Game Leaderboards</p>
-        <Grid container spacing={3}>
-            <Grid item xs={4}>
-                <Paper className={classes.paper}>
-                    <div className={classes.title}>Shortest Game</div>
-                    <p><Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{ShortestGame.BlueTeamName} vs. {ShortestGame.RedTeamName}</Link> in {lhgString.timeString(ShortestGame.GameDuration)}</p>
-                </Paper>
+            <p className={classes.title}>Game Leaderboards</p>
+            <Grid container spacing={3}>
+                <Grid item xs={4}>
+                    <Paper className={classes.paper}>
+                        <div className={classes.title}>Shortest Game</div>
+                        <p><Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{ShortestGame.BlueTeamName} vs. {ShortestGame.RedTeamName}</Link> in {lhgString.timeString(ShortestGame.GameDuration)}</p>
+                    </Paper>
+                </Grid>
+                <Grid item xs={4}>
+                    <Paper className={classes.paper}>
+                        <div className={classes.title}>Longest Game</div>
+                        <p><Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{LongestGame.BlueTeamName} vs. {LongestGame.RedTeamName}</Link> in {lhgString.timeString(LongestGame.GameDuration)}</p>
+                    </Paper>
+                </Grid>
+                <Grid item xs={4}>
+                    <Paper className={classes.paper}>
+                        <div className={classes.title}>Bloodiest Game</div>
+                        <p><Link className={classes.link} to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.BlueTeamName} vs. {MostKillGame.RedTeamName}</Link> {MostKillGame.Kills} Kills in {lhgString.timeString(MostKillGame.GameDuration)}</p>
+                    </Paper>
+                </Grid>
             </Grid>
-            <Grid item xs={4}>
-                <Paper className={classes.paper}>
-                    <div className={classes.title}>Longest Game</div>
-                    <p><Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{LongestGame.BlueTeamName} vs. {LongestGame.RedTeamName}</Link> in {lhgString.timeString(LongestGame.GameDuration)}</p>
-                </Paper>
-            </Grid>
-            <Grid item xs={4}>
-                <Paper className={classes.paper}>
-                    <div className={classes.title}>Bloodiest Game</div>
-                    <p><Link className={classes.link} to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.BlueTeamName} vs. {MostKillGame.RedTeamName}</Link> {MostKillGame.Kills} Kills in {lhgString.timeString(MostKillGame.GameDuration)}</p>
-                </Paper>
-            </Grid>
-        </Grid>
         </div>
     )
 }

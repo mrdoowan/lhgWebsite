@@ -23,18 +23,17 @@ export default function TourneyBaseSkeleton({info, stats, lb}) {
     let gameComponent = (<LeaderboardGames gameRecords={lb.GameRecords} />);
     let playerLBComponent = (<LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} />);
     let teamLBComponent = (<LeaderboardTeams teamRecords={lb.TeamSingleRecords} />);
-
-    let headerEmpty = "There is no information regarding this Tournament.";
-    let statsEmpty = "There are no stats regarding this Tournament.";
-    let lbEmpty = "There are no leaderboards regarding this Tournament.";
-
     let lbComponents = (
         <div>
             {gameComponent}
             {playerLBComponent}
             {teamLBComponent}
         </div>
-    )
+    );
+
+    let headerEmpty = "There is no Information logged for this Tournament.";
+    let statsEmpty = "There are no Stats logged for this Tournament.";
+    let lbEmpty = "There are no Leaderboards logged for this Tournament.";
 
     return (
         <div className={classes.root}>

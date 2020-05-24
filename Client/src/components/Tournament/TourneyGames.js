@@ -67,15 +67,17 @@ export default function TourneyGames({ games }) {
             <Paper className={classes.paper}>
                 <div className={classes.title}>Game Log</div>
                 <table>
-                {gamesListSorted.map((match) => (
-                    <tr className={classes.row}>
-                        <td className={classes.colDate}>{lhgString.dateString(match.DatePlayed / 1000)}</td>
-                        <td className={classes.colBlue}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
-                        <td className={classes.colVs}>VS.</td>
-                        <td className={classes.colRed}>{teamName(classes, match.RedTeamName, !match.BlueWin)}</td>
-                    <td className={classes.colLink}><Link className={classes.matchLink} to={`/match/${match.MatchPId}`}>Match Details</Link></td>
-                    </tr>
-                ))}
+                    <tbody>
+                    {gamesListSorted.map((match) => (
+                        <tr key={match.MatchPId} className={classes.row}>
+                            <td className={classes.colDate}>{lhgString.dateString(match.DatePlayed / 1000)}</td>
+                            <td className={classes.colBlue}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
+                            <td className={classes.colVs}>VS.</td>
+                            <td className={classes.colRed}>{teamName(classes, match.RedTeamName, !match.BlueWin)}</td>
+                        <td className={classes.colLink}><Link className={classes.matchLink} to={`/match/${match.MatchPId}`}>Match Details</Link></td>
+                        </tr>
+                    ))}
+                    </tbody>
                 </table>
             </Paper>
             </Grid>

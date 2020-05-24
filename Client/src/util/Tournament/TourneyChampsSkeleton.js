@@ -18,8 +18,8 @@ export default function TourneyChampsSkeleton({info, pb}) {
     let headerComponent = (<TourneyHeader info={info} type='Champs' />);
     let pickBansComponent = (<ChampsDataGrid pickbans={pb} />);
 
-    let headerEmpty = "There is no information regarding this Tournament.";
-    let pickBansEmpty = "There are no Champion stats regarding this Tournament.";
+    let headerEmpty = "There is no Information logged for this Tournament.";
+    let pickBansEmpty = "There are no Pick / Ban Stats logged for this Tournament.";
 
     return (
         <div className={classes.root}>

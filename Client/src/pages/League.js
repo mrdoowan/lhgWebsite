@@ -14,13 +14,11 @@ export class leagues extends Component {
     componentDidMount() {
         fetch('/api/leagues/')
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({ 
-                    leagues: data
-                });
+                this.setState({ leagues: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }

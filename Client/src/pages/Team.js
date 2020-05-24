@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 
-// If teamName is not in the database, redirect to 404 - FUNCTION HERE
-
-//  - ADDITIONAL TEAM RENDER HERE
-
 // {MAIN}/team/:teamName
 export class teamBase extends Component {
     state = {
@@ -16,13 +12,11 @@ export class teamBase extends Component {
 
         fetch('/api/team/information/name/' + params.teamName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    info: data
-                });
+                this.setState({ info: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }
@@ -53,37 +47,31 @@ export class teamGames extends Component {
 
         fetch('/api/team/information/name/' + params.teamName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    info: data
-                });
+                this.setState({ info: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
         fetch('/api/team/scouting/name/' + params.teamName + '/' + params.seasonShortName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    scouting: data
-                });
+                this.setState({ scouting: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
         fetch('/api/team/games/name/' + params.teamName + '/' + params.seasonShortName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    games: data
-                });
+                this.setState({ games: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }
@@ -113,25 +101,21 @@ export class teamStats extends Component {
 
         fetch('/api/team/information/name/' + params.teamName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    info: data
-                });
+                this.setState({ info: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
         fetch('/api/team/stats/name/' + params.teamName + '/' + params.seasonShortName)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({
-                    stats: data
-                });
+                this.setState({ stats: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }

@@ -1021,14 +1021,14 @@ function getTourneyPlayerStats(tPId) {
             else {
                 let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['ProfileHIdList']))['ProfileHIdList'];
                 if (profileHIdList != null) {
+                    let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
-                        let profileData = [];
                         let pPId = getPIdString(profileHIdList[i], profileHashIds);
                         let profileStatsLog = await getProfileStatsByTourney(pPId, tPId);
                         for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
                             let role = Object.keys(profileStatsLog['RoleStats'])[j];
                             let statsObj = profileStatsLog['RoleStats'][role];
-                            profileData.push({
+                            profileStatsList.push({
                                 'ProfileName': await getProfileName(profileHIdList[i]),
                                 'Role': role,
                                 'GamesPlayed': statsObj.GamesPlayed,
@@ -1065,7 +1065,7 @@ function getTourneyPlayerStats(tPId) {
                         }
                     }
                     let profileObject = {};
-                    profileObject['PlayerList'] = profileData;
+                    profileObject['PlayerList'] = profileStatsList;
                     cache.set(cacheKey, JSON.stringify(profileObject, null, 2));
                     resolve(profileObject);
                 }
@@ -1094,11 +1094,11 @@ function getTourneyTeamStats(tPId) {
             else {
                 let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TeamHIdList']))['TeamHIdList'];
                 if (teamHIdList != null) {
-                    let teamData = [];
+                    let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
                         let teamId = getPIdString(teamHIdList[i], teamHashIds);
                         let teamStatsLog = await getTeamStatsByTourney(teamId, tPId);
-                        teamData.push({
+                        teamStatsList.push({
                             'TeamName': await getTeamName(teamHIdList[i]),
                             'GamesPlayed': teamStatsLog.GamesPlayed,
                             'GamesWin': teamStatsLog.GamesWon,
@@ -1133,8 +1133,10 @@ function getTourneyTeamStats(tPId) {
                             'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
                         });
                     }
-                    cache.set(cacheKey, JSON.stringify(teamData, null, 2));
-                    resolve(teamData);
+                    let teamObject = {};
+                    teamObject['TeamList'] = teamStatsList;
+                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2));
+                    resolve(teamObject);
                 }
                 else {
                     resolve({});    // If 'TeamHIdList' does not exist

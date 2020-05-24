@@ -23,7 +23,7 @@ export class tournamentBase extends Component {
 
         fetch('/api/tournament/information/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -33,7 +33,7 @@ export class tournamentBase extends Component {
 
         fetch('/api/tournament/stats/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -43,7 +43,7 @@ export class tournamentBase extends Component {
 
         fetch('/api/tournament/leaderboards/name/'  + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -60,7 +60,7 @@ export class tournamentBase extends Component {
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) :
-            (<Markup data={stats || leaderboards} dataComponent={component} code={statusCode} />)
+            (<Markup data={info && stats && leaderboards} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -78,7 +78,7 @@ export class tournamentPlayers extends Component {
 
         fetch('/api/tournament/information/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -88,7 +88,7 @@ export class tournamentPlayers extends Component {
 
         fetch('/api/tournament/players/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -105,7 +105,7 @@ export class tournamentPlayers extends Component {
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) :
-            (<Markup data={players} dataComponent={component} code={statusCode} />)
+            (<Markup data={info && players} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -123,7 +123,7 @@ export class tournamentTeams extends Component {
 
         fetch('/api/tournament/information/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -133,7 +133,7 @@ export class tournamentTeams extends Component {
 
         fetch('/api/tournament/teams/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -150,7 +150,7 @@ export class tournamentTeams extends Component {
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) :
-            (<Markup data={teams} dataComponent={component} code={statusCode} />)
+            (<Markup data={info && teams} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -168,7 +168,7 @@ export class tournamentPickBans extends Component {
 
         fetch('/api/tournament/information/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -178,7 +178,7 @@ export class tournamentPickBans extends Component {
 
         fetch('/api/tournament/pickbans/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -195,7 +195,7 @@ export class tournamentPickBans extends Component {
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) :
-            (<Markup data={pickBans} dataComponent={component} code={statusCode} />)
+            (<Markup data={info && pickBans} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -213,7 +213,7 @@ export class tournamentGames extends Component {
 
         fetch('/api/tournament/information/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -223,7 +223,7 @@ export class tournamentGames extends Component {
 
         fetch('/api/tournament/games/name/' + params.tournamentShortName)
         .then(res => {
-            if (this.statusCode === 200 || this.statusCode === null) {
+            if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
             res.json().then((data) => {
@@ -241,7 +241,7 @@ export class tournamentGames extends Component {
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) :
-            (<Markup data={games} dataComponent={component} code={statusCode} />)
+            (<Markup data={info && games} dataComponent={component} code={statusCode} />)
         )
     }
 }
