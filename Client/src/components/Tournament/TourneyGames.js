@@ -18,18 +18,34 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
     },
     title: {
-        'text-decoration': 'underline',
-        fontSize: 'large',
+        fontWeight: 'bold',
+        fontSize: 'x-large',
         padding: theme.spacing(2),
     },
     row: {
         padding: theme.spacing(2),
     },
+    header: {
+        textDecoration: 'underline',
+        textAlign: 'middle'
+    },
+    headerRight: {
+        textDecoration: 'underline',
+        textAlign: 'right'
+    },
+    headerLeft: {
+        textDecoration: 'underline',
+        textAlign: 'left'
+    },
     colDate: {
-        width: "20%",
+        width: "15%",
         textAlign: 'middle',
     },
-    colBlue: {
+    colDuration: {
+        width: "5%",
+        textAlign: 'middle',
+    },
+    colBlueTeam: {
         width: "25%",
         textAlign: 'right',
     },
@@ -37,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
         width: "10%",
         textAlign: 'middle',
     },
-    colRed: {
+    colRedTeam: {
         width: "25%",
         textAlign: 'left',
     },
@@ -67,15 +83,28 @@ export default function TourneyGames({ games }) {
             <Paper className={classes.paper}>
                 <div className={classes.title}>Game Log</div>
                 <table>
-                {gamesListSorted.map((match) => (
-                    <tr className={classes.row}>
-                        <td className={classes.colDate}>{lhgString.dateString(match.DatePlayed / 1000)}</td>
-                        <td className={classes.colBlue}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
-                        <td className={classes.colVs}>VS.</td>
-                        <td className={classes.colRed}>{teamName(classes, match.RedTeamName, !match.BlueWin)}</td>
-                    <td className={classes.colLink}><Link className={classes.matchLink} to={`/match/${match.MatchPId}`}>Match Details</Link></td>
-                    </tr>
-                ))}
+                    <thead>
+                        <tr className={classes.row}>
+                            <td className={classes.header}>Time Played</td>
+                            <td className={classes.header}>Duration</td>
+                            <td className={classes.headerRight}>Blue Side</td>
+                            <td className={classes.header}></td>
+                            <td className={classes.headerLeft}>Red Side</td>
+                            <td className={classes.header}>Link</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {gamesListSorted.map((match) => (
+                        <tr key={match.MatchPId} className={classes.row}>
+                            <td className={classes.colDate}>{lhgString.dateString(match.DatePlayed / 1000)}EST</td>
+                            <td className={classes.colDuration}>{lhgString.timeString(match.Duration)}</td>
+                            <td className={classes.colBlueTeam}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
+                            <td className={classes.colVs}>VS.</td>
+                            <td className={classes.colRedTeam}>{teamName(classes, match.RedTeamName, !match.BlueWin)}</td>
+                            <td className={classes.colLink}><Link className={classes.matchLink} to={`/match/${match.MatchPId}`}>Match Details</Link></td>
+                        </tr>
+                    ))}
+                    </tbody>
                 </table>
             </Paper>
             </Grid>

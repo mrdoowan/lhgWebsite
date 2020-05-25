@@ -31,9 +31,14 @@ const useStyles = makeStyles((theme) => ({
     row: {
         padding: theme.spacing(1),
     },
+    title: {
+        padding: theme.spacing(2),
+        'text-decoration': 'underline',
+        fontSize: 'large',
+    },
 }));
 
-export default function TourneyStats({stats}) {
+export default function TourneyStats({ stats }) {
     const classes = useStyles();
 
     const sideData = [
@@ -60,34 +65,35 @@ export default function TourneyStats({stats}) {
 
     return (
         <div>
-        <Grid container spacing={3}>
-            <Grid item xs={6}>
-                <Paper className={classes.paper}>
-                    <div className={classes.row}>
-                        <div className={classes.columnInfo}>Number of Games:</div>
-                        <div className={classes.columnData}>{stats.NumberGames}</div>
-                    </div>
-                    <div className={classes.row}>
-                        <div className={classes.columnInfo}>Average Game Duration:</div>
-                        <div className={classes.columnData}>{lhgString.timeString(stats.TotalGameDuration / stats.NumberGames)}</div>
-                    </div>
-                    <div className={classes.row}>
-                        <PieGraph dataSource={sideData} palette={sidePalette} title="Blue/Red Side Win Rate" />
-                    </div>
-                </Paper>
+            <p className={classes.title}>Tournament Stats</p>
+            <Grid container spacing={3}>
+                <Grid item xs={6}>
+                    <Paper className={classes.paper}>
+                        <div className={classes.row}>
+                            <div className={classes.columnInfo}>Number of Games:</div>
+                            <div className={classes.columnData}>{stats.NumberGames}</div>
+                        </div>
+                        <div className={classes.row}>
+                            <div className={classes.columnInfo}>Average Game Duration:</div>
+                            <div className={classes.columnData}>{lhgString.timeString(stats.TotalGameDuration / stats.NumberGames)}</div>
+                        </div>
+                        <div className={classes.row}>
+                            <PieGraph dataSource={sideData} palette={sidePalette} title="Blue/Red Side Win Rate" />
+                        </div>
+                    </Paper>
+                </Grid>
+                <Grid item xs={6}>
+                    <Paper className={classes.paper}>
+                        <div className={classes.row}>
+                            <div className={classes.columnInfo}>Total Dragons Taken:</div>
+                            <div className={classes.columnData}>{totalDragons}</div>
+                        </div>
+                        <div className={classes.row}>
+                            <PieGraph dataSource={dragonData} palette={dragonPalette} title="Dragon Percentage" />
+                        </div>
+                    </Paper>
+                </Grid>
             </Grid>
-            <Grid item xs={6}>
-                <Paper className={classes.paper}>
-                    <div className={classes.row}>
-                        <div className={classes.columnInfo}>Total Dragons Taken:</div>
-                        <div className={classes.columnData}>{totalDragons}</div>
-                    </div>
-                    <div className={classes.row}>
-                        <PieGraph dataSource={dragonData} palette={dragonPalette} title="Dragon Percentage" />
-                    </div>
-                </Paper>
-            </Grid>
-        </Grid>
         </div>
     );
 }

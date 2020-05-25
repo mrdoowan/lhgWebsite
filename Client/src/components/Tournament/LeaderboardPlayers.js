@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     },
     title: {
         'text-decoration': 'underline',
-        padding: theme.spacing(1),
+        padding: theme.spacing(2),
         fontSize: 'large',
     },
     columnImage: {
@@ -62,24 +62,27 @@ export default function LeaderboardPlayers({ playerRecords }) {
 
     return (
         <div>
-        <Grid container spacing={3}>
-            {Object.keys(playerRecords).map((recordType) => (
-                <Grid item xs={6}>
-                    <Paper className={classes.paper}>
-                        <div className={classes.title}>{titles[recordType]}</div>
-                        <table>
-                            {playerRecords[recordType].map((item) => (
-                            <tr className={classes.row}>
-                                <td className={classes.columnImage}><ChampionSquare id={item.ChampId}  /></td>
-                                <td className={classes.columnName}><Link className={classes.link} to={`/profile/${item.ProfileName}`}>{item.ProfileName}</Link></td>
-                                <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>{item.BlueTeamName} vs. {item.RedTeamName}</Link>)</td>
-                            </tr>
-                            ))}
-                        </table>
-                    </Paper>
-                </Grid>
-            ))}
-        </Grid>
+            <p className={classes.title}>Player Leaderboards</p>
+            <Grid container spacing={3}>
+                {Object.keys(playerRecords).map((recordType) => (
+                    <Grid key={recordType} item xs={6}>
+                        <Paper className={classes.paper}>
+                            <div className={classes.title}>{titles[recordType]}</div>
+                            <table>
+                                <tbody>
+                                {playerRecords[recordType].map((item, i) => (
+                                    <tr key={i} className={classes.row}>
+                                        <td className={classes.columnImage}><ChampionSquare id={item.ChampId}  /></td>
+                                        <td className={classes.columnName}><Link className={classes.link} to={`/profile/${item.ProfileName}`}>{item.ProfileName}</Link></td>
+                                        <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>{item.BlueTeamName} vs. {item.RedTeamName}</Link>)</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </Paper>
+                    </Grid>
+                ))}
+            </Grid>
         </div>
     )
 }

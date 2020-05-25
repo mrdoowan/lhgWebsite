@@ -35,6 +35,10 @@ const useStyles = makeStyles({
     table: {
         minWidth: 700,
     },
+    header: {
+        'text-decoration': 'underline',
+        fontSize: 'large',
+    },
 });
 
 function SeasonTableCell({ item }) {
@@ -55,14 +59,14 @@ export default function LeagueTable(props) {
         <Table className={classes.table} aria-label="customized table">
             <TableHead>
                 <TableRow>
-                    <StyledTableCell align="center">Season Time</StyledTableCell>
+                    <StyledTableCell className={classes.header} align="center"><b>Season</b></StyledTableCell>
                     <StyledTableCell align="center"></StyledTableCell>
                     <StyledTableCell align="center"></StyledTableCell>
                     <StyledTableCell align="center"></StyledTableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
-            {seasonList.map((season) => (
+            {seasonList.Leagues.map((season) => (
                 <StyledTableRow key={season.SeasonTime}>
                     <StyledTableCell component="th" scope="row" align="center">{season.SeasonTime}</StyledTableCell>
                     <SeasonTableCell item={season.Champions} />

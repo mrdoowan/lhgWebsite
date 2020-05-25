@@ -2,8 +2,6 @@
 module.exports = {
     getItem: getItemInDynamoDB,
     updateItem: updateItemInDynamoDB,
-    updateTest: updateTestInDynamoDB,
-    doesItemExist: doesItemExistInDynamoDB,
     putItem: putItemInDynamoDB,
     putTest: putTestInDynamoDB,
     scanTable: scanTableLoopInDynamoDB,
@@ -17,8 +15,6 @@ var dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 /*  Put 'false' to test without affecting the databases. */
 const PUT_INTO_DYNAMO = false;       // 'true' when comfortable to push into DynamoDB
-/*  Put 'false' to not debug. */
-const DEBUG_DYNAMO = false;
 
 // Returns 'undefined' if key item does NOT EXIST
 function getItemInDynamoDB(tableName, partitionName, keyValue, attributeNames=[]) {
@@ -45,33 +41,6 @@ function getItemInDynamoDB(tableName, partitionName, keyValue, attributeNames=[]
         }
         catch (error) {
             console.error("ERROR - getItemInDynamoDB \'" + tableName + "\' Promise rejected with Item \'" + keyValue + "\'.")
-            reject(error);
-        }
-    });
-}
-
-// DETAILED FUNCTION DESCRIPTION XD
-function doesItemExistInDynamoDB(tableName, partitionName, keyValue) {
-    var params = {
-        TableName: tableName,
-        Key: {
-            [partitionName]: keyValue
-        },
-        AttributesToGet: [partitionName],
-    };
-    return new Promise(function(resolve, reject) {
-        try {
-            dynamoDB.get(params, function(err, data) {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve('Item' in data);
-                }
-            });
-        }
-        catch (error) {
-            console.error("ERROR - doesItemExistInDynamoDB \'" + tableName + "\' Promise rejected.");
             reject(error);
         }
     });

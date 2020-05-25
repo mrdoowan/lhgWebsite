@@ -1,0 +1,186 @@
+module.exports = {
+    getId: getProfilePId,
+    getName: getProfileName,
+    getInfo: getProfileInfo,
+    getGames: getProfileGamesBySeason,
+    getStats: getProfileStatsByTourney,
+}
+
+/*  Declaring npm modules */
+require('dotenv').config({ path: '../.env' });
+const redis = require('redis');
+const cache = redis.createClient(process.env.REDIS_PORT);
+
+/*  Import helper function modules */
+const dynamoDb = require('./dynamoDbHelper');
+const keyBank = require('./cacheKeys');
+const helper = require('./helper');
+// Data Functions
+const Season = require('./seasonData');
+const Tournament = require('./tournamentData');
+const Team = require('./teamData');
+
+// Get ProfilePId from ProfileName
+function getProfilePId(name) {
+    let simpleName = helper.filterName(name);
+    let cacheKey = keyBank.PROFILE_PID_PREFIX + simpleName;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console.error(err); reject(500); }
+            else if (data != null) { resolve(data); }
+            else {
+                dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
+                .then((obj) => {
+                    if (obj == null) { console.error("Profile Name '" + name + "' Not Found"); reject(404); } // Not Found 
+                    else {
+                        let pPId = helper.getProfilePId(obj['ProfileHId']);
+                        cache.set(cacheKey, pPId);
+                        resolve(pPId);
+                    }
+                }).catch((err) => { console.error(err); reject(500) });
+            }
+        });
+    });
+}
+
+// Get ProfileName from DynamoDb
+function getProfileName(pHId) {
+    let pPId = helper.getProfilePId(pHId);
+    let cacheKey = keyBank.PROFILE_NAME_PREFIX + pPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console.error(err); reject(500) }
+            else if (data != null) { resolve(data); }
+            else {
+                dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['ProfileName'])
+                .then((obj) => {
+                    if (obj == null) { reject(404); } // Not Found
+                    else {
+                        cache.set(cacheKey, obj['ProfileName']);
+                        resolve(obj['ProfileName']);
+                    }
+                }).catch((err) => { console.error(err); reject(500) });
+            }
+        });
+    });
+}
+
+function getProfileInfo(pPId) {
+    let cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, async (err, data) => {
+            if (err) { console(err); reject(500); }
+            else if (data != null) { resolve(JSON.parse(data)); }
+            else {
+                try {
+                    let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['Information']))['Information'];
+                    if (profileInfoJson != null) { 
+                        if ('ActiveSeasonPId' in profileInfoJson) {
+                            profileInfoJson['ActiveSeasonShortName'] = await Season.getShortName(profileInfoJson['ActiveSeasonPId']);
+                            profileInfoJson['ActiveSeasonName'] = await Season.getName(profileInfoJson['ActiveSeasonPId']);
+                        }
+                        if ('ActiveTeamHId' in profileInfoJson) {
+                            profileInfoJson['ActiveTeamName'] = await Team.getName(profileInfoJson['ActiveTeamHId']);
+                        }
+                        cache.set(cacheKey, JSON.stringify(profileInfoJson, null, 2));
+                        resolve(profileInfoJson);
+                    }
+                    else {
+                        resolve({}) // If 'Information' does not exist
+                    }
+                }
+                catch (err) { console.error(err); reject(500); }
+            }
+        });
+    });
+}
+
+function getProfileGamesBySeason(pPId, sPId) {
+    let cacheKey = keyBank.PROFILE_GAMES_PREFIX + pPId + '-' + sPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, async (err, data) => {
+            if (err) { console(err); reject(500); }
+            else if (data != null) { resolve(JSON.parse(data)); }
+            else {
+                try {
+                    let profileGameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
+                    if (profileGameLogJson != null) {
+                        let profileGamesJson = profileGameLogJson[sPId];
+                        if (profileGamesJson == null) { console.error("This player does not have this Season logged."); reject(404); }
+                        else {
+                            profileGamesJson['SeasonTime'] = await Season.getTime(sPId);
+                            for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
+                                let matchJson = Object.values(profileGamesJson['Matches'])[i];
+                                matchJson['TeamName'] = await Team.getName(matchJson['TeamHId']);
+                                matchJson['EnemyTeamName'] = await Team.getName(matchJson['EnemyTeamHId']);
+                                matchJson['KillPct'] = ((matchJson['Kills'] + matchJson['Assists']) / matchJson['TeamKills']).toFixed(4);
+                                matchJson['DamagePct'] = (matchJson['DamageDealt'] / matchJson['TeamDamage']).toFixed(4);
+                                matchJson['GoldPct'] = (matchJson['Gold'] / matchJson['TeamGold']).toFixed(4);
+                                matchJson['VisionScorePct'] = (matchJson['VisionScore'] / matchJson['TeamVS']).toFixed(4);
+                            }
+                            cache.set(cacheKey, JSON.stringify(profileGamesJson, null, 2));
+                            resolve(profileGamesJson);
+                        }
+                    }
+                    else {
+                        resolve({});    // If 'GameLog' does not exist
+                    }
+                }
+                catch (err) { console.error(err); reject(500); }
+            }
+        });
+    });
+}
+
+function getProfileStatsByTourney(pPId, tPId) {
+    let cacheKey = keyBank.PROFILE_STATS_PREFIX + pPId + '-' + tPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, async (err, data) => {
+            if (err) { console(err); reject(500); }
+            else if (data != null) { resolve(JSON.parse(data)); }
+            else {
+                try {
+                    let profileStatLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
+                    if (profileStatLogJson != null) {
+                        let profileStatsJson = profileStatLogJson[tPId];
+                        if (profileStatsJson == null) { console.error("This player does not have this Tournament logged."); reject(404); }
+                        else {
+                            profileStatsJson['TournamentName'] = await Tournament.getName(tPId);
+                            for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
+                                let role = Object.keys(profileStatsJson['RoleStats'])[i];
+                                let statsJson = profileStatsJson['RoleStats'][role];
+                                let gameDurationMinute = statsJson['TotalGameDuration'] / 60;
+                                statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
+                                statsJson['KillPct'] = ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
+                                statsJson['DeathPct'] = (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
+                                statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
+                                statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / gameDurationMinute).toFixed(2);
+                                statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
+                                statsJson['DamagePerMinute'] = (statsJson['TotalDamage'] / gameDurationMinute).toFixed(2);
+                                statsJson['DamagePct'] = (statsJson['TotalDamage'] / statsJson['TotalTeamDamage']).toFixed(4);
+                                statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / gameDurationMinute).toFixed(2);
+                                statsJson['VisionScorePct'] = (statsJson['TotalVisionScore'] / statsJson['TotalTeamVisionScore']).toFixed(4);
+                                statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / gameDurationMinute).toFixed(2);
+                                statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / gameDurationMinute).toFixed(2);
+                                statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / gameDurationMinute).toFixed(2);
+                                statsJson['AverageCsAtEarly'] = (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                                statsJson['AverageGoldAtEarly'] = (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                                statsJson['AverageXpAtEarly'] = (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                                statsJson['AverageCsDiffEarly'] = (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                                statsJson['AverageGoldDiffEarly'] = (statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                                statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                                statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
+                            }
+                            cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2));
+                            resolve(profileStatsJson);
+                        }
+                    }
+                    else {
+                        resolve({});    // If 'StatsLog' does not exist
+                    }
+                }
+                catch (err) { console.error(err); reject(500); }
+            }
+        });
+    });
+}

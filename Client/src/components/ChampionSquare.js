@@ -37,10 +37,13 @@ export default function ChampionSquare({ id, version='', withName=false}) {
     return (!withName) ? 
         (<img src={url} alt={urlId} width="30" height="30" />) :
         (<div><table className="table">
-            <tr>
-                <td className={classes.columnImage}><img src={url} alt={urlId} width="30" height="30" /></td>
-                <td className={classes.columnName}>{name}</td>
-            </tr>
+            <tbody>
+                <tr>
+                    <td className={classes.columnImage}><img src={url} alt={urlId} width="30" height="30" /></td>
+                    <td className={classes.columnName}>{name}</td>
+                </tr>
+            </tbody>
+            
         </table></div>);
 }
 

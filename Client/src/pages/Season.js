@@ -1,33 +1,41 @@
 import React, { Component } from 'react';
 // Components
-import SeasonHeader from '../components/SeasonHeader';
+import SeasonHeader from '../components/Season/SeasonHeader';
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
 
 // If shortname is not in the database, redirect to 404 - FUNCTION HERE
 
 // {MAIN}/season/:seasonShortName
 export class seasonBase extends Component {
     state = {
-        season: null
+        season: null,
+        statusCode: null,
     }
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/season/information/name/' + params.seasonShortName)
-        .then(res => res.json())
-        .then(data => {
+        fetch('/api/season/v1/information/name/' + params.seasonShortName)
+        .then(res => {
             this.setState({
-                season: data
+                statusCode: res.status
             });
-            console.log(data);
-        })
-        .catch(err => console.error(err));
+            res.json().then((data) => {
+                this.setState({ 
+                    season: data
+                });
+            }).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     render() {
-        const { season } = this.state;
+        const { season, statusCode } = this.state;
 
-        return (
-            <div><SeasonHeader info={season} /></div>
+        let component = (<SeasonHeader info={season} />);
+
+        return ((statusCode != null && statusCode !== 200) ? 
+            (<Error code={statusCode} page="Season" />) :
+            (<Markup data={season} dataComponent={component} code={statusCode} />)
         );
     }
 }

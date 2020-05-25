@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 // Components
-import TourneyTab from './TourneyTab';
+import TeamTab from './TeamTab';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -15,38 +14,31 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
         'font-weight': 'bold',
     },
-    link: {
-        color: 'blue',
+    title: {
+        fontSize: 'x-large',
     },
 }));
 
-export default function TourneyHeader({ info, type }) {
+export default function TeamHeader({ info, type }) {
     const classes = useStyles();
 
     let titleMarkUp = (
-        <div className="body">
-            <p><Link className={classes.link} to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {tourneyTypeString(info.TournamentType)}</p>
-            <p>Tournament Stats</p>
+        <div className={classes.title}>
+            <p>{info.TeamName}</p>
         </div>
     );
-    let tourneyBar = ( <TourneyTab shortName={info.TournamentShortName} type={type}/> );
-
+    let teamBar = ( <TeamTab name={info.TeamName} type={type} /> );
+    
     return (
         <div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
                         {titleMarkUp}
-                        {tourneyBar}
+                        {teamBar}
                     </Paper>
                 </Grid>
             </Grid>
         </div>
     );
-}
-
-function tourneyTypeString(str) {
-    return (str === 'Regular') ? 
-        "Regular Season" :
-        "Playoffs";
 }

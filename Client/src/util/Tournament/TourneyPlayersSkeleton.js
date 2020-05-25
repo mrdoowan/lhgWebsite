@@ -2,7 +2,7 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Components
-import Loading from '../../components/Loading';
+import DataWrapper from '../../components/DataWrapper';
 import TourneyHeader from '../../components/Tournament/TourneyHeader';
 import PlayerDataGrid from '../../components/Tournament/PlayerDataGrid';
 
@@ -20,18 +20,16 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyPlayersSkeleton({info, players}) {
     const classes = useStyles();
 
-    let headerMarkup = info ? (
-        <div><TourneyHeader info={info} type='Players' /></div>
-    ) : (<div></div>);
+    let headerComponent = (<TourneyHeader info={info} type='Players' />);
+    let playersComponent = (<div><PlayerDataGrid players={players.PlayerList} /></div>);
 
-    let playersTable = players ? (
-        <div><PlayerDataGrid players={players} /></div>
-    ) : (<div><Loading /></div>)
+    let headerEmpty = "There is no Information logged for this Tournament.";
+    let playersEmpty = "There are no Player Stats logged for this Tournament.";
 
     return (
         <div className={classes.root}>
-            {headerMarkup}
-            {playersTable}
+            <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
+            <DataWrapper data={players} component={playersComponent} emptyMessage={playersEmpty} />
         </div>
     )
 }
