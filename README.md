@@ -34,7 +34,7 @@ When you pull this repo, you will not have the npm modules. Those need to be ins
 Run the following command lines in the root directory.
 
 To get the server running only: (Server is running on Port 5000)
-- **NOTE:** The /external/env file is needed from Doowan
+- **NOTE:** The .env file is needed from Doowan. Once received, place it in the root directory
 ```sh
 npm run server
 ```

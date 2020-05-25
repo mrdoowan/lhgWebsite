@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TourneyStats({stats}) {
+export default function TourneyStats({ stats }) {
     const classes = useStyles();
 
     const sideData = [

@@ -1,4 +1,11 @@
 import React, { Component } from 'react';
+// Components
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
+// Util
+import TeamBaseSkeleton from '../util/Team/TeamBaseSkeleton';
+import TeamGamesSkeleton from '../util/Team/TeamGamesSkeleton';
+import TeamStatsSkeleton from '../util/Team/TeamStatsSkeleton';
 
 // {MAIN}/team/:teamName
 export class teamBase extends Component {
@@ -23,12 +30,14 @@ export class teamBase extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, statusCode } = this.state;
+
+        let component = (<TeamBaseSkeleton info={info} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Team" />) : 
+            (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -78,12 +87,14 @@ export class teamGames extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, scouting, games, statusCode } = this.state;
+
+        let component = (<TeamGamesSkeleton info={info} scouting={scouting} games={games} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Team" />) : 
+            (<Markup data={info && scouting && games} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -122,12 +133,14 @@ export class teamStats extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, stats, statusCode } = this.state;
+
+        let component = (<TeamStatsSkeleton info={info} stats={stats} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Team" />) : 
+            (<Markup data={info && stats} dataComponent={component} code={statusCode} />)
         )
     }
 }

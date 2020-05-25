@@ -15,8 +15,6 @@ var dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 /*  Put 'false' to test without affecting the databases. */
 const PUT_INTO_DYNAMO = false;       // 'true' when comfortable to push into DynamoDB
-/*  Put 'false' to not debug. */
-const DEBUG_DYNAMO = false;
 
 // Returns 'undefined' if key item does NOT EXIST
 function getItemInDynamoDB(tableName, partitionName, keyValue, attributeNames=[]) {

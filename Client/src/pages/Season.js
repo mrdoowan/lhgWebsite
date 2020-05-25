@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // Components
-import SeasonHeader from '../components/SeasonHeader';
+import SeasonHeader from '../components/Season/SeasonHeader';
 import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
 

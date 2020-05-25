@@ -12,15 +12,13 @@ export class matchBase extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/match/' + params.matchPId)
+        fetch('/api/match/v1/' + params.matchPId)
         .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
             res.json().then((data) => {
-                this.setState({ 
-                    match: data
-                });
+                this.setState({ match: data });
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
     }

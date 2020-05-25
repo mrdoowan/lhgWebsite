@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // Components
-import LeagueTable from '../components/LeagueTable';
+import LeagueTable from '../components/League/LeagueTable';
 import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
 

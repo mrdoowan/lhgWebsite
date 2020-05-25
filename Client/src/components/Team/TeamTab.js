@@ -23,29 +23,21 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TourneyTab({ shortName, type }) {
+export default function TeamTab({ name, type }) {
     const classes = useStyles();
-    const tabList = [ 
-        { 
-            text: 'Tournament',
+    const tabList = [
+        {
+            text: 'Team',
             url: '',
-        },
-        {
-            text: 'Players',
-            url: '/players',
-        },
-        {
-            text: 'Teams',
-            url: '/teams',
-        },
-        {
-            text: 'Champs',
-            url: '/pickbans',
         },
         {
             text: 'Games',
             url: '/games',
-        }
+        },
+        {
+            text: 'Stats',
+            url: '/stats',
+        },
     ];
 
     return (
@@ -56,14 +48,14 @@ export default function TourneyTab({ shortName, type }) {
                     key={tab.text.toLowerCase()} 
                     variant="contained" 
                     color={isPrimary(type, tab.text)} 
-                    component={Link} 
-                    to={`/tournament/${shortName}${tab.url}`}>
+                    component={Link}
+                    to={`/team/${name}${tab.url}`}>
                     {tab.text}
                 </Button>
             ))}
             </ButtonGroup>
         </div>
-    );
+    )
 }
 
 function isPrimary(type, text) {
