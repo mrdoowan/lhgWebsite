@@ -1,5 +1,8 @@
 # Client
 
+## 0.0.7
+* Cleaned up Client to accommodate server's new error handling. Implemented contentless skeleton for Team
+
 ## 0.0.6
 * Tournament pages completed; utilizing dev-extreme graphs
 
@@ -19,6 +22,9 @@
 * First Github commit for collaboration purposes.
 
 # Server
+
+## 0.0.5
+* server.js completely broken and categorized; error handling implemented
 
 ## 0.0.4
 * Redis cache implemented

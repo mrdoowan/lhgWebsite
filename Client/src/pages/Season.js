@@ -15,7 +15,7 @@ export class seasonBase extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/season/information/name/' + params.seasonShortName)
+        fetch('/api/season/v1/information/name/' + params.seasonShortName)
         .then(res => {
             this.setState({
                 statusCode: res.status

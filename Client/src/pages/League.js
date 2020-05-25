@@ -12,7 +12,7 @@ export class leagues extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/leagues/')
+        fetch('/api/leagues/v1')
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });

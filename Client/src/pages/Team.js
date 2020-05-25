@@ -17,7 +17,7 @@ export class teamBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/team/information/name/' + params.teamName)
+        fetch('/api/team/v1/information/name/' + params.teamName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -54,7 +54,7 @@ export class teamGames extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/team/information/name/' + params.teamName)
+        fetch('/api/team/v1/information/name/' + params.teamName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -64,7 +64,7 @@ export class teamGames extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/team/scouting/name/' + params.teamName + '/' + params.seasonShortName)
+        fetch('/api/team/v1/scouting/name/' + params.teamName + '/' + params.seasonShortName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -74,7 +74,7 @@ export class teamGames extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/team/games/name/' + params.teamName + '/' + params.seasonShortName)
+        fetch('/api/team/v1/games/name/' + params.teamName + '/' + params.seasonShortName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -110,7 +110,7 @@ export class teamStats extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/team/information/name/' + params.teamName)
+        fetch('/api/team/v1/information/name/' + params.teamName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -120,7 +120,7 @@ export class teamStats extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/team/stats/name/' + params.teamName + '/' + params.seasonShortName)
+        fetch('/api/team/v1/stats/name/' + params.teamName + '/' + params.seasonShortName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });

@@ -10,7 +10,7 @@ export class profileBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/profile/information/name/' + params.profileName)
+        fetch('/api/profile/v1/information/name/' + params.profileName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -44,7 +44,7 @@ export class profileGames extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/profile/information/name/' + params.profileName)
+        fetch('/api/profile/v1/information/name/' + params.profileName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -54,7 +54,7 @@ export class profileGames extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/profile/games/name/' + params.profileName + '/' + params.seasonShortName)
+        fetch('/api/profile/v1/games/name/' + params.profileName + '/' + params.seasonShortName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -88,7 +88,7 @@ export class profileStats extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/profile/information/name/' + params.profileName)
+        fetch('/api/profile/v1/information/name/' + params.profileName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -98,7 +98,7 @@ export class profileStats extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/profile/stats/name/' + params.profileName + '/' + params.seasonShortName)
+        fetch('/api/profile/v1/stats/name/' + params.profileName + '/' + params.seasonShortName)
         .then(res => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
