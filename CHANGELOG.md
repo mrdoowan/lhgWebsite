@@ -1,3 +1,11 @@
+# Overall
+* vA.6 - Current
+* vA.5 - client 0.0.7, Server 0.0.5
+* vA.4 - Client 0.0.6, Server 0.0.4
+* vA.3 - Client 0.0.5, Server 0.0.3
+* vA.2 - Client 0.0.4, Server 0.0.2
+* vA.1 - Client 0.0.3, Server 0.0.2
+
 # Client
 
 ## 0.0.7
@@ -40,5 +48,8 @@
 
 # Notes
 
+## For Overall
+* Major.Minor
+## For Server & Client
 * 0.1.0 is when a prototype is working
 * 1.0.0 will be the first production website
