@@ -97,7 +97,8 @@ function getTeamInfo(teamPId) {
     });
 }
 
-function getTeamScoutingBySeason(teamPId, sPId) {
+// Returns Object
+function getTeamScoutingBySeason(teamPId, sPId=null) {
     let cacheKey = keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -105,12 +106,13 @@ function getTeamScoutingBySeason(teamPId, sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 try {
-                    let teamScoutingLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'];
-                    if (teamScoutingLogJson != null) {
-                        let teamScoutingSeasonJson = teamScoutingLogJson[sPId];
+                    let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'];
+                    if (scoutingJson != null) {
+                        let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
+                        let teamScoutingSeasonJson = scoutingJson[seasonId];
                         if (teamScoutingSeasonJson == null) { console.error("This team does not have this Season logged."); reject(404); }
                         else {
-                            teamScoutingSeasonJson['SeasonTime'] = await Season.getTime(sPId);
+                            teamScoutingSeasonJson['SeasonTime'] = await Season.getTime(seasonId);
                             for (let i = 0; i < Object.values(teamScoutingSeasonJson['PlayerLog']).length; ++i) {
                                 let roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
                                 for (let j = 0; j < Object.keys(roleMap).length; ++j) {
@@ -129,7 +131,8 @@ function getTeamScoutingBySeason(teamPId, sPId) {
                         }
                     }
                     else {
-                        resolve({});    // If 'Scouting' does not exist
+                        if (sPId == null) { resolve({}) }   // If 'Scouting' does not exist
+                        else { console.error("This team does not have any Games logged."); reject(404); }
                     }
                 }
                 catch (err) { console.error(err); reject(500); }
@@ -138,7 +141,8 @@ function getTeamScoutingBySeason(teamPId, sPId) {
     });
 }
 
-function getTeamGamesBySeason(teamPId, sPId) {
+// Returns Object
+function getTeamGamesBySeason(teamPId, sPId=null) {
     let cacheKey = keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -146,12 +150,13 @@ function getTeamGamesBySeason(teamPId, sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 try {
-                    let teamGameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'];
-                    if (teamGameLogJson != null) {
-                        let teamSeasonGamesJson = teamGameLogJson[sPId];
+                    let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'];
+                    if (gameLogJson != null) {
+                        let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
+                        let teamSeasonGamesJson = gameLogJson[seasonId];
                         if (teamSeasonGamesJson == null) { console.error("This team does not have this Season logged."); reject(404); }
                         else {
-                            teamSeasonGamesJson['SeasonTime'] = Season.getTime(sPId);
+                            teamSeasonGamesJson['SeasonTime'] = await Season.getTime(seasonId);
                             for (let i = 0; i < Object.values(teamSeasonGamesJson['Matches']).length; ++i) {
                                 let matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
                                 for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
@@ -165,7 +170,8 @@ function getTeamGamesBySeason(teamPId, sPId) {
                         }
                     }
                     else {
-                        resolve({});    // If 'GameLog' does not exist
+                        if (sPId == null) { resolve({}); }  // If 'GameLog' does not exist
+                        else { console.error("This team does not have any Games logged."); reject(404); }
                     }
                 }
                 catch (err) { console.error(err); reject(500); }
@@ -174,7 +180,8 @@ function getTeamGamesBySeason(teamPId, sPId) {
     });
 }
 
-function getTeamStatsByTourney(teamPId, tPId) {
+// Returns Object
+function getTeamStatsByTourney(teamPId, tPId=null) {
     let cacheKey = keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -182,13 +189,14 @@ function getTeamStatsByTourney(teamPId, tPId) {
             else if (data != null) resolve(JSON.parse(data));
             else {
                 try {
-                    let teamStatsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'];
-                    if (teamStatsLogJson != null) {
-                        let tourneyStatsJson = teamStatsLogJson[tPId];
+                    let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'];
+                    if (statsLogJson != null) {
+                        let tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
+                        let tourneyStatsJson = statsLogJson[tourneyId];
                         if (tourneyStatsJson == null) { console.error("This team does not have this Tournament logged."); reject(404); }
                         else {
                             let totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
-                            tourneyStatsJson['TournamentName'] = await Tournament.getName(tPId);
+                            tourneyStatsJson['TournamentName'] = await Tournament.getName(tourneyId);
                             tourneyStatsJson['GamesPlayedOnRed'] = tourneyStatsJson['GamesPlayed'] - tourneyStatsJson['GamesPlayedOnBlue'];
                             tourneyStatsJson['RedWins'] = tourneyStatsJson['GamesWon'] - tourneyStatsJson['BlueWins'];
                             tourneyStatsJson['AverageGameDuration'] = (tourneyStatsJson['TotalGameDuration'] / tourneyStatsJson['GamesPlayed']).toFixed(2);
@@ -225,7 +233,8 @@ function getTeamStatsByTourney(teamPId, tPId) {
                         }
                     }
                     else {
-                        resolve({});    // If 'StatsLog' does not exist
+                        if (tPId == null) { resolve({}); }  // If 'StatsLog' does not exist
+                        else { console.error("This team does not have any Games logged."); reject(404); }
                     }
                 }
                 catch (err) { console.error(err); reject(500); }

@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 export default function TeamStatsSkeleton({ info, stats }) {
     const classes = useStyles();
 
-    let headerComponent = (<TeamHeader info={info} type='Games' />);
+    let headerComponent = (<TeamHeader info={info} type='Stats' />);
     let statsComponent = (<TeamStats stats={stats} />);
 
     let headerEmpty = "There is no Information logged for this Tournament.";

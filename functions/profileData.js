@@ -95,7 +95,7 @@ function getProfileInfo(pPId) {
     });
 }
 
-function getProfileGamesBySeason(pPId, sPId) {
+function getProfileGamesBySeason(pPId, sPId=null) {
     let cacheKey = keyBank.PROFILE_GAMES_PREFIX + pPId + '-' + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -103,12 +103,13 @@ function getProfileGamesBySeason(pPId, sPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 try {
-                    let profileGameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
-                    if (profileGameLogJson != null) {
-                        let profileGamesJson = profileGameLogJson[sPId];
+                    let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
+                    if (gameLogJson != null) {
+                        let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
+                        let profileGamesJson = gameLogJson[seasonId];
                         if (profileGamesJson == null) { console.error("This player does not have this Season logged."); reject(404); }
                         else {
-                            profileGamesJson['SeasonTime'] = await Season.getTime(sPId);
+                            profileGamesJson['SeasonTime'] = await Season.getTime(seasonId);
                             for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
                                 let matchJson = Object.values(profileGamesJson['Matches'])[i];
                                 matchJson['TeamName'] = await Team.getName(matchJson['TeamHId']);
@@ -123,7 +124,8 @@ function getProfileGamesBySeason(pPId, sPId) {
                         }
                     }
                     else {
-                        resolve({});    // If 'GameLog' does not exist
+                        if (sPId == null) { resolve({}); }  // If 'GameLog' does not exist
+                        else { console.error("This team does not have any Games logged."); reject(404); }
                     }
                 }
                 catch (err) { console.error(err); reject(500); }
@@ -140,12 +142,13 @@ function getProfileStatsByTourney(pPId, tPId) {
             else if (data != null) { resolve(JSON.parse(data)); }
             else {
                 try {
-                    let profileStatLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
-                    if (profileStatLogJson != null) {
-                        let profileStatsJson = profileStatLogJson[tPId];
+                    let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
+                    if (statsLogJson != null) {
+                        let tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
+                        let profileStatsJson = statsLogJson[tourneyId];
                         if (profileStatsJson == null) { console.error("This player does not have this Tournament logged."); reject(404); }
                         else {
-                            profileStatsJson['TournamentName'] = await Tournament.getName(tPId);
+                            profileStatsJson['TournamentName'] = await Tournament.getName(tourneyId);
                             for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
                                 let role = Object.keys(profileStatsJson['RoleStats'])[i];
                                 let statsJson = profileStatsJson['RoleStats'][role];
@@ -176,7 +179,8 @@ function getProfileStatsByTourney(pPId, tPId) {
                         }
                     }
                     else {
-                        resolve({});    // If 'StatsLog' does not exist
+                        if (tPId == null) { resolve({}); }  // If 'StatsLog' does not exist
+                        else { console.error("This team does not have any Games logged."); reject(404); }
                     }
                 }
                 catch (err) { console.error(err); reject(500); }

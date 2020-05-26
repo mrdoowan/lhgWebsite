@@ -24,7 +24,7 @@ export default function ProfileGamesSkeleton({ info, games }) {
     return (
         <div className={classes.root}>
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
-            <DataWrapper data={info} component={gamesComponent} emptyMessage={gamesEmpty} />
+            <DataWrapper data={games} component={gamesComponent} emptyMessage={gamesEmpty} />
         </div>
     )
 }

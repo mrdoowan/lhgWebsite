@@ -27,7 +27,7 @@ export default function TeamGamesSkeleton({ info, scouting, games }) {
     return (
         <div className={classes.root}>
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
-            <DataWrapper data={games} component={scoutingComponent} emptyMessage={scoutingEmpty} />
+            <DataWrapper data={scouting} component={scoutingComponent} emptyMessage={scoutingEmpty} />
             <DataWrapper data={games} component={gamesComponent} emptyMessage={gamesEmpty} />
         </div>
     )

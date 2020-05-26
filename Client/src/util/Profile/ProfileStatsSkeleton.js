@@ -24,7 +24,7 @@ export default function ProfileStatsSkeleton({ info, stats }) {
     return (
         <div className={classes.root}>
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
-            <DataWrapper data={info} component={statsComponent} emptyMessage={statsEmpty} />
+            <DataWrapper data={stats} component={statsComponent} emptyMessage={statsEmpty} />
         </div>
     )
 }

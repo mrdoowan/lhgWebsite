@@ -1,5 +1,5 @@
-// This will be used for the back-end and interface with both APIs
-// This calls on LHG's DynamnDB for fast reads
+// This will be used from the back-end and interface with both APIs
+// This calls on LHG's DynamnDB from fast reads
 
 /*  Declaring npm modules */
 const express = require('express');
@@ -91,7 +91,7 @@ app.get('/api/profile/v1/information/name/:profileName', (req, res) => {
 });
 
 app.get('/api/profile/v1/games/name/:profileName/:seasonShortName', (req, res) => {
-    console.log("GET Request Profile '" + req.params.profileName + "' Game Log for Season '" + req.params.seasonShortName +  "'.");
+    console.log("GET Request Profile '" + req.params.profileName + "' Game Log from Season '" + req.params.seasonShortName +  "'.");
     Profile.getId(req.params.profileName).then((pPId) => {
         Season.getId(req.params.seasonShortName).then((sPId) => {
             Profile.getGames(pPId, sPId).then((data) => {
@@ -102,13 +102,32 @@ app.get('/api/profile/v1/games/name/:profileName/:seasonShortName', (req, res) =
 });
 
 app.get('/api/profile/v1/stats/name/:profileName/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Profile '" + req.params.profileName + "' Stats Log for Tournament '" + req.params.tournamentShortName +  "'.");
+    console.log("GET Request Profile '" + req.params.profileName + "' Stats Log from Tournament '" + req.params.tournamentShortName +  "'.");
     Profile.getId(req.params.profileName).then((pPId) => {
         Tournament.getId(req.params.tournamentShortName).then((tPId) => {
             Profile.getStats(pPId, tPId).then((data) => {
                 res.json(data);
             }).catch(errCode => res.status(errCode).send("GET Profile Stats Error."));
         }).catch(errCode => res.status(errCode).send("GET Tournament ID Error."));
+    }).catch(errCode => res.status(errCode).send("GET Profile ID Error."));
+});
+
+// Latest query
+app.get('/api/profile/v1/games/latest/name/:profileName', (req, res) => {
+    console.log("GET Request Profile '" + req.params.profileName + "' Game Log from the latest Season.");
+    Profile.getId(req.params.profileName).then((pPId) => {
+        Profile.getGames(pPId).then((data) => {
+            res.json(data);
+        }).catch(errCode => res.status(errCode).send("GET Profile Games Error."));
+    }).catch(errCode => res.status(errCode).send("GET Profile ID Error."));
+});
+
+app.get('/api/profile/v1/stats/latest/name/:profileName', (req, res) => {
+    console.log("GET Request Profile '" + req.params.profileName + "' Game Log from the latest Tournament");
+    Profile.getId(req.params.profileName).then((pPId) => {
+        Profile.getStats(pPId).then((data) => {
+            res.json(data);
+        }).catch(errCode => res.status(errCode).send("GET Profile Games Error."));
     }).catch(errCode => res.status(errCode).send("GET Profile ID Error."));
 });
 
@@ -132,7 +151,7 @@ app.get('/api/team/v1/information/name/:teamName', async (req, res) => {
 });
 
 app.get('/api/team/v1/scouting/name/:teamName/:seasonShortName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Scouting for Season '" + req.params.seasonShortName +  "'.");
+    console.log("GET Request Team '" + req.params.teamName + "' Scouting from Season '" + req.params.seasonShortName +  "'.");
     Team.getId(req.params.teamName).then((teamId) => {
         Season.getId(req.params.seasonShortName).then((sPId) => {
             Team.getScouting(teamId, sPId).then((data) => {
@@ -143,7 +162,7 @@ app.get('/api/team/v1/scouting/name/:teamName/:seasonShortName', async (req, res
 });
 
 app.get('/api/team/v1/games/name/:teamName/:seasonShortName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Game Log for Season '" + req.params.seasonShortName +  "'.");
+    console.log("GET Request Team '" + req.params.teamName + "' Game Log from Season '" + req.params.seasonShortName +  "'.");
     Team.getId(req.params.teamName).then((teamId) => {
         Season.getId(req.params.seasonShortName).then((sPId) => {
             Team.getGames(teamId, sPId).then((data) => {
@@ -154,13 +173,41 @@ app.get('/api/team/v1/games/name/:teamName/:seasonShortName', async (req, res) =
 });
 
 app.get('/api/team/v1/stats/name/:teamName/:tournamentName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Stats Log for Tournament '" + req.params.tournamentName +  "'.");
+    console.log("GET Request Team '" + req.params.teamName + "' Stats Log from Tournament '" + req.params.tournamentName +  "'.");
     Team.getId(req.params.teamName).then((teamId) => {
         Tournament.getId(req.params.tournamentName).then((tPId) => {
             Team.getStats(teamId, tPId).then((data) => {
                 res.json(data);
             }).catch(errCode => res.status(errCode).send("GET Team Stats Error."));
         }).catch(errCode => res.status(errCode).send("GET Tournament ID Error."));
+    }).catch(errCode => res.status(errCode).send("GET Team ID Error."));
+});
+
+// Latest query
+app.get('/api/team/v1/scouting/latest/name/:teamName', async (req, res) => {
+    console.log("GET Request Team '" + req.params.teamName + "' Scouting from the latest Season.");
+    Team.getId(req.params.teamName).then((teamId) => {
+        Team.getScouting(teamId).then((data) => {
+            res.json(data);
+        }).catch(errCode => res.status(errCode).send("GET Team Scouting Error."));
+    }).catch(errCode => res.status(errCode).send("GET Team ID Error."));
+});
+
+app.get('/api/team/v1/games/latest/name/:teamName', async (req, res) => {
+    console.log("GET Request Team '" + req.params.teamName + "' Game Log from the latest Season.");
+    Team.getId(req.params.teamName).then((teamId) => {
+        Team.getGames(teamId).then((data) => {
+            res.json(data);
+        }).catch(errCode => res.status(errCode).send("GET Team Games Error."));
+    }).catch(errCode => res.status(errCode).send("GET Team ID Error."));
+});
+
+app.get('/api/team/v1/stats/latest/name/:teamName', async (req, res) => {
+    console.log("GET Request Team '" + req.params.teamName + "' Game Log from the latest Season.");
+    Team.getId(req.params.teamName).then((teamId) => {
+        Team.getStats(teamId).then((data) => {
+            res.json(data);
+        }).catch(errCode => res.status(errCode).send("GET Team Stats Error."));
     }).catch(errCode => res.status(errCode).send("GET Team ID Error."));
 });
 
