@@ -91,7 +91,7 @@ function getSeasonName(sPId) {
     });
 }
 
-// Returns a Season Time (i.e. W2020PL)
+// Returns a Season Time (i.e. Winter 2020)
 function getSeasonTime(sPId) {
     let cacheKey = keyBank.SEASON_TIME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {

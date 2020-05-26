@@ -3,42 +3,36 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-// Components
-import TeamTab from './TeamTab';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        padding: theme.spacing(2),
-        textAlign: 'center',
+        height: "100%",
+        padding: theme.spacing(1),
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         color: theme.palette.text.primary,
         background: '#A9A9A9',
-        fontWeight: 'bold',
     },
     title: {
-        fontSize: 'x-large',
+        padding: theme.spacing(2),
+        'text-decoration': 'bold',
+        fontSize: 'large',
     },
 }));
 
-export default function TeamHeader({ info, type }) {
+export default function MatchStats({ match }) {
     const classes = useStyles();
 
-    let titleMarkUp = (
-        <div className={classes.title}>
-            <p>{info.TeamName}</p>
-        </div>
-    );
-    let teamBar = ( <TeamTab name={info.TeamName} type={type} /> );
-    
     return (
         <div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
-                        {titleMarkUp}
-                        {teamBar}
+                        <p className={classes.title}>Match Stats Coming Soon!</p>
                     </Paper>
                 </Grid>
             </Grid>
         </div>
-    );
+    )
 }

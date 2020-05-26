@@ -3,8 +3,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 // Components
 import DataWrapper from '../../components/DataWrapper';
-import TeamHeader from '../../components/Team/TeamHeader';
-import TeamStats from '../../components/Team/TeamStats';
+import ProfileHeader from '../../components/Profile/ProfileHeader';
+import ProfileStats from '../../components/Profile/ProfileStats';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -12,14 +12,14 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamStatsSkeleton({ info, stats }) {
+export default function ProfileStatsSkeleton({ info, stats }) {
     const classes = useStyles();
 
-    let headerComponent = (<TeamHeader info={info} type='Stats' />);
-    let statsComponent = (<TeamStats stats={stats} />);
-
-    let headerEmpty = "There is no Information logged for this Tournament.";
-    let statsEmpty = "There are no Stats logged for this Team."
+    let headerComponent = (<ProfileHeader info={info} type={"Stats"} />);
+    let statsComponent = (<ProfileStats stats={stats} />);
+    
+    let headerEmpty = "There is no Information logged for this Player.";
+    let statsEmpty = "There are no Stats logged for this Player.";
 
     return (
         <div className={classes.root}>

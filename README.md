@@ -1,7 +1,7 @@
 # LHG Website Client & Server (Private)
 
 As of 4/8/2020, the following are installed to make this functional:
-* npm: 6.14.4
+* npm: v6.14.4
 * nodejs: v12.16.1
 
 The following need to be installed into Linux (sudo apt update):
@@ -17,6 +17,7 @@ The following npm modules are used in the server:
 * concurrently
 * nodemon
 * redis
+* dotenv
 
 The following npm modules are used in the client:
 * react

@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import Error from '../components/ErrorComponent';
 
 // 404 - URL Not found
-export class Error404 extends Component {
+export class error404 extends Component {
     render() {
         return (
             <Error code={404} />

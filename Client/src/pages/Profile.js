@@ -1,4 +1,11 @@
 import React, { Component } from 'react';
+// Components
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
+// Util
+import ProfileBaseSkeleton from '../util/Profile/ProfileBaseSkeleton';
+import ProfileGamesSkeleton from '../util/Profile/ProfileGamesSkeleton';
+import ProfileStatsSkeleton from '../util/Profile/ProfileStatsSkeleton';
 
 // {MAIN}/profile/:profileName
 export class profileBase extends Component {
@@ -23,16 +30,19 @@ export class profileBase extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, statusCode } = this.state;
+
+        let component = (<ProfileBaseSkeleton info={info} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Profile" />) : 
+            (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
 }
 
+// {MAIN}/profile/:profileName/games
 // {MAIN}/profile/:profileName/games/:seasonShortName
 export class profileGames extends Component {
     state = {
@@ -54,29 +64,47 @@ export class profileGames extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/profile/v1/games/name/' + params.profileName + '/' + params.seasonShortName)
-        .then(res => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            res.json().then((data) => {
-                this.setState({ games: data });
+        if (params.seasonShortName) {
+            // Specific season
+            fetch('/api/profile/v1/games/name/' + params.profileName + '/' + params.seasonShortName)
+            .then(res => {
+                if (this.statusCode === 200 || this.statusCode == null) {
+                    this.setState({ statusCode: res.status });
+                }
+                res.json().then((data) => {
+                    this.setState({ games: data });
+                }).catch(err => console.error(err));
             }).catch(err => console.error(err));
-        }).catch(err => console.error(err));
+        }
+        else {
+            // Latest season
+            fetch('/api/profile/v1/games/latest/name/' + params.profileName)
+            .then(res => {
+                if (this.statusCode === 200 || this.statusCode == null) {
+                    this.setState({ statusCode: res.status });
+                }
+                res.json().then((data) => {
+                    this.setState({ games: data });
+                }).catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }
     }
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, games, statusCode } = this.state;
+
+        let component = (<ProfileGamesSkeleton info={info} games={games} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Profile" />) : 
+            (<Markup data={info && games} dataComponent={component} code={statusCode} />)
         )
     }
 }
 
+// {MAIN}/profile/:profileName/stats
 // {MAIN}/profile/:profileName/stats/:tournamentShortName
 export class profileStats extends Component {
     state = {
@@ -98,25 +126,43 @@ export class profileStats extends Component {
             }).catch(err => console.error(err));
         }).catch(err => console.error(err));
 
-        fetch('/api/profile/v1/stats/name/' + params.profileName + '/' + params.seasonShortName)
-        .then(res => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            res.json().then((data) => {
-                this.setState({ stats: data });
+        if (params.tournamentShortName) {
+            // Specific tournament
+            fetch('/api/profile/v1/stats/name/' + params.profileName + '/' + params.tournamentShortName)
+            .then(res => {
+                if (this.statusCode === 200 || this.statusCode == null) {
+                    this.setState({ statusCode: res.status });
+                }
+                res.json().then((data) => {
+                    this.setState({ stats: data });
+                }).catch(err => console.error(err));
             }).catch(err => console.error(err));
-        }).catch(err => console.error(err));
+        }
+        else {
+            // Latest tournament
+            fetch('/api/profile/v1/stats/latest/name/' + params.profileName)
+            .then(res => {
+                if (this.statusCode === 200 || this.statusCode == null) {
+                    this.setState({ statusCode: res.status });
+                }
+                res.json().then((data) => {
+                    this.setState({ stats: data });
+                }).catch(err => console.error(err));
+            }).catch(err => console.error(err));
+        }
+       
     }
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { stats, info, statusCode } = this.state;
+
+        let component = (<ProfileStatsSkeleton info={info} stats={stats} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Profile" />) : 
+            (<Markup data={info && stats} dataComponent={component} code={statusCode} />)
         )
     }
 }
