@@ -1,4 +1,11 @@
 import React, { Component } from 'react';
+// Components
+import Markup from '../components/Markup';
+import Error from '../components/ErrorComponent';
+// Util
+import ProfileBaseSkeleton from '../util/Profile/ProfileBaseSkeleton';
+import ProfileGamesSkeleton from '../util/Profile/ProfileGamesSkeleton';
+import ProfileStatsSkeleton from '../util/Profile/ProfileStatsSkeleton';
 
 // {MAIN}/profile/:profileName
 export class profileBase extends Component {
@@ -23,12 +30,14 @@ export class profileBase extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, statusCode } = this.state;
+
+        let component = (<ProfileBaseSkeleton info={info} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Profile" />) : 
+            (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -67,12 +76,14 @@ export class profileGames extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { info, games, statusCode } = this.state;
+
+        let component = (<ProfileGamesSkeleton info={info} games={games} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Profile" />) : 
+            (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
 }
@@ -111,12 +122,14 @@ export class profileStats extends Component {
 
     render() {
         console.log(this.state);
-        //const { info } = this.state;
+        const { stats, info, statusCode } = this.state;
+
+        let component = (<ProfileStatsSkeleton info={info} stats={stats} />);
 
         return (
-            <div>
-                
-            </div>
+            (statusCode != null && statusCode !== 200) ?
+            (<Error code={statusCode} page="Profile" />) : 
+            (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
 }

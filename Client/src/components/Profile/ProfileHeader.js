@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Components
-import TeamTab from './TeamTab';
+import ProfileTab from './ProfileTab';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -19,15 +19,15 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamHeader({ info, type }) {
+export default function ProfileHeader({ info, type }) {
     const classes = useStyles();
 
     let titleMarkUp = (
         <div className={classes.title}>
-            <p>{info.TeamName}</p>
+            <p>{info.ProfileName}</p>
         </div>
     );
-    let teamBar = ( <TeamTab name={info.TeamName} type={type} /> );
+    let profileBar = ( <ProfileTab name={info.ProfileName} type={type} /> );
     
     return (
         <div>
@@ -35,7 +35,7 @@ export default function TeamHeader({ info, type }) {
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
                         {titleMarkUp}
-                        {teamBar}
+                        {profileBar}
                     </Paper>
                 </Grid>
             </Grid>

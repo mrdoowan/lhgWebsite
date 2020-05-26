@@ -14,7 +14,7 @@ import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages
 import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames } from './pages/Tournament';
 import { teamBase, teamGames, teamStats } from './pages/Team';
 import { profileBase, profileGames, profileStats } from './pages/Profile';
-import { matchBase } from './pages/Match';
+import { matchBase, matchStats, matchTimeline, matchBuilds } from './pages/Match';
 // MUI
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
@@ -63,6 +63,9 @@ class App extends Component {
 
                         { /* Match Links */ }
                         <Route path="/match/:matchPId" component={matchBase} exact/>
+                        <Route path="/match/:matchPId/stats" component={matchStats} exact/>
+                        <Route path="/match/:matchPId/timeline" component={matchTimeline} exact/>
+                        <Route path="/match/:matchPId/builds" component={matchBuilds} exact/>
 
                         { /* ERROR 404: Path does not exist */ }
                         <Route component={Error404} />
