@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamGames({ games }) {
+export default function TeamGames({ games, seasonList }) {
     const classes = useStyles();
 
     return (

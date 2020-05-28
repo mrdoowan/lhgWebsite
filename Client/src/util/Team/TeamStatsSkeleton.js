@@ -18,7 +18,7 @@ export default function TeamStatsSkeleton({ info, stats }) {
     let headerComponent = (<TeamHeader info={info} type='Stats' />);
     let statsComponent = (<TeamStats stats={stats} />);
 
-    let headerEmpty = "There is no Information logged for this Tournament.";
+    let headerEmpty = "There is no Information logged for this Team.";
     let statsEmpty = "There are no Stats logged for this Team."
 
     return (

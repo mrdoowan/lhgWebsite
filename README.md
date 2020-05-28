@@ -7,7 +7,7 @@ As of 4/8/2020, the following are installed to make this functional:
 The following need to be installed into Linux (sudo apt update):
 + awscli
     + "aws configure"
-+ redis-server (run ")
++ redis-server
     + Linux: "sudo systemctl restart redis.servis"
     + WSL: "sudo system redis-server start"
 

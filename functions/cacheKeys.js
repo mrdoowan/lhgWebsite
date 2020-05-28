@@ -20,6 +20,7 @@ module.exports = {
     TN_TEAM_PREFIX: 'TnTeam-',                  // Tourn Id
     TN_PICKBANS_PREFIX: 'TnPB-',                // Tourn Id
     TN_GAMES_PREFIX: 'TnGames-',                // Tourn Id
+    TN_TAB_PREFIX: 'TnTab-',                    // Tourn Id
     PROFILE_NAME_PREFIX: 'PName-',              // Prof Id
     PROFILE_PID_PREFIX: 'PPId-',                // Prof Name
     PROFILE_INFO_PREFIX: 'PInfo-',              // Prof Id

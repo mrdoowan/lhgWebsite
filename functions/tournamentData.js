@@ -1,6 +1,7 @@
 module.exports = {
     getId: getTournamentId,
     getShortName: getTournamentShortName,
+    getTabName: getTournamentTabName,
     getName: getTournamentName,
     getInfo: getTourneyInfo,
     getTourneyStats: getTourneyStats,
@@ -83,6 +84,28 @@ function getTournamentName(tPId) {
                     if (obj == null) { reject(404); } // Not Found
                     else {
                         let name = obj['Information']['TournamentName'];
+                        cache.set(cacheKey, name);
+                        resolve(name);
+                    }
+                }).catch((err) => { console.error(err); reject(500) });
+            }
+        });
+    });
+}
+
+// Get TournamentTabName from DynamoDb
+function getTournamentTabName(tPId) {
+    let cacheKey = keyBank.TN_TAB_PREFIX + tPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console(err); reject(500); }
+            else if (data != null) { resolve(data); }
+            else {
+                dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information'])
+                .then((obj) => {
+                    if (obj == null) { reject(404); } // Not Found
+                    else {
+                        let name = obj['Information']['TournamentTabName'];
                         cache.set(cacheKey, name);
                         resolve(name);
                     }
