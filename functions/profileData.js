@@ -85,30 +85,12 @@ function getProfileInfo(pPId) {
                         // Add Season List
                         let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
                         if (gameLogJson != null) {
-                            let seasonList = [];
-                            for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
-                                let seasonId = parseInt(Object.keys(gameLogJson)[i]);
-                                seasonList.push({
-                                    'SeasonPId': seasonId,
-                                    'SeasonTime': await Season.getTime(seasonId),
-                                    'SeasonShortName': await Season.getShortName(seasonId),
-                                });
-                            }
-                            profileInfoJson['SeasonList'] = seasonList;
+                            profileInfoJson['SeasonList'] = await helper.getSeasonTabs(Object.keys(gameLogJson));
                         }
                         // Add Tournament List
                         let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
                         if (statsLogJson != null) {
-                            let tourneyList = [];
-                            for (let i = 0; i < Object.keys(statsLogJson).length; ++i) {
-                                let tnId = parseInt(Object.keys(statsLogJson)[i]);
-                                tourneyList.push({
-                                    'TournamentPId': tnId,
-                                    'TournamentTabName': await Tournament.getTabName(tnId),
-                                    'TournamentShortName': await Tournament.getShortName(tnId),
-                                });
-                            }
-                            profileInfoJson['TournamentList'] = tourneyList;
+                            profileInfoJson['TournamentList'] = await helper.getTourneyTabs(Object.keys(statsLogJson));
                         }
                         cache.set(cacheKey, JSON.stringify(profileInfoJson, null, 2));
                         resolve(profileInfoJson);

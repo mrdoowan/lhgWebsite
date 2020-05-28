@@ -85,32 +85,14 @@ function getTeamInfo(teamPId) {
                             }
                         }
                         // Add Season List
-                        let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'];
+                        let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'];
                         if (gameLogJson != null) {
-                            let seasonList = [];
-                            for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
-                                let seasonId = parseInt(Object.keys(gameLogJson)[i]);
-                                seasonList.push({
-                                    'SeasonPId': seasonId,
-                                    'SeasonTime': await Season.getTime(seasonId),
-                                    'SeasonShortName': await Season.getShortName(seasonId),
-                                });
-                            }
-                            teamInfoJson['SeasonList'] = seasonList;
+                            teamInfoJson['SeasonList'] = await helper.getSeasonTabs(Object.keys(gameLogJson));
                         }
                         // Add Tournament List
                         let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'];
                         if (statsLogJson != null) {
-                            let tourneyList = [];
-                            for (let i = 0; i < Object.keys(statsLogJson).length; ++i) {
-                                let tnId = parseInt(Object.keys(statsLogJson)[i]);
-                                tourneyList.push({
-                                    'TournamentPId': tnId,
-                                    'TournamentTabName': await Tournament.getTabName(tnId),
-                                    'TournamentShortName': await Tournament.getShortName(tnId),
-                                });
-                            }
-                            teamInfoJson['TournamentList'] = tourneyList;
+                            teamInfoJson['TournamentList'] = await helper.getTourneyTabs(Object.keys(statsLogJson));
                         }
                         cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2));
                         resolve(teamInfoJson);
