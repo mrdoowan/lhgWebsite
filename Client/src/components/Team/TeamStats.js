@@ -3,11 +3,13 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+// Components
+import Dragdown from '../Dragdown';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         height: "100%",
-        padding: theme.spacing(1),
+        padding: theme.spacing(2),
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -21,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamStats({ stats }) {
+export default function TeamStats({ info, stats }) {
     const classes = useStyles();
 
     return (
@@ -29,6 +31,12 @@ export default function TeamStats({ stats }) {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
+                        <Dragdown 
+                            list={info.TournamentList} 
+                            basePath={`/team/${info.TeamName}/stats`}
+                            type="Teams"
+                            title={stats.TournamentName}
+                        />
                         <p className={classes.title}>Team Stats Coming Soon!</p>
                     </Paper>
                 </Grid>

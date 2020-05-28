@@ -10,12 +10,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamScouting({ scout, seasonList }) {
+export default function TeamGameLog({ games, seasonList }) {
     const classes = useStyles();
 
     return (
         <div>
-            <p className={classes.title}>Scouting Coming Soon!</p>
+            <p className={classes.title}>Game Log Coming Soon!</p>
         </div>
     )
 }
