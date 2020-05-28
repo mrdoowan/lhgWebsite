@@ -20,13 +20,16 @@ const useStyles = makeStyles((theme) => ({
     link: {
         color: 'blue',
     },
+    body: {
+        paddingTop: theme.spacing(2),
+    }
 }));
 
 export default function SeasonHeader({ info }) {
     const classes = useStyles();
 
     let seasonBaseMarkup = info ? (
-        <div className="body">
+        <div className={classes.body}>
             <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Tournament Stats</Link></p>
             <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Playoffs Tournament Stats</Link></p>
         </div>

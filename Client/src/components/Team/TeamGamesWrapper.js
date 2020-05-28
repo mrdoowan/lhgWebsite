@@ -13,39 +13,6 @@ import TeamScouting from './TeamScouting';
 import TeamGameLog from './TeamGameLog';
 import Dragdown from '../Dragdown';
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-  
-    return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            {...other}
-        >
-            {value === index && (
-                <Box p={3}>
-                <Typography>{children}</Typography>
-                </Box>
-            )}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-};
-  
-function a11yProps(index) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
-}
-
 const useStyles = makeStyles((theme) => ({
     paper: {
         height: "100%",
@@ -60,6 +27,32 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.text.disabled,
     },
 }));
+
+function TabPanel(props) {
+    const { className, children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box>
+                    <Typography component={'span'}>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
+};
 
 export default function TeamGamesWrapper({ info, scouting, games }) {
     const classes = useStyles();
@@ -93,8 +86,8 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
                             variant="fullWidth"
                             centered
                         >
-                            <Tab label="Scouting" {...a11yProps(0)} />
-                            <Tab label="Game Log" {...a11yProps(1)} />
+                            <Tab label="Scouting" />
+                            <Tab label="Game Log" />
                         </Tabs>
                         <TabPanel value={value} index={0}>
                             {scoutingComponent}
