@@ -2,8 +2,8 @@ module.exports = {
     filterName: filterName,
     getProfilePId: getProfilePIdString,
     getTeamPId: getTeamPIdString,
-    getSeasonTabs: getSeasonTabs,
-    getTourneyTabs: getTourneyTabs,
+    getSeasonItems: getSeasonItems,
+    getTourneyItems: getTourneyItems,
 }
 require('dotenv').config({ path: '../.env' });
 const Hashids = require('hashids/cjs'); // For hashing and unhashing
@@ -34,16 +34,16 @@ function filterName(name) {
     return name.toLowerCase().replace(/ /g, '');
 }
 
-function getSeasonTabs(idList) {
+function getSeasonItems(idList) {
     return new Promise(async function(resolve, reject) {
         try {
             let seasonList = [];
             for (let i = 0; i < idList.length; ++i) {
                 let seasonId = parseInt(idList[i]);
                 seasonList.push({
-                    'SeasonPId': seasonId,
-                    'SeasonTabName': await Season.getTabName(seasonId),
-                    'SeasonShortName': await Season.getShortName(seasonId),
+                    'PId': seasonId,
+                    'ItemName': await Season.getTabName(seasonId),
+                    'ShortName': await Season.getShortName(seasonId),
                 });
             }
             resolve(seasonList);
@@ -52,16 +52,16 @@ function getSeasonTabs(idList) {
     });
 }
 
-function getTourneyTabs(idList) {
+function getTourneyItems(idList) {
     return new Promise(async function(resolve, reject) {
         try {
             let tourneyList = [];
             for (let i = 0; i < idList.length; ++i) {
                 let tnId = parseInt(idList[i]);
                 tourneyList.push({
-                    'TournamentPId': tnId,
-                    'TournamentTabName': await Tournament.getTabName(tnId),
-                    'TournamentShortName': await Tournament.getShortName(tnId),
+                    'PId': tnId,
+                    'ItemName': await Tournament.getTabName(tnId),
+                    'ShortName': await Tournament.getShortName(tnId),
                 });
             }
             resolve(tourneyList);

@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
-        padding: 0,
-        margin: 0,
+        padding: 5,
+        margin: 5,
     },
 }));
 
@@ -36,14 +36,13 @@ export default function ChampionSquare({ id, version='', withName=false}) {
     let url = 'http://ddragon.leagueoflegends.com/cdn/' + version + '/img/champion/' + urlId + '.png';
     return (!withName) ? 
         (<img src={url} alt={urlId} width="30" height="30" />) :
-        (<div><table className="table">
+        (<div><table className={classes.table}>
             <tbody>
                 <tr>
                     <td className={classes.columnImage}><img src={url} alt={urlId} width="30" height="30" /></td>
                     <td className={classes.columnName}>{name}</td>
                 </tr>
             </tbody>
-            
         </table></div>);
 }
 

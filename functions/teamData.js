@@ -87,12 +87,12 @@ function getTeamInfo(teamPId) {
                         // Add Season List
                         let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'];
                         if (gameLogJson != null) {
-                            teamInfoJson['SeasonList'] = await helper.getSeasonTabs(Object.keys(gameLogJson));
+                            teamInfoJson['SeasonList'] = await helper.getSeasonItems(Object.keys(gameLogJson));
                         }
                         // Add Tournament List
                         let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'];
                         if (statsLogJson != null) {
-                            teamInfoJson['TournamentList'] = await helper.getTourneyTabs(Object.keys(statsLogJson));
+                            teamInfoJson['TournamentList'] = await helper.getTourneyItems(Object.keys(statsLogJson));
                         }
                         cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2));
                         resolve(teamInfoJson);

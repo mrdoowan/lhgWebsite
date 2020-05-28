@@ -85,12 +85,12 @@ function getProfileInfo(pPId) {
                         // Add Season List
                         let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
                         if (gameLogJson != null) {
-                            profileInfoJson['SeasonList'] = await helper.getSeasonTabs(Object.keys(gameLogJson));
+                            profileInfoJson['SeasonList'] = await helper.getSeasonItems(Object.keys(gameLogJson));
                         }
                         // Add Tournament List
                         let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
                         if (statsLogJson != null) {
-                            profileInfoJson['TournamentList'] = await helper.getTourneyTabs(Object.keys(statsLogJson));
+                            profileInfoJson['TournamentList'] = await helper.getTourneyItems(Object.keys(statsLogJson));
                         }
                         cache.set(cacheKey, JSON.stringify(profileInfoJson, null, 2));
                         resolve(profileInfoJson);

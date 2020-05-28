@@ -13,7 +13,7 @@ const theme = createMuiTheme({
             main: '#2196f3',
         },
         secondary: {
-            main: '#009688',
+            main: '#2196f3',
         },
         contrastThreshold: 3,
     },

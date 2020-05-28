@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
+
 // Components
 import NavBar from "./components/NavBar";
 // Pages
@@ -21,6 +22,13 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 const theme = createMuiTheme({
     palette: {
         type: 'light',
+        primary: {
+            main: '#fbc02d',
+        },
+        secondary: {
+            main: '#3f51b5',
+        },
+        contrastThreshold: 2,
     },
 });
 
