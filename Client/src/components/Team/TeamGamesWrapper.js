@@ -62,8 +62,8 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
         setValue(newValue);
     };
 
-    let scoutingComponent = (<TeamScouting scouting={scouting} seasonList={info.SeasonList} />);
-    let gamesComponent = (<TeamGameLog games={games} seasonList={info.SeasonList} />);
+    let scoutingComponent = (<TeamScouting scouting={scouting} />);
+    let gamesComponent = (<TeamGameLog games={games} />);
 
     return (
         <div>
@@ -76,13 +76,13 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
                             type="Teams"
                             title={games.SeasonTime}
                         />
-                        <p></p>
+                        <br />
                         <Tabs
                             value={value}
                             className={classes.tab}
                             onChange={handleChange}
                             indicatorColor="primary"
-                            textColor="inherit"
+                            textColor="primary"
                             variant="fullWidth"
                             centered
                         >

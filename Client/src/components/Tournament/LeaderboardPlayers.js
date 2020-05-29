@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
-        paddingBottom: '10px',
+        paddingBottom: '5px',
     },
     columnData: {
         width: "75%",

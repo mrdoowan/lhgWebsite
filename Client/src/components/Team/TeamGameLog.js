@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamGameLog({ games, seasonList }) {
+export default function TeamGameLog({ games }) {
     const classes = useStyles();
 
     return (
