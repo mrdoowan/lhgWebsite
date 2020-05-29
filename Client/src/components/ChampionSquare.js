@@ -36,11 +36,21 @@ const useStyles = makeStyles((theme) => ({
     },
     spacing: {
         padding: theme.spacing(0.25),
-    }
+    },
+    layoutChamps: {
+        border: '1px solid black',
+        width: '100%',
+        alignItems: 'middle',
+        justifyContent: 'middle',
+        wordWrap: 'break-word',
+        display: 'flex',
+        flexWrap: 'wrap',
+        padding: theme.spacing(1),
+    },
 }));
 
 // If version is blank, grab most recent version.
-export default function ChampionSquare({ id, version='', withName=false, withBans=false, bans=0 }) {
+export default function ChampionSquare({ id, version='', withName=false, vertical=false, num=0 }) {
     const classes = useStyles();
 
     let urlId = getChampUrlId(id);
@@ -50,24 +60,17 @@ export default function ChampionSquare({ id, version='', withName=false, withBan
 
     // Had to put in Table because apparently a <img /> + string = "[Object object] + string". Like what
     return (withName) ? (
-            <div>
-                <table className={classes.tableName}>
-                    <tbody>
-                        <tr>
-                            <td className={classes.columnImage}><img src={url} alt={urlId} width="30" height="30" /></td>
-                            <td className={classes.columnName}>{name}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        ) : (withBans) ? (
-            <div className={classes.spacing}>
-                <img src={url} alt={urlId} width="30" height="30" /><br />
-                {bans}
-            </div>
-        ) : (
-            <img src={url} alt={urlId} width="30" height="30" />
-        );
+        <div>
+            <React.Fragment><img className={classes.spacing} src={url} alt={urlId} width="30" height="30" /> {name}</React.Fragment>
+        </div>
+    ) : (vertical) ? (
+        <div className={classes.spacing}>
+            <img className={classes.spacing} src={url} alt={urlId} width="30" height="30" /><br />
+            {num}
+        </div>
+    ) : (
+        <img className={classes.spacing} src={url} alt={urlId} width="30" height="30" />
+    );
 }
 
 function getChampUrlId(id) {

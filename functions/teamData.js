@@ -123,6 +123,8 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
                         if (teamScoutingSeasonJson == null) { console.error("This team does not have this Season logged."); reject(404); }
                         else {
                             teamScoutingSeasonJson['SeasonTime'] = await Season.getTime(seasonId);
+                            teamScoutingSeasonJson['SeasonName'] = await Season.getName(seasonId);
+                            teamScoutingSeasonJson['SeasonShortName'] = await Season.getShortName(seasonId);
                             for (let i = 0; i < Object.values(teamScoutingSeasonJson['PlayerLog']).length; ++i) {
                                 let roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
                                 for (let j = 0; j < Object.keys(roleMap).length; ++j) {
@@ -167,6 +169,8 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
                         if (teamSeasonGamesJson == null) { console.error("This team does not have this Season logged."); reject(404); }
                         else {
                             teamSeasonGamesJson['SeasonTime'] = await Season.getTime(seasonId);
+                            teamSeasonGamesJson['SeasonName'] = await Season.getName(seasonId);
+                            teamSeasonGamesJson['SeasonShortName'] = await Season.getShortName(seasonId);
                             for (let i = 0; i < Object.values(teamSeasonGamesJson['Matches']).length; ++i) {
                                 let matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
                                 for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
@@ -205,8 +209,9 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
                         let tourneyStatsJson = statsLogJson[tourneyId];
                         if (tourneyStatsJson == null) { console.error("This team does not have this Tournament logged."); reject(404); }
                         else {
-                            let totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
                             tourneyStatsJson['TournamentName'] = await Tournament.getName(tourneyId);
+                            tourneyStatsJson['TournamentShortName'] = await Tournament.getShortName(tourneyId);
+                            let totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
                             tourneyStatsJson['GamesPlayedOnRed'] = tourneyStatsJson['GamesPlayed'] - tourneyStatsJson['GamesPlayedOnBlue'];
                             tourneyStatsJson['RedWins'] = tourneyStatsJson['GamesWon'] - tourneyStatsJson['BlueWins'];
                             tourneyStatsJson['AverageGameDuration'] = (tourneyStatsJson['TotalGameDuration'] / tourneyStatsJson['GamesPlayed']).toFixed(2);
