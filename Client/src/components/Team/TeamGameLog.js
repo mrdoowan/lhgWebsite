@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
     colDate: {
         width: "8%",
         textAlign: 'left',
+        padding: theme.spacing(1),
     },
     colEnemy: {
         width: "12%",
@@ -112,7 +113,7 @@ export default function TeamGameLog({ games }) {
                 <thead>
                     <tr className={classes.rowBorder}>
                         <td className={classes.midHeader}>Date</td>
-                        <td className={classes.midHeader}>Team</td>
+                        <td className={classes.leftHeader}>Team</td>
                         <td className={classes.leftHeader}>Duration</td>
                         <td className={classes.midHeader}>Stats</td>
                         <td className={classes.midHeader}></td>
