@@ -31,9 +31,15 @@ const useStyles = makeStyles((theme) => ({
     row: {
         padding: theme.spacing(1),
     },
-    title: {
+    titleOutside: {
+        fontWeight: 'bold',
+        textDecoration: 'underline',
         padding: theme.spacing(2),
-        'text-decoration': 'underline',
+        fontSize: 'x-large',
+    },
+    titlePaper: {
+        padding: theme.spacing(2),
+        textDecoration: 'underline',
         fontSize: 'large',
     },
 }));
@@ -65,7 +71,7 @@ export default function TourneyStats({ stats }) {
 
     return (
         <div>
-            <p className={classes.title}>Tournament Stats</p>
+            <div className={classes.titleOutside}>Tournament Stats</div>
             <Grid container spacing={3}>
                 <Grid item xs={6}>
                     <Paper className={classes.paper}>

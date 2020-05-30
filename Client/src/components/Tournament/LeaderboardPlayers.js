@@ -15,12 +15,18 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(1),
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "top",
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
-    title: {
-        'text-decoration': 'underline',
+    titleOutside: {
+        fontWeight: 'bold',
+        textDecoration: 'underline',
+        padding: theme.spacing(2),
+        fontSize: 'x-large',
+    },
+    titlePaper: {
+        textDecoration: 'underline',
         padding: theme.spacing(2),
         fontSize: 'large',
     },
@@ -62,12 +68,12 @@ export default function LeaderboardPlayers({ playerRecords }) {
 
     return (
         <div>
-            <p className={classes.title}>Player Leaderboards</p>
+            <div className={classes.titleOutside}>Player Leaderboards</div>
             <Grid container spacing={3}>
                 {Object.keys(playerRecords).map((recordType) => (
                     <Grid key={recordType} item xs={6}>
                         <Paper className={classes.paper}>
-                            <div className={classes.title}>{titles[recordType]}</div>
+                            <div className={classes.titlePaper}>{titles[recordType]}</div>
                             <table>
                                 <tbody>
                                 {playerRecords[recordType].map((item, i) => (

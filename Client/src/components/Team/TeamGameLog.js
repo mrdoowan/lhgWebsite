@@ -137,7 +137,8 @@ export default function TeamGameLog({ games }) {
                                 {match.TournamentType}
                             </td>
                             <td className={classes.colEnemy}>
-                                vs. <Link to={`/team/${match.EnemyTeamName}/games/${games.SeasonShortName}`} className={classes.link}>{match.EnemyTeamName}</Link>
+                                vs. <a href={`/team/${match.EnemyTeamName}/games/${games.SeasonShortName}`} className={classes.link}>{match.EnemyTeamName}</a>
+                                {/* https://stackoverflow.com/questions/43087007/react-link-vs-a-tag-and-arrow-function On why we use <a> instead of <Link> */}
                             </td>
                             <td className={classes.colTime}>
                                 {lhgString.time(match.GameDuration)}

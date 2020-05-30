@@ -36,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
         width: "20%",
         textAlign: 'right',
     },
+    link: {
+        color: 'blue',
+    }
 }));
 
 function TabPanel(props) {
@@ -64,6 +67,13 @@ TabPanel.propTypes = {
     value: PropTypes.any.isRequired,
 };
 
+function a11yProps(index) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }
+
 export default function TeamGamesWrapper({ info, scouting, games }) {
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
@@ -83,7 +93,7 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
                         <tbody>
                             <tr>
                                 <td className={classes.colTitle}>
-                                    <Link to={`/season/${games.SeasonShortName}`}><b>{games.SeasonName} Season</b></Link>
+                                    <Link to={`/season/${games.SeasonShortName}`} className={classes.link}><b>{games.SeasonName} Season</b></Link>
                                 </td>
                                 <td className={classes.colDragdown}>
                                 <Dragdown 
@@ -106,8 +116,8 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
                         variant="fullWidth"
                         centered
                     >
-                        <Tab label="Game Log" />
-                        <Tab label="Scouting" />
+                        <Tab label="Game Log" {...a11yProps(0)}/>
+                        <Tab label="Scouting" {...a11yProps(1)}/>
                     </Tabs>
                     <TabPanel value={value} index={0}>
                         {gamesComponent}
