@@ -234,7 +234,7 @@ export default function TeamStats({ info, stats }) {
                                 </tr>
                                 <tr>
                                     <td className={classes.colDesc}>Wards Cleared Percentage:</td>
-                                    <td className={classes.colValue}>{(stats.WardsClearedPct*100).toFixed(2)}% ({stats.TotalWardsCleared}/{stats.TotalWardsCleared + stats.TotalEnemyWardsPlaced} Wards Cleared)</td>
+                                    <td className={classes.colValue}>{(stats.WardsClearedPct*100).toFixed(2)}% ({stats.TotalWardsCleared}/{stats.TotalEnemyWardsPlaced} Wards Cleared)</td>
                                 </tr>
                             </tbody>
                         </table>
