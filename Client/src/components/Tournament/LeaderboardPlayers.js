@@ -15,12 +15,18 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(1),
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "top",
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
-    title: {
-        'text-decoration': 'underline',
+    titleOutside: {
+        fontWeight: 'bold',
+        textDecoration: 'underline',
+        padding: theme.spacing(2),
+        fontSize: 'x-large',
+    },
+    titlePaper: {
+        textDecoration: 'underline',
         padding: theme.spacing(2),
         fontSize: 'large',
     },
@@ -33,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
-        paddingBottom: '10px',
+        paddingBottom: '5px',
     },
     columnData: {
         width: "75%",
@@ -62,12 +68,12 @@ export default function LeaderboardPlayers({ playerRecords }) {
 
     return (
         <div>
-            <p className={classes.title}>Player Leaderboards</p>
+            <div className={classes.titleOutside}>Player Leaderboards</div>
             <Grid container spacing={3}>
                 {Object.keys(playerRecords).map((recordType) => (
                     <Grid key={recordType} item xs={6}>
                         <Paper className={classes.paper}>
-                            <div className={classes.title}>{titles[recordType]}</div>
+                            <div className={classes.titlePaper}>{titles[recordType]}</div>
                             <table>
                                 <tbody>
                                 {playerRecords[recordType].map((item, i) => (
@@ -90,15 +96,15 @@ export default function LeaderboardPlayers({ playerRecords }) {
 function recordString(type, item) {
     switch (type) {
         case 'PlayerMostDamage':
-            return item.DamagePerMin.toFixed(2) + ' DPM - ' + item.DamageDealt + ' in ' + lhgString.timeString(item.GameDuration);
+            return item.DamagePerMin.toFixed(2) + ' DPM - ' + item.DamageDealt + ' in ' + lhgString.time(item.GameDuration);
         case 'PlayerMostFarm':
-            return item.CsPerMin.toFixed(2) + ' CSPM - ' + item.CreepScore + ' in ' + lhgString.timeString(item.GameDuration);
+            return item.CsPerMin.toFixed(2) + ' CSPM - ' + item.CreepScore + ' in ' + lhgString.time(item.GameDuration);
         case 'PlayerMostGoldDiffEarly':
             return '+' + item.GDiffEarly + ' GD@15 - ' + item.GAtEarly + ' Gold';
         case 'PlayerMostXpDiffEarly':
             return '+' + item.XpDiffEarly + ' XPD@15 - ' + item.XpAtEarly + ' XP';
         case 'PlayerMostVision':
-            return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + lhgString.timeString(item.GameDuration);
+            return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + lhgString.time(item.GameDuration);
         default:
             return '';
     }

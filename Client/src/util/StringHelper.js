@@ -3,8 +3,9 @@ var moment = require('moment-timezone');
 
 // Helper Functions
 module.exports = {
-    timeString: getTimeString,
-    dateString: getDateString,
+    time: getTimeString,
+    date: getDateString,
+    dateTime: getDateTimeString,
 }
 
 function getTimeString(seconds) {
@@ -16,5 +17,9 @@ function pad(num) {
 }
 
 function getDateString(unix, timeZone='EST') {
+    return moment.unix(unix).tz(timeZone).format('MM/DD/YYYY');
+}
+
+function getDateTimeString(unix, timeZone='EST') {
     return moment.unix(unix).tz(timeZone).format('MM/DD/YYYY - hh:mma');
 }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
+
 // Components
 import NavBar from "./components/NavBar";
 // Pages
@@ -21,13 +22,21 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 const theme = createMuiTheme({
     palette: {
         type: 'light',
+        primary: {
+            main: '#fbc02d',
+        },
+        secondary: {
+            main: '#3f51b5',
+        },
+        contrastThreshold: 3,
     },
 });
 
 class App extends Component {
     render() {
         return (
-            <ThemeProvider theme={theme}><BrowserRouter>
+            <ThemeProvider theme={theme}>
+            <BrowserRouter>
             <NavBar />
                 <div className="container-wrap">
                     <Switch>
@@ -76,7 +85,8 @@ class App extends Component {
                     </Switch>
                     <div className="footer">"LHG Competitive Leagues is not affiliated with or sponsored by Riot Games, Inc. or LoLEsports."</div>
                 </div>
-            </BrowserRouter></ThemeProvider>
+            </BrowserRouter>
+            </ThemeProvider>
         );
     }
 }

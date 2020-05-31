@@ -108,7 +108,7 @@ function fixedPercent() {
 
 function formatTime() {
     return {
-        formatter: lhgString.timeString,
+        formatter: lhgString.time,
     }
 }
 

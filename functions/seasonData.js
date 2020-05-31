@@ -3,6 +3,7 @@ module.exports = {
     getShortName: getSeasonShortName,
     getName: getSeasonName,
     getTime: getSeasonTime,
+    getTabName: getSeasonTabName,
     getLeagues: getLeagues,
     getInfo: getSeasonInformation,
     getRoster: getSeasonRoster,
@@ -104,6 +105,27 @@ function getSeasonTime(sPId) {
                     if (obj == null) { reject(404); }
                     else {
                         let time = obj['Information']['SeasonTime'];
+                        cache.set(cacheKey, time);
+                        resolve(time);
+                    }
+                }).catch((err) => { console.error(err); reject(500) });
+            }
+        });
+    });
+}
+
+function getSeasonTabName(sPId) {
+    let cacheKey = keyBank.SEASON_TAB_PREFIX + sPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console(err); reject(500); }
+            else if (data != null) { resolve(data); }
+            else {
+                dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
+                .then((obj) => {
+                    if (obj == null) { reject(404); }
+                    else {
+                        let time = obj['Information']['SeasonTabName'];
                         cache.set(cacheKey, time);
                         resolve(time);
                     }

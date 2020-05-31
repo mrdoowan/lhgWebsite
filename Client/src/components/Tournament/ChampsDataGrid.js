@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
     },
     title: {
-        'text-decoration': 'underline',
+        textDecoration: 'underline',
         fontSize: 'large',
         padding: theme.spacing(2),
     }

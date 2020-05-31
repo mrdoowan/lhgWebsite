@@ -13,12 +13,18 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(1),
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "top",
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
+    titleOutside: {
+        fontWeight: 'bold',
+        textDecoration: 'underline',
+        padding: theme.spacing(2),
+        fontSize: 'x-large',
+    },
     title: {
-        'text-decoration': 'underline',
+        textDecoration: 'underline',
         padding: theme.spacing(2),
         fontSize: 'large',
     },
@@ -51,7 +57,7 @@ export default function LeaderboardTeams({ teamRecords }) {
 
     return (
         <div>
-            <p className={classes.title}>Team Leaderboards</p>
+            <div className={classes.titleOutside}>Team Leaderboards</div>
             <Grid container spacing={3}>
                 {Object.keys(teamRecords).map((recordType) => (
                     <Grid key={recordType} item xs={6}>
@@ -79,9 +85,9 @@ function recordString(type, item) {
     let tsSeconds = Math.floor(item.Timestamp / 1000);
     switch (type) {
         case 'TeamTopBaronPowerPlay':
-            return '+' + item.BaronPowerPlay + ' Power Play - Taken at ' + lhgString.timeString(tsSeconds);
+            return '+' + item.BaronPowerPlay + ' Power Play - Taken at ' + lhgString.time(tsSeconds);
         case 'TeamEarliestTower':
-            return item.Lane + ' ' + item.TowerType + ' Tower - Taken at ' + lhgString.timeString(tsSeconds);
+            return item.Lane + ' ' + item.TowerType + ' Tower - Taken at ' + lhgString.time(tsSeconds);
         default:
             return '';
     }

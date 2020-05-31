@@ -13,13 +13,19 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(1),
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "top",
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
-    title: {
+    titleOutside: {
+        fontWeight: 'bold',
+        textDecoration: 'underline',
         padding: theme.spacing(2),
-        'text-decoration': 'underline',
+        fontSize: 'x-large',
+    },
+    titlePaper: {
+        padding: theme.spacing(2),
+        textDecoration: 'underline',
         fontSize: 'large',
     },
     link: {
@@ -33,24 +39,24 @@ export default function LeaderboardGames({ gameRecords }) {
 
     return (
         <div>
-            <p className={classes.title}>Game Leaderboards</p>
+            <div className={classes.titleOutside}>Game Leaderboards</div>
             <Grid container spacing={3}>
                 <Grid item xs={4}>
                     <Paper className={classes.paper}>
-                        <div className={classes.title}>Shortest Game</div>
-                        <p><Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{ShortestGame.BlueTeamName} vs. {ShortestGame.RedTeamName}</Link> in {lhgString.timeString(ShortestGame.GameDuration)}</p>
+                        <div className={classes.titlePaper}>Shortest Game</div>
+                        <p><Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{ShortestGame.BlueTeamName} vs. {ShortestGame.RedTeamName}</Link> in {lhgString.time(ShortestGame.GameDuration)}</p>
                     </Paper>
                 </Grid>
                 <Grid item xs={4}>
                     <Paper className={classes.paper}>
-                        <div className={classes.title}>Longest Game</div>
-                        <p><Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{LongestGame.BlueTeamName} vs. {LongestGame.RedTeamName}</Link> in {lhgString.timeString(LongestGame.GameDuration)}</p>
+                        <div className={classes.titlePaper}>Longest Game</div>
+                        <p><Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{LongestGame.BlueTeamName} vs. {LongestGame.RedTeamName}</Link> in {lhgString.time(LongestGame.GameDuration)}</p>
                     </Paper>
                 </Grid>
                 <Grid item xs={4}>
                     <Paper className={classes.paper}>
-                        <div className={classes.title}>Bloodiest Game</div>
-                        <p><Link className={classes.link} to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.BlueTeamName} vs. {MostKillGame.RedTeamName}</Link> {MostKillGame.Kills} Kills in {lhgString.timeString(MostKillGame.GameDuration)}</p>
+                        <div className={classes.titlePaper}>Bloodiest Game</div>
+                        <p><Link className={classes.link} to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.BlueTeamName} vs. {MostKillGame.RedTeamName}</Link> {MostKillGame.Kills} Kills in {lhgString.time(MostKillGame.GameDuration)}</p>
                     </Paper>
                 </Grid>
             </Grid>
