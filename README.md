@@ -15,15 +15,17 @@ The following npm modules are used in the server:
 * aws-sdk
 * express
 * concurrently
-* nodemon
-* redis
 * dotenv
+* hashids
+* redis
+* bcrypt
 
 The following npm modules are used in the client:
 * react
 * react-scripts
 * react-router-dom
-* hashids
+* react-bootstrap
+* @material-ui
 * devextreme
 
 When you pull this repo, use "npm install" to download the packages.
