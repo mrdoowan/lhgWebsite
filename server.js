@@ -38,6 +38,11 @@ app.post('/api/staff/update/v1', (req, res) => {
 
 });
 
+// Login
+app.post('/api/login', (req, res) => {
+
+});
+
 // Logout
 app.post('/api/logout', (req, res) => {
 

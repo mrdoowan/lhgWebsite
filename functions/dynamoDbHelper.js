@@ -2,6 +2,7 @@
 module.exports = {
     getItem: getItemInDynamoDB,
     updateItem: updateItemInDynamoDB,
+    updateTest: updateTestInDynamoDB,
     putItem: putItemInDynamoDB,
     putTest: putTestInDynamoDB,
     scanTable: scanTableLoopInDynamoDB,
