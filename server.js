@@ -12,6 +12,38 @@ const Tournament = require('./functions/tournamentData');
 const Profile = require('./functions/profileData');
 const Team = require('./functions/teamData');
 const Match = require('./functions/matchData');
+const Staff = require('./functions/staffData');
+
+/*  
+    ----------------------
+    Staff API Requests
+    ----------------------
+*/
+//#region Staff
+
+// Temporary POST request to manually add Staff and give credentials
+app.post('/api/staff/add/v1', (req, res) => {
+    const newStaff = {
+        profile: req.body.profile,
+        password: req.body.password,
+        moderator: req.body.moderator,
+        admin: req.body.admin,
+    }
+
+    res.json({  })
+});
+
+// Update password for now
+app.post('/api/staff/update/v1', (req, res) => {
+
+});
+
+// Logout
+app.post('/api/logout', (req, res) => {
+
+});
+
+//#endregion
 
 /*  
     ----------------------
