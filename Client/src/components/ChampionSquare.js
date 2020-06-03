@@ -58,7 +58,6 @@ export default function ChampionSquare({ id, version='', withName=false, vertica
     version = (version === '') ? getCurrentVersion() : version;
     let url = 'http://ddragon.leagueoflegends.com/cdn/' + version + '/img/champion/' + urlId + '.png';
 
-    // Had to put in Table because apparently a <img /> + string = "[Object object] + string". Like what
     return (withName) ? (
         <div>
             <React.Fragment><img className={classes.spacing} src={url} alt={urlId} width="30" height="30" /> {name}</React.Fragment>
