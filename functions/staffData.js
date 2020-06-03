@@ -48,8 +48,8 @@ function putNewStaff(staff) {
                     let cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
                     cache.set(cacheKey, JSON.stringify(profileInfo, null, 2));
                     resolve(profileInfo);
-                }).catch((err) => { console.error(err); reject(400); });
+                }).catch((err) => { console.error(err); reject(500); });
             });
-        }).catch((err) => { console.error(err); reject(400); });
+        }).catch((err) => { console.error(err); reject(422); });
     });
 }

@@ -5,6 +5,8 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 require('dotenv').config();
 
 /*  Import helper Data function modules */
@@ -17,26 +19,10 @@ const Staff = require('./functions/staffData');
 
 /*  
     ----------------------
-    Staff API Requests
+    User Auth API Requests
     ----------------------
 */
-//#region Staff
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Temporary POST request to manually add Staff and give credentials
-app.post('/api/staff/v1/add', (req, res) => {
-    console.log(req.body);
-    Staff.newStaff(req.body).then((response) => {
-        res.json(response)
-    }).catch(errCode => res.status(errCode).send("POST Staff Add Error."));
-});
-
-// Update just password (for now)
-app.post('/api/staff/v1/update', (req, res) => {
-
-});
+//#region POST Requests - User Auth
 
 // Login
 app.post('/api/login/v1', (req, res) => {
@@ -55,7 +41,7 @@ app.post('/api/logout/v1', (req, res) => {
     League API Requests
     ----------------------
 */
-//#region League
+//#region GET Requests - League
 
 app.get('/api/leagues/v1', (req, res) => {
     console.log("GET Request Leagues.");
@@ -71,7 +57,7 @@ app.get('/api/leagues/v1', (req, res) => {
     Season API Requests
     ----------------------
 */
-//#region Season
+//#region GET Requests - Season
 
 app.get('/api/season/v1/information/name/:seasonShortName', (req, res) => {
     console.log("GET Request Season '" + req.params.seasonShortName + "' Information.");
@@ -116,7 +102,7 @@ app.get('/api/season/v1/playoffs/name/:seasonShortName', (req, res) => {
     Profile API Requests
     ----------------------
 */
-//#region Profile
+//#region GET REQUESTS - Profile
 
 app.get('/api/profile/v1/information/name/:profileName', (req, res) => {
     console.log("GET Request Profile '" + req.params.profileName + "' Information.");
@@ -170,13 +156,107 @@ app.get('/api/profile/v1/stats/latest/name/:profileName', (req, res) => {
 
 //#endregion
 
+//#region POST REQUESTS - Profile
+
+// Add new profiles and its summoner accounts. 
+// First Summoner listed will automatically be flagged as 'main'
+// BODY EXAMPLE:
+// {
+//     "profile": "NAME",
+//     "summonerNames": [],
+// }
+app.post('/api/profile/v1/add/new', (req, res) => {
+    // Check if Profile name already exists. If it does, reject.
+    Profile.getId(req.body.profile).then((pPId) => {
+        // Id Found. That means Profile name exists
+        
+    })
+    // Check if each summoner Name has its ID already registered. 
+    // If it does, reject and respond with what Profile it conflicts.
+
+    // Generate a new Profile ID
+
+    // Add to "Profile" and "ProfileNameMap" Table
+
+    // Add to "SummonerIdMap" Table
+
+    // Cache set Key: PROFILE_INFO_PREFIX
+})
+
+// Add summoner accounts to profile. Summoner will not be flagged as 'main'
+// BODY EXAMPLE:
+// {
+//     "profile": "NAME",
+//     "summonerNames": [],
+// }
+app.put('/api/profile/v1/add/account', (req, res) => {
+
+})
+
+// Remove summoner accounts from Profile.
+// BODY EXAMPLE:
+// {
+//     "profile": "NAME",
+//     "summonerNames": [],
+// }
+app.put('/api/profile/v1/remove/account', (req, res) => {
+
+})
+
+// Update a Profile Name.
+// BODY EXAMPLE:
+// {
+//     "currentProfile": "OLD_NAME",
+//     "newProfile": "NEW_NAME",
+// }
+app.put('/api/profile/v1/update/name', (req, res) => {
+
+})
+
+// Add Staff and give credentials
+// BODY TEMPLATE:
+// {
+//     "profile": "NAME",
+//     "password": "PASSWORD_HERE",
+//     "admin": true,
+//     "moderator": true
+// }
+app.put('/api/profile/v1/add/staff', (req, res) => {
+    Staff.newStaff(req.body).then((response) => {
+        res.json(response);
+    }).catch(errCode => res.status(errCode).send("PUT Profile Add Staff Error."));
+});
+
+// Update just password (staff only)
+// BODY TEMPLATE:
+// {
+//     "profile": "NAME",
+//     "password": "PASSWORD_HERE",
+//     "admin": true,
+//     "moderator": true
+// }
+app.put('/api/profile/v1/update', (req, res) => {
+
+});
+
+// Remove mod/admin powers
+// BODY TEMPLATE:
+// {
+//     "profile": "NAME",
+// }
+app.put('/api/profile/v1/remove/staff', (req, res) => {
+
+});
+
+//#endregion
+
 /*  
     ----------------------
     Team API Requests
     ----------------------
 */
 
-//#region Team
+//#region GET Requests - Team
 
 app.get('/api/team/v1/information/name/:teamName', async (req, res) => {
     console.log("GET Request Team '" + req.params.teamName + "' Information.");
@@ -256,7 +336,7 @@ app.get('/api/team/v1/stats/latest/name/:teamName', async (req, res) => {
     ----------------------
 */
 
-//#region Tournament
+//#region GET Requests - Tournament
 
 app.get('/api/tournament/v1/information/name/:tournamentShortName', async (req, res) => {
     console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Information.");
@@ -328,7 +408,7 @@ app.get('/api/tournament/v1/games/name/:tournamentShortName', async (req, res) =
     Match API Requests
     ----------------------
 */
-//#region Match
+//#region GET Requests - Match
 
 app.get('/api/match/v1/:matchId', (req, res) => {
     console.log("GET Request Match '" + req.params.matchId + "'.");

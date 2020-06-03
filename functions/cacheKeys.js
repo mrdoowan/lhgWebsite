@@ -10,10 +10,10 @@ module.exports = {
     SEASON_ROSTER_PREFIX: 'SnRoster-',          // Season Id
     SEASON_REGULAR_PREFIX: 'SnRegular-',        // Season Id
     SEASON_PLAYOFF_PREFIX: 'SnPlayoff-',        // Season Id
-    SEASON_TAB_PREFIX: 'SnTab-',               // Season Id
+    SEASON_TAB_PREFIX: 'SnTab-',                // Season Id
     TN_CODE_PREFIX: 'TnCode-',                  // Tourn Id
     TN_NAME_PREFIX: 'TnName-',                  // Tourn Id
-    TN_ID_PREFIX: 'TnId-',                      // Tourn sName
+    TN_ID_PREFIX: 'TnId-',                      // Tourn Name
     TN_INFO_PREFIX: 'TnInfo-',                  // Tourn Id
     TN_STATS_PREFIX: 'TnStats-',                // Tourn Id
     TN_LEADER_PREFIX: 'TnLB-',                  // Tourn Id
