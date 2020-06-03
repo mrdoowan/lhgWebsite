@@ -4,6 +4,7 @@
 /*  Declaring npm modules */
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 require('dotenv').config();
 
 /*  Import helper Data function modules */
@@ -21,30 +22,29 @@ const Staff = require('./functions/staffData');
 */
 //#region Staff
 
-// Temporary POST request to manually add Staff and give credentials
-app.post('/api/staff/add/v1', (req, res) => {
-    const newStaff = {
-        profile: req.body.profile,
-        password: req.body.password,
-        moderator: req.body.moderator,
-        admin: req.body.admin,
-    }
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-    res.json({  })
+// Temporary POST request to manually add Staff and give credentials
+app.post('/api/staff/v1/add', (req, res) => {
+    console.log(req.body);
+    Staff.newStaff(req.body).then((response) => {
+        res.json(response)
+    }).catch(errCode => res.status(errCode).send("POST Staff Add Error."));
 });
 
-// Update password for now
-app.post('/api/staff/update/v1', (req, res) => {
+// Update just password (for now)
+app.post('/api/staff/v1/update', (req, res) => {
 
 });
 
 // Login
-app.post('/api/login', (req, res) => {
+app.post('/api/login/v1', (req, res) => {
 
 });
 
 // Logout
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout/v1', (req, res) => {
 
 });
 
