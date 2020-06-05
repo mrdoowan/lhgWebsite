@@ -1,9 +1,11 @@
 module.exports = {
-    getId: getProfilePId,
+    getIdByName: getProfilePIdByName,
+    getIdBySummoner: getProfilePIdBySummonerId,
     getName: getProfileName,
     getInfo: getProfileInfo,
     getGames: getProfileGamesBySeason,
     getStats: getProfileStatsByTourney,
+    getSummonerId: getSummonerIdBySummonerName,
 }
 
 /*  Declaring npm modules */
@@ -13,6 +15,7 @@ const cache = redis.createClient(process.env.REDIS_PORT);
 
 /*  Import helper function modules */
 const dynamoDb = require('./dynamoDbHelper');
+const lambda = require('./awsLambdaHelper');
 const keyBank = require('./cacheKeys');
 const helper = require('./helper');
 // Data Functions
@@ -21,31 +24,45 @@ const Tournament = require('./tournamentData');
 const Team = require('./teamData');
 
 // Get ProfilePId from ProfileName
-function getProfilePId(name) {
+function getProfilePIdByName(name) {
     let simpleName = helper.filterName(name);
     let cacheKey = keyBank.PROFILE_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { console.error(err); reject(500); }
-            else if (data != null) { resolve(data); }
-            else {
-                dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
-                .then((obj) => {
-                    if (obj == null) { console.error("Profile Name '" + name + "' Not Found"); reject(404); } // Not Found 
-                    else {
-                        let pPId = helper.getProfilePId(obj['ProfileHId']);
-                        cache.set(cacheKey, pPId);
-                        resolve(pPId);
-                    }
-                }).catch((err) => { console.error(err); reject(500) });
-            }
+            if (err) { console.error(err); reject(500); return; }
+            else if (data != null) { resolve(data); return; }
+            dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
+            .then((obj) => {
+                if (obj == null) { console.error("Profile Name '" + name + "' Not Found"); reject(404); return; } // Not Found 
+                let pPId = helper.getProfilePId(obj['ProfileHId']);
+                cache.set(cacheKey, pPId);
+                resolve(pPId);
+            }).catch((err) => { console.error(err); reject(500) });
+        });
+    });
+}
+
+// Get ProfilePId from Riot Summoner Id
+function getProfilePIdBySummonerId(summId) {
+    let cacheKey = keyBank.PROFILE_SUMM_PREFIX + summId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console.error(err); reject(500); return; }
+            else if (data != null) { resolve(data); return; }
+            dynamoDb.getItem('SummonerIdMap', 'SummonerId', summId)
+            .then((obj) => {
+                if (obj == null) { console.error("Summoner Id '" + summId + "' Not Found"); reject(404); return } // Not Found
+                let pPId = helper.getProfilePId(obj['ProfileHId']);
+                cache.set(cacheKey, pPId);
+                resolve(pPId);
+            }).catch((err) => { console.error(err); reject(500) });
         });
     });
 }
 
 // Get ProfileName from DynamoDb
-function getProfileName(pHId) {
-    let pPId = helper.getProfilePId(pHId);
+function getProfileName(id, hash=true) {
+    let pPId = (hash) ? helper.getProfilePId(id) : id;
     let cacheKey = keyBank.PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -197,4 +214,18 @@ function getProfileStatsByTourney(pPId, tPId) {
             }
         });
     });
+}
+
+// Get Summoner Id from Summoner Name
+// Won't need to cache this. Just call directly from Riot API
+function getSummonerIdBySummonerName(summName) {
+    return new Promise(function(resolve, reject) {
+        lambda.getSummonerId(summName).then((data) => {
+            resolve(data['id']);
+        }).catch((err) => { console.error(err); reject(404); })
+    });
+}
+
+function postNewProfile(profileObject) {
+    
 }

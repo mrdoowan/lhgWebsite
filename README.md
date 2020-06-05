@@ -19,6 +19,7 @@ The following npm modules are used in the server:
 * hashids
 * redis
 * bcrypt
+* random-js
 
 The following npm modules are used in the client:
 * react

@@ -18,10 +18,9 @@ const Profile = require('./profileData');
 
 function putNewStaff(staff) {
     return new Promise((resolve, reject) => {
-        Profile.getId(staff.profile).then((pPId) => {
+        Profile.getIdByName(staff.profile).then((pPId) => {
             bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
                 if (err) { console.error(err); reject(500); return; }
-                dynamoDb.updateTest(pPId, 'Password', hash);
                 dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
                     'SET #pw = :data',
                     {
@@ -34,7 +33,6 @@ function putNewStaff(staff) {
                 Profile.getInfo(pPId).then((profileInfo) => {
                     profileInfo['Admin'] = staff.admin;
                     profileInfo['Moderator'] = staff.moderator;
-                    dynamoDb.updateTest(pPId, 'Information', profileInfo);
                     dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
                         'SET #info = :data',
                         {
