@@ -185,6 +185,18 @@ app.post('/api/profile/v1/add/new', (req, res) => {
                 helper.generateNewPId('Profile').then((newPId) => {
                     console.log(newPId);
                     // Add to "Profile" and "ProfileNameMap" Table
+                    let newProfileItem = {
+                        'Information': {
+                            'LeagueAccounts': {
+                                [summId]: {
+                                    'MainAccount': true,
+                                }
+                            },
+                            'ProfileName': pName,
+                        },
+                        'ProfileName': pName,
+                        'ProfilePId': pPId,
+                    }
                     
                     // Add to "SummonerIdMap" Table
 

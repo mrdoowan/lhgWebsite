@@ -226,6 +226,7 @@ function getSummonerIdBySummonerName(summName) {
     });
 }
 
-function postNewProfile(profileObject) {
+// Adds to Profile Table and ProfileNameMap
+function postNewProfile(profileId, newProfileItem) {
     
 }
