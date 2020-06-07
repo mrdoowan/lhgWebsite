@@ -24,10 +24,10 @@ module.exports = {
     TN_TAB_PREFIX: 'TnTab-',                    // Tourn Id
     PROFILE_NAME_PREFIX: 'PName-',              // Prof Id
     PROFILE_PID_PREFIX: 'PPId-',                // Prof Name
-    PROFILE_SUMM_PREFIX: 'PSumm-',              // Prof Summ Id
     PROFILE_INFO_PREFIX: 'PInfo-',              // Prof Id
     PROFILE_GAMES_PREFIX: 'PGames-',            // Prof Id, Season Id
     PROFILE_STATS_PREFIX: 'PStats-',            // Prof Id, Tourn Id
+    PROFILE_SUMM_PREFIX: 'PSumm-',              // Summ Id
     TEAM_NAME_PREFIX: 'TName-',                 // Team Id
     TEAM_PID_PREFIX: 'TPId-',                   // Team Name
     TEAM_INFO_PREFIX: 'TInfo-',                 // Team Id

@@ -1,6 +1,7 @@
 // Modularize the AWS Lambda functions
 module.exports = {
     getSummonerId: getSummonerIdLambda,
+    //postSpectateMatch: postSpectateMatchLambda,
 }
 
 /*  Declaring AWS npm modules */

@@ -19,8 +19,9 @@ const Profile = require('./profileData');
 function putNewStaff(staff) {
     return new Promise((resolve, reject) => {
         Profile.getIdByName(staff.profile).then((pPId) => {
+            if (pPId == null) { resolve(null); return; } // Not Found
             bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
-                if (err) { console.error(err); reject(500); return; }
+                if (err) { console.error(err); reject(err); return; }
                 dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
                     'SET #pw = :data',
                     {
@@ -46,8 +47,8 @@ function putNewStaff(staff) {
                     let cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
                     cache.set(cacheKey, JSON.stringify(profileInfo, null, 2));
                     resolve(profileInfo);
-                }).catch((err) => { console.error(err); reject(500); });
+                }).catch((err) => { console.error(err); reject(err); });
             });
-        }).catch((err) => { console.error(err); reject(422); });
+        }).catch((err) => { console.error(err); reject(err); });
     });
 }

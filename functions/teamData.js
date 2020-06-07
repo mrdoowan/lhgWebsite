@@ -27,7 +27,7 @@ function getTeamPId(name) {
     let cacheKey = keyBank.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { console.error(err); reject(500); }
+            if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); }
             else {
                 dynamoDb.getItem('TeamNameMap', 'TeamName', simpleName)

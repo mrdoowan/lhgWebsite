@@ -1,7 +1,9 @@
 module.exports = {
     filterName: filterName,
     getProfilePId: getProfilePIdString,
+    getProfileHId: getProfileHIdString,
     getTeamPId: getTeamPIdString,
+    getTeamHId: getTeamHIdString,
     getSeasonItems: getSeasonItems,
     getTourneyItems: getTourneyItems,
     generateNewPId: generateNewPId,
@@ -13,8 +15,6 @@ const profileHashIds = new Hashids(process.env.PROFILE_HID_SALT, parseInt(proces
 const teamHashIds = new Hashids(process.env.TEAM_HID_SALT, parseInt(process.env.HID_LENGTH));
 const randomNumber = new Random();
 const dynamoDb = require('./dynamoDbHelper');
-const Profile = require('./profileData');
-const Team = require('./teamData');
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
 
@@ -38,6 +38,16 @@ function getTeamPIdString(hId) {
 // Lowercases the name and removes all whitespaces
 function filterName(name) {
     return name.toLowerCase().replace(/ /g, '');
+}
+
+// Encode Profile PId into HId
+function getProfileHIdString(pPId) {
+    return profileHashIds.encode(pPId);
+}
+
+// Encode Team PId into HId
+function getTeamHIdString(tPId) {
+    return teamHashIds.encode(tPId);
 }
 
 function getSeasonItems(idList) {

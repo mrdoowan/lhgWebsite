@@ -32,19 +32,15 @@ function getTournamentId(shortName) {
     let cacheKey = keyBank.TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
-            if (err) { console.error(err); reject(500) }
-            else if (data != null) { resolve(parseInt(data)); } // NOTE: Needs to be number
-            else {
-                dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
-                .then((obj) => {
-                    if (obj.length === 0) { console.error("Tournament Shortname '" + shortName + "' Not Found"); reject(404); }
-                    else {
-                        let Id = obj[0]['TournamentPId'];
-                        cache.set(cacheKey, Id);
-                        resolve(Id);
-                    }
-                }).catch((err) => { console.error(err); reject(500) });
-            }
+            if (err) { console.error(err); reject(err); return; }
+            else if (data != null) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
+            dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
+            .then((obj) => {
+                if (obj.length === 0) { resolve(null); return; } // Not Found
+                let Id = obj[0]['TournamentPId'];
+                cache.set(cacheKey, Id);
+                resolve(Id);
+            }).catch((err) => { console.error(err); reject(err) });
         });
     });
 }
