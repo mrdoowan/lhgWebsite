@@ -67,8 +67,8 @@ app.get('/api/season/v1/information/name/:seasonShortName', (req, res) => {
         if (sPId == null) { return res.status(404).json({ error: `Season Name '${seasonShortName}' Not Found` }) }
         Season.getInfo(sPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Season Information Error." }))
-    }).catch(errCode => res.status(errCode).json({ error: "GET Season ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Season Information Error.", reason: err }))
+    }).catch((err) => res.status(500).json({ error: "GET Season ID Error.", reason: err }));
 });
 
 app.get('/api/season/v1/roster/name/:seasonShortName', (req, res) => {
@@ -78,8 +78,8 @@ app.get('/api/season/v1/roster/name/:seasonShortName', (req, res) => {
         if (sPId == null) { return res.status(404).json({ error: `Season Name '${seasonShortName}' Not Found` }) }
         Season.getRoster(sPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Season Information Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Season ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Season Information Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Season ID Error.", reason: err }));
 });
 
 app.get('/api/season/v1/regular/name/:seasonShortName', (req, res) => {
@@ -89,8 +89,8 @@ app.get('/api/season/v1/regular/name/:seasonShortName', (req, res) => {
         if (sPId == null) { return res.status(404).json({ error: `Season Name '${seasonShortName}' Not Found` }) }
         Season.getRegular(sPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Season Information Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Season ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Season Information Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Season ID Error.", reason: err }));
 });
 
 app.get('/api/season/v1/playoffs/name/:seasonShortName', (req, res) => {
@@ -100,8 +100,8 @@ app.get('/api/season/v1/playoffs/name/:seasonShortName', (req, res) => {
         if (sPId == null) { return res.status(404).json({ error: `Season Name '${seasonShortName}' Not Found` }) }
         Season.getPlayoffs(sPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Season Information Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Season ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Season Information Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Season ID Error.", reason: err }));
 });
 
 //#endregion
@@ -198,7 +198,8 @@ app.post('/api/profile/v1/add/new', (req, res) => {
         }
         // Check if summoner Name has its ID already registered. 
         Profile.getSummonerId(summonerName).then((summId) => {
-            if (summId != null) {
+            if (summId == null) {
+                // Summoner Id does not exist
                 return res.status(422).json({ error: `Summoner Name '${summonerName}' does not exist.` });
             }
             Profile.getIdBySummonerId(summId).then((pPId) => {
@@ -229,7 +230,7 @@ app.post('/api/profile/v1/add/new', (req, res) => {
                     }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 1. ", reason: err }) });
                 }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 2. ", reason: err }) });
             }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 3. ", reason: err }) });
-        }).catch((err) => { res.status(422).json({ error: `Summoner Name '${summonerName}' does not exist.` }) });
+        }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 4. ", reason: err }) });
     });
 });
 
@@ -274,7 +275,7 @@ app.put('/api/profile/v1/update/name', (req, res) => {
 app.put('/api/profile/v1/add/staff', (req, res) => {
     Staff.newStaff(req.body).then((response) => {
         return res.status(200).json(response);
-    }).catch(errCode => res.status(errCode).json({ error: "PUT Profile Add Staff Error." }));
+    }).catch((err) => res.status(500).json({ error: "PUT Profile Add Staff Error." }));
 });
 
 // Update just password (staff only)
@@ -312,72 +313,90 @@ app.get('/api/team/v1/information/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Information.`);
     Team.getId(teamName).then((teamId) => {
-        
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
         Team.getInfo(teamId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Team Information Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Team Information Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 app.get('/api/team/v1/scouting/name/:teamName/:seasonShortName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Scouting from Season '" + req.params.seasonShortName +  "'.");
-    Team.getId(req.params.teamName).then((teamId) => {
-        Season.getId(req.params.seasonShortName).then((sPId) => {
+    const { teamName, seasonShortName } = req.params;
+    console.log(`GET Request Team '${teamName}' Scouting from Season '${seasonShortName}'.`);
+    Team.getId(teamName).then((teamId) => {
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
+        Season.getId(seasonShortName).then((sPId) => {
+            if (sPId == null) { return res.status(404).json({ error: `Season Name '${seasonShortName}' Not Found` }); }
             Team.getScouting(teamId, sPId).then((data) => {
+                if (data == null) { return res.status(404).json({ error: `'${teamName}' does not have Season '${seasonShortName}' Scouting logged` }) }
                 return res.status(200).json(data);
-            }).catch(errCode => res.status(errCode).json({ error: "GET Team Scouting Error." }));
-        }).catch(errCode => res.status(errCode).json({ error: "GET Season ID Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+            }).catch((err) => res.status(500).json({ error: "GET Team Scouting Error.", reason: err }));
+        }).catch((err) => res.status(500).json({ error: "GET Season ID Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 app.get('/api/team/v1/games/name/:teamName/:seasonShortName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Game Log from Season '" + req.params.seasonShortName +  "'.");
-    Team.getId(req.params.teamName).then((teamId) => {
-        Season.getId(req.params.seasonShortName).then((sPId) => {
+    const { teamName, seasonShortName } = req.params;
+    console.log(`GET Request Team '${teamName}' Game Log from Season '${seasonShortName}'.`);
+    Team.getId(teamName).then((teamId) => {
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
+        Season.getId(seasonShortName).then((sPId) => {
+            if (sPId == null) { return res.status(404).json({ error: `Season Name '${seasonShortName}' Not Found` }) }
             Team.getGames(teamId, sPId).then((data) => {
+                if (data == null) { return res.status(404).json({ error: `'${teamName}' does not have Season '${seasonShortName}' Games logged` }) }
                 return res.status(200).json(data);
-            }).catch(errCode => res.status(errCode).json({ error: "GET Team Games Error." }));
-        }).catch(errCode => res.status(errCode).json({ error: "GET Season ID Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+            }).catch((err) => res.status(500).json({ error: "GET Team Games Error.", reason: err }));
+        }).catch((err) => res.status(500).json({ error: "GET Season ID Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 app.get('/api/team/v1/stats/name/:teamName/:tournamentName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Stats Log from Tournament '" + req.params.tournamentName +  "'.");
-    Team.getId(req.params.teamName).then((teamId) => {
-        Tournament.getId(req.params.tournamentName).then((tPId) => {
+    const { teamName, tournamentName } = req.params;
+    console.log(`GET Request Team '${teamName}' Stats Log from Tournament '${tournamentName}'.`);
+    Team.getId(teamName).then((teamId) => {
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
+        Tournament.getId(tournamentName).then((tPId) => {
+            if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentName}' Not Found` }) }
             Team.getStats(teamId, tPId).then((data) => {
+                if (data == null) { return res.status(404).json({ error: `'${teamName}' does not have Tournament '${tournamentName}' Stats logged` }) }
                 return res.status(200).json(data);
-            }).catch(errCode => res.status(errCode).json({ error: "GET Team Stats Error." }));
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tournament ID Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+            }).catch((err) => res.status(500).json({ error: "GET Team Stats Error.", reason: err }));
+        }).catch((err) => res.status(500).json({ error: "GET Tournament ID Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 // Latest query
 app.get('/api/team/v1/scouting/latest/name/:teamName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Scouting from the latest Season.");
+    const { teamName } = req.params;
+    console.log(`GET Request Team '${teamName}' Scouting from the latest Season.`);
     Team.getId(req.params.teamName).then((teamId) => {
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
         Team.getScouting(teamId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Team Scouting Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Team Scouting Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 app.get('/api/team/v1/games/latest/name/:teamName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Game Log from the latest Season.");
-    Team.getId(req.params.teamName).then((teamId) => {
+    const { teamName } = req.params;
+    console.log(`GET Request Team '${teamName}' Game Log from the latest Season.`);
+    Team.getId(teamName).then((teamId) => {
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
         Team.getGames(teamId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Team Games Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Team Games Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 app.get('/api/team/v1/stats/latest/name/:teamName', async (req, res) => {
-    console.log("GET Request Team '" + req.params.teamName + "' Game Log from the latest Season.");
-    Team.getId(req.params.teamName).then((teamId) => {
+    const { teamName } = req.params;
+    console.log(`GET Request Team '${teamName}' Stats from the latest Season.`);
+    Team.getId(teamName).then((teamId) => {
+        if (teamId == null) { return res.status(404).json({ error: `Team Name '${teamName}' Not Found` }); }
         Team.getStats(teamId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Team Stats Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Team ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Team Stats Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
 
 //#endregion
@@ -391,66 +410,80 @@ app.get('/api/team/v1/stats/latest/name/:teamName', async (req, res) => {
 //#region GET Requests - Tournament
 
 app.get('/api/tournament/v1/information/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Information.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Information.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getInfo(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Information Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Information Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 app.get('/api/tournament/v1/stats/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Tourney Stats.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Tourney Stats.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getTourneyStats(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Information Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Information Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 app.get('/api/tournament/v1/leaderboards/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Leaderboards.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Leaderboards.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getLeaderboards(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Leaderboard Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Leaderboard Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 app.get('/api/tournament/v1/players/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Players.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Players.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getPlayerStats(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Players Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Players Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 app.get('/api/tournament/v1/teams/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Teams.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Teams.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getTeamStats(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Teams Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Teams Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 app.get('/api/tournament/v1/pickbans/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Pick Bans.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Pick Bans.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getPBStats(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Pick Bans Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Pick Bans Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 app.get('/api/tournament/v1/games/name/:tournamentShortName', async (req, res) => {
-    console.log("GET Request Tournament '" + req.params.tournamentShortName + "' Game Log.");
-    Tournament.getId(req.params.tournamentShortName).then((tPId) => {
+    const { tournamentShortName } = req.params;
+    console.log("GET Request Tournament '" + tournamentShortName + "' Game Log.");
+    Tournament.getId(tournamentShortName).then((tPId) => {
+        if (tPId == null) { return res.status(404).json({ error: `Tournament Name '${tournamentShortName}' Not Found` }); }
         Tournament.getGames(tPId).then((data) => {
             return res.status(200).json(data);
-        }).catch(errCode => res.status(errCode).json({ error: "GET Tourney Games Error." }));
-    }).catch(errCode => res.status(errCode).json({ error: "GET Tourney ID Error." }));
+        }).catch((err) => res.status(500).json({ error: "GET Tourney Games Error.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "GET Tourney ID Error.", reason: err }));
 });
 
 //#endregion
