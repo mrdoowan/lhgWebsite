@@ -1,14 +1,21 @@
 module.exports = {
     filterName: filterName,
     getProfilePId: getProfilePIdString,
+    getProfileHId: getProfileHIdString,
     getTeamPId: getTeamPIdString,
+    getTeamHId: getTeamHIdString,
     getSeasonItems: getSeasonItems,
     getTourneyItems: getTourneyItems,
+    generateNewPId: generateNewPId,
+    TTL_DURATION: 60 * 60 * 24,
 }
 require('dotenv').config({ path: '../.env' });
+const { Random } = require('random-js');
 const Hashids = require('hashids/cjs'); // For hashing and unhashing
 const profileHashIds = new Hashids(process.env.PROFILE_HID_SALT, parseInt(process.env.HID_LENGTH));
 const teamHashIds = new Hashids(process.env.TEAM_HID_SALT, parseInt(process.env.HID_LENGTH));
+const randomNumber = new Random();
+const dynamoDb = require('./dynamoDbHelper');
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
 
@@ -32,6 +39,16 @@ function getTeamPIdString(hId) {
 // Lowercases the name and removes all whitespaces
 function filterName(name) {
     return name.toLowerCase().replace(/ /g, '');
+}
+
+// Encode Profile PId into HId
+function getProfileHIdString(pPId) {
+    return profileHashIds.encode(pPId);
+}
+
+// Encode Team PId into HId
+function getTeamHIdString(tPId) {
+    return teamHashIds.encode(tPId);
 }
 
 function getSeasonItems(idList) {
@@ -69,3 +86,28 @@ function getTourneyItems(idList) {
         catch (err) { reject(err); } 
     });
 }
+
+function generateNewPId(type) {
+    return new Promise(async function(resolve, reject) {
+        let duplicate = true;
+        while (duplicate) {
+            let newPId = strPadZeroes(randomNumber.integer(1, 99999999), 8); // 8 digit number
+            if (type.toLowerCase() === "profile") {
+                if (!(await dynamoDb.getItem('Profile', 'ProfilePId', newPId))) {
+                    resolve(newPId);
+                    duplicate = false;
+                }
+            }
+            else if (type.toLowerCase() === "team") {
+                if (!(await dynamoDb.getItem('Team', 'TeamPId', newPId))) {
+                    resolve(newPId);
+                    duplicate = false;
+                }
+            }
+            else {
+                reject("Generate new PID incorrect Type.");
+            }
+        }
+    })
+    
+} 

@@ -9,21 +9,24 @@ The following need to be installed into Linux (sudo apt update):
     + "aws configure"
 + redis-server
     + Linux: "sudo systemctl restart redis.servis"
-    + WSL: "sudo system redis-server start"
+    + WSL: "sudo service redis-server start"
 
 The following npm modules are used in the server:
 * aws-sdk
 * express
 * concurrently
-* nodemon
-* redis
 * dotenv
+* hashids
+* redis
+* bcrypt
+* random-js
 
 The following npm modules are used in the client:
 * react
 * react-scripts
 * react-router-dom
-* hashids
+* react-bootstrap
+* @material-ui
 * devextreme
 
 When you pull this repo, use "npm install" to download the packages.

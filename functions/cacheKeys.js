@@ -1,37 +1,38 @@
 // Code === ShortName
 
 module.exports = {
-    LEAGUE_KEY: 'Leagues',
-    SEASON_CODE_PREFIX: 'SnCode-',              // Season Id
-    SEASON_NAME_PREFIX: 'SnName-',              // Season Id
-    SEASON_TIME_PREFIX: 'SnTime-',              // Season Id
-    SEASON_ID_PREFIX: 'SnId-',                  // Season sName
-    SEASON_INFO_PREFIX: 'SnInfo-',              // Season Id
-    SEASON_ROSTER_PREFIX: 'SnRoster-',          // Season Id
-    SEASON_REGULAR_PREFIX: 'SnRegular-',        // Season Id
-    SEASON_PLAYOFF_PREFIX: 'SnPlayoff-',        // Season Id
-    SEASON_TAB_PREFIX: 'SnTab-',               // Season Id
-    TN_CODE_PREFIX: 'TnCode-',                  // Tourn Id
-    TN_NAME_PREFIX: 'TnName-',                  // Tourn Id
-    TN_ID_PREFIX: 'TnId-',                      // Tourn sName
-    TN_INFO_PREFIX: 'TnInfo-',                  // Tourn Id
-    TN_STATS_PREFIX: 'TnStats-',                // Tourn Id
-    TN_LEADER_PREFIX: 'TnLB-',                  // Tourn Id
-    TN_PLAYER_PREFIX: 'TnPlay-',                // Tourn Id
-    TN_TEAM_PREFIX: 'TnTeam-',                  // Tourn Id
-    TN_PICKBANS_PREFIX: 'TnPB-',                // Tourn Id
-    TN_GAMES_PREFIX: 'TnGames-',                // Tourn Id
-    TN_TAB_PREFIX: 'TnTab-',                    // Tourn Id
-    PROFILE_NAME_PREFIX: 'PName-',              // Prof Id
-    PROFILE_PID_PREFIX: 'PPId-',                // Prof Name
-    PROFILE_INFO_PREFIX: 'PInfo-',              // Prof Id
-    PROFILE_GAMES_PREFIX: 'PGames-',            // Prof Id, Season Id
-    PROFILE_STATS_PREFIX: 'PStats-',            // Prof Id, Tourn Id
-    TEAM_NAME_PREFIX: 'TName-',                 // Team Id
-    TEAM_PID_PREFIX: 'TPId-',                   // Team Name
-    TEAM_INFO_PREFIX: 'TInfo-',                 // Team Id
-    TEAM_SCOUT_PREFIX: 'TScout-',               // Team Id, Season Id
-    TEAM_GAMES_PREFIX: 'TGames-',               // Team Id, Season Id
-    TEAM_STATS_PREFIX: 'TStats-',               // Team Id, Tourn Id
-    MATCH_PREFIX: 'Match-',                  
+    LEAGUE_KEY: 'Leagues',                      // TTL: 1 Day
+    SEASON_CODE_PREFIX: 'SnCode-',              // Key: Season Id, TTL: Never
+    SEASON_NAME_PREFIX: 'SnName-',              // Key: Season Id, TTL: Never
+    SEASON_TIME_PREFIX: 'SnTime-',              // Key: Season Id, TTL: Never
+    SEASON_ID_PREFIX: 'SnId-',                  // Key: Season shortName, TTL: Never
+    SEASON_INFO_PREFIX: 'SnInfo-',              // Key: Season Id, TTL: 1 Day
+    SEASON_ROSTER_PREFIX: 'SnRoster-',          // Key: Season Id, TTL: 1 Day
+    SEASON_REGULAR_PREFIX: 'SnRegular-',        // Key: Season Id, TTL: 1 Day
+    SEASON_PLAYOFF_PREFIX: 'SnPlayoff-',        // Key: Season Id, TTL: 1 Day
+    SEASON_TAB_PREFIX: 'SnTab-',                // Key: Season Id, TTL: Never
+    TN_CODE_PREFIX: 'TnCode-',                  // Key: Tourn Id, TTL: Never
+    TN_NAME_PREFIX: 'TnName-',                  // Key: Tourn Id, TTL: Never
+    TN_ID_PREFIX: 'TnId-',                      // Key: Tourn shortName, TTL: Never
+    TN_INFO_PREFIX: 'TnInfo-',                  // Key: Tourn Id, TTL: 1 Day
+    TN_STATS_PREFIX: 'TnStats-',                // Key: Tourn Id, TTL: 1 Day
+    TN_LEADER_PREFIX: 'TnLB-',                  // Key: Tourn Id, TTL: 1 Day
+    TN_PLAYER_PREFIX: 'TnPlay-',                // Key: Tourn Id, TTL: 1 Day
+    TN_TEAM_PREFIX: 'TnTeam-',                  // Key: Tourn Id, TTL: 1 Day
+    TN_PICKBANS_PREFIX: 'TnPB-',                // Key: Tourn Id, TTL: 1 Day
+    TN_GAMES_PREFIX: 'TnGames-',                // Key: Tourn Id, TTL: 1 Day
+    TN_TAB_PREFIX: 'TnTab-',                    // Key: Tourn Id, TTL: Never
+    PROFILE_NAME_PREFIX: 'PName-',              // Key: Prof Id, TTL: Never
+    PROFILE_PID_BYNAME_PREFIX: 'PPId-',         // Key: Prof Name, TTL: Never
+    PROFILE_INFO_PREFIX: 'PInfo-',              // Key: Prof Id, TTL: 1 Day
+    PROFILE_GAMES_PREFIX: 'PGames-',            // Key: Prof Id-Season Id, TTL: 1 Day
+    PROFILE_STATS_PREFIX: 'PStats-',            // Key: Prof Id-Tourn Id, TTL: 1 Day
+    PROFILE_PID_BYSUMM_PREFIX: 'PSumm-',        // Key: Summ Id, TTL: Never
+    TEAM_NAME_PREFIX: 'TName-',                 // Key: Team Id, TTL: Never
+    TEAM_PID_PREFIX: 'TPId-',                   // Key: Team Name, TTL: Never
+    TEAM_INFO_PREFIX: 'TInfo-',                 // Key: Team Id, TTL: 1 Day
+    TEAM_SCOUT_PREFIX: 'TScout-',               // Key: Team Id-Season Id, TTL: 1 Day
+    TEAM_GAMES_PREFIX: 'TGames-',               // Key: Team Id-Season Id, TTL: 1 Day
+    TEAM_STATS_PREFIX: 'TStats-',               // Key: Team Id-Tourn Id, TTL: 1 Day
+    MATCH_PREFIX: 'Match-',                     // Key: Match Id, TTL: 1 Day
 }
