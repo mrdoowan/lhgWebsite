@@ -196,12 +196,13 @@ app.post('/api/profile/v1/add/new', (req, res) => {
             // Id Found in DB. That means Profile name exists. Reject.
             return res.status(422).json({ error: `Profile '${profileName}' already exists under Profile ID '${pPId}'` });
         }
-        // Check if summoner Name has its ID already registered. 
+        // Check if the IGN exists. 
         Profile.getSummonerId(summonerName).then((summId) => {
             if (summId == null) {
                 // Summoner Id does not exist
                 return res.status(422).json({ error: `Summoner Name '${summonerName}' does not exist.` });
             }
+            // Check if summoner Name has its ID already registered. 
             Profile.getIdBySummonerId(summId).then((pPId) => {
                 if (pPId != null) {
                     // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
@@ -226,7 +227,7 @@ app.post('/api/profile/v1/add/new', (req, res) => {
                         'ProfilePId': newPId,
                     };
                     Profile.postNew(newProfileItem, newPId, summId).then((data) => {
-                        return res.status(200).json(data);
+                        return res.status(201).json(data);
                     }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 1. ", reason: err }) });
                 }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 2. ", reason: err }) });
             }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 3. ", reason: err }) });
@@ -234,21 +235,51 @@ app.post('/api/profile/v1/add/new', (req, res) => {
     });
 });
 
-// Add summoner accounts to profile. Summoner will not be flagged as 'main'
+// Add summoner account to profile. Summoner will not be flagged as 'main'
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
-//     "summonerName": [],
+//     "summonerName": "SUMM_NAME",
 // }
 app.put('/api/profile/v1/add/account', (req, res) => {
-
+    const { profileName, summonerName } = req.body;
+    Profile.getIdByName(profileName).then((pPId) => {
+        if (pPId == null) {
+            // Profile does not exist
+            return res.status(422).json({ error: `Profile '${profileName}' does not exist.` });
+        }
+        // Check if the IGN exists. 
+        Profile.getSummonerId(summonerName).then((summId) => {
+            if (summId == null) {
+                // Summoner Id does not exist
+                return res.status(422).json({ error: `Summoner Name '${summonerName}' does not exist.` });
+            }
+            // Check if summoner Name has its ID already registered. 
+            Profile.getIdBySummonerId(summId).then((profileIdExist) => {
+                if (profileIdExist != null) {
+                    // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
+                    Profile.getName(profileIdExist, false).then((pName) => {
+                        return res.status(422).json({ error: `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'` });
+                    }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 1.", reason: err }));
+                    return;
+                }
+                // Get Profile Information
+                Profile.getInfo(pPId).then((infoData) => {
+                    infoData['LeagueAccounts'][summId] = { 'MainAccount': false };
+                    Profile.putInfo(pPId, infoData).then((data) => {
+                        return res.status(200).json(data);
+                    }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 2.", reason: err }));
+                }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 3.", reason: err }));
+            }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 4.", reason: err }));
+        }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 5.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 6.", reason: err }));
 })
 
-// Remove summoner accounts from Profile.
+// Remove summoner account from Profile.
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
-//     "summonerNames": [],
+//     "summonerId": "SUMM_ID",
 // }
 app.put('/api/profile/v1/remove/account', (req, res) => {
 
@@ -261,7 +292,23 @@ app.put('/api/profile/v1/remove/account', (req, res) => {
 //     "newProfile": "NEW_NAME",
 // }
 app.put('/api/profile/v1/update/name', (req, res) => {
-
+    const { currentProfile, newProfile } = req.body;
+    // Check if currentProfile and newProfile exist
+    Profile.getIdByName(currentProfile).then((profileId) => {
+        if (profileId == null) {
+            // Profile Name does not exist
+            return res.status(422).json({ error: `Profile '${currentProfile}' does not exist.` });
+        }
+        Profile.getIdByName(newProfile).then((checkId) => {
+            if (checkId != null) {
+                // New name already exists in Db
+                return res.status(422).json({ error: `New profile name '${newProfile}' is already taken!` });
+            }
+            Profile.updateName(profileId, newProfile, currentProfile).then((data) => {
+                return res.status(200).json(data);
+            }).catch((err) => res.status(500).json({ error: "PUT Profile Name Change Error 1.", reason: err }));
+        }).catch((err) => res.status(500).json({ error: "PUT Profile Name Change Error 2.", reason: err }));
+    }).catch((err) => res.status(500).json({ error: "PUT Profile Name Change Error 3.", reason: err }))
 })
 
 // Add Staff and give credentials
@@ -275,7 +322,7 @@ app.put('/api/profile/v1/update/name', (req, res) => {
 app.put('/api/profile/v1/add/staff', (req, res) => {
     Staff.newStaff(req.body).then((response) => {
         return res.status(200).json(response);
-    }).catch((err) => res.status(500).json({ error: "PUT Profile Add Staff Error." }));
+    }).catch((err) => res.status(500).json({ error: "PUT Profile Add Staff Error.", reason: err }));
 });
 
 // Update just password (staff only)
@@ -398,6 +445,41 @@ app.get('/api/team/v1/stats/latest/name/:teamName', async (req, res) => {
         }).catch((err) => res.status(500).json({ error: "GET Team Stats Error.", reason: err }));
     }).catch((err) => res.status(500).json({ error: "GET Team ID Error.", reason: err }));
 });
+
+//#endregion
+
+//#region POST / PUT REQUESTS - Team
+
+// Add new teams into the DB
+// BODY EXAMPLE:
+// {
+//     "teamName": "NAME",
+//     "shortName": "###",
+// }
+app.post('/api/team/v1/add/new', (req, res) => {
+    const { teamName, shortName } = req.body;
+    // Check if Team Name already exists
+    Team.getId(teamName).then((tPId) => {
+        if (tPId != null) {
+            // Id found in DB. Team name exists. Reject.
+            return res.status(422).json({ error: `Team '${teamName}' already exists under Team ID '${tPId}'` });
+        }
+        helper.generateNewPId('Team').then((newPId) => {
+            // Add to "Team", "TeamNameMap" Table
+            let newTeamItem = {
+                'Information': {
+                    'TeamName': teamName,
+                    'TeamShortName': shortName,
+                },
+                'TeamName': teamName,
+                'TeamPId': newPId,
+            }
+            Team.postNew(newTeamItem, newPId).then((data) => {
+                return res.status(201).json(data);
+            }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 1", reason: err }) });
+        }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 2", reason: err }) });
+    }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 3", reason: err }) });
+})
 
 //#endregion
 

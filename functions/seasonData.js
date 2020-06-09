@@ -51,10 +51,10 @@ function getSeasonShortName(sPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Season', 'SeasonPId', sPId, ['SeasonShortName'])
+            dynamoDb.getItem('Season', 'SeasonPId', sPId)
             .then((obj) => {
-                if (obj == null) { resolve(null); return; } // Not Found
                 let shortName = obj['SeasonShortName'];
+                if (shortName == null) { resolve(null); return; } // Not Found
                 cache.set(cacheKey, shortName);
                 resolve(shortName);
             }).catch((error) => { console.error(error); reject(error) });
@@ -69,7 +69,7 @@ function getSeasonName(sPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
+            dynamoDb.getItem('Season', 'SeasonPId', sPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['SeasonName'];
@@ -87,7 +87,7 @@ function getSeasonTime(sPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
+            dynamoDb.getItem('Season', 'SeasonPId', sPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let time = obj['Information']['SeasonTime'];
@@ -104,7 +104,7 @@ function getSeasonTabName(sPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information'])
+            dynamoDb.getItem('Season', 'SeasonPId', sPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let time = obj['Information']['SeasonTabName'];
@@ -156,7 +156,7 @@ function getSeasonInformation(sPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Information']))['Information'];
+                let seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId))['Information'];
                 if (seasonInfoJson != null) {
                     seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await Tournament.getShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
                     seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await Tournament.getShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
@@ -195,7 +195,7 @@ function getSeasonRoster(sPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonRosterJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Roster']))['Roster'];
+                let seasonRosterJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId))['Roster'];
                 if (seasonRosterJson != null) {
                     if ('Teams' in seasonRosterJson) {
                         for (let i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
@@ -241,7 +241,7 @@ function getRegularSeason(sPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonRegularJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Regular']))['Regular'];
+                let seasonRegularJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId))['Regular'];
                 if (seasonRegularJson != null) {
                     for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
                         let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
@@ -276,7 +276,7 @@ function getSeasonPlayoffs(sPId) {
             if (err) { console(err); reject(err); return }
             else if (data != null) { resolve(JSON.parse(data)); return }
             try {
-                let playoffJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId, ['Playoffs']))['Playoffs'];
+                let playoffJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId))['Playoffs'];
                 if (playoffJson != null) {
                     for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
                         let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];

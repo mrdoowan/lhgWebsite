@@ -7,6 +7,8 @@ module.exports = {
     getStats: getProfileStatsByTourney,
     getSummonerId: getSummonerIdBySummonerName,
     postNew: postNewProfile,
+    putInfo: updateProfileInfo,
+    updateName: updateProfileName,
 }
 
 /*  Declaring npm modules */
@@ -70,7 +72,7 @@ function getProfileName(id, hash=true) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['ProfileName'])
+            dynamoDb.getItem('Profile', 'ProfilePId', pPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 cache.set(cacheKey, obj['ProfileName']);
@@ -87,7 +89,7 @@ function getProfileInfo(pPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['Information']))['Information'];
+                let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['Information'];
                 if (profileInfoJson != null) { 
                     if ('ActiveSeasonPId' in profileInfoJson) {
                         profileInfoJson['ActiveSeasonShortName'] = await Season.getShortName(profileInfoJson['ActiveSeasonPId']);
@@ -97,12 +99,12 @@ function getProfileInfo(pPId) {
                         profileInfoJson['ActiveTeamName'] = await Team.getName(profileInfoJson['ActiveTeamHId']);
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
+                    let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['GameLog'];
                     if (gameLogJson != null) {
                         profileInfoJson['SeasonList'] = await helper.getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
+                    let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['StatsLog'];
                     if (statsLogJson != null) {
                         profileInfoJson['TournamentList'] = await helper.getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -125,7 +127,7 @@ function getProfileGamesBySeason(pPId, sPId=null) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['GameLog']))['GameLog'];
+                let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['GameLog'];
                 if (gameLogJson != null) {
                     let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                     let profileGamesJson = gameLogJson[seasonId];
@@ -160,7 +162,7 @@ function getProfileStatsByTourney(pPId, tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId, ['StatsLog']))['StatsLog'];
+                let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['StatsLog'];
                 if (statsLogJson != null) {
                 let tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 let profileStatsJson = statsLogJson[tourneyId];
@@ -245,4 +247,66 @@ function postNewProfile(newProfileItem, profileId, summId) {
         }
         catch (err) { console.error(err); reject(err); }
     });
+}
+
+// Update "Profile" Information
+function updateProfileInfo(profileId, item) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await dynamoDb.updateItem('Profile', 'ProfilePId', profileId,
+                'SET #key = :data',
+                {
+                    '#key': 'Information',
+                },
+                {
+                    ':data': item
+                }
+            );
+            // Cache set Key: PROFILE_INFO_PREFIX
+            let cacheKey = keyBank.PROFILE_INFO_PREFIX + profileId;
+            cache.set(cacheKey, JSON.stringify(item, null, 2));
+            resolve(item);
+        }
+        catch (err) { console.error(err); reject(err); }
+    });
+}
+
+// Change Profile name. Update "Profile", "ProfileNameMap" table
+function updateProfileName(profileId, newName, oldName) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Update "Profile" table
+            await dynamoDb.updateItem('Profile', 'ProfilePId', profileId,
+                'SET #name = :new, #info.#name = :new',
+                {
+                    '#name': 'ProfileName',
+                    '#info': 'Information',                    
+                },
+                {
+                    ':new': newName,
+                }
+            );
+            // Add newName to "ProfileNameMap" table
+            await dynamoDb.putItem('ProfileNameMap', {
+                'ProfileName': helper.filterName(newName),
+                'ProfileHId': helper.getProfileHId(profileId),
+            }, helper.filterName(newName));
+            // Delete oldName from "ProfileNameMap" table
+            await dynamoDb.deleteItem('ProfileNameMap', 'ProfileName', helper.filterName(oldName));
+
+            // Cache
+            cache.del(keyBank.PROFILE_PID_PREFIX + helper.filterName(oldName)); // Del 'PROFILE_PID_PREFIX + oldName' Cache
+            cache.set(keyBank.PROFILE_PID_PREFIX + helper.filterName(newName), profileId); // Set 'PROFILE_PID_PREFIX + newName' Cache
+            cache.set(keyBank.PROFILE_NAME_PREFIX + profileId, newName); // Set 'PROFILE_NAME_PREFIX + PId' Cache
+            let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', profileId))['Information'];
+            cache.set(keyBank.PROFILE_INFO_PREFIX + profileId, JSON.stringify(profileInfoJson, null, 2)) // Set 'PROFILE_INFO_PREFIX + PId' Cache
+
+            resolve({
+                'ProfilePId': profileId,
+                'NewProfileName': newName,
+                'OldProfileName': oldName,
+            });
+        }
+        catch (err) { console.error(err); reject(err); }
+    })
 }

@@ -5,6 +5,7 @@ module.exports = {
     getScouting: getTeamScoutingBySeason,
     getGames: getTeamGamesBySeason,
     getStats: getTeamStatsByTourney,
+    postNew: postNewTeam,
 }
 
 /*  Declaring npm modules */
@@ -48,7 +49,7 @@ function getTeamName(tHId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Team', 'TeamPId', tPId, ['TeamName'])
+            dynamoDb.getItem('Team', 'TeamPId', tPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['TeamName'];
@@ -66,7 +67,7 @@ function getTeamInfo(teamPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let teamInfoJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Information']))['Information'];
+                let teamInfoJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['Information'];
                 if (teamInfoJson != null) {
                     if ('TrophyCase' in teamInfoJson) {
                         for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
@@ -76,12 +77,12 @@ function getTeamInfo(teamPId) {
                         }
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'];
+                    let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'];
                     if (gameLogJson != null) {
                         teamInfoJson['SeasonList'] = await helper.getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'];
+                    let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['StatsLog'];
                     if (statsLogJson != null) {
                         teamInfoJson['TournamentList'] = await helper.getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -105,7 +106,7 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['Scouting']))['Scouting'];
+                let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['Scouting'];
                 if (scoutingJson != null) {
                     let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
                     let teamScoutingSeasonJson = scoutingJson[seasonId];
@@ -149,7 +150,7 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['GameLog']))['GameLog'];
+                let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'];
                 if (gameLogJson != null) {
                     let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                     let teamSeasonGamesJson = gameLogJson[seasonId];
@@ -188,7 +189,7 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId, ['StatsLog']))['StatsLog'];
+                let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['StatsLog'];
                 if (statsLogJson != null) {
                     let tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                     let tourneyStatsJson = statsLogJson[tourneyId];
@@ -239,5 +240,30 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
             }
             catch (ex) { console.error(ex); reject(ex); }
         });
+    });
+}
+
+// Add new Team to "Team", "TeamNameMap"
+function postNewTeam(newTeamItem, teamId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Add to 'Team' Table
+            await dynamoDb.putItem('Team', newTeamItem, teamId);
+            // Add to 'TeamNameMap' Table
+            let simpleTeamName = helper.filterName(newTeamItem['TeamName']);
+            let newTeamMap = {
+                'TeamName': simpleTeamName,
+                'TeamHId': helper.getTeamHId(teamId),
+            }
+            await dynamoDb.putItem('TeamNameMap', newTeamMap, simpleTeamName);
+            // Cache set Key: TEAM_INFO_PREFIX
+            let cacheKey = keyBank.TEAM_INFO_PREFIX + teamId;
+            cache.set(cacheKey, JSON.stringify(newTeamItem['Information'], null, 2));
+            resolve({
+                'TeamName': newTeamItem['TeamName'],
+                'TeamPId': teamId,
+            });
+        }
+        catch (err) { console.error(err); reject(err); }
     });
 }

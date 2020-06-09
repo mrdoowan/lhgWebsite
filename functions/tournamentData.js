@@ -52,7 +52,7 @@ function getTournamentShortName(tPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TournamentShortName'])
+            dynamoDb.getItem('Tournament', 'TournamentPId', tPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let shortName = obj['TournamentShortName'];
@@ -70,7 +70,7 @@ function getTournamentName(tPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information'])
+            dynamoDb.getItem('Tournament', 'TournamentPId', tPId)
             .then((obj) => {
                 if (obj == null) { reject(null); return; } // Not Found
                 let name = obj['Information']['TournamentName'];
@@ -88,7 +88,7 @@ function getTournamentTabName(tPId) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information'])
+            dynamoDb.getItem('Tournament', 'TournamentPId', tPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['TournamentTabName'];
@@ -106,7 +106,7 @@ function getTourneyInfo(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Information']))['Information'];
+                let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['Information'];
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await Season.getName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await Season.getShortName(tourneyInfoJson['SeasonPId']);
@@ -129,7 +129,7 @@ function getTourneyStats(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TourneyStats']))['TourneyStats'];
+                let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2));
                     resolve(tourneyStatsJson);
@@ -150,7 +150,7 @@ function getTourneyLeaderboards(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['Leaderboards']))['Leaderboards'];
+                let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['Leaderboards'];
                 if (leaderboardJson != null) {
                     let gameRecords = leaderboardJson['GameRecords'];
                     for (let i = 0; i < Object.values(gameRecords).length; ++i) {
@@ -197,7 +197,7 @@ function getTourneyPlayerStats(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['ProfileHIdList']))['ProfileHIdList'];
+                let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['ProfileHIdList'];
                 if (profileHIdList != null) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
@@ -263,7 +263,7 @@ function getTourneyTeamStats(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['TeamHIdList']))['TeamHIdList'];
+                let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['TeamHIdList'];
                 if (teamHIdList != null) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
@@ -325,9 +325,9 @@ function getTourneyPickBans(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['PickBans', 'TourneyStats']));
+                let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId));
                 let pickBansJson = {}
-                if (Object.keys(tourneyJson).length > 0) {
+                if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
                     pbList = [];
                     let numberGames = tourneyJson['TourneyStats']['NumberGames'];
                     pickBansJson['NumberGames'] = numberGames;
@@ -358,7 +358,7 @@ function getTourneyGames(tPId) {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId, ['GameLog']))['GameLog'];
+                let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['GameLog'];
                 if (gameLogJson != null) {
                     for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
                         let matchId = Object.keys(gameLogJson)[i];

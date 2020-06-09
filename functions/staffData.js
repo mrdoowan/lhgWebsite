@@ -46,6 +46,7 @@ function putNewStaff(staff) {
                     // Update Cache
                     let cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
                     cache.set(cacheKey, JSON.stringify(profileInfo, null, 2));
+                    profileInfo['Password'] = hash;
                     resolve(profileInfo);
                 }).catch((err) => { console.error(err); reject(err); });
             });
