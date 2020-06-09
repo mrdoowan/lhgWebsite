@@ -9,7 +9,7 @@ The following need to be installed into Linux (sudo apt update):
     + "aws configure"
 + redis-server
     + Linux: "sudo systemctl restart redis.servis"
-    + WSL: "sudo system redis-server start"
+    + WSL: "sudo service redis-server start"
 
 The following npm modules are used in the server:
 * aws-sdk
