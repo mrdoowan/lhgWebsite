@@ -7,6 +7,7 @@ module.exports = {
     getSeasonItems: getSeasonItems,
     getTourneyItems: getTourneyItems,
     generateNewPId: generateNewPId,
+    TTL_DURATION: 60 * 60 * 24,
 }
 require('dotenv').config({ path: '../.env' });
 const { Random } = require('random-js');

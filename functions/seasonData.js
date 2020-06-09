@@ -17,9 +17,9 @@ const redis = require('redis');
 const cache = redis.createClient(process.env.REDIS_PORT);
 
 /*  Import helper function modules */
+const GLOBAL = require('./global');
 const dynamoDb = require('./dynamoDbHelper');
 const keyBank = require('./cacheKeys');
-const helper = require('./helper');
 // Data Functions
 const Tournament = require('./tournamentData');
 const Profile = require('./profileData');
@@ -27,7 +27,7 @@ const Team = require('./teamData');
 
 // Get SeasonPId from DynamoDb
 function getSeasonId(shortName) {
-    let simpleName = helper.filterName(shortName);
+    let simpleName = GLOBAL.filterName(shortName);
     let cacheKey = keyBank.SEASON_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -137,7 +137,7 @@ function getLeagues() {
                     });
                     let returnObject = {};
                     returnObject['Leagues'] = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
-                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2));
+                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(returnObject);
                 }
                 else {
@@ -176,7 +176,7 @@ function getSeasonInformation(sPId) {
                         seasonInfoJson['AllStars']['BotName'] = await Profile.getName(seasonInfoJson['AllStars']['BotHId']);
                         seasonInfoJson['AllStars']['SupportName'] = await Profile.getName(seasonInfoJson['AllStars']['SupportHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonInfoJson);
                 }
                 else {
@@ -222,7 +222,7 @@ function getSeasonRoster(sPId) {
                             playerJson['ProfileName'] = await Profile.getName(profileHId);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonRosterJson);
                 }
                 else {
@@ -257,7 +257,7 @@ function getRegularSeason(sPId) {
                         gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonRegularJson);
                 }
                 else {
@@ -294,7 +294,7 @@ function getSeasonPlayoffs(sPId) {
                         gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(playoffJson);
                 }
                 else {

@@ -18,9 +18,9 @@ const redis = require('redis');
 const cache = redis.createClient(process.env.REDIS_PORT);
 
 /*  Import helper function modules */
+const GLOBAL = require('./global');
 const dynamoDb = require('./dynamoDbHelper');
 const keyBank = require('./cacheKeys');
-const helper = require('./helper');
 // Data Functions
 const Season = require('./seasonData');
 const Profile = require('./profileData');
@@ -28,7 +28,7 @@ const Team = require('./teamData');
 
 // Get TournamentPId from DynamoDb
 function getTournamentId(shortName) {
-    let simpleName = helper.filterName(shortName);
+    let simpleName = GLOBAL.filterName(shortName);
     let cacheKey = keyBank.TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -110,7 +110,7 @@ function getTourneyInfo(tPId) {
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await Season.getName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await Season.getShortName(tourneyInfoJson['SeasonPId']);
-                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyInfoJson);
                 }
                 else {
@@ -131,7 +131,7 @@ function getTourneyStats(tPId) {
             try {
                 let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
-                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 }
                 else {
@@ -178,7 +178,7 @@ function getTourneyLeaderboards(tPId) {
                             teamObject['RedTeamName'] = await Team.getName(teamObject['RedTeamHId']);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(leaderboardJson);
                 }
                 else {
@@ -201,7 +201,7 @@ function getTourneyPlayerStats(tPId) {
                 if (profileHIdList != null) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
-                        let pPId = helper.getProfilePId(profileHIdList[i]);
+                        let pPId = GLOBAL.getProfilePId(profileHIdList[i]);
                         let profileStatsLog = await Profile.getStats(pPId, tPId);
                         for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
                             let role = Object.keys(profileStatsLog['RoleStats'])[j];
@@ -244,7 +244,7 @@ function getTourneyPlayerStats(tPId) {
                     }
                     let profileObject = {};
                     profileObject['PlayerList'] = profileStatsList;
-                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2));
+                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(profileObject);
                 }
                 else {
@@ -267,7 +267,7 @@ function getTourneyTeamStats(tPId) {
                 if (teamHIdList != null) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
-                        let teamId = helper.getTeamPId(teamHIdList[i]);
+                        let teamId = GLOBAL.getTeamPId(teamHIdList[i]);
                         let teamStatsLog = await Team.getStats(teamId, tPId);
                         teamStatsList.push({
                             'TeamName': await Team.getName(teamHIdList[i]),
@@ -306,7 +306,7 @@ function getTourneyTeamStats(tPId) {
                     }
                     let teamObject = {};
                     teamObject['TeamList'] = teamStatsList;
-                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2));
+                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(teamObject);
                 }
                 else {
@@ -342,7 +342,7 @@ function getTourneyPickBans(tPId) {
                         pbList.push(champObject);
                     }
                     pickBansJson['PickBanList'] = pbList;
-                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                 }
                 resolve(pickBansJson);
             }
@@ -367,7 +367,7 @@ function getTourneyGames(tPId) {
                         gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
                         gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2));
+                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(gameLogJson);
                 }
                 else {

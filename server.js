@@ -10,7 +10,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require('dotenv').config();
 
 /*  Import helper Data function modules */
-const helper = require('./functions/helper');
 const Season = require('./functions/seasonData');
 const Tournament = require('./functions/tournamentData');
 const Profile = require('./functions/profileData');
@@ -211,25 +210,10 @@ app.post('/api/profile/v1/add/new', (req, res) => {
                     }).catch((err) => res.status(500).json({ error: "GET Profile Name Error.", reason: err }));
                     return;
                 }
-                // New Summoner Id found. Generate a new Profile ID
-                helper.generateNewPId('Profile').then((newPId) => {
-                    // Add to "Profile", "ProfileNameMap", "SummonerIdMap" Table
-                    let newProfileItem = {
-                        'Information': {
-                            'LeagueAccounts': {
-                                [summId]: {
-                                    'MainAccount': true,
-                                }
-                            },
-                            'ProfileName': profileName,
-                        },
-                        'ProfileName': profileName,
-                        'ProfilePId': newPId,
-                    };
-                    Profile.postNew(newProfileItem, newPId, summId).then((data) => {
-                        return res.status(201).json(data);
-                    }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 1. ", reason: err }) });
-                }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 2. ", reason: err }) });
+                // New Summoner Id found. Make new Profile.
+                Profile.postNew(profileName, summId).then((data) => {
+                    return res.status(201).json(data);
+                }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 1. ", reason: err }) });
             }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 3. ", reason: err }) });
         }).catch((err) => { res.status(500).json({ error: "POST Profile Add New Error 4. ", reason: err }) });
     });
@@ -259,7 +243,7 @@ app.put('/api/profile/v1/add/account', (req, res) => {
                 if (profileIdExist != null) {
                     // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
                     Profile.getName(profileIdExist, false).then((pName) => {
-                        return res.status(422).json({ error: `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'` });
+                        return res.status(422).json({ error: `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${profileIdExist}'` });
                     }).catch((err) => res.status(500).json({ error: "PUT Profile Info Error 1.", reason: err }));
                     return;
                 }
@@ -288,23 +272,23 @@ app.put('/api/profile/v1/remove/account', (req, res) => {
 // Update a Profile Name.
 // BODY EXAMPLE:
 // {
-//     "currentProfile": "OLD_NAME",
-//     "newProfile": "NEW_NAME",
+//     "currentName": "OLD_NAME",
+//     "newName": "NEW_NAME",
 // }
 app.put('/api/profile/v1/update/name', (req, res) => {
-    const { currentProfile, newProfile } = req.body;
-    // Check if currentProfile and newProfile exist
-    Profile.getIdByName(currentProfile).then((profileId) => {
+    const { currentName, newName } = req.body;
+    // Check if currentName and newName exist
+    Profile.getIdByName(currentName).then((profileId) => {
         if (profileId == null) {
             // Profile Name does not exist
-            return res.status(422).json({ error: `Profile '${currentProfile}' does not exist.` });
+            return res.status(422).json({ error: `Profile '${currentName}' does not exist.` });
         }
-        Profile.getIdByName(newProfile).then((checkId) => {
+        Profile.getIdByName(newName).then((checkId) => {
             if (checkId != null) {
                 // New name already exists in Db
-                return res.status(422).json({ error: `New profile name '${newProfile}' is already taken!` });
+                return res.status(422).json({ error: `New profile name '${newName}' is already taken!` });
             }
-            Profile.updateName(profileId, newProfile, currentProfile).then((data) => {
+            Profile.updateName(profileId, newName, currentName).then((data) => {
                 return res.status(200).json(data);
             }).catch((err) => res.status(500).json({ error: "PUT Profile Name Change Error 1.", reason: err }));
         }).catch((err) => res.status(500).json({ error: "PUT Profile Name Change Error 2.", reason: err }));
@@ -454,7 +438,7 @@ app.get('/api/team/v1/stats/latest/name/:teamName', async (req, res) => {
 // BODY EXAMPLE:
 // {
 //     "teamName": "NAME",
-//     "shortName": "###",
+//     "shortName": "XXX",
 // }
 app.post('/api/team/v1/add/new', (req, res) => {
     const { teamName, shortName } = req.body;
@@ -464,20 +448,9 @@ app.post('/api/team/v1/add/new', (req, res) => {
             // Id found in DB. Team name exists. Reject.
             return res.status(422).json({ error: `Team '${teamName}' already exists under Team ID '${tPId}'` });
         }
-        helper.generateNewPId('Team').then((newPId) => {
-            // Add to "Team", "TeamNameMap" Table
-            let newTeamItem = {
-                'Information': {
-                    'TeamName': teamName,
-                    'TeamShortName': shortName,
-                },
-                'TeamName': teamName,
-                'TeamPId': newPId,
-            }
-            Team.postNew(newTeamItem, newPId).then((data) => {
-                return res.status(201).json(data);
-            }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 1", reason: err }) });
-        }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 2", reason: err }) });
+        Team.postNew(teamName, shortName).then((data) => {
+            return res.status(201).json(data);
+        }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 1", reason: err }) });
     }).catch((err) => { res.status(500).json({ error: "POST Team Add New Error 3", reason: err }) });
 })
 
