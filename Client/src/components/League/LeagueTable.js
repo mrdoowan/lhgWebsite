@@ -36,17 +36,22 @@ const useStyles = makeStyles({
         minWidth: 700,
     },
     header: {
-        'text-decoration': 'underline',
         fontSize: 'large',
+        fontWeight: 'blue',
+    },
+    link: {
+        color: 'blue',
     },
 });
 
 function SeasonTableCell({ item }) {
+    const classes = useStyles();
+
     if (!item) {
         return (<StyledTableCell align="center"></StyledTableCell>);
     }
     else {
-        return (<StyledTableCell align="center"><Link to={`/season/${item.ShortName}`}>{item.League}</Link></StyledTableCell>);
+        return (<StyledTableCell align="center"><Link className={classes.link} to={`/season/${item.ShortName}`}>{item.League}</Link></StyledTableCell>);
     }
 }
 
@@ -59,16 +64,16 @@ export default function LeagueTable(props) {
         <Table className={classes.table} aria-label="customized table">
             <TableHead>
                 <TableRow>
-                    <StyledTableCell className={classes.header} align="center"><b>Season</b></StyledTableCell>
-                    <StyledTableCell align="center"></StyledTableCell>
-                    <StyledTableCell align="center"></StyledTableCell>
-                    <StyledTableCell align="center"></StyledTableCell>
+                    <StyledTableCell className={classes.header} align="center">Season</StyledTableCell>
+                    <StyledTableCell className={classes.header} align="center">LHGCL</StyledTableCell>
+                    <StyledTableCell className={classes.header} align="center">LHGPL</StyledTableCell>
+                    <StyledTableCell className={classes.header} align="center">LHGAL</StyledTableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
             {seasonList.Leagues.map((season) => (
                 <StyledTableRow key={season.SeasonTime}>
-                    <StyledTableCell component="th" scope="row" align="center">{season.SeasonTime}</StyledTableCell>
+                    <StyledTableCell component="th" scope="row" align="center"><b>{season.SeasonTime}</b></StyledTableCell>
                     <SeasonTableCell item={season.Champions} />
                     <SeasonTableCell item={season.Premier} />
                     <SeasonTableCell item={season.Academy} />

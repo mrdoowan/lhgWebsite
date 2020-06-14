@@ -117,7 +117,7 @@ export default function TeamStats({ info, stats }) {
                                 </tr>
                                 <tr>
                                     <td className={classes.colDesc}>First Blood %:</td>
-                                    <td className={classes.colValue}>{(stats.FirstBloodPct*100).toFixed(2)}%</td>
+                                    <td className={classes.colValue}>{(stats.FirstBloodPct*100).toFixed(2)}% ({stats.TotalFirstBloods} First Bloods)</td>
                                 </tr>
                                 <tr>
                                     <td className={classes.colDesc}>Damage Per Minute:</td>
@@ -172,7 +172,7 @@ export default function TeamStats({ info, stats }) {
                             <tbody>
                                 <tr>
                                     <td className={classes.colDesc}>First Tower %:</td>
-                                    <td className={classes.colValue}>{(stats.FirstTowerPct*100).toFixed(2)}%</td>
+                                    <td className={classes.colValue}>{(stats.FirstTowerPct*100).toFixed(2)}% ({stats.TotalFirstTowers} First Towers)</td>
                                 </tr>
                             </tbody>
                         </table>

@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
     },
     title: {
-        padding: theme.spacing(2),
+        marginTop: theme.spacing(2),
         'text-decoration': 'bold',
         fontSize: 'large',
     },
@@ -29,7 +29,7 @@ export default function ProfileStats({ stats }) {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
-                        <p className={classes.title}>Stats Log Coming Soon!</p>
+                        <p className={classes.title}>Player Stats Log Coming Soon!</p>
                     </Paper>
                 </Grid>
             </Grid>

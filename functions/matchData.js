@@ -1,6 +1,7 @@
 module.exports = {
     getData: getMatchData,
     postSpectate: postMatchSetup,
+    putPlayersFix: putMatchPlayerFix,
 }
 
 /*  Declaring npm modules */
@@ -10,12 +11,14 @@ const cache = redis.createClient(process.env.REDIS_PORT);
 
 /*  Import helper function modules */
 const dynamoDb = require('./dynamoDbHelper');
+const mySql = require('./mySqlHelper');
 const keyBank = require('./cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
 const Profile = require('./profileData');
 const Team = require('./teamData');
+const GLOBAL = require('./global');
 
 async function getMatchData(Id) {
     return new Promise(function(resolve, reject) {
@@ -63,6 +66,64 @@ async function getMatchData(Id) {
             catch (error) { console.error(error); reject(error); }
         });
     })
+}
+
+// BODY EXAMPLE:
+// {
+//     bluePlayers: {
+//         [topChampId]: 'H_ID',
+//         [jngChampId]: 'H_ID',
+//         // etc.
+//     },
+//     redPlayers: {
+//         // Same as above
+//     },
+// }
+async function putMatchPlayerFix(bluePlayers, redPlayers, matchId) {
+    return new Promise(function(resolve, reject) {
+        getMatchData(matchId).then(async (data) => {
+            if (data == null) { resolve(null); return; } // Not found
+            let changesMade = false;
+            for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
+                let teamId = Object.keys(data.Teams)[tIdx];
+                const playersInput = (teamId == 100) ? bluePlayers : redPlayers;
+                let { Players } = data.Teams[teamId];
+                for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
+                    let playerObject = Object.values(Players)[pIdx];
+                    let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
+                    let champId = playerObject['ChampId'].toString();
+                    if (playersInput[champId] !== profilePId) {
+                        let newProfileId = playersInput[champId];
+                        let name = await Profile.getName(newProfileId, false); // For PId
+                        //await Profile.getName(newProfileId); // For HId
+                        if (name == null) { resolve(null); return; } // Not found
+                        await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfileId, champId, matchId);
+                        playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfileId);
+                        changesMade = true;
+                    }
+                }
+            }
+            if (changesMade) {
+                await dynamoDb.updateItem('Matches', 'MatchPId', matchId,
+                    'SET #teams = :data',
+                    {
+                        '#teams': 'Teams',
+                    },
+                    {
+                        ':data': data.Teams,
+                    }
+                );
+                resolve({
+                    response: `Match ID '${matchId}' successfully updated.`,
+                    bluePlayers: bluePlayers,
+                    redPlayers: redPlayers,
+                })
+            }
+            else {
+                resolve({ response: `No changes made in Match ID '${matchId}'` })
+            }
+        }).catch((error) => { console.error(error); reject(error); });
+    });
 }
 
 async function postMatchSetup(summId) {

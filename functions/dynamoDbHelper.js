@@ -13,8 +13,8 @@ var AWS = require('aws-sdk'); // Interfacing with DynamoDB
 AWS.config.update({ region: 'us-east-2' });
 var dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-/*  Put 'true' to test without affecting the databases. */
-const TEST_DYNAMO_CHANGE = false;   // 'false' to add to production
+/*  Put 'false' to test without affecting the databases. */
+const CHANGE_DYNAMO = true;   // 'true' to add to production
 
 // Returns 'undefined' if key item does NOT EXIST
 function getItemInDynamoDB(tableName, partitionName, keyValue) {
@@ -45,7 +45,7 @@ function getItemInDynamoDB(tableName, partitionName, keyValue) {
 
 // DETAILED FUNCTION DESCRIPTION XD
 function putItemInDynamoDB(tableName, items, keyValue) {
-    if (!TEST_DYNAMO_CHANGE) {
+    if (CHANGE_DYNAMO) {
         let params = {
             TableName: tableName,
             Item: items
@@ -96,7 +96,7 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyName,
         ExpressionAttributeNames: keyName,
         ExpressionAttributeValues: valueObject
     };
-    if (!TEST_DYNAMO_CHANGE) {
+    if (CHANGE_DYNAMO) {
         return new Promise(function(resolve, reject) {
             dynamoDB.update(params, function(err, data) {
                 if (err) {
@@ -115,7 +115,7 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyName,
         let params = {
             TableName: 'Test',
             Item: {
-                'TestId': key.toString(),
+                'TestId': `${key.toString()}-${updateExp}`,
                 'Value': valueObject,
             },
         };
@@ -174,7 +174,7 @@ function deleteItemInDynamoDB(tableName, partitionName, key) {
             [partitionName]: key,
         }
     }
-    if (!TEST_DYNAMO_CHANGE) {
+    if (CHANGE_DYNAMO) {
         return new Promise(async function(resolve, reject) {
             dynamoDB.delete(params, function(err, data) {
                 if (err) {

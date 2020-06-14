@@ -1,11 +1,17 @@
-import React from "react";
+import React, { Component } from "react";
+// Components
+import HomeComponent from '../components/Home/HomeComponent';
 
-const home = () => {
-    return (
-        <div className="body">
-            <p>Home Page! Yay!</p>
-        </div>
-    );
-};
+// {MAIN}/
+export class homeBase extends Component {
 
-export default home;
+    componentDidMount() {
+
+    }
+
+    render() {
+        return (
+            <HomeComponent />
+        );
+    }
+}

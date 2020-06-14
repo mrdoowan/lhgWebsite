@@ -217,6 +217,13 @@ function getSummonerIdBySummonerName(summName) {
     });
 }
 
+// Add new profiles and its summoner accounts. 
+// First Summoner listed will automatically be flagged as 'main'
+// BODY EXAMPLE:
+// {
+//     "profileName": "NAME",
+//     "summonerName": "SUMM_NAME",
+// }
 // Add to "Profile", "ProfileNameMap", "SummonerIdMap" Table
 function postNewProfile(profileName, summId) {
     return new Promise(async (resolve, reject) => {
@@ -236,33 +243,39 @@ function postNewProfile(profileName, summId) {
                 'ProfilePId': newPId,
             };
             // Add to 'Profile' Table
-            await dynamoDb.putItem('Profile', newProfileItem, newId);
+            await dynamoDb.putItem('Profile', newProfileItem, newPId);
             // Add to 'ProfileNameMap' Table
             let simpleProfileName = GLOBAL.filterName(newProfileItem['ProfileName']);
             let newProfileMap = {
                 'ProfileName': simpleProfileName,
-                'ProfileHId': GLOBAL.getProfileHId(newId),
+                'ProfileHId': GLOBAL.getProfileHId(newPId),
             }
             await dynamoDb.putItem('ProfileNameMap', newProfileMap, simpleProfileName);
             // Add to 'SummonerIdMap' Table
             let newSummonerMap = {
                 'SummonerId': summId,
-                'ProfileHId': GLOBAL.getProfileHId(newId),
+                'ProfileHId': GLOBAL.getProfileHId(newPId),
             };
             await dynamoDb.putItem('SummonerIdMap', newSummonerMap, summId);
             
             resolve({
                 'SummonerId': summId,
                 'ProfileName': newProfileItem['ProfileName'],
-                'ProfilePId': newId,
+                'ProfilePId': newPId,
             });
         }
         catch (err) { console.error(err); reject(err); }
     });
 }
 
+// Add summoner account to profile. Summoner will not be flagged as 'main'
+// BODY EXAMPLE:
+// {
+//     "profileName": "NAME",
+//     "summonerName": "SUMM_NAME",
+// }
 // Update "Profile" Information
-function updateProfileInfo(profileId, item) {
+function updateProfileInfo(profileId, summId, item) {
     return new Promise(async (resolve, reject) => {
         try {
             await dynamoDb.updateItem('Profile', 'ProfilePId', profileId,
@@ -274,8 +287,15 @@ function updateProfileInfo(profileId, item) {
                     ':data': item
                 }
             );
+            // Add to 'SummonerIdMap' Table
+            let newSummonerMap = {
+                'SummonerId': summId,
+                'ProfileHId': GLOBAL.getProfileHId(profileId),
+            };
+            await dynamoDb.putItem('SummonerIdMap', newSummonerMap, summId);
+
             // Cache set Key: PROFILE_INFO_PREFIX
-            cache.del(PROFILE_INFO_PREFIX + profileId, cacheKey);
+            cache.del(keyBank.PROFILE_INFO_PREFIX + profileId);
 
             resolve(item);
         }
@@ -283,6 +303,12 @@ function updateProfileInfo(profileId, item) {
     });
 }
 
+// Update a Profile Name.
+// BODY EXAMPLE:
+// {
+//     "currentName": "OLD_NAME",
+//     "newName": "NEW_NAME",
+// }
 // Change Profile name. Update "Profile", "ProfileNameMap" table
 function updateProfileName(profileId, newName, oldName) {
     return new Promise(async (resolve, reject) => {

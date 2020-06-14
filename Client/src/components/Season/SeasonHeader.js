@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
     },
     link: {
         color: 'blue',
+        fontSize: 'large',
     },
     titleMain: {
         fontWeight: 'bold',
