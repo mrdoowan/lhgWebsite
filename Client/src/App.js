@@ -5,7 +5,7 @@ import './App.css';
 // Components
 import NavBar from "./components/NavBar";
 // Pages
-import home from "./pages/Home";
+import { homeBase } from "./pages/Home";
 import login from "./pages/Login";
 import about from "./pages/About";
 import { leagues } from "./pages/League";
@@ -41,7 +41,7 @@ class App extends Component {
                 <div className="container-wrap">
                     <Switch>
                         { /* Home Page and Basic Nav */ }
-                        <Route path="/" component={home} exact/>
+                        <Route path="/" component={homeBase} exact/>
                         <Route path="/about" component={about} exact/>
                         <Route path="/leagues" component={leagues} exact/>
                         <Route path="/schedule" component={schedule} exact/>

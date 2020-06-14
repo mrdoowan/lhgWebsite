@@ -16,6 +16,14 @@ const Profile = require('./profileData');
 
 // Need to reset Cache with each new put/post
 
+// Add Staff and give credentials
+// BODY TEMPLATE:
+// {
+//     "profile": "NAME",
+//     "password": "PASSWORD_HERE",
+//     "admin": true,
+//     "moderator": true
+// }
 function putNewStaff(staff) {
     return new Promise((resolve, reject) => {
         Profile.getIdByName(staff.profile).then((pPId) => {

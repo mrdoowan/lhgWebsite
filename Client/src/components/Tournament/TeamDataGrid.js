@@ -10,7 +10,6 @@ import DataGrid, {
     FilterRow,
     FilterPanel,
     FilterBuilderPopup,
-    Scrolling,
     Paging
 } from 'devextreme-react/data-grid';
 // Util
@@ -43,7 +42,6 @@ export default function TeamDataGrid({ teams }) {
                     <FilterRow visible={true} />
                     <FilterPanel visible={true} />
                     <FilterBuilderPopup position={filterBuilderPopupPosition} />
-                    <Scrolling columnRenderingMode="virtual" />
                     <Paging enabled={false} />
 
                     <Column dataField="TeamName" caption="Name" width={150} fixed={true} cellRender={cellLink} />

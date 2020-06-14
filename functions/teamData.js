@@ -243,6 +243,12 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
     });
 }
 
+// Add new teams into the DB
+// BODY EXAMPLE:
+// {
+//     "teamName": "NAME",
+//     "shortName": "XXX",
+// }
 // Add new Team to "Team", "TeamNameMap"
 function postNewTeam(teamName, shortName) {
     return new Promise(async (resolve, reject) => {

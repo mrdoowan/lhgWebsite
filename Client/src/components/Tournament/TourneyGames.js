@@ -96,7 +96,7 @@ export default function TourneyGames({ games }) {
                     <tbody>
                     {gamesListSorted.map((match) => (
                         <tr key={match.MatchPId} className={classes.row}>
-                            <td className={classes.colDate}>{lhgString.dateTime(match.DatePlayed / 1000)}EST</td>
+                            <td className={classes.colDate}>{lhgString.date(match.DatePlayed / 1000)}</td>
                             <td className={classes.colDuration}>{lhgString.time(match.Duration)}</td>
                             <td className={classes.colBlueTeam}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
                             <td className={classes.colVs}>VS.</td>

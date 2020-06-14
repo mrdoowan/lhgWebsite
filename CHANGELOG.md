@@ -1,5 +1,7 @@
 # Overall
-* vA.8 - Next Release
+* vB.1 - Next Release
+* vB.0 - Client 0.1.0, Server 0.1.0
+* vA.7.1 - Client 0.0.10, Server 0.0.8
 * vA.7 - Client 0.0.9, Server 0.0.7
 * vA.6 - Client 0.0.8, Server 0.0.6
 * vA.5 - Client 0.0.7, Server 0.0.5
@@ -12,10 +14,14 @@
 ## For Overall
 * Major.Minor
 ## For Server & Client
-* 0.1.0 is when a prototype is working
-* 1.0.0 will be the first production website
+* 0.1.0 is when a prototype production is working
+* 1.0.0 will be the first website
 
 # Client
++ 0.1.0
+    + Touched up Home page. QoL edits.
++ 0.0.10
+    + Setup login page
 + 0.0.9
     + Team pages for Games and Stats done
 + 0.0.8
@@ -40,6 +46,10 @@
     + First Github commit for collaboration purposes.
 
 # Server
++ 0.1.0
+    + Pseudo Error handling implemented. Added a few POST requests
++ 0.0.8
+    + Profile & Team POST/PUT Requests (for making new profiles/teams)
 + 0.0.7
     + Modified teams API slightly to conform to Client change.
 + 0.0.6

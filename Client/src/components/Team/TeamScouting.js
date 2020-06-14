@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
     leftHeader: {
         textAlign: 'left',
         fontWeight: 'bold',
+        padding: theme.spacing(1),
     },
     rowBorder: {
         padding: theme.spacing(5),
@@ -50,10 +51,12 @@ const useStyles = makeStyles((theme) => ({
     colRole: {
         width: "10%",
         textAlign: 'left',
+        padding: theme.spacing(1),
     },
     colPlayer: {
         width: "10%",
         textAlign: 'left',
+        padding: theme.spacing(1),
     },
     colGames: {
         width: "7%",

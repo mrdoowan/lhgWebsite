@@ -25,9 +25,9 @@ The following npm modules are used in the client:
 * react
 * react-scripts
 * react-router-dom
-* react-bootstrap
 * @material-ui
 * devextreme
+* react-bootstrap
 
 When you pull this repo, use "npm install" to download the packages.
 - Windows 10 WSL, Ubuntu, and VS Code for development environment. [Video](https://www.youtube.com/watch?v=A0eqZujVfYU)

@@ -26,8 +26,11 @@ class NavBar extends Component {
             <AppBar>
                 <Toolbar className="nav-container">
                     <Button color="inherit" component={Link} to="/">Home</Button>
-                    <Button color="inherit" component={Link} to="/about">About</Button>
+                    {/* <Button color="inherit" component={Link} to="/about">About</Button> */}
                     <Button color="inherit" component={Link} to="/leagues">Leagues</Button>
+                    <Button color="inherit" href="/season/s2020cl">LHGCL</Button>
+                    <Button color="inherit" href="/season/s2020pl">LHGPL</Button>
+                    <Button color="inherit" href="/season/s2020al">LHGAL</Button>
                     {/* <Button color="inherit" component={Link} to="/schedule">Schedule</Button> */}
                 </Toolbar>
             </AppBar>
