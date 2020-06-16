@@ -70,35 +70,61 @@ async function getMatchData(Id) {
 
 // BODY EXAMPLE:
 // {
-//     bluePlayers: {
-//         [topChampId]: 'H_ID',
-//         [jngChampId]: 'H_ID',
+//     playersToFix: {
+//         [champId]: 'P_ID',
 //         // etc.
 //     },
-//     redPlayers: {
-//         // Same as above
-//     },
 // }
-async function putMatchPlayerFix(bluePlayers, redPlayers, matchId) {
+async function putMatchPlayerFix(playersToFix, matchId) {
     return new Promise(function(resolve, reject) {
         getMatchData(matchId).then(async (data) => {
             if (data == null) { resolve(null); return; } // Not found
             let changesMade = false;
+            let seasonId = data['SeasonPId'];
             for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
                 let teamId = Object.keys(data.Teams)[tIdx];
-                const playersInput = (teamId == 100) ? bluePlayers : redPlayers;
+                let thisTeamPId = GLOBAL.getTeamPId(data.Teams[teamId]['TeamHId']);
                 let { Players } = data.Teams[teamId];
                 for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
                     let playerObject = Object.values(Players)[pIdx];
-                    let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
+                    let thisProfilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
                     let champId = playerObject['ChampId'].toString();
-                    if (playersInput[champId] !== profilePId) {
-                        let newProfileId = playersInput[champId];
-                        let name = await Profile.getName(newProfileId, false); // For PId
+                    if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
+                        let newProfilePId = playersToFix[champId];
+                        let name = await Profile.getName(newProfilePId, false); // For PId
                         //await Profile.getName(newProfileId); // For HId
                         if (name == null) { resolve(null); return; } // Not found
-                        await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfileId, champId, matchId);
-                        playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfileId);
+                        await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
+                        playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfilePId);
+                        // Remove from Profile GameLog in former Profile Id and Team GameLog
+                        let profileGameLog = await Profile.getGames(thisProfilePId, seasonId);
+                        if (matchId in profileGameLog['Matches']) {
+                            delete profileGameLog['Matches'][matchId];
+                            await dynamoDb.updateItem('Profile', 'ProfilePId', thisProfilePId,
+                                'SET #log.#sId.#mtch = :data',
+                                {
+                                    '#log': 'GameLog',
+                                    '#sId': seasonId,
+                                },
+                                {
+                                    ':data': profileGameLog,
+                                }
+                            );
+                        }
+                        let teamGameLog = await Team.getGames(thisTeamPId, seasonId);
+                        if (matchId in teamGameLog['Matches']) {
+                            delete teamGameLog['Matches'][matchId];
+                            await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                                'SET #gLog.#sId = :val',
+                                {
+                                    '#gLog': 'GameLog',
+                                    '#sId': seasonId,
+                                },
+                                {
+                                    ':val': teamGameLog,
+                                }
+                            );
+                        }
                         changesMade = true;
                     }
                 }

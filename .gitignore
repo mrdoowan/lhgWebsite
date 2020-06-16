@@ -4,6 +4,7 @@ external/
 intermediates/
 Client/src/test
 cache/
+*.pem
 
 # Redis
 *.rdb
