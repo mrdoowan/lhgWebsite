@@ -1,5 +1,5 @@
 # Overall
-* vB.1 - Next Release
+* vB.1 - Client 0.1.0, Server 0.1.1
 * vB.0 - Client 0.1.0, Server 0.1.0
 * vA.7.1 - Client 0.0.10, Server 0.0.8
 * vA.7 - Client 0.0.9, Server 0.0.7
@@ -46,6 +46,8 @@
     + First Github commit for collaboration purposes.
 
 # Server
++ 0.1.1
+    + Added a route directory for easier navigation/organization.
 + 0.1.0
     + Pseudo Error handling implemented. Added a few POST requests
 + 0.0.8
