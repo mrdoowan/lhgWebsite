@@ -29,7 +29,6 @@ export class teamBase extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, statusCode } = this.state;
 
         let component = (<TeamBaseSkeleton info={info} />);
@@ -112,7 +111,6 @@ export class teamGames extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, scouting, games, statusCode } = this.state;
 
         let component = (<TeamGamesSkeleton info={info} scouting={scouting} games={games} />);
@@ -174,7 +172,6 @@ export class teamStats extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, stats, statusCode } = this.state;
 
         let component = (<TeamStatsSkeleton info={info} stats={stats} />);

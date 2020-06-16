@@ -53,7 +53,6 @@ export class tournamentBase extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, stats, leaderboards, statusCode } = this.state;
 
         let component = (<TourneyBaseSkeleton info={info} stats={stats} lb={leaderboards} />);
@@ -98,7 +97,6 @@ export class tournamentPlayers extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, players, statusCode } = this.state;
 
         let component = (<TourneyPlayersSkeleton info={info} players={players} />);
@@ -143,7 +141,6 @@ export class tournamentTeams extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, teams, statusCode } = this.state;
 
         let component = (<TourneyTeamsSkeleton info={info} teams={teams} />);
@@ -188,7 +185,6 @@ export class tournamentPickBans extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, pickBans, statusCode } = this.state;
 
         let component = (<TourneyChampsSkeleton info={info} pb={pickBans} />);
@@ -234,7 +230,6 @@ export class tournamentGames extends Component {
     }
 
     render() {
-        console.log(this.state);
         const { info, games, statusCode } = this.state;
 
         let component = (<TourneyGamesSkeleton info={info} games={games} />);
