@@ -5,7 +5,7 @@ module.exports = {
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../.env' });
 const redis = require('redis');
-const cache = redis.createClient(process.env.REDIS_PORT);
+const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 const bcrypt = require('bcrypt');
 
 /*  Import helper function modules */

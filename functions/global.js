@@ -9,12 +9,13 @@ module.exports = {
     generateNewPId: generateNewPId,
     TTL_DURATION: 60 * 60 * 24,
 }
+
+/*  Declaring npm modules */
 require('dotenv').config({ path: '../.env' });
 const { Random } = require('random-js');
 const Hashids = require('hashids/cjs'); // For hashing and unhashing
 
 const oldEnv = true; // 'true' for Dynamodb, 'false' for MongoDb
-
 const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
 const teamHidSalt = (oldEnv) ? process.env.OLD_TEAM_HID_SALT : process.env.SALT_TEAM_HID;
 const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.LENGTH_HID);
