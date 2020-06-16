@@ -4,6 +4,7 @@
   "description": "Prototype for LHG website",
   "main": "server.js",
   "scripts": {
+    "client-install": "npm install --prefix client",
     "start": "node server.js",
     "server": "nodemon server.js",
     "client": "cd Client && npm start",
