@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
         background: '#A9A9A9',
     },
     title: {
-        padding: theme.spacing(2),
+        marginTop: theme.spacing(2),
         'text-decoration': 'bold',
         fontSize: 'large',
     },
