@@ -13,6 +13,7 @@ The following need to be installed into Linux (sudo apt update):
 
 The following npm modules are used in the server:
 * aws-sdk
+* mysql
 * express
 * concurrently
 * dotenv

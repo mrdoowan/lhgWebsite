@@ -50,7 +50,8 @@ export default function HomeComponent() {
                         <p>
                             Welcome to the Public Beta website of LHG's (Last Hit God) Competitive Leagues for League of Legends tournaments! 
                             As with all Public Betas, many features are incomplete and are still in process of being implemented. In the meantime, 
-                            we have enough to allow teams to properly scout each other based on past matches in LHG and also display stats! Any feedback is appreciated.
+                            we have enough to allow teams to properly scout each other based on their previous matches and also display some awesome stats!
+                            Any feedback is appreciated.
                         </p>
                         <table>
                             <thead>
