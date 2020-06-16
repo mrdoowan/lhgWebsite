@@ -1,9 +1,7 @@
 # Custom dependencies
-Client/node_modules/
+client/node_modules/
 external/
 intermediates/
-Client/src/test
-cache/
 *.pem
 
 # Redis

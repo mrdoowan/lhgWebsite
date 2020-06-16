@@ -6,7 +6,16 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const path = require('path');
+const sys = require('util');
+const exec = require('child_process').exec;
 require('dotenv').config();
+
+// Start redis server
+function puts(error, stdout, stderr) {
+    sys.puts(stdout);
+}
+exec("redis-server", puts);
+
 // Import Routes
 const authV1Routes = require('./routes/apiV1/auth');
 const leagueV1Routes = require('./routes/apiV1/league');

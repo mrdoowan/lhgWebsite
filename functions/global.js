@@ -12,8 +12,14 @@ module.exports = {
 require('dotenv').config({ path: '../.env' });
 const { Random } = require('random-js');
 const Hashids = require('hashids/cjs'); // For hashing and unhashing
-const profileHashIds = new Hashids(process.env.PROFILE_HID_SALT, parseInt(process.env.HID_LENGTH));
-const teamHashIds = new Hashids(process.env.TEAM_HID_SALT, parseInt(process.env.HID_LENGTH));
+
+const oldEnv = true; // 'true' for Dynamodb, 'false' for MongoDb
+
+const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
+const teamHidSalt = (oldEnv) ? process.env.OLD_TEAM_HID_SALT : process.env.SALT_TEAM_HID;
+const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.LENGTH_HID);
+const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
+const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
 const dynamoDb = require('./dynamoDbHelper');
 const Season = require('./seasonData');
@@ -28,12 +34,12 @@ function strPadZeroes(num, size) {
 
 // Turn Profile HId into PId string
 function getProfilePIdString(hId) {
-    return strPadZeroes(profileHashIds.decode(hId)[0], parseInt(process.env.PID_LENGTH));
+    return strPadZeroes(profileHashIds.decode(hId)[0], parseInt(process.env.LENGTH_PID));
 }
 
 // Turn Team HId into PId string
 function getTeamPIdString(hId) {
-    return strPadZeroes(teamHashIds.decode(hId)[0], parseInt(process.env.PID_LENGTH));
+    return strPadZeroes(teamHashIds.decode(hId)[0], parseInt(process.env.LENGTH_PID));
 }
 
 // Lowercases the name and removes all whitespaces
