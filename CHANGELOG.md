@@ -1,4 +1,5 @@
 # Overall
+* vB.2 - Next Release
 * vB.1 - Client 0.1.0, Server 0.1.1
 * vB.0 - Client 0.1.0, Server 0.1.0
 * vA.7.1 - Client 0.0.10, Server 0.0.8

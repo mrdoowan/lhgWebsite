@@ -64,11 +64,18 @@ export default function HomeComponent() {
                             <tbody>
                                 <tr className={classes.row}>
                                     <td className={classes.columns}><a href='https://discord.gg/dhHBxfA'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/discord_logo.png' className={classes.imgSpacing} alt='Discord Logo' width="100" height="100"/></a></td>
-                                    <td className={classes.columns}><a href='https://www.twitch.tv/lasthitgods'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/twitch_logo.png' className={classes.imgSpacing} alt='Discord Logo' width="100" height="100"/></a></td>
-                                    <td className={classes.columns}><a href='https://twitter.com/LastHitGods'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/twitter_logo.png' className={classes.imgSpacing} alt='Discord Logo' width="100" height="100"/></a></td>
+                                    <td className={classes.columns}><a href='https://www.twitch.tv/lasthitgods'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/twitch_logo.png' className={classes.imgSpacing} alt='Twitch Logo' width="100" height="100"/></a></td>
+                                    <td className={classes.columns}><a href='https://twitter.com/LastHitGods'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/twitter_logo.png' className={classes.imgSpacing} alt='Twitter Logo' width="100" height="100"/></a></td>
                                 </tr>
                             </tbody>
                         </table>
+                        <p>
+                            <b>
+                                We are always recruiting Casters, Moderators, Graphic Designers, and Software Developers on a volunteer basis! <br />
+                                If you are interested in helping out to improve LHG, please fill out the form below!
+                            </b>
+                        </p>
+                        <a href='https://forms.gle/KSpW2fMLLz18iioN9'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/google_forms_icon.png' className={classes.imgSpacing} alt='Google Form Logo' width="100" height="100"/></a>
                     </Paper>
                 </Grid>
             </Grid>
