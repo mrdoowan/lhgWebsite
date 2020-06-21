@@ -56,7 +56,7 @@ export default function ChampionSquare({ id, version='', withName=false, vertica
     let urlId = getChampUrlId(id);
     let name = getChampName(id);
     version = (version === '') ? getCurrentVersion() : version;
-    let url = 'http://ddragon.leagueoflegends.com/cdn/' + version + '/img/champion/' + urlId + '.png';
+    let url = 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/champion/' + urlId + '.png';
 
     return (withName) ? (
         <div>

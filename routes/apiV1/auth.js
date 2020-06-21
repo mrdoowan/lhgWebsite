@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const handler = require('../../functions/handlers');
+const handler = require('../../functions/apiV1/handlers');
 
 /*  
     ----------------------

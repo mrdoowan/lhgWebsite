@@ -1,9 +1,9 @@
 const Router = require('express');
 const router = Router();
-const handler = require('../../functions/handlers');
+const handler = require('../../functions/apiV1/handlers');
 
 /*  Import helper Data function modules */
-const Tournament = require('../../functions/tournamentData');
+const Tournament = require('../../functions/apiV1/tournamentData');
 
 /*  
     ----------------------

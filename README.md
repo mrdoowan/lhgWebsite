@@ -21,6 +21,7 @@ The following npm modules are used in the server:
 * redis
 * bcrypt
 * random-js
+* express-http-to-https
 
 The following npm modules are used in the client:
 * react

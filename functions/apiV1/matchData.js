@@ -1,11 +1,11 @@
 module.exports = {
     getData: getMatchData,
-    postSpectate: postMatchSetup,
     putPlayersFix: putMatchPlayerFix,
+    deleteData: removeMatchFromDb,
 }
 
 /*  Declaring npm modules */
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -152,8 +152,63 @@ async function putMatchPlayerFix(playersToFix, matchId) {
     });
 }
 
-async function postMatchSetup(summId) {
-    return new Promise(function(resolve, reject) {
+async function removeMatchFromDb(matchId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // 1) Remove and update Game Logs from EACH Profile Collection
+            // 2) Remove and update Game Logs from EACH Team Collection
+            // 3) Remove from NoSQL Match Collection
+            // 4) Remove from MySQL
+            let matchData = await dynamoDb.getItem('Matches', 'MatchPId', matchId);
+            if (matchData == null) { resolve(null); return; } // Not found
+            let seasonPId = matchData['SeasonPId'];
+            const { Teams } = matchData;
+            for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
+                let teamObject = Object.values(Teams)[teamIdx];
+                let teamPId = GLOBAL.getTeamPId(teamObject['TeamHId']);
+                let teamSeasonGameLog = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
+                delete teamSeasonGameLog[matchId];
+                const { Players } = teamObject;
+                for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
+                    let playerObject = Object.values(Players)[playerIdx];
+                    let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
+                    let playerSeasonGameLog = (await dynamoDb.getItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
+                    delete playerSeasonGameLog[matchId];
+                    // 1)
+                    await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                        'SET #gLog.#sPId.#mtch = :data',
+                        {
+                            '#gLog': 'GameLog',
+                            '#sPId': seasonPId,
+                            '#mtch': 'Matches'
+                        },
+                        {
+                            ':data': playerSeasonGameLog,
+                        }
+                    );
+                }
+                // 2)
+                await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                    'SET #gLog.#sPId.#mtch = :data',
+                    {
+                        '#gLog': 'GameLog',
+                        '#sPId': seasonPId,
+                        '#mtch': 'Matches'
+                    },
+                    {
+                        ':data': teamSeasonGameLog,
+                    }
+                );
+            }
+            // 3) 
+            await dynamoDb.deleteItem('Matches', 'MatchPId', matchId);
+            // 4) 
+            await mySql.callSProc('removeMatchByMatchId', parseInt(matchId));
 
+            // Del from Cache
+            cache.del(`${keyBank.MATCH_PREFIX}${matchId}`);
+            resolve({ response: `Match ID '${matchId}' removed from the database.` });
+        }
+        catch (err) { reject({ error: err }) };
     });
 }

@@ -1,10 +1,10 @@
 const router = require('express').Router();
-const handler = require('../../functions/handlers');
+const handler = require('../../functions/apiV1/handlers');
 
 /*  Import helper Data function modules */
-const Team = require('../../functions/teamData');
-const Season = require('../../functions/seasonData');
-const Tournament = require('../../functions/tournamentData');
+const Team = require('../../functions/apiV1/teamData');
+const Season = require('../../functions/apiV1/seasonData');
+const Tournament = require('../../functions/apiV1/tournamentData');
 
 /*  
     ----------------------

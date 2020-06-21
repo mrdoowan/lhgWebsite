@@ -16,7 +16,7 @@
 * Major.Minor
 ## For Server & Client
 * 0.1.0 is when a prototype production is working
-* 1.0.0 will be the first website
+* 1.0.0 will be the first major release
 
 # Client
 + 0.1.0

@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const handler = require('../../functions/handlers');
+const handler = require('../../functions/apiV1/handlers');
 
 /*  Import helper Data function modules */
-const Season = require('../../functions/seasonData');
+const Season = require('../../functions/apiV1/seasonData');
 
 /*  
     ----------------------

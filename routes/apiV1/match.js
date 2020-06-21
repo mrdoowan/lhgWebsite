@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const handler = require('../../functions/handlers');
+const handler = require('../../functions/apiV1/handlers');
 
 /*  Import helper Data function modules */
-const Match = require('../../functions/matchData');
+const Match = require('../../functions/apiV1/matchData');
 
 /*  
     ----------------------
@@ -27,7 +27,7 @@ router.get('/:matchId', (req, res) => {
 
 //#endregion
 
-//#region POST / PUT Requests - Match
+//#region POST / PUT / DELETE Requests - Match
 
 /**
  * @route   PUT api/match/v1/players/update
@@ -41,6 +41,20 @@ router.put('/players/update', (req, res) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "PUT Match Data Error."));
+});
+
+/**
+ * @route   DELETE api/match/v1/:matchId
+ * @desc    Remove a match from Records
+ * @access  Private (to Admins)
+ */
+router.delete('/:matchId', (req, res) => {
+    const { matchId } = req.params;
+    console.log(`DELETE Request Match '${matchId}'.`);
+    Match.deleteData(matchId).then((message) => {
+        if (message == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
+        return handler.res200s(res, req, data);
+    }).catch((err) => handler.error500s(err, res, "DELETE Match Data Error."));
 });
 
 //#endregion
