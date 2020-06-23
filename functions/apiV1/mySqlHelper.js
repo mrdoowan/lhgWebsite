@@ -20,7 +20,8 @@ const sqlPool = mysql.createPool({
 
 /*  'false' to test without affecting the databases. */
 /*  'true' when comfortable changing MySQL db */
-const CHANGE_MYSQL = process.env.CHANGE_DB || (process.env.NODE_ENV === 'production');
+const CHANGE_DB = false;
+const CHANGE_MYSQL = CHANGE_DB || (process.env.NODE_ENV === 'production');
 /*  Put 'false' to not debug. */
 const DEBUG_MYSQL = false;
 
@@ -60,7 +61,7 @@ function insertMySQLQuery(queryObject, tableName) {
     }
     else {
         // debugging
-        if (DEBUG_MYSQL) { console.log(`DEBUG - MySQL Table '${tableName}` ); console.log(queryObject); }
+        if (DEBUG_MYSQL) { console.log(`DEBUG - MySQL Table '${tableName}`); console.log(queryObject); }
     }
 }
 

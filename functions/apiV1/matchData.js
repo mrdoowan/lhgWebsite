@@ -22,7 +22,7 @@ const GLOBAL = require('./global');
 
 async function getMatchData(Id) {
     return new Promise(function(resolve, reject) {
-        let cacheKey = keyBank.MATCH_PREFIX + Id;
+        const cacheKey = keyBank.MATCH_PREFIX + Id;
         cache.get(cacheKey, async (err, data) => {
             if (err) { console.error(err); reject(err); }
             else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -60,7 +60,7 @@ async function getMatchData(Id) {
                         playerJson['WardsClearedPerMinute'] = (playerJson['WardsCleared'] / gameDurationMinute).toFixed(2);
                     }
                 }
-                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                 resolve(matchJson);
             }
             catch (error) { console.error(error); reject(error); }
@@ -81,6 +81,7 @@ async function putMatchPlayerFix(playersToFix, matchId) {
             if (data == null) { resolve(null); return; } // Not found
             let changesMade = false;
             let seasonId = data['SeasonPId'];
+            let namesChanged = [];
             for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
                 let teamId = Object.keys(data.Teams)[tIdx];
                 let thisTeamPId = GLOBAL.getTeamPId(data.Teams[teamId]['TeamHId']);
@@ -94,14 +95,16 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                         let name = await Profile.getName(newProfilePId, false); // For PId
                         //await Profile.getName(newProfileId); // For HId
                         if (name == null) { resolve(null); return; } // Not found
+                        namesChanged.push(name); // For response
                         await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
                         playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfilePId);
+                        delete playerObject['ProfileName']; // In the database for no reason
                         // Remove from Profile GameLog in former Profile Id and Team GameLog
                         let profileGameLog = await Profile.getGames(thisProfilePId, seasonId);
                         if (matchId in profileGameLog['Matches']) {
                             delete profileGameLog['Matches'][matchId];
                             await dynamoDb.updateItem('Profile', 'ProfilePId', thisProfilePId,
-                                'SET #log.#sId.#mtch = :data',
+                                'SET #log.#sId = :data',
                                 {
                                     '#log': 'GameLog',
                                     '#sId': seasonId,
@@ -114,7 +117,7 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                         let teamGameLog = await Team.getGames(thisTeamPId, seasonId);
                         if (matchId in teamGameLog['Matches']) {
                             delete teamGameLog['Matches'][matchId];
-                            await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                            await dynamoDb.updateItem('Team', 'TeamPId', thisTeamPId,
                                 'SET #gLog.#sId = :val',
                                 {
                                     '#gLog': 'GameLog',
@@ -139,10 +142,12 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                         ':data': data.Teams,
                     }
                 );
+                // Delete match cache
+                cache.del(`${keyBank.MATCH_PREFIX}${matchId}`);
+                // Return
                 resolve({
                     response: `Match ID '${matchId}' successfully updated.`,
-                    bluePlayers: bluePlayers,
-                    redPlayers: redPlayers,
+                    profileUpdate: namesChanged,
                 })
             }
             else {

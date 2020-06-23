@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 /*  Import helper function modules */
 const dynamoDb = require('./dynamoDbHelper');
 const keyBank = require('./cacheKeys');
+const GLOBAL = require('./global');
 // Data Functions
 const Profile = require('./profileData');
 
@@ -52,8 +53,8 @@ function putNewStaff(staff) {
                         }
                     );
                     // Update Cache
-                    let cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
-                    cache.set(cacheKey, JSON.stringify(profileInfo, null, 2));
+                    const cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
+                    cache.set(cacheKey, JSON.stringify(profileInfo, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     profileInfo['Password'] = hash;
                     resolve(profileInfo);
                 }).catch((err) => { console.error(err); reject(err); });

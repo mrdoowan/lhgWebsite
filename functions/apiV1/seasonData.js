@@ -28,7 +28,7 @@ const Team = require('./teamData');
 // Get SeasonPId from DynamoDb
 function getSeasonId(shortName) {
     let simpleName = GLOBAL.filterName(shortName);
-    let cacheKey = keyBank.SEASON_ID_PREFIX + simpleName;
+    const cacheKey = keyBank.SEASON_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -46,7 +46,7 @@ function getSeasonId(shortName) {
 
 // Get SeasonShortName from DynamoDb
 function getSeasonShortName(sPId) {
-    let cacheKey = keyBank.SEASON_CODE_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_CODE_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -64,7 +64,7 @@ function getSeasonShortName(sPId) {
 
 // Get SeasonName from DynamoDb
 function getSeasonName(sPId) {
-    let cacheKey = keyBank.SEASON_NAME_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_NAME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -82,7 +82,7 @@ function getSeasonName(sPId) {
 
 // Returns a Season Time (i.e. Winter 2020)
 function getSeasonTime(sPId) {
-    let cacheKey = keyBank.SEASON_TIME_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_TIME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -99,7 +99,7 @@ function getSeasonTime(sPId) {
 }
 
 function getSeasonTabName(sPId) {
-    let cacheKey = keyBank.SEASON_TAB_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_TAB_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -137,7 +137,7 @@ function getLeagues() {
                     });
                     let returnObject = {};
                     returnObject['Leagues'] = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
-                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(returnObject);
                 }
                 else {
@@ -150,7 +150,7 @@ function getLeagues() {
 }
 
 function getSeasonInformation(sPId) {
-    let cacheKey = keyBank.SEASON_INFO_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_INFO_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -176,7 +176,7 @@ function getSeasonInformation(sPId) {
                         seasonInfoJson['AllStars']['BotName'] = await Profile.getName(seasonInfoJson['AllStars']['BotHId']);
                         seasonInfoJson['AllStars']['SupportName'] = await Profile.getName(seasonInfoJson['AllStars']['SupportHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(seasonInfoJson);
                 }
                 else {
@@ -189,7 +189,7 @@ function getSeasonInformation(sPId) {
 }
 
 function getSeasonRoster(sPId) {
-    let cacheKey = keyBank.SEASON_ROSTER_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_ROSTER_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -222,7 +222,7 @@ function getSeasonRoster(sPId) {
                             playerJson['ProfileName'] = await Profile.getName(profileHId);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(seasonRosterJson);
                 }
                 else {
@@ -235,7 +235,7 @@ function getSeasonRoster(sPId) {
 }
 
 function getRegularSeason(sPId) {
-    let cacheKey = keyBank.SEASON_REGULAR_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_REGULAR_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -257,7 +257,7 @@ function getRegularSeason(sPId) {
                         gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(seasonRegularJson);
                 }
                 else {
@@ -270,7 +270,7 @@ function getRegularSeason(sPId) {
 }
 
 function getSeasonPlayoffs(sPId) {
-    let cacheKey = keyBank.SEASON_PLAYOFF_PREFIX + sPId;
+    const cacheKey = keyBank.SEASON_PLAYOFF_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return }
@@ -294,7 +294,7 @@ function getSeasonPlayoffs(sPId) {
                         gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(playoffJson);
                 }
                 else {

@@ -37,7 +37,7 @@ router.get('/:matchId', (req, res) => {
 router.put('/players/update', (req, res) => {
     const { playersToFix, matchId } = req.body;
     console.log(`PUT Request Match '${matchId}' Players`);
-    Match.putPlayersFix(bluePlayers, redPlayers, matchId).then((data) => {
+    Match.putPlayersFix(playersToFix, matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "PUT Match Data Error."));

@@ -7,7 +7,8 @@ module.exports = {
     getSeasonItems: getSeasonItems,
     getTourneyItems: getTourneyItems,
     generateNewPId: generateNewPId,
-    TTL_DURATION: 60 * 60 * 24,
+    TTL_DURATION_2HRS: 60 * 60 * 2,  // 3 Hours
+    TTL_DURATION_3HRS: 60 * 60 * 3,  // 3 Hours
 }
 
 /*  Declaring npm modules */

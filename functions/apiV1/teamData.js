@@ -5,6 +5,8 @@ module.exports = {
     getScouting: getTeamScoutingBySeason,
     getGames: getTeamGamesBySeason,
     getStats: getTeamStatsByTourney,
+    putGameLog: updateTeamGameLog,
+    putStatsLog: updateTeamStatsLog,
     postNew: postNewTeam,
 }
 
@@ -16,6 +18,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import helper function modules */
 const GLOBAL = require('./global');
 const dynamoDb = require('./dynamoDbHelper');
+const mySql = require('./mySqlHelper');
 const keyBank = require('./cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
@@ -25,7 +28,7 @@ const Profile = require('./profileData');
 // Get TeamPId from TeamName
 function getTeamPId(name) {
     let simpleName = GLOBAL.filterName(name);
-    let cacheKey = keyBank.TEAM_PID_PREFIX + simpleName;
+    const cacheKey = keyBank.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -44,7 +47,7 @@ function getTeamPId(name) {
 // Get TeamName from DynamoDb
 function getTeamName(tHId) {
     let tPId = GLOBAL.getTeamPId(tHId);
-    let cacheKey = keyBank.TEAM_NAME_PREFIX + tPId;
+    const cacheKey = keyBank.TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -61,7 +64,7 @@ function getTeamName(tHId) {
 }
 
 function getTeamInfo(teamPId) {
-    let cacheKey = keyBank.TEAM_INFO_PREFIX + teamPId;
+    const cacheKey = keyBank.TEAM_INFO_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -86,7 +89,7 @@ function getTeamInfo(teamPId) {
                     if (statsLogJson != null) {
                         teamInfoJson['TournamentList'] = await GLOBAL.getTourneyItems(Object.keys(statsLogJson));
                     }
-                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(teamInfoJson);
                 }
                 else {
@@ -100,18 +103,19 @@ function getTeamInfo(teamPId) {
 
 // Returns Object
 function getTeamScoutingBySeason(teamPId, sPId=null) {
-    let cacheKey = keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + sPId;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
-            if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['Scouting'];
-                if (scoutingJson != null) {
-                    let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
+    return new Promise(async function(resolve, reject) {
+        try {
+            let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['Scouting'];
+            if (scoutingJson != null) {
+                const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
+                const cacheKey = keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
+                cache.get(cacheKey, async (err, data) => {
+                    if (err) { console(err); reject(err); return; }
+                    else if (data != null) { resolve(JSON.parse(data)); return; }
                     let teamScoutingSeasonJson = scoutingJson[seasonId];
-                    //if (teamScoutingSeasonJson == null) { console.error("This team does not have this Season logged."); reject(404); }
                     if (teamScoutingSeasonJson == null) { resolve(null); return; } // Not Found
+
+                    // Process Data
                     teamScoutingSeasonJson['SeasonTime'] = await Season.getTime(seasonId);
                     teamScoutingSeasonJson['SeasonName'] = await Season.getName(seasonId);
                     teamScoutingSeasonJson['SeasonShortName'] = await Season.getShortName(seasonId);
@@ -128,34 +132,34 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
                             statsJson['VsPctPlayer'] = (statsJson['TotalVsPlayer'] / statsJson['TotalVsTeam']).toFixed(4);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(teamScoutingSeasonJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamScoutingSeasonJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(teamScoutingSeasonJson);
-                }
-                else {
-                    if (sPId == null) { resolve({}) }   // If 'Scouting' does not exist
-                    //else { console.error("This team does not have any Games logged."); reject(404); }
-                    else { resolve(null); }
-                }
+                });
             }
-            catch (ex) { console.error(ex); reject(ex); }
-        });
+            else {
+                if (sPId == null) { resolve({}) }   // If 'Scouting' does not exist
+                else { resolve(null); }             // Not Found
+            }
+        }
+        catch (ex) { console.error(ex); reject(ex); }
     });
 }
 
 // Returns Object
 function getTeamGamesBySeason(teamPId, sPId=null) {
-    let cacheKey = keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + sPId;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
-            if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'];
-                if (gameLogJson != null) {
-                    let seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
+    return new Promise(async function(resolve, reject) {
+        try {
+            let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'];
+            if (gameLogJson != null) {
+                const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
+                const cacheKey = keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
+                cache.get(cacheKey, async (err, data) => {
+                    if (err) { console(err); reject(err); return; }
+                    else if (data != null) { resolve(JSON.parse(data)); return; }
                     let teamSeasonGamesJson = gameLogJson[seasonId];
-                    //if (teamSeasonGamesJson == null) { console.error("This team does not have this Season logged."); reject(404); }
                     if (teamSeasonGamesJson == null) { resolve(null); return; } // Not Found
+
+                    // Process Data
                     teamSeasonGamesJson['SeasonTime'] = await Season.getTime(seasonId);
                     teamSeasonGamesJson['SeasonName'] = await Season.getName(seasonId);
                     teamSeasonGamesJson['SeasonShortName'] = await Season.getShortName(seasonId);
@@ -167,34 +171,34 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
                         }
                         matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(teamSeasonGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamSeasonGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(teamSeasonGamesJson);
-                }
-                else {
-                    if (sPId == null) { resolve({}); }  // If 'GameLog' does not exist
-                    //else { console.error("This team does not have any Games logged."); reject(404); }
-                    else { resolve(null); } // Not Found
-                }
+                });
             }
-            catch (ex) { console.error(ex); reject(ex); }
-        });
+            else {
+                if (sPId == null) { resolve({}); }  // If 'GameLog' does not exist
+                else { resolve(null); }             // Not Found
+            }
+        }
+        catch (ex) { console.error(ex); reject(ex); }
     });
 }
 
 // Returns Object
 function getTeamStatsByTourney(teamPId, tPId=null) {
-    let cacheKey = keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tPId;
-    return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
-            if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['StatsLog'];
-                if (statsLogJson != null) {
-                    let tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
+    return new Promise(async function(resolve, reject) {
+        try {
+            let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['StatsLog'];
+            if (statsLogJson != null) {
+                const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
+                const cacheKey = keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
+                cache.get(cacheKey, async (err, data) => {
+                    if (err) { console(err); reject(err); return; }
+                    else if (data != null) { resolve(JSON.parse(data)); return; }
                     let tourneyStatsJson = statsLogJson[tourneyId];
-                    //if (tourneyStatsJson == null) { console.error("This team does not have this Tournament logged."); reject(404); }
                     if (tourneyStatsJson == null) { resolve(null); return; } // Not Found
+
+                    // Process Data
                     tourneyStatsJson['TournamentName'] = await Tournament.getName(tourneyId);
                     tourneyStatsJson['TournamentShortName'] = await Tournament.getShortName(tourneyId);
                     let totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
@@ -229,17 +233,17 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
                     tourneyStatsJson['AverageGoldDiffMid'] = (tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
                     resolve(tourneyStatsJson);
-                }
-                else {
-                    if (tPId == null) { resolve({}); }  // If 'StatsLog' does not exist
-                    //else { console.error("This team does not have any Games logged."); reject(404); }
-                    else { resolve(null); } // Not Found
-                }
+                });
             }
-            catch (ex) { console.error(ex); reject(ex); }
-        });
+            else {
+                if (tPId == null) { resolve({}); }  // If 'StatsLog' does not exist
+                //else { console.error("This team does not have any Games logged."); reject(404); }
+                else { resolve(null); } // Not Found
+            }
+        }
+        catch (ex) { console.error(ex); reject(ex); }
     });
 }
 
@@ -279,5 +283,352 @@ function postNewTeam(teamName, shortName) {
             });
         }
         catch (err) { console.error(err); reject(err); }
+    });
+}
+
+// Doing both "GameLog" and "StatsLog" for Team Item
+function updateTeamGameLog(teamPId, tournamentPId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let tourneyDbObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId);
+            let seasonPId = tourneyDbObject['Information']['SeasonPId'];
+            let teamDbObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);
+
+            /*  
+                -------------------
+                Init DynamoDB Items
+                -------------------
+            */
+            // #region Init Items
+            // Check 'GameLog' exists in TeamItem
+            const initTeamSeasonGames = {
+                'Matches': {}
+            };
+            const initTeamGameLog = { [seasonPId]: initTeamSeasonGames };
+            if (!('GameLog' in teamDbObject)) {
+                await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                    'SET #gLog = :val',
+                    {
+                        '#gLog': 'GameLog'
+                    }, 
+                    {
+                        ':val': initTeamGameLog
+                    }
+                );
+                teamDbObject['GameLog'] = initTeamGameLog;
+            }
+            else if (!(seasonPId in teamDbObject['GameLog'])) {
+                await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                    'SET #gLog.#sId = :val',
+                    {
+                        '#gLog': 'GameLog',
+                        '#sId': seasonPId,
+                    },
+                    {
+                        ':val': initTeamSeasonGames
+                    }
+                );
+                teamDbObject['GameLog'][seasonPId] = initTeamSeasonGames;
+            }
+            // Check 'Scouting' exists in TeamItem 
+            const initTeamScouting = { [seasonPId]: {} };
+            if (!('Scouting' in teamDbObject)) {
+                await dynamoDb.updateItem('Team', 'TeamPId', teamPId, 
+                    'SET #sct = :val',
+                    {
+                        '#sct': 'Scouting'
+                    },
+                    {
+                        ':val': initTeamScouting
+                    }
+                );
+                teamDbObject['Scouting'] = clonedeep(initTeamScouting);
+            }
+            else if (!(seasonPId in teamDbObject['Scouting'])) {
+                teamDbObject['Scouting'][seasonPId] = {};
+            }
+            // #endregion
+
+            // Shallow Copy
+            let scoutingItem = teamDbObject['Scouting'][seasonPId];
+            let gameLogTeamItem = teamDbObject['GameLog'][seasonPId]['Matches'];
+
+            /*  
+                -------------
+                Game Log
+                -------------
+            */
+            // #region Compile Data
+            let teamMatchesSqlListTourney = await mySql.callSProc('teamMatchesByTournamentPId', teamPId, tournamentPId);
+            for (let matchIdx = 0; matchIdx < teamMatchesSqlListTourney.length; ++matchIdx) {
+                let sqlTeamMatch = teamMatchesSqlListTourney[matchIdx];
+                let matchPId = sqlTeamMatch.riotMatchId;
+                // Additional sProcs from MySQL
+                let playerStatsSqlList = await mySql.callSProc('playerStatsByMatchIdTeamId', matchPId, teamPId);
+                let bannedChampMatchSqlList = await mySql.callSProc('bannedChampsByMatchId', matchPId);
+                
+                let teamGameItem = {
+                    'DatePlayed': sqlTeamMatch.datePlayed,
+                    'TournamentType': sqlTeamMatch.tournamentType,
+                    'GameWeekNumber': 0, // N/A
+                    'ChampPicks': {},
+                    'Win': (sqlTeamMatch.win == 1) ? true : false,
+                    'Vacated': false,
+                    'EnemyTeamHId': GLOBAL.getTeamHId((sqlTeamMatch.side === 'Blue') ? sqlTeamMatch.redTeamPId : sqlTeamMatch.blueTeamPId),
+                    'GameDuration': sqlTeamMatch.duration,
+                    'Kills': sqlTeamMatch.totalKills,
+                    'Deaths': sqlTeamMatch.totalDeaths,
+                    'Assists': sqlTeamMatch.totalAssists,
+                    'GoldPerMinute': sqlTeamMatch.goldPerMin,
+                    'GoldDiffEarly': sqlTeamMatch.goldDiffEarly,
+                    'GoldDiffMid': sqlTeamMatch.goldDiffMid,
+                    'BannedByTeam': [],
+                    'BannedAgainst': []
+                };
+                for (let playerIdx = 0; playerIdx < playerStatsSqlList.length; ++playerIdx) {
+                    let playerSqlRow = playerStatsSqlList[playerIdx];
+                    teamGameItem['ChampPicks'][playerSqlRow.role] = { 
+                        'ProfileHId': GLOBAL.getProfileHId(playerSqlRow.profilePId),
+                        'ChampId': playerSqlRow.champId
+                    };
+                }
+                for (let phase = 1; phase <= 2; ++phase) {
+                    for (let k = 0; k < bannedChampMatchSqlList.length; ++k) {
+                        let champSqlRow = bannedChampMatchSqlList[k];
+                        if (champSqlRow.phase == phase) {
+                            if (champSqlRow.teamBannedById == teamPId) { teamGameItem['BannedByTeam'].push(champSqlRow.champId); }
+                            else { teamGameItem['BannedAgainst'].push(champSqlRow.champId); }
+                        }
+                    }
+                }
+                gameLogTeamItem[matchPId] = teamGameItem;
+            }
+            // #endregion
+
+            /*  
+                -------------
+                'Scouting' (Season Id dependent)
+                -------------
+            */
+            // #region Compile Data
+            // Banned Champs List
+            const sqlTeamSeasonStats = (await mySql.callSProc('teamStatsBySeasonId', teamPId, seasonPId))[0];
+            scoutingItem['Ongoing'] = false;
+            scoutingItem['GamesPlayed'] = sqlTeamSeasonStats.gamesPlayed;
+            scoutingItem['GamesWin'] = sqlTeamSeasonStats.gamesWin;
+            scoutingItem['BannedByTeam'] = {};
+            scoutingItem['BannedAgainstTeam'] = {};
+            const bannedChampsSeasonSqlList = await mySql.callSProc('bannedChampsByTeamIdSeasonId', teamPId, seasonPId);
+            for (let champIdx = 0; champIdx < bannedChampsSeasonSqlList.length; ++champIdx) {
+                const champSqlRow = bannedChampsSeasonSqlList[champIdx];
+                if (champSqlRow.teamBannedById == teamPId) { 
+                    if (!(champSqlRow.champId in scoutingItem['BannedByTeam'])) {
+                        scoutingItem['BannedByTeam'][champSqlRow.champId] = 0;
+                    }
+                    scoutingItem['BannedByTeam'][champSqlRow.champId]++;
+                }
+                else {
+                    if (!(champSqlRow.champId in scoutingItem['BannedAgainstTeam'])) {
+                        scoutingItem['BannedAgainstTeam'][champSqlRow.champId] = 0;
+                    }
+                    scoutingItem['BannedAgainstTeam'][champSqlRow.champId]++;
+                }
+            }
+            // Player Log
+            const playerScoutingSqlList = await mySql.callSProc('playerStatsTotalByTeamIdSeasonId', teamPId, seasonPId);
+            let playerLog = {};
+            for (let playerIdx = 0; playerIdx < playerScoutingSqlList.length; ++playerIdx) {
+                const playerSqlRow = playerScoutingSqlList[playerIdx];
+                const role = playerSqlRow.playerRole;
+                if (!(role in playerLog)) {
+                    playerLog[role] = {};
+                }
+                const { profilePId } = playerSqlRow;
+                const profileHId = GLOBAL.getProfileHId(profilePId);
+                if (!(profileHId in playerLog[role])) {
+                    // New entry
+                    playerLog[role][profileHId] = {
+                        'GamesPlayed': playerSqlRow.gamesPlayed,
+                        'TotalKillsPlayer': playerSqlRow.totalKills,
+                        'TotalDeathsPlayer': playerSqlRow.totalDeaths,
+                        'TotalAssistsPlayer': playerSqlRow.totalAssists,
+                        'TotalDamagePlayer': playerSqlRow.totalDamage,
+                        'TotalGoldPlayer': playerSqlRow.totalGold,
+                        'TotalVsPlayer': playerSqlRow.totalVisionScore,
+                        'TotalKillsTeam': playerSqlRow.totalTeamKills,
+                        'TotalDamageTeam': playerSqlRow.totalTeamDamage,
+                        'TotalGoldTeam': playerSqlRow.totalTeamGold,
+                        'TotalVsTeam': playerSqlRow.totalTeamVisionScore,
+                        'ChampsPlayed': {}
+                    };
+                }
+                const champStatsSqlList = await mySql.callSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL.MINUTE_AT_EARLY);
+                let champsPlayed = playerLog[role][profileHId]['ChampsPlayed'];
+                for (let champIdx = 0; champIdx < champStatsSqlList.length; ++champIdx) {
+                    const champStats = champStatsSqlList[champIdx];
+                    const { champId } = champStats;
+                    champsPlayed[champId] = {};
+                    champsPlayed[champId]['GamesPlayed'] = champStats.gamesPlayed;
+                    champsPlayed[champId]['GamesWon'] = champStats.gamesWin;
+                    champsPlayed[champId]['TotalKills'] = champStats.totalKills;
+                    champsPlayed[champId]['TotalDeaths'] = champStats.totalDeaths;
+                    champsPlayed[champId]['TotalAssists'] = champStats.totalAssists;
+                    champsPlayed[champId]['TotalDuration'] = champStats.totalDuration;
+                    champsPlayed[champId]['TotalGold'] = champStats.totalGold;
+                    champsPlayed[champId]['TotalCreepScore'] = champStats.totalCreepScore;
+                    champsPlayed[champId]['TotalVisionScore'] = champStats.totalVisionScore;
+                    champsPlayed[champId]['GamesPlayedEarly'] = champStats.gamesPlayedOverEarly;
+                    champsPlayed[champId]['TotalCsDiffEarly'] = champStats.totalCsDiffEarly;
+                    champsPlayed[champId]['TotalGoldDiffEarly'] = champStats.totalGoldDiffEarly;
+                    champsPlayed[champId]['TotalXpDiffEarly'] = champStats.totalXpDiffEarly;
+                }
+            }
+            scoutingItem['PlayerLog'] = playerLog;
+            // #endregion
+
+            /*  
+                ----------
+                Push into DB
+                ----------
+            */
+            await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                'SET #gLog.#sId.#mtchs = :val',
+                {
+                    '#gLog': 'GameLog',
+                    '#sId': seasonPId,
+                    '#mtchs': 'Matches'
+                },
+                {
+                    ':val': gameLogTeamItem
+                }
+            );
+            await dynamoDb.updateItem('Team', 'TeamPId', teamPId, 
+                'SET #scout.#sId = :val',
+                {
+                    '#scout': 'Scouting',
+                    '#sId': seasonPId
+                },
+                {
+                    ':val': scoutingItem
+                }
+            );
+            // Remove cache
+            cache.del(keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + seasonPId);
+            cache.del(keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonPId);
+
+            resolve({
+                teamId: teamPId,
+                tournamentId: tournamentPId,
+                tournamentName: tourneyDbObject['TournamentName'],
+                numberMatches: teamMatchesSqlListTourney.length,
+                typeUpdated: 'GameLog',
+            });
+        }
+        catch (err) { reject({error: err}) }
+    });
+}
+
+// Update Stats Log
+function updateTeamStatsLog(teamPId, tournamentPId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            /*  
+                -------------------
+                Init DynamoDB Items
+                -------------------
+            */
+            // #region Init items
+            // Check 'StatsLog' exists in TeamItem
+            const initTeamStatsLog = { [tournamentPId]: {} };
+            if (!('StatsLog' in teamDbObject)) {
+                await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                    'SET #sLog = :val',
+                    { 
+                        '#sLog': 'StatsLog'
+                    },
+                    { 
+                        ':val': initTeamStatsLog
+                    }
+                );
+                teamDbObject['StatsLog'] = clonedeep(initTeamStatsLog);
+            }
+            // Check if that tournamentId in StatsLog
+            else if (!(tournamentPId in teamDbObject['StatsLog'])) {
+                teamDbObject['StatsLog'][tournamentPId] = {};
+            }
+            //#endregion
+
+            // Shallow Copy
+            let tourneyTeamStatsItem = teamDbObject['StatsLog'][tournamentPId];
+
+            /*  
+                -------------
+                'StatsLog' (TournamentId dependent)
+                -------------
+            */
+            // #region Compile Data
+            let sqlTeamStatsTotal = (await mySql.callSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID))[0];
+            tourneyTeamStatsItem['GamesPlayed'] = sqlTeamStatsTotal.gamesPlayed;
+            tourneyTeamStatsItem['GamesPlayedOverEarly'] = sqlTeamStatsTotal.gamesPlayedOverEarly;
+            tourneyTeamStatsItem['GamesPlayedOverMid'] = sqlTeamStatsTotal.gamesPlayedOverMid;
+            tourneyTeamStatsItem['GamesWon'] = sqlTeamStatsTotal.totalWins;
+            tourneyTeamStatsItem['GamesPlayedOnBlue'] = sqlTeamStatsTotal.gamesPlayedOnBlue;
+            tourneyTeamStatsItem['BlueWins'] = sqlTeamStatsTotal.totalBlueWins;
+            tourneyTeamStatsItem['TotalGameDuration'] = sqlTeamStatsTotal.totalDuration;
+            tourneyTeamStatsItem['TotalXpDiffEarly'] = sqlTeamStatsTotal.totalXpDiffEarly;
+            tourneyTeamStatsItem['TotalXpDiffMid'] = sqlTeamStatsTotal.totalXpDiffMid;
+            tourneyTeamStatsItem['TotalGold'] = sqlTeamStatsTotal.totalGold;
+            tourneyTeamStatsItem['TotalGoldDiffEarly'] = sqlTeamStatsTotal.totalGoldDiffEarly;
+            tourneyTeamStatsItem['TotalGoldDiffMid'] = sqlTeamStatsTotal.totalGoldDiffMid;
+            tourneyTeamStatsItem['TotalCreepScore'] = sqlTeamStatsTotal.totalCreepScore;
+            tourneyTeamStatsItem['TotalCsDiffEarly'] = sqlTeamStatsTotal.totalCsDiffEarly;
+            tourneyTeamStatsItem['TotalCsDiffMid'] = sqlTeamStatsTotal.totalCsDiffMid;
+            tourneyTeamStatsItem['TotalDamageDealt'] = sqlTeamStatsTotal.totalDamageDealt;
+            tourneyTeamStatsItem['TotalFirstBloods'] = sqlTeamStatsTotal.totalFirstBloods;
+            tourneyTeamStatsItem['TotalFirstTowers'] = sqlTeamStatsTotal.totalFirstTowers;
+            tourneyTeamStatsItem['TotalKills'] = sqlTeamStatsTotal.totalKills;
+            tourneyTeamStatsItem['TotalDeaths'] = sqlTeamStatsTotal.totalDeaths;
+            tourneyTeamStatsItem['TotalAssists'] = sqlTeamStatsTotal.totalAssists;
+            tourneyTeamStatsItem['TotalTowersTaken'] = sqlTeamStatsTotal.totalTeamTowers;
+            tourneyTeamStatsItem['TotalTowersLost'] = sqlTeamStatsTotal.totalEnemyTowers;
+            tourneyTeamStatsItem['TotalDragonsTaken'] = sqlTeamStatsTotal.totalTeamDragons;
+            tourneyTeamStatsItem['TotalEnemyDragons'] = sqlTeamStatsTotal.totalEnemyDragons;
+            tourneyTeamStatsItem['TotalHeraldsTaken'] = sqlTeamStatsTotal.totalTeamHeralds;
+            tourneyTeamStatsItem['TotalEnemyHeralds'] = sqlTeamStatsTotal.totalEnemyHeralds;
+            tourneyTeamStatsItem['TotalBaronsTaken'] = sqlTeamStatsTotal.totalTeamBarons;
+            tourneyTeamStatsItem['TotalEnemyBarons'] = sqlTeamStatsTotal.totalEnemyBarons;
+            tourneyTeamStatsItem['TotalVisionScore'] = sqlTeamStatsTotal.totalVisionScore;
+            tourneyTeamStatsItem['TotalWardsPlaced'] = sqlTeamStatsTotal.totalWardsPlaced;
+            tourneyTeamStatsItem['TotalControlWardsBought'] = sqlTeamStatsTotal.totalControlWardsBought;
+            tourneyTeamStatsItem['TotalWardsCleared'] = sqlTeamStatsTotal.totalWardsCleared;
+            tourneyTeamStatsItem['TotalEnemyWardsPlaced'] = sqlTeamStatsTotal.totalEnemyWardsPlaced;
+            // #endregion
+
+            /*  
+                ----------
+                Push into DB
+                ----------
+            */
+            await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                'SET #sLog.#tId = :val',
+                {
+                    '#sLog': 'StatsLog',
+                    '#tId': tournamentPId
+                },
+                {
+                    ':val': tourneyTeamStatsItem
+                }
+            );
+            // Remove cache
+            cache.del(keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tournamentPId);
+
+            resolve({
+                teamId: teamPId,
+                tournamentId: tournamentPId,
+                tournamentName: tourneyDbObject['TournamentName'],
+                typeUpdated: 'StatsLog',
+            })
+        }
+        catch (err) { reject({error: err}) }
     });
 }
