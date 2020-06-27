@@ -1,6 +1,7 @@
 module.exports = {
     getId: getTeamPId,
     getName: getTeamName,
+    getShortName: getTeamShortName,
     getInfo: getTeamInfo,
     getScouting: getTeamScoutingBySeason,
     getGames: getTeamGamesBySeason,
@@ -36,7 +37,7 @@ function getTeamPId(name) {
             dynamoDb.getItem('TeamNameMap', 'TeamName', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
-                let tPId = GLOBAL.getTeamPId(obj['TeamHId']);
+                const tPId = GLOBAL.getTeamPId(obj['TeamHId']);
                 cache.set(cacheKey, tPId);
                 resolve(tPId);
             }).catch((ex) => { console.error(ex); reject(ex) });
@@ -55,9 +56,28 @@ function getTeamName(tHId) {
             dynamoDb.getItem('Team', 'TeamPId', tPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
-                let name = obj['TeamName'];
+                const name = obj['TeamName'];
                 cache.set(cacheKey, name);
                 resolve(name);
+            }).catch((ex) => { console.error(ex); reject(ex); });
+        });
+    });
+}
+
+// Get Shortname from DynamoDb
+function getTeamShortName(tHId) {
+    let tPId = GLOBAL.getTeamPId(tHId);
+    const cacheKey = keyBank.TEAM_SHORTNAME_PREFIX + tPId;
+    return new Promise(function(resolve, reject) {
+        cache.get(cacheKey, (err, data) => {
+            if (err) { console.error(err); reject(err); return; }
+            else if (data != null) { resolve(data); return; }
+            dynamoDb.getItem('Team', 'TeamPId', tPId)
+            .then((obj) => {
+                if (obj == null) { resolve(null); return; } // Not Found
+                const shortName = obj['Information']['TeamShortName'];
+                cache.set(cacheKey, shortName);
+                resolve(shortName);
             }).catch((ex) => { console.error(ex); reject(ex); });
         });
     });
@@ -363,6 +383,7 @@ function updateTeamGameLog(teamPId, tournamentPId) {
             for (let matchIdx = 0; matchIdx < teamMatchesSqlListTourney.length; ++matchIdx) {
                 let sqlTeamMatch = teamMatchesSqlListTourney[matchIdx];
                 let matchPId = sqlTeamMatch.riotMatchId;
+
                 // Additional sProcs from MySQL
                 let playerStatsSqlList = await mySql.callSProc('playerStatsByMatchIdTeamId', matchPId, teamPId);
                 let bannedChampMatchSqlList = await mySql.callSProc('bannedChampsByMatchId', matchPId);
@@ -372,6 +393,7 @@ function updateTeamGameLog(teamPId, tournamentPId) {
                     'TournamentType': sqlTeamMatch.tournamentType,
                     'GameWeekNumber': 0, // N/A
                     'ChampPicks': {},
+                    'Side': sqlTeamMatch.side,
                     'Win': (sqlTeamMatch.win == 1) ? true : false,
                     'Vacated': false,
                     'EnemyTeamHId': GLOBAL.getTeamHId((sqlTeamMatch.side === 'Blue') ? sqlTeamMatch.redTeamPId : sqlTeamMatch.blueTeamPId),
@@ -383,13 +405,18 @@ function updateTeamGameLog(teamPId, tournamentPId) {
                     'GoldDiffEarly': sqlTeamMatch.goldDiffEarly,
                     'GoldDiffMid': sqlTeamMatch.goldDiffMid,
                     'BannedByTeam': [],
-                    'BannedAgainst': []
+                    'BannedAgainst': [],
                 };
                 for (let playerIdx = 0; playerIdx < playerStatsSqlList.length; ++playerIdx) {
                     let playerSqlRow = playerStatsSqlList[playerIdx];
                     teamGameItem['ChampPicks'][playerSqlRow.role] = { 
                         'ProfileHId': GLOBAL.getProfileHId(playerSqlRow.profilePId),
-                        'ChampId': playerSqlRow.champId
+                        'ChampId': playerSqlRow.champId,
+                        'PlayerKills': playerSqlRow.kills,
+                        'PlayerDeaths': playerSqlRow.deaths,
+                        'PlayerAssists': playerSqlRow.assists,
+                        'PlayerGoldDiffEarly': playerSqlRow.goldDiffEarly,
+                        'PlayerGoldDiffMid': playerSqlRow.goldDiffMid,
                     };
                 }
                 for (let phase = 1; phase <= 2; ++phase) {

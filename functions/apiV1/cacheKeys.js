@@ -29,6 +29,7 @@ module.exports = {
     PROFILE_STATS_PREFIX: 'PStats-',            // Key: ProfileId-TourneyId, TTL: Yes
     PROFILE_PID_BYSUMM_PREFIX: 'PSumm-',        // Key: SummonerId, TTL: Never
     TEAM_NAME_PREFIX: 'TName-',                 // Key: TeamId, TTL: Never
+    TEAM_SHORTNAME_PREFIX: 'TShortName-',       // Key: TeamId, TTL: Never
     TEAM_PID_PREFIX: 'TPId-',                   // Key: TeamName, TTL: Never
     TEAM_INFO_PREFIX: 'TInfo-',                 // Key: TeamId, TTL: Yes
     TEAM_SCOUT_PREFIX: 'TScout-',               // Key: TeamId-SeasonId, TTL: Yes

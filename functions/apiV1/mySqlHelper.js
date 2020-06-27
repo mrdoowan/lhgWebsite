@@ -1,7 +1,8 @@
 // Modularize the MySQL functions
 module.exports = {
     insertQuery: insertMySQLQuery,
-    callSProc: sProcMySqlQuery,
+    callSProc: sProcCallMySqlQuery,
+    callSProcUpdate: sProcUpdateMySqlQuery,
 }
 
 /*  Declaring MySQL npm modules */
@@ -66,7 +67,7 @@ function insertMySQLQuery(queryObject, tableName) {
 }
 
 // DETAILED FUNCTION DESCRIPTION XD
-function sProcMySqlQuery(sProcName) {
+function sProcCallMySqlQuery(sProcName) {
     let argArray = arguments; // Because arguments gets replaced by the function below
     return new Promise(function(resolve, reject) {
         try {
@@ -97,4 +98,43 @@ function sProcMySqlQuery(sProcName) {
             reject(error);
         }
     });
+}
+
+// Copy and pasted above zzzzz
+function sProcUpdateMySqlQuery(sProcName) {
+    if (CHANGE_MYSQL) {
+        let argArray = arguments; // Because arguments gets replaced by the function below
+        return new Promise(function(resolve, reject) {
+            try {
+                let queryStr = "CALL " + sProcName + "(";
+                for (let i = 1; i < argArray.length; ++i) {
+                    let arg = argArray[i];
+                    arg = (typeof arg === "string") ? '\'' + arg + '\'' : arg;
+                    queryStr += arg + ",";
+                }
+                if (argArray.length > 1) {
+                    queryStr = queryStr.slice(0, -1); // trimEnd of last comma
+                }
+                queryStr += ");";
+
+                sqlPool.getConnection(function(err, connection) {
+                    if (err) { reject(err); }
+                    connection.query(queryStr, function(error, results, fields) {
+                        connection.release();
+                        if (error) { reject(error); }
+                        console.log(`MySQL: Called SProc '${sProcName}' with params '${Array.from(argArray).slice(1)}'`);
+                        if (results == null) { resolve({}); }
+                        else { resolve(results[0]); } // Returns an Array of 'RowDataPacket'
+                    });
+                });
+            }
+            catch (error) {
+                console.error("ERROR - sProcMySqlQuery \'" + sProcName + "\' Promise rejected.");
+                reject(error);
+            }
+        });
+    }
+    else {
+        console.log(`MySQL UPDATE TEST: Called SProc '${sProcName}' with params '${Array.from(argArray).slice(1)}'`);
+    }
 }

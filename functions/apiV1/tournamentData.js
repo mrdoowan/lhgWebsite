@@ -162,6 +162,8 @@ function getTourneyLeaderboards(tPId) {
                         let gameObject = Object.values(gameRecords)[i];
                         gameObject['BlueTeamName'] = await Team.getName(gameObject['BlueTeamHId']);
                         gameObject['RedTeamName'] = await Team.getName(gameObject['RedTeamHId']);
+                        gameObject['BlueTeamShortName'] = await Team.getShortName(gameObject['BlueTeamHId']);
+                        gameObject['RedTeamShortName'] = await Team.getShortName(gameObject['RedTeamHId']);
                     }
                     let playerRecords = leaderboardJson['PlayerSingleRecords'];
                     for (let i = 0; i < Object.values(playerRecords).length; ++i) {
@@ -171,6 +173,8 @@ function getTourneyLeaderboards(tPId) {
                             playerObject['ProfileName'] = await Profile.getName(playerObject['ProfileHId']);
                             playerObject['BlueTeamName'] = await Team.getName(playerObject['BlueTeamHId']);
                             playerObject['RedTeamName'] = await Team.getName(playerObject['RedTeamHId']);
+                            playerObject['BlueTeamShortName'] = await Team.getShortName(playerObject['BlueTeamHId']);
+                            playerObject['RedTeamShortName'] = await Team.getShortName(playerObject['RedTeamHId']);
                         }
                     }
                     let teamRecords = leaderboardJson['TeamSingleRecords'];
@@ -181,6 +185,8 @@ function getTourneyLeaderboards(tPId) {
                             teamObject['TeamName'] = await Team.getName(teamObject['TeamHId']);
                             teamObject['BlueTeamName'] = await Team.getName(teamObject['BlueTeamHId']);
                             teamObject['RedTeamName'] = await Team.getName(teamObject['RedTeamHId']);
+                            teamObject['BlueTeamShortName'] = await Team.getShortName(teamObject['BlueTeamHId']);
+                            teamObject['RedTeamShortName'] = await Team.getShortName(teamObject['RedTeamHId']);
                         }
                     }
                     cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
@@ -495,6 +501,7 @@ function updateTourneyGameLogs(tournamentPId) {
                     'RedTeamHId': matchObject['Teams'][GLOBAL.RED_ID]['TeamHId'],
                     'Duration': matchObject.GameDuration,
                     'BlueWin': Boolean(matchObject['Teams'][GLOBAL.BLUE_ID]['Win']),
+                    'Patch': matchObject.GamePatchVersion,
                 };
             }
             //#endregion
@@ -780,7 +787,9 @@ function buildDefaultLeaderboardItem(matchSqlRow) {
     return {
         'GameDuration': matchSqlRow.duration,
         'MatchPId': matchSqlRow.riotMatchId,
+        'Patch': matchSqlRow.patch,
         'BlueTeamHId': teamHashIds.encode(matchSqlRow.blueTeamPId),
-        'RedTeamHId': teamHashIds.encode(matchSqlRow.redTeamPId)
+        'RedTeamHId': teamHashIds.encode(matchSqlRow.redTeamPId),
     };
 }
+//#endregion

@@ -40,54 +40,74 @@ const useStyles = makeStyles((theme) => ({
         fontSize: 'small',
         backgroundColor: '#FF7F7F',
     },
-    midHeader: {
-        textAlign: 'middle',
-        fontWeight: 'bold',
-    },
     leftHeader: {
         textAlign: 'left',
+        fontWeight: 'bold',
+        padding: theme.spacing(1),
+    },
+    midHeader: {
+        textAlign: 'middle',
         fontWeight: 'bold',
     },
     colDate: {
         width: "8%",
         textAlign: 'left',
-        padding: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colEnemy: {
         width: "12%",
         textAlign: 'left',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colTime: {
         width: "5%",
-        textAlign: 'left',
+        textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colStats: {
-        width: "15%",
+        width: "10%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colTop: {
-        width: "7%",
+        width: "9%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colJng: {
-        width: "7%",
+        width: "9%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colMid: {
-        width: "7%",
+        width: "9%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colBot: {
-        width: "7%",
+        width: "9%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colSup: {
-        width: "7%",
+        width: "9%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     colBansAgainst: {
-        width: "25%",
+        width: "20%",
         textAlign: 'center',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
     },
     layoutChamps: {
         width: '100%',
@@ -112,13 +132,13 @@ export default function TeamGameLog({ games }) {
             <table>
                 <thead>
                     <tr className={classes.rowBorder}>
-                        <td className={classes.midHeader}>Date</td>
-                        <td className={classes.leftHeader}>Team</td>
-                        <td className={classes.leftHeader}>Duration</td>
+                        <td className={classes.leftHeader}>Date</td>
+                        <td className={classes.leftHeader}>Opponent</td>
+                        <td className={classes.midHeader}>Duration</td>
                         <td className={classes.midHeader}>Stats</td>
                         <td className={classes.midHeader}></td>
                         <td className={classes.midHeader}></td>
-                        <td className={classes.midHeader}>Champs</td>
+                        <td className={classes.midHeader}>Champions Picked</td>
                         <td className={classes.midHeader}></td>
                         <td className={classes.midHeader}></td>
                         <td className={classes.midHeader}>Bans Against Team</td>
@@ -146,8 +166,8 @@ export default function TeamGameLog({ games }) {
                             <td className={classes.colStats}>
                                 <b>{match.Kills} / {match.Deaths} / {match.Assists}</b><br />
                                 <b>{match.GoldPerMinute}</b> GPM<br />
-                                {(match.GoldDiffEarly) ? (<React.Fragment><b>{match.GoldDiffEarly}</b> GD@15</React.Fragment>) : ''}<br />
-                                {(match.GoldDiffMid) ? (<React.Fragment><b>{match.GoldDiffMid}</b> GD@25</React.Fragment>) : ''}<br />
+                                {(match.GoldDiffEarly) ? (<React.Fragment><b>{(match.GoldDiffEarly > 0) ? '+' : ''}{match.GoldDiffEarly}</b> GD@15</React.Fragment>) : ''}<br />
+                                {(match.GoldDiffMid) ? (<React.Fragment><b>{(match.GoldDiffMid > 0) ? '+' : ''}{match.GoldDiffMid}</b> GD@25</React.Fragment>) : ''}<br />
                             </td>
                             <td className={classes.colTop}>
                                 <ChampionSquare id={Top.ChampId} /><br />

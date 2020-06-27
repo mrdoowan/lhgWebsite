@@ -10,7 +10,7 @@ module.exports = {
     putInfo: updateProfileInfo,
     putGameLog: updateProfileGameLog,
     putStatsLog: updateProfileStatsLog,
-    updateName: updateProfileName,
+    putName: updateProfileName,
 }
 
 /*  Declaring npm modules */
@@ -427,6 +427,7 @@ function updateProfileGameLog(profilePId, tournamentPId) {
                     'TeamHId': GLOBAL.getTeamHId(sqlPlayerStats.teamPId),
                     'ChampionPlayed': sqlPlayerStats.champId,
                     'Role': sqlPlayerStats.role,
+                    'Side': sqlPlayerStats.side,
                     'Win': (sqlPlayerStats.win == 1) ? true : false,
                     'Vacated': false,
                     'EnemyTeamHId': GLOBAL.getTeamHId((sqlPlayerStats.side === 'Blue') ? sqlPlayerStats.redTeamPId : sqlPlayerStats.blueTeamPId),

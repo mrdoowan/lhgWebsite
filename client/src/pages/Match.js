@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 // Components
 import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
@@ -17,14 +18,13 @@ export class matchBase extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/match/v1/' + params.matchPId)
-        .then(res => {
+
+        axios.get(`/api/match/v1/${params.matchPId}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ match: data });
-            }).catch(err => console.error(err));
+            this.setState({ match: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -49,14 +49,13 @@ export class matchStats extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/match/v1/' + params.matchPId)
-        .then(res => {
+        
+        axios.get(`/api/match/v1/${params.matchPId}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ match: data });
-            }).catch(err => console.error(err));
+            this.setState({ match: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -81,14 +80,13 @@ export class matchTimeline extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/match/v1/' + params.matchPId)
-        .then(res => {
+
+        axios.get(`/api/match/v1/${params.matchPId}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ match: data });
-            }).catch(err => console.error(err));
+            this.setState({ match: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -113,14 +111,13 @@ export class matchBuilds extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/match/v1/' + params.matchPId)
-        .then(res => {
+
+        axios.get(`/api/match/v1/${params.matchPId}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ match: data });
-            }).catch(err => console.error(err));
+            this.setState({ match: res.data });
         }).catch(err => console.error(err));
     }
 

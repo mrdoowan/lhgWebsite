@@ -96,7 +96,7 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                         //await Profile.getName(newProfileId); // For HId
                         if (name == null) { resolve(null); return; } // Not found
                         namesChanged.push(name); // For response
-                        await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
+                        await mySql.callSProcUpdate('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
                         playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfilePId);
                         delete playerObject['ProfileName']; // In the database for no reason
                         // Remove from Profile GameLog in former Profile Id and Team GameLog
@@ -144,6 +144,7 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                 );
                 // Delete match cache
                 cache.del(`${keyBank.MATCH_PREFIX}${matchId}`);
+                
                 // Return
                 resolve({
                     response: `Match ID '${matchId}' successfully updated.`,

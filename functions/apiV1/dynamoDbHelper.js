@@ -80,7 +80,7 @@ function putItemInDynamoDB(tableName, items, keyValue) {
                     reject(err);
                 }
                 else {
-                    console.log(`Dynamo DB TEST: Put Item '${keyValue}'`);
+                    console.log(`[TEST - PUT] Dynamo DB: Item '${keyValue}' into '${tableName}' Table`);
                     resolve(data);
                 }
             });
@@ -129,7 +129,7 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyName,
                     reject(err); 
                 }
                 else {
-                    console.log(`Dynamo DB TEST: Update Item '${key}'`);
+                    console.log(`[TEST - UPDATE] Dynamo DB TEST: Item '${key}' in Table '${tableName}'`);
                     resolve(data);
                 }
             });
@@ -190,5 +190,8 @@ function deleteItemInDynamoDB(tableName, partitionName, key) {
                 }
             })
         })
+    }
+    else {
+        console.log(`[TEST - DELETE] Dynamo DB TEST: Item '${key}' in Table '${tableName}'`);
     }
 }

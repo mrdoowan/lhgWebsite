@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 // Components
 import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
@@ -17,14 +18,12 @@ export class teamBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/team/v1/information/name/' + params.teamName)
-        .then(res => {
+        axios.get(`/api/team/v1/information/name/${params.teamName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -54,58 +53,48 @@ export class teamGames extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/team/v1/information/name/' + params.teamName)
-        .then(res => {
+        axios.get(`/api/team/v1/information/name/${params.teamName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
         if (params.seasonShortName) {
             // Specific season
-            fetch('/api/team/v1/scouting/name/' + params.teamName + '/' + params.seasonShortName)
-            .then(res => {
+            axios.get(`/api/team/v1/scouting/name/${params.teamName}/${params.seasonShortName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ scouting: data });
-                }).catch(err => console.error(err));
+                this.setState({ scouting: res.data });
             }).catch(err => console.error(err));
 
-            fetch('/api/team/v1/games/name/' + params.teamName + '/' + params.seasonShortName)
-            .then(res => {
+            axios.get(`/api/team/v1/games/name/${params.teamName}/${params.seasonShortName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ games: data });
-                }).catch(err => console.error(err));
+                this.setState({ games: res.data });
             }).catch(err => console.error(err));
         }
         else {
             // Latest season
-            fetch('/api/team/v1/scouting/latest/name/' + params.teamName)
-            .then(res => {
+            axios.get(`/api/team/v1/scouting/latest/name/${params.teamName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ scouting: data });
-                }).catch(err => console.error(err));
+                this.setState({ scouting: res.data });
             }).catch(err => console.error(err));
 
-            fetch('/api/team/v1/games/latest/name/' + params.teamName)
-            .then(res => {
+            axios.get(`/api/team/v1/games/latest/name/${params.teamName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ games: data });
-                }).catch(err => console.error(err));
+                this.setState({ games: res.data });
             }).catch(err => console.error(err));
         }
     }
@@ -135,38 +124,32 @@ export class teamStats extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/team/v1/information/name/' + params.teamName)
-        .then(res => {
+        axios.get(`/api/team/v1/information/name/${params.teamName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
         if (params.tournamentShortName) {
             // Specific tournament
-            fetch('/api/team/v1/stats/name/' + params.teamName + '/' + params.tournamentShortName)
-            .then(res => {
+            axios.get(`/api/team/v1/stats/name/${params.teamName}/${params.tournamentShortName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ stats: data });
-                }).catch(err => console.error(err));
+                this.setState({ stats: res.data });
             }).catch(err => console.error(err));
         }
         else {
             // Latest tournament
-            fetch('/api/team/v1/stats/latest/name/' + params.teamName)
-            .then(res => {
+            axios.get(`/api/team/v1/stats/latest/name/${params.teamName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ stats: data });
-                }).catch(err => console.error(err));
+                this.setState({ stats: res.data });
             }).catch(err => console.error(err));
         }
     }
