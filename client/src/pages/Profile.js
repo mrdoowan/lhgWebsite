@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 // Components
 import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
@@ -17,14 +18,12 @@ export class profileBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/profile/v1/information/name/' + params.profileName)
-        .then(res => {
+        axios.get(`/api/profile/v1/information/name/${params.profileName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -53,38 +52,32 @@ export class profileGames extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/profile/v1/information/name/' + params.profileName)
-        .then(res => {
+        axios.get(`/api/profile/v1/information/name/${params.profileName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
         if (params.seasonShortName) {
             // Specific season
-            fetch('/api/profile/v1/games/name/' + params.profileName + '/' + params.seasonShortName)
-            .then(res => {
+            axios.get(`/api/profile/v1/games/name/${params.profileName}/${params.seasonShortName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ games: data });
-                }).catch(err => console.error(err));
+                this.setState({ games: res.data });
             }).catch(err => console.error(err));
         }
         else {
             // Latest season
-            fetch('/api/profile/v1/games/latest/name/' + params.profileName)
-            .then(res => {
+            axios.get(`/api/profile/v1/games/latest/name/${params.profileName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ games: data });
-                }).catch(err => console.error(err));
+                this.setState({ games: res.data });
             }).catch(err => console.error(err));
         }
     }
@@ -126,26 +119,22 @@ export class profileStats extends Component {
 
         if (params.tournamentShortName) {
             // Specific tournament
-            fetch('/api/profile/v1/stats/name/' + params.profileName + '/' + params.tournamentShortName)
-            .then(res => {
+            axios.get(`/api/profile/v1/stats/name/${params.profileName}/${params.tournamentShortName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ stats: data });
-                }).catch(err => console.error(err));
+                this.setState({ stats: res.data });
             }).catch(err => console.error(err));
         }
         else {
             // Latest tournament
-            fetch('/api/profile/v1/stats/latest/name/' + params.profileName)
-            .then(res => {
+            axios.get(`/api/profile/v1/stats/latest/name/${params.profileName}`)
+            .then((res) => {
                 if (this.statusCode === 200 || this.statusCode == null) {
                     this.setState({ statusCode: res.status });
                 }
-                res.json().then((data) => {
-                    this.setState({ stats: data });
-                }).catch(err => console.error(err));
+                this.setState({ stats: res.data });
             }).catch(err => console.error(err));
         }
        

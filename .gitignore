@@ -2,7 +2,9 @@
 client/node_modules/
 external/
 intermediates/
-*.pem
+
+# Scripts
+*.sh
 
 # Redis
 *.rdb

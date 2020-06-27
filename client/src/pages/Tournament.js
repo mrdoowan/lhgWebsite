@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 // Components
 import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
@@ -21,34 +22,28 @@ export class tournamentBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/tournament/v1/information/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
-        fetch('/api/tournament/v1/stats/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/stats/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ stats: data });
-            }).catch(err => console.error(err));
+            this.setState({ stats: res.data });
         }).catch(err => console.error(err));
 
-        fetch('/api/tournament/v1/leaderboards/name/'  + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/leaderboards/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ leaderboards: data });
-            }).catch(err => console.error(err));
+            this.setState({ leaderboards: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -75,24 +70,20 @@ export class tournamentPlayers extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/tournament/v1/information/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
-        fetch('/api/tournament/v1/players/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/players/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ players: data });
-            }).catch(err => console.error(err));
+            this.setState({ players: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -119,24 +110,20 @@ export class tournamentTeams extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/tournament/v1/information/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
-        fetch('/api/tournament/v1/teams/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/teams/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ teams: data });
-            }).catch(err => console.error(err));
+            this.setState({ teams: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -163,24 +150,20 @@ export class tournamentPickBans extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/tournament/v1/information/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
-        fetch('/api/tournament/v1/pickbans/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/pickbans/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ pickBans: data });
-            }).catch(err => console.error(err));
+            this.setState({ pickBans: res.data });
         }).catch(err => console.error(err));
     }
 
@@ -207,26 +190,21 @@ export class tournamentGames extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        fetch('/api/tournament/v1/information/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ info: data });
-            }).catch(err => console.error(err));
+            this.setState({ info: res.data });
         }).catch(err => console.error(err));
 
-        fetch('/api/tournament/v1/games/name/' + params.tournamentShortName)
-        .then(res => {
+        axios.get(`/api/tournament/v1/games/name/${params.tournamentShortName}`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ games: data });
-            });
-        })
-        .catch(err => console.error(err));
+            this.setState({ games: res.data });
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -237,6 +215,21 @@ export class tournamentGames extends Component {
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) :
             (<Markup data={info && games} dataComponent={component} code={statusCode} />)
+        )
+    }
+}
+
+// {MAIN}/tournament/:tournamentShortName/games
+export class tournamentUpdate extends Component {
+    
+    render() {
+        const { info, statusCode } = this.state;
+
+        let component = (<div />);
+
+        return ((statusCode != null && statusCode !== 200) ? 
+            (<Error code={statusCode} page="Tournament" />) : 
+            (<Markup data={info} datacomponent={component} code={statusCode} />)
         )
     }
 }

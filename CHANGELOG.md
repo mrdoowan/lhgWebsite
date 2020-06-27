@@ -1,5 +1,6 @@
 # Overall
-* vB.2 - Next Release
+* vB.3 - Next Release
+* vB.2 - Client 0.1.1, Server 0.1.2
 * vB.1 - Client 0.1.0, Server 0.1.1
 * vB.0 - Client 0.1.0, Server 0.1.0
 * vA.7.1 - Client 0.0.10, Server 0.0.8
@@ -16,9 +17,11 @@
 * Major.Minor
 ## For Server & Client
 * 0.1.0 is when a prototype production is working
-* 1.0.0 will be the first website
+* 1.0.0 will be the first major release
 
 # Client
++ 0.1.1
+    + Axios, TTL reduced, QoL changes
 + 0.1.0
     + Touched up Home page. QoL edits.
 + 0.0.10
@@ -47,6 +50,8 @@
     + First Github commit for collaboration purposes.
 
 # Server
++ 0.1.2
+    + DELETE request made, and overall tournament update function made
 + 0.1.1
     + Added a route directory for easier navigation/organization.
 + 0.1.0

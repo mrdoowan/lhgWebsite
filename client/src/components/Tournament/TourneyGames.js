@@ -29,13 +29,15 @@ const useStyles = makeStyles((theme) => ({
         textDecoration: 'underline',
         textAlign: 'middle'
     },
-    headerRight: {
+    headerBlue: {
         textDecoration: 'underline',
-        textAlign: 'right'
+        textAlign: 'right',
+        color: '#2863e1',
     },
-    headerLeft: {
+    headerRed: {
         textDecoration: 'underline',
-        textAlign: 'left'
+        textAlign: 'left',
+        color: '#d83729',
     },
     colDate: {
         width: "15%",
@@ -85,11 +87,11 @@ export default function TourneyGames({ games }) {
                 <table>
                     <thead>
                         <tr className={classes.row}>
-                            <td className={classes.header}>Time Played</td>
+                            <td className={classes.header}>Date Played</td>
                             <td className={classes.header}>Duration</td>
-                            <td className={classes.headerRight}>Blue Side</td>
+                            <td className={classes.headerBlue}>Blue Side</td>
                             <td className={classes.header}></td>
-                            <td className={classes.headerLeft}>Red Side</td>
+                            <td className={classes.headerRed}>Red Side</td>
                             <td className={classes.header}>Link</td>
                         </tr>
                     </thead>

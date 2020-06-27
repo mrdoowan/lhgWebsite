@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 // Components
 import SeasonHeader from '../components/Season/SeasonHeader';
 import Markup from '../components/Markup';
@@ -15,16 +16,13 @@ export class seasonBase extends Component {
 
     componentDidMount() {
         const { match: { params } } = this.props;
-        fetch('/api/season/v1/information/name/' + params.seasonShortName)
-        .then(res => {
-            this.setState({
-                statusCode: res.status
-            });
-            res.json().then((data) => {
-                this.setState({ 
-                    season: data
-                });
-            }).catch(err => console.error(err));
+
+        axios.get(`/api/season/v1/information/name/${params.seasonShortName}`)
+        .then((res) => {
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
+            this.setState({ season: res.data });
         }).catch(err => console.error(err));
     }
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 // Components
 import LeagueTable from '../components/League/LeagueTable';
 import Markup from '../components/Markup';
@@ -12,14 +13,13 @@ export class leagues extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/leagues/v1')
-        .then(res => {
+
+        axios.get(`/api/leagues/v1`)
+        .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
             }
-            res.json().then((data) => {
-                this.setState({ leagues: data });
-            }).catch(err => console.error(err));
+            this.setState({ leagues: res.data });
         }).catch(err => console.error(err));
     }
 

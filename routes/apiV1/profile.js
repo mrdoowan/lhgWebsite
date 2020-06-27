@@ -1,10 +1,10 @@
 const router = require('express').Router();
-const handler = require('../../functions/handlers');
+const handler = require('../../functions/apiV1/handlers');
 
 /*  Import helper Data function modules */
-const Profile = require('../../functions/profileData');
-const Season = require('../../functions/seasonData');
-const Tournament = require('../../functions/tournamentData');
+const Profile = require('../../functions/apiV1/profileData');
+const Season = require('../../functions/apiV1/seasonData');
+const Tournament = require('../../functions/apiV1/tournamentData');
 
 /*  
     ----------------------
@@ -215,7 +215,7 @@ router.put('/update/name', (req, res) => {
                 // New name already exists in Db
                 return handler.res400s(res, req, `New profile name '${newName}' is already taken!`);
             }
-            Profile.updateName(profileId, newName, currentName).then((data) => {
+            Profile.putName(profileId, newName, currentName).then((data) => {
                 return handler.res200s(res, req, data);
             }).catch((err) => handler.error500s(err, res, "PUT Profile Name Change Error 1."));
         }).catch((err) => handler.error500s(err, res, "PUT Profile Name Change Error 2."));

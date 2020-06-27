@@ -1,11 +1,9 @@
-// This will be used from the back-end and interface with both APIs
-// This calls on LHG's DynamnDB from fast reads
-
 /*  Declaring npm modules */
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const path = require('path');
+const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 require('dotenv').config();
 
 // Import Routes
@@ -18,8 +16,10 @@ const teamV1Routes = require('./routes/apiV1/team');
 const matchV1Routes = require('./routes/apiV1/match');
 const staffV1Routes = require('./routes/apiV1/staff');
 
+// Configure express
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
 
 // Use Routes
 app.use('/api/auth/v1', authV1Routes);
