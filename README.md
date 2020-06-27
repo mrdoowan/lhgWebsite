@@ -27,6 +27,7 @@ The following npm modules are used in the client:
 * react
 * react-scripts
 * react-router-dom
+* axios
 * @material-ui
 * devextreme
 * react-bootstrap
