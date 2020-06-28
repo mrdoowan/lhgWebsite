@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(1),
     },
     colPlayer: {
-        width: "10%",
+        width: "17%",
         textAlign: 'left',
         padding: theme.spacing(1),
     },
@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
     },
     colChamps: {
-        width: "38%",
+        width: "31%",
         textAlign: 'center',
     },
     link: {

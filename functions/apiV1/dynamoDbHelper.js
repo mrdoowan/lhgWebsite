@@ -16,8 +16,7 @@ var dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 /*  'false' to test without affecting the databases. */
 /*  'true' to add to production. */
-const CHANGE_DB = false;
-const CHANGE_DYNAMO = CHANGE_DB || (process.env.NODE_ENV === 'production');
+const CHANGE_DYNAMO = (process.env.CHANGE_DB === 'true') || (process.env.NODE_ENV === 'production');
 
 // Returns 'undefined' if key item does NOT EXIST
 function getItemInDynamoDB(tableName, partitionName, keyValue) {

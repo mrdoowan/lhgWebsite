@@ -9,6 +9,8 @@ import TourneyTeamsSkeleton from '../util/Tournament/TourneyTeamsSkeleton';
 import TourneyPlayersSkeleton from '../util/Tournament/TourneyPlayersSkeleton';
 import TourneyChampsSkeleton from '../util/Tournament/TourneyChampsSkeleton';
 import TourneyGamesSkeleton from '../util/Tournament/TourneyGamesSkeleton';
+// temporary
+import TourneyUpdateTemporary from '../components/Tournament/TourneyUpdate';
 
 // {MAIN}/tournament/:tournamentShortName
 export class tournamentBase extends Component {
@@ -221,15 +223,31 @@ export class tournamentGames extends Component {
 
 // {MAIN}/tournament/:tournamentShortName/games
 export class tournamentUpdate extends Component {
+    state = {
+        info: null,
+        statusCode: null,
+    }
     
+    componentDidMount() {
+        const { match: { params } } = this.props;
+
+        axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
+        .then((res) => {
+            if (this.statusCode === 200 || this.statusCode == null) {
+                this.setState({ statusCode: res.status });
+            }
+            this.setState({ info: res.data });
+        }).catch(err => console.error(err));
+    }
+
     render() {
         const { info, statusCode } = this.state;
 
-        let component = (<div />);
+        let component = (<TourneyUpdateTemporary info={info} />);
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) : 
-            (<Markup data={info} datacomponent={component} code={statusCode} />)
+            (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
 }
