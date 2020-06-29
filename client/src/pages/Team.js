@@ -24,7 +24,9 @@ export class teamBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -59,7 +61,9 @@ export class teamGames extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         if (params.seasonShortName) {
             // Specific season
@@ -69,7 +73,9 @@ export class teamGames extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ scouting: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+                this.setState({ statusCode: err.response.status })
+            });
 
             axios.get(`/api/team/v1/games/name/${params.teamName}/${params.seasonShortName}`)
             .then((res) => {
@@ -77,7 +83,9 @@ export class teamGames extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ games: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+                this.setState({ statusCode: err.response.status })
+            });
         }
         else {
             // Latest season
@@ -87,7 +95,9 @@ export class teamGames extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ scouting: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+                this.setState({ statusCode: err.response.status })
+            });
 
             axios.get(`/api/team/v1/games/latest/name/${params.teamName}`)
             .then((res) => {
@@ -95,7 +105,9 @@ export class teamGames extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ games: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+                this.setState({ statusCode: err.response.status })
+            });
         }
     }
 
@@ -130,7 +142,9 @@ export class teamStats extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         if (params.tournamentShortName) {
             // Specific tournament
@@ -140,7 +154,9 @@ export class teamStats extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ stats: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+                this.setState({ statusCode: err.response.status })
+            });
         }
         else {
             // Latest tournament
@@ -150,7 +166,9 @@ export class teamStats extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ stats: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+                this.setState({ statusCode: err.response.status })
+            });
         }
     }
 

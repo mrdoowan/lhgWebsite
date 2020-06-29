@@ -20,7 +20,9 @@ export class leagues extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ leagues: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {

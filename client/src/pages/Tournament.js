@@ -30,7 +30,9 @@ export class tournamentBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         axios.get(`/api/tournament/v1/stats/name/${params.tournamentShortName}`)
         .then((res) => {
@@ -38,7 +40,9 @@ export class tournamentBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ stats: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         axios.get(`/api/tournament/v1/leaderboards/name/${params.tournamentShortName}`)
         .then((res) => {
@@ -46,7 +50,9 @@ export class tournamentBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ leaderboards: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -78,7 +84,9 @@ export class tournamentPlayers extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         axios.get(`/api/tournament/v1/players/name/${params.tournamentShortName}`)
         .then((res) => {
@@ -86,7 +94,9 @@ export class tournamentPlayers extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ players: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -118,7 +128,9 @@ export class tournamentTeams extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         axios.get(`/api/tournament/v1/teams/name/${params.tournamentShortName}`)
         .then((res) => {
@@ -126,7 +138,9 @@ export class tournamentTeams extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ teams: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -158,7 +172,9 @@ export class tournamentPickBans extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         axios.get(`/api/tournament/v1/pickbans/name/${params.tournamentShortName}`)
         .then((res) => {
@@ -166,7 +182,9 @@ export class tournamentPickBans extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ pickBans: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -198,7 +216,9 @@ export class tournamentGames extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         axios.get(`/api/tournament/v1/games/name/${params.tournamentShortName}`)
         .then((res) => {
@@ -206,7 +226,9 @@ export class tournamentGames extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ games: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -226,9 +248,10 @@ export class tournamentUpdate extends Component {
     state = {
         info: null,
         statusCode: null,
-        errors: {},
+        playersNum: null,
+        teamsNum: null,
+        gamesNum: null,
         loading: false,
-        response: null,
     }
     
     componentDidMount() {
@@ -240,7 +263,18 @@ export class tournamentUpdate extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
+    }
+
+    allUpdated() {
+        const ret = (
+            (this.state.playersNum) &&
+            (this.state.teamsNum) &&
+            (this.state.gamesNum)
+        );
+        return (ret) ? true : false;
     }
 
     handleSubmit = (event) => {
@@ -248,7 +282,6 @@ export class tournamentUpdate extends Component {
 
         event.preventDefault();
         this.setState({
-            errors: {},
             response: null,
             loading: true,
         });
@@ -256,23 +289,63 @@ export class tournamentUpdate extends Component {
             tournamentShortName: params.tournamentShortName
         }
 
-        axios.put('/api/tournament/v1/update', body)
+        axios.put('/api/tournament/v1/update/players', body)
         .then((res) => {
             this.setState({
-                response: res.data,
+                statusCode: res.status,
+                playersNum: res.data.playersNum,
+            });
+            this.setState({ loading: !(this.allUpdated()) });
+        })
+        .catch((err) => { 
+            console.error(err); 
+            this.setState({
+                response: null,
                 loading: false,
             })
         })
-        .catch((err) => {
+
+        axios.put('/api/tournament/v1/update/teams', body)
+        .then((res) => {
             this.setState({
-                errors: err,
+                statusCode: res.status,
+                teamsNum: res.data.teamsNum,
+            });
+            this.setState({ loading: !(this.allUpdated()) });
+        })
+        .catch((err) => { 
+            console.error(err); 
+            this.setState({
+                response: null,
+                loading: false,
+            })
+        })
+
+        axios.put('/api/tournament/v1/update/overall', body)
+        .then((res) => {
+            this.setState({
+                statusCode: res.status,
+                gamesNum: res.data.gamesNum,
+            });
+            this.setState({ loading: !(this.allUpdated()) });
+        })
+        .catch((err) => { 
+            console.error(err); 
+            this.setState({
+                response: null,
                 loading: false,
             })
         })
     }
 
     render() {
-        const { info, statusCode, loading, response } = this.state;
+        const { info, statusCode, loading, playersNum, teamsNum, gamesNum } = this.state;
+        
+        const response = (playersNum || teamsNum || gamesNum) ? ({
+            playersNum: playersNum,
+            teamsNum: teamsNum,
+            gamesNum: gamesNum,
+        }) : null;
 
         let component = (<TourneyUpdateTemporary 
             info={info} 

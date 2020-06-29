@@ -23,7 +23,9 @@ export class seasonBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ season: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {

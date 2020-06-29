@@ -59,7 +59,7 @@ class App extends Component {
                         <Route path="/tournament/:tournamentShortName/teams" component={tournamentTeams} exact/>
                         <Route path="/tournament/:tournamentShortName/pickbans" component={tournamentPickBans} exact/>
                         <Route path="/tournament/:tournamentShortName/games" component={tournamentGames} exact/>
-                        <Route path="/tournament/:tournamentShortName/updateee" component={tournamentUpdate} exact/> { /* Delete after */ }
+                        <Route path="/tournament/:tournamentShortName/update" component={tournamentUpdate} exact/>
 
                         { /* Team Links */ }
                         <Route path="/team/:teamName" component={teamBase} exact/>

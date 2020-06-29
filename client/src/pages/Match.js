@@ -25,7 +25,9 @@ export class matchBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ match: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -56,7 +58,9 @@ export class matchStats extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ match: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -87,7 +91,9 @@ export class matchTimeline extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ match: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -118,7 +124,9 @@ export class matchBuilds extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ match: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {

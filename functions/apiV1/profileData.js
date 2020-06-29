@@ -465,9 +465,9 @@ function updateProfileGameLog(profilePId, tournamentPId) {
                 ----------
             */
             await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
-                'SET #log.#sId.#mtch = :data',
+                'SET #glog.#sId.#mtch = :data',
                 {
-                    '#log': 'GameLog',
+                    '#glog': 'GameLog',
                     '#sId': seasonPId,
                     '#mtch': 'Matches',
                 },
@@ -485,7 +485,7 @@ function updateProfileGameLog(profilePId, tournamentPId) {
                 typeUpdated: 'GameLog',
             });
         }
-        catch (err) { reject({ err }); }
+        catch (err) { reject(err); }
     });
 }
 
@@ -619,6 +619,6 @@ function updateProfileStatsLog(profilePId, tournamentPId) {
                 typeUpdated: 'StatsLog',
             });
         }
-        catch (err) { reject({ err }) }
+        catch (err) { reject(err) }
     });
 }

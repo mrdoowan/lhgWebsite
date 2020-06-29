@@ -24,7 +24,9 @@ export class profileBase extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
     }
 
     render() {
@@ -58,7 +60,9 @@ export class profileGames extends Component {
                 this.setState({ statusCode: res.status });
             }
             this.setState({ info: res.data });
-        }).catch(err => console.error(err));
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         if (params.seasonShortName) {
             // Specific season
@@ -68,7 +72,9 @@ export class profileGames extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ games: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
         }
         else {
             // Latest season
@@ -78,7 +84,9 @@ export class profileGames extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ games: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
         }
     }
 
@@ -114,8 +122,12 @@ export class profileStats extends Component {
             }
             res.json().then((data) => {
                 this.setState({ info: data });
-            }).catch(err => console.error(err));
-        }).catch(err => console.error(err));
+            }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
+        }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
 
         if (params.tournamentShortName) {
             // Specific tournament
@@ -125,7 +137,9 @@ export class profileStats extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ stats: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
         }
         else {
             // Latest tournament
@@ -135,7 +149,9 @@ export class profileStats extends Component {
                     this.setState({ statusCode: res.status });
                 }
                 this.setState({ stats: res.data });
-            }).catch(err => console.error(err));
+            }).catch((err) => {
+            this.setState({ statusCode: err.response.status })
+        });
         }
        
     }

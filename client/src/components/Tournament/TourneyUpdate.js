@@ -29,14 +29,20 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyUpdateTemporary({ info, loading, handleSubmit, response }) {
     const classes = useStyles();
 
+    const buttonComponent = (<form onSubmit={handleSubmit}>
+        {(loading) ? (
+            <React.Fragment><Button type="submit" variant="contained" color="primary" disabled={true}>Update</Button></React.Fragment>
+        ) : (
+            <React.Fragment><Button type="submit" variant="contained" color="primary">Update</Button></React.Fragment>
+        )}
+    </form>)
     const loadingComponent = (loading) ? (<div className={classes.pad}>
         <CircularProgress color="secondary" />
     </div>) : (<div></div>);
     const responseReceived = (response) ? (<div className={classes.pad}>
-        Tournament Overall Stats updated!<br />
-        {response.playersUpdated} Players updated<br />
-        {response.teamsUpdated} Teams updated<br />
-        {response.gamesUpdated} Games updated<br />
+        {(response.playersNum) ? (<React.Fragment>{response.playersNum} Players updated<br /></React.Fragment>) : '' }
+        {(response.teamsNum) ? (<React.Fragment>{response.teamsNum} Teams updated<br /></React.Fragment>) : '' }
+        {(response.gamesNum) ? (<React.Fragment>{response.gamesNum} Games updated<br /></React.Fragment>) : '' }
     </div>) : (<div></div>);
 
     return (
@@ -44,10 +50,8 @@ export default function TourneyUpdateTemporary({ info, loading, handleSubmit, re
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
-                        <div className={classes.title}>The Forbidden "{info.TournamentName}" overall stats</div>
-                        <form onSubmit={handleSubmit}>
-                            <Button type="submit" variant="contained" color="primary">Update</Button>
-                        </form>
+                        <div className={classes.title}>The Forbidden page to update "{info.TournamentName}" overall stats</div>
+                        {buttonComponent}
                         {loadingComponent}
                         {responseReceived}
                     </Paper>

@@ -128,37 +128,78 @@ router.get('/games/name/:tournamentShortName', (req, res) => {
 });
 
 /**
- * @route   PUT api/tournament/v1/update
+ * @route   PUT api/tournament/v1/update/players
+ * @desc    Update Profile Tables from Tournament Overall stats
+ * @access  Private (Admins only)
+ */
+router.put('/update/players', (req, res) => {
+    const { tournamentShortName } = req.body;
+    console.log(`PUT Request Tournament ${tournamentShortName} Player Stats.`);
+    Tournament.getId(tournamentShortName).then((tourneyPId) => {
+        if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
+        Tournament.getPlayerList(tourneyPId).then(async (playerList) => {
+            for (let pIdx = 0; pIdx < playerList.length; ++pIdx) {
+                const profilePId = playerList[pIdx];
+                try { await Profile.putGameLog(profilePId, tourneyPId) }
+                catch (err) { return handler.error500s(err, res, "PUT Profile Game Log Error."); }
+                try { await Profile.putStatsLog(profilePId, tourneyPId) }
+                catch (err) { return handler.error500s(err, res, "PUT Profile Stats Log Error."); }
+            }
+            handler.res200s(res, req, {
+                playersNum: playerList.length,
+                tournamentShortName: tournamentShortName,
+                tournamentId: tourneyPId,
+            });
+        }).catch((err) => handler.error500s(err, res, "GET Tourney Player List Error."));
+    }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
+});
+
+/**
+ * @route   PUT api/tournament/v1/update/teams
+ * @desc    Update Team Tables from Tournament Overall stats
+ * @access  Private (Admins only)
+ */
+router.put('/update/teams', (req, res) => {
+    const { tournamentShortName } = req.body;
+    console.log(`PUT Request Tournament ${tournamentShortName} Team Stats.`);
+    Tournament.getId(tournamentShortName).then((tourneyPId) => {
+        if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
+        Tournament.getTeamList(tourneyPId).then(async (teamList) => {
+            for (let tIdx = 0; tIdx < teamList.length; ++tIdx) {
+                const teamPId = teamList[tIdx];
+                try { await Team.putGameLog(teamPId, tourneyPId) }
+                catch (err) { return handler.error500s(err, res, "PUT Team Game Log Error."); }
+                try { await Team.putStatsLog(teamPId, tourneyPId) }
+                catch (err) { return handler.error500s(err, res, "PUT Team Stats Log Error."); }
+            }
+            handler.res200s(res, req, {
+                teamsNum: teamList.length,
+                tournamentShortName: tournamentShortName,
+                tournamentId: tourneyPId,
+            });
+        }).catch((err) => handler.error500s(err, res, "GET Tourney Team List Error."));
+    }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
+});
+
+/**
+ * @route   PUT api/tournament/v1/update/overall
  * @desc    Update Tournament overall stats
  * @access  Private (Admins only)
  */
-router.put('/update', (req, res) => {
+
+router.put('/update/overall', (req, res) => {
     const { tournamentShortName } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Overall Stats.`);
-    Tournament.getId(tournamentShortName).then(async (tourneyPId) => {
+    Tournament.getId(tournamentShortName).then((tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        const playerList = await Tournament.getPlayerList(tourneyPId);
-        for (let pIdx = 0; pIdx < playerList.length; ++pIdx) {
-            const profilePId = playerList[pIdx];
-            await Profile.putGameLog(profilePId, tourneyPId);
-            await Profile.putStatsLog(profilePId, tourneyPId);
-        }
-        const teamList = await Tournament.getTeamList(tourneyPId);
-        for (let tIdx = 0; tIdx < teamList.length; ++tIdx) {
-            const teamPId = teamList[tIdx];
-            await Team.putGameLog(teamPId, tourneyPId);
-            await Team.putStatsLog(teamPId, tourneyPId);
-        }
-        const gamesRes = await Tournament.putGamesAndStats(tourneyPId);
-        const lbRes = await Tournament.putLeaderboards(tourneyPId);
-        return handler.res200s(res, req, {
-            playersUpdated: playerList.length,
-            teamsUpdated: teamList.length,
-            gamesUpdated: gamesRes.gamesUpdated,
-            tournamentShortName: tournamentShortName,
-            tournamentId: tourneyPId,
-        });
-    }).catch((err) => handler.error500s(err, res, "PUT Tourney Update Error."));
+        Tournament.putOverallStats(tourneyPId).then((tourneyResponse) => {
+            return handler.res200s(res, req, {
+                gamesNum: tourneyResponse.gamesUpdated,
+                tournamentShortName: tournamentShortName,
+                tournamentId: tourneyPId,
+            });
+        }).catch((err) => handler.error500s(err, res, "PUT Tourney Overall Stats Error."))
+    }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
 });
 
 //#endregion
