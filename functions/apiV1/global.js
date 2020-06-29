@@ -9,6 +9,20 @@ module.exports = {
     generateNewPId: generateNewPId,
     TTL_DURATION_2HRS: 60 * 60 * 2,  // 3 Hours
     TTL_DURATION_3HRS: 60 * 60 * 3,  // 3 Hours
+    MINUTE_AT_EARLY: 15,
+    MINUTE_AT_MID: 25,
+    PHASE2_BANS: 2,
+    BLUE_ID: "100",
+    RED_ID: "200",
+    SIDE_STRING: { 
+        '100': 'Blue', 
+        '200': 'Red', 
+    },
+    BARON_DURATION_PATCH_CHANGE: '9.23',
+    // Baron duration is 3 minutes after this patch, 3.5 minutes before it
+    OLD_BARON_DURATION: 210, // in seconds
+    CURRENT_BARON_DURATION: 180, // in seconds
+    LEADERBOARD_NUM: 5
 }
 
 /*  Declaring npm modules */

@@ -128,24 +128,24 @@ router.get('/games/name/:tournamentShortName', (req, res) => {
 });
 
 /**
- * @route   PUT api/tournament/v1/update/name/:tournamentShortName
+ * @route   PUT api/tournament/v1/update
  * @desc    Update Tournament overall stats
  * @access  Private (Admins only)
  */
-router.put('/update/name/:tournamentShortName', (req, res) => {
-    const { tournamentShortName } = req.params;
+router.put('/update', (req, res) => {
+    const { tournamentShortName } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Overall Stats.`);
     Tournament.getId(tournamentShortName).then(async (tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
         const playerList = await Tournament.getPlayerList(tourneyPId);
-        for (let pIdx = 0; i < playerList.length; ++pIdx) {
-            let profilePId = playerList[pIdx];
+        for (let pIdx = 0; pIdx < playerList.length; ++pIdx) {
+            const profilePId = playerList[pIdx];
             await Profile.putGameLog(profilePId, tourneyPId);
             await Profile.putStatsLog(profilePId, tourneyPId);
         }
         const teamList = await Tournament.getTeamList(tourneyPId);
-        for (let tIdx = 0; i < teamList.length; ++tIdx) {
-            let teamPId = teamList[tIdx];
+        for (let tIdx = 0; tIdx < teamList.length; ++tIdx) {
+            const teamPId = teamList[tIdx];
             await Team.putGameLog(teamPId, tourneyPId);
             await Team.putStatsLog(teamPId, tourneyPId);
         }
@@ -154,6 +154,7 @@ router.put('/update/name/:tournamentShortName', (req, res) => {
         return handler.res200s(res, req, {
             playersUpdated: playerList.length,
             teamsUpdated: teamList.length,
+            gamesUpdated: gamesRes.gamesUpdated,
             tournamentShortName: tournamentShortName,
             tournamentId: tourneyPId,
         });

@@ -362,7 +362,7 @@ function updateTeamGameLog(teamPId, tournamentPId) {
                         ':val': initTeamScouting
                     }
                 );
-                teamDbObject['Scouting'] = clonedeep(initTeamScouting);
+                teamDbObject['Scouting'] = initTeamScouting;
             }
             else if (!(seasonPId in teamDbObject['Scouting'])) {
                 teamDbObject['Scouting'][seasonPId] = {};
@@ -489,7 +489,7 @@ function updateTeamGameLog(teamPId, tournamentPId) {
                         'ChampsPlayed': {}
                     };
                 }
-                const champStatsSqlList = await mySql.callSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL.MINUTE_AT_EARLY);
+                const champStatsSqlList = await mySql.callSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID);
                 let champsPlayed = playerLog[role][profileHId]['ChampsPlayed'];
                 for (let champIdx = 0; champIdx < champStatsSqlList.length; ++champIdx) {
                     const champStats = champStatsSqlList[champIdx];
@@ -505,9 +505,9 @@ function updateTeamGameLog(teamPId, tournamentPId) {
                     champsPlayed[champId]['TotalCreepScore'] = champStats.totalCreepScore;
                     champsPlayed[champId]['TotalVisionScore'] = champStats.totalVisionScore;
                     champsPlayed[champId]['GamesPlayedEarly'] = champStats.gamesPlayedOverEarly;
-                    champsPlayed[champId]['TotalCsDiffEarly'] = champStats.totalCsDiffEarly;
+                    champsPlayed[champId]['GamesPlayedMid'] = champStats.gamesPlayedOverMid;
                     champsPlayed[champId]['TotalGoldDiffEarly'] = champStats.totalGoldDiffEarly;
-                    champsPlayed[champId]['TotalXpDiffEarly'] = champStats.totalXpDiffEarly;
+                    champsPlayed[champId]['TotalGoldDiffMid'] = champStats.totalGoldDiffMid;
                 }
             }
             scoutingItem['PlayerLog'] = playerLog;
@@ -542,11 +542,11 @@ function updateTeamGameLog(teamPId, tournamentPId) {
             // Remove cache
             cache.del(keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + seasonPId);
             cache.del(keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonPId);
-
+            
             resolve({
                 teamId: teamPId,
                 tournamentId: tournamentPId,
-                tournamentName: tourneyDbObject['TournamentName'],
+                seasonId: seasonPId,
                 numberMatches: teamMatchesSqlListTourney.length,
                 typeUpdated: 'GameLog',
             });
@@ -559,6 +559,8 @@ function updateTeamGameLog(teamPId, tournamentPId) {
 function updateTeamStatsLog(teamPId, tournamentPId) {
     return new Promise(async (resolve, reject) => {
         try {
+            let teamDbObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);
+
             /*  
                 -------------------
                 Init DynamoDB Items
@@ -577,7 +579,7 @@ function updateTeamStatsLog(teamPId, tournamentPId) {
                         ':val': initTeamStatsLog
                     }
                 );
-                teamDbObject['StatsLog'] = clonedeep(initTeamStatsLog);
+                teamDbObject['StatsLog'] = initTeamStatsLog;
             }
             // Check if that tournamentId in StatsLog
             else if (!(tournamentPId in teamDbObject['StatsLog'])) {
@@ -652,10 +654,9 @@ function updateTeamStatsLog(teamPId, tournamentPId) {
             resolve({
                 teamId: teamPId,
                 tournamentId: tournamentPId,
-                tournamentName: tourneyDbObject['TournamentName'],
                 typeUpdated: 'StatsLog',
             })
         }
-        catch (err) { reject({error: err}) }
+        catch (err) { reject(err) }
     });
 }

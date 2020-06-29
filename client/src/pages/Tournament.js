@@ -226,6 +226,9 @@ export class tournamentUpdate extends Component {
     state = {
         info: null,
         statusCode: null,
+        errors: {},
+        loading: false,
+        response: null,
     }
     
     componentDidMount() {
@@ -240,10 +243,43 @@ export class tournamentUpdate extends Component {
         }).catch(err => console.error(err));
     }
 
-    render() {
-        const { info, statusCode } = this.state;
+    handleSubmit = (event) => {
+        const { match: { params } } = this.props;
 
-        let component = (<TourneyUpdateTemporary info={info} />);
+        event.preventDefault();
+        this.setState({
+            errors: {},
+            response: null,
+            loading: true,
+        });
+        const body = {
+            tournamentShortName: params.tournamentShortName
+        }
+
+        axios.put('/api/tournament/v1/update', body)
+        .then((res) => {
+            this.setState({
+                response: res.data,
+                loading: false,
+            })
+        })
+        .catch((err) => {
+            this.setState({
+                errors: err,
+                loading: false,
+            })
+        })
+    }
+
+    render() {
+        const { info, statusCode, loading, response } = this.state;
+
+        let component = (<TourneyUpdateTemporary 
+            info={info} 
+            handleSubmit={this.handleSubmit}
+            loading={loading}
+            response={response}
+        />);
 
         return ((statusCode != null && statusCode !== 200) ? 
             (<Error code={statusCode} page="Tournament" />) : 

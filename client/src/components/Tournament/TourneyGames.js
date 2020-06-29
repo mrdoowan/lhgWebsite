@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TourneyGames({ games }) {
     const classes = useStyles();
-    let gamesListSorted = Object.values(games).sort((a, b) => (a.DatePlayed > b.DatePlayed) ? 1 : -1);
+    let gamesListSorted = Object.values(games).sort((a, b) => (a.DatePlayed <= b.DatePlayed) ? 1 : -1);
 
     return (
         <div>

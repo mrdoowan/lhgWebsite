@@ -145,7 +145,7 @@ export default function TeamGameLog({ games }) {
                     </tr>
                 </thead>
                 <tbody>
-                {Object.keys(Matches).sort((a,b) => { return Matches[a].DatePlayed - Matches[b].DatePlayed; }).map((Id) => {
+                {Object.keys(Matches).sort((a,b) => { return Matches[b].DatePlayed - Matches[a].DatePlayed; }).map((Id) => {
                     const match = Matches[Id];
                     const { ChampPicks: { Top, Jungle, Middle, Bottom, Support } } = match;
                     const { BannedAgainst } = match;

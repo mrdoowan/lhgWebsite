@@ -415,11 +415,11 @@ function updateProfileGameLog(profilePId, tournamentPId) {
             */
             // #region Compile Data
             // Load each Stat into Profile in tournamentId
-            let matchDataList = await mySql.callSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
+            const matchDataList = await mySql.callSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
             console.log(`Profile '${profilePId}' played ${matchDataList.length} matches in TournamentPID '${tournamentPId}'.`);
-            for (let matchIdx = 0; matchIdx < matchData.length; ++matchIdx) {
-                let sqlPlayerStats = matchDataList[matchIdx];
-                let matchPId = sqlPlayerStats.riotMatchId;
+            for (let matchIdx = 0; matchIdx < matchDataList.length; ++matchIdx) {
+                const sqlPlayerStats = matchDataList[matchIdx];
+                const matchPId = sqlPlayerStats.riotMatchId;
                 let profileGameItem = {
                     'DatePlayed': sqlPlayerStats.datePlayed,
                     'TournamentType': sqlPlayerStats.tournamentType,
@@ -448,12 +448,12 @@ function updateProfileGameLog(profilePId, tournamentPId) {
                     'CsAtMid': sqlPlayerStats.csAtMid,
                     'XpAtEarly': sqlPlayerStats.xpAtEarly,
                     'XpAtMid': sqlPlayerStats.xpAtMid,
-                    'GoldDiffEarly': sqlPlayerStDiffs.goldDiffEarly,
-                    'GoldDiffMid': sqlPlayerStDiffs.goldDiffMid,
-                    'CsDiffEarly': sqlPlayerStDiffs.csDiffEarly,
-                    'CsDiffMid': sqlPlayerStDiffs.csDiffMid,
-                    'XpDiffEarly': sqlPlayerStDiffs.xpDiffEarly,
-                    'XpDiffMid': sqlPlayerStDiffs.xpDiffMid,
+                    'GoldDiffEarly': sqlPlayerStats.goldDiffEarly,
+                    'GoldDiffMid': sqlPlayerStats.goldDiffMid,
+                    'CsDiffEarly': sqlPlayerStats.csDiffEarly,
+                    'CsDiffMid': sqlPlayerStats.csDiffMid,
+                    'XpDiffEarly': sqlPlayerStats.xpDiffEarly,
+                    'XpDiffMid': sqlPlayerStats.xpDiffMid,
                 };
                 gameLogProfileItem[matchPId] = profileGameItem;
             }
@@ -481,12 +481,11 @@ function updateProfileGameLog(profilePId, tournamentPId) {
             resolve({
                 profileId: profilePId,
                 tournamentId: tournamentPId,
-                tournamentName: tourneyDbObject['TournamentName'],
                 numberMatches: matchDataList.length,
                 typeUpdated: 'GameLog',
             });
         }
-        catch (err) { reject({ error: err }); }
+        catch (err) { reject({ err }); }
     });
 }
 
@@ -610,16 +609,16 @@ function updateProfileStatsLog(profilePId, tournamentPId) {
                     ':data': statsLogProfileItem
                 }
             );
+            
             // Delete Cache
-            cache.del(keyBank.PROFILE_STATS_PREFIX + profilePId + '-' + seasonPId);
-
+            cache.del(`${keyBank.PROFILE_STATS_PREFIX}${profilePId}-${tournamentPId}`);
+            
             resolve({
                 profileId: profilePId,
                 tournamentId: tournamentPId,
-                tournamentName: tourneyDbObject['TournamentName'],
                 typeUpdated: 'StatsLog',
-            })
+            });
         }
-        catch (err) { reject({ error: err }) }
+        catch (err) { reject({ err }) }
     });
 }
