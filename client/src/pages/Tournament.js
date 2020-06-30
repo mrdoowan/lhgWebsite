@@ -326,7 +326,6 @@ export class tournamentUpdate extends Component {
         axios.put('/api/tournament/v1/update/overall', body)
         .then((res) => {
             this.setState({
-                statusCode: err.response.status,
                 statusCode: res.status,
                 gamesNum: res.data.gamesNum,
             });
