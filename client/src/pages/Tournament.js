@@ -288,7 +288,7 @@ export class tournamentUpdate extends Component {
         const body = {
             tournamentShortName: params.tournamentShortName
         }
-
+        
         axios.put('/api/tournament/v1/update/players', body)
         .then((res) => {
             this.setState({
@@ -300,6 +300,7 @@ export class tournamentUpdate extends Component {
         .catch((err) => { 
             console.error(err); 
             this.setState({
+                statusCode: err.response.status,
                 response: null,
                 loading: false,
             })
@@ -316,6 +317,7 @@ export class tournamentUpdate extends Component {
         .catch((err) => { 
             console.error(err); 
             this.setState({
+                statusCode: err.response.status,
                 response: null,
                 loading: false,
             })
@@ -324,6 +326,7 @@ export class tournamentUpdate extends Component {
         axios.put('/api/tournament/v1/update/overall', body)
         .then((res) => {
             this.setState({
+                statusCode: err.response.status,
                 statusCode: res.status,
                 gamesNum: res.data.gamesNum,
             });
@@ -332,6 +335,7 @@ export class tournamentUpdate extends Component {
         .catch((err) => { 
             console.error(err); 
             this.setState({
+                statusCode: err.response.status,
                 response: null,
                 loading: false,
             })

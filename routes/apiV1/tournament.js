@@ -138,20 +138,21 @@ router.put('/update/players', (req, res) => {
     Tournament.getId(tournamentShortName).then((tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
         Tournament.getPlayerList(tourneyPId).then(async (playerList) => {
-            for (let pIdx = 0; pIdx < playerList.length; ++pIdx) {
-                const profilePId = playerList[pIdx];
-                try { await Profile.putGameLog(profilePId, tourneyPId) }
-                catch (err) { return handler.error500s(err, res, "PUT Profile Game Log Error."); }
-                try { await Profile.putStatsLog(profilePId, tourneyPId) }
-                catch (err) { return handler.error500s(err, res, "PUT Profile Stats Log Error."); }
-                // Put a 0.5 second delay due to Limited Write Capacity
-                await new Promise(r => setTimeout(r, 500));
+            try {
+                for (let pIdx = 0; pIdx < playerList.length; ++pIdx) {
+                    const profilePId = playerList[pIdx];
+                    try { await Profile.putGameLog(profilePId, tourneyPId) }
+                    catch (err) { return handler.error500s(err, res, "PUT Profile Game Log Error."); }
+                    try { await Profile.putStatsLog(profilePId, tourneyPId) }
+                    catch (err) { return handler.error500s(err, res, "PUT Profile Stats Log Error."); }
+                }
+                handler.res200s(res, req, {
+                    playersNum: playerList.length,
+                    tournamentShortName: tournamentShortName,
+                    tournamentId: tourneyPId,
+                });
             }
-            handler.res200s(res, req, {
-                playersNum: playerList.length,
-                tournamentShortName: tournamentShortName,
-                tournamentId: tourneyPId,
-            });
+            catch (err) { handler.error500s(err, res, "PUT Tourney Players Data Process Error."); }
         }).catch((err) => handler.error500s(err, res, "GET Tourney Player List Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
 });

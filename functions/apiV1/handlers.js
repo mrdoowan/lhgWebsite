@@ -11,9 +11,9 @@ module.exports = {
 */
 
 function errorHandlerServerError(err, res, errorMessage) {
+    console.error(err);
     return res.status(500).json({
         error: errorMessage,
-        reason: err,
     });
 }
 
