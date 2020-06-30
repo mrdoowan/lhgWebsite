@@ -42,7 +42,7 @@ export default function PlayerDataGrid({ players }) {
                     <FilterBuilderPopup position={filterBuilderPopupPosition} />
                     <Paging enabled={false} />
 
-                    <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={cellLink} />
+                    <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={playerLink} />
                     <Column dataField="Role" alignment="center" width={100} fixed={true} />
                     <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" />
                     <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
@@ -102,6 +102,6 @@ function fixedPercent() {
     }
 }
 
-function cellLink(data) {
-    return <Link to={`/profile/${data.value}`}>{data.value}</Link>
+function playerLink(data) {
+    return <Link to={`/profile/${data.value}/games`}>{data.value}</Link>
 }

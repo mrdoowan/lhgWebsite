@@ -111,5 +111,5 @@ function formatTime() {
 }
 
 function cellLink(data) {
-    return <Link to={`/team/${data.value}`}>{data.value}</Link>
+    return <Link to={`/team/${data.value}/games`}>{data.value}</Link>
 }

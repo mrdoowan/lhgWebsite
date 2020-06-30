@@ -87,15 +87,23 @@ function putItemInDynamoDB(tableName, items, keyValue) {
     }
 }
 
-// DETAILED FUNCTION DESCRIPTION XD
-function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyName, valueObject) {
+/**
+ * Updates a DynamoDb Item based on keyObject + valueObject condition
+ * @param {string} tableName        DynamoDb Table name
+ * @param {string} partitionName    Column name of the Table's Partition Key
+ * @param {*} key                   Item Key to update
+ * @param {string} updateExp        The Condition to update (i.e. 'SET #glog.#sId = :data')
+ * @param {Object} keyObject        Map of Keys (i.e. { '#glog': 'GameLog' })
+ * @param {Object} valueObject      Map of Values (i.e. { ':data': (DATA) })
+ */
+function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyObject, valueObject) {
     let params = {
         TableName: tableName,
         Key: {
             [partitionName]: key
         },
         UpdateExpression: updateExp,
-        ExpressionAttributeNames: keyName,
+        ExpressionAttributeNames: keyObject,
         ExpressionAttributeValues: valueObject
     };
     if (CHANGE_DYNAMO) {
@@ -136,10 +144,16 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyName,
     }
 }
 
-// Returns a List based on the Scan
-// https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#scan-property
-// https://stackoverflow.com/questions/44589967/how-to-fetch-scan-all-items-from-aws-dynamodb-using-node-js
-// Returns empty array [] if key item does NOT EXIST
+/**
+ * Returns a List based on the Scan
+ * https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#scan-property
+ * https://stackoverflow.com/questions/44589967/how-to-fetch-scan-all-items-from-aws-dynamodb-using-node-js
+ * Returns empty array [] if key item does NOT EXIST
+ * @param {string} tableName        DynamoDb Table Name
+ * @param {List} getAttributes      Root Item to get
+ * @param {string} attributeName    Criteria Column Name (to refine search/condition)
+ * @param {string} attributeValue   Root value for attributeName
+ */ 
 function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null, attributeValue=null) {
     const params = {
         TableName: tableName
@@ -169,6 +183,12 @@ function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null
     });
 }
 
+/**
+ * Deletes an item from the specific Table
+ * @param {string} tableName        DynamoDb Table Name
+ * @param {string} partitionName    Column name of the Partition Key
+ * @param {*} key                   Value of Partition Key to remove
+ */
 function deleteItemInDynamoDB(tableName, partitionName, key) {
     let params = {
         TableName: tableName,

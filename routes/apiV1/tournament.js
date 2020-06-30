@@ -144,6 +144,8 @@ router.put('/update/players', (req, res) => {
                 catch (err) { return handler.error500s(err, res, "PUT Profile Game Log Error."); }
                 try { await Profile.putStatsLog(profilePId, tourneyPId) }
                 catch (err) { return handler.error500s(err, res, "PUT Profile Stats Log Error."); }
+                // Put a 0.5 second delay due to Limited Write Capacity
+                await new Promise(r => setTimeout(r, 500));
             }
             handler.res200s(res, req, {
                 playersNum: playerList.length,

@@ -104,9 +104,9 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                         if (matchId in profileGameLog['Matches']) {
                             delete profileGameLog['Matches'][matchId];
                             await dynamoDb.updateItem('Profile', 'ProfilePId', thisProfilePId,
-                                'SET #log.#sId = :data',
+                                'SET #glog.#sId = :data',
                                 {
-                                    '#log': 'GameLog',
+                                    '#glog': 'GameLog',
                                     '#sId': seasonId,
                                 },
                                 {
@@ -163,7 +163,7 @@ async function removeMatchFromDb(matchId) {
         try {
             // 1) Remove and update Game Logs from EACH Profile Collection
             // 2) Remove and update Game Logs from EACH Team Collection
-            // 3) Remove from NoSQL Match Collection
+            // 3) Remove from Match Collection
             // 4) Remove from MySQL
             let matchData = await dynamoDb.getItem('Matches', 'MatchPId', matchId);
             if (matchData == null) { resolve(null); return; } // Not found
