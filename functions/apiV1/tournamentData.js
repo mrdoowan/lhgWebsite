@@ -725,23 +725,21 @@ function updateTourneyOverall(tournamentPId) {
 */
 //#region Helper
 function addBansToTourneyItem(pickBansItem, banArray, teamId, phaseNum) {
-    const initTourneyPickBans = {
-        'BluePicks': 0,
-        'RedPicks': 0,
-        'NumWins': 0,
-        'Phase1Bans': 0,
-        'Phase2Bans': 0,
-        'BluePhase1Bans': 0,
-        'RedPhase1Bans': 0,
-        'BluePhase2Bans': 0,
-        'RedPhase2Bans': 0
-    };
-
     let banPhaseString = 'Phase' + phaseNum + 'Bans';
     for (let k = 0; k < banArray.length; ++k) {
         let champBanned = banArray[k];
         if (!(champBanned in pickBansItem)) {
-            pickBansItem[champBanned] = initTourneyPickBans;
+            pickBansItem[champBanned] = {
+                'BluePicks': 0,
+                'RedPicks': 0,
+                'NumWins': 0,
+                'Phase1Bans': 0,
+                'Phase2Bans': 0,
+                'BluePhase1Bans': 0,
+                'RedPhase1Bans': 0,
+                'BluePhase2Bans': 0,
+                'RedPhase2Bans': 0
+            };
         }
         pickBansItem[champBanned][banPhaseString]++;
         if (teamId == GLOBAL.BLUE_ID) {
@@ -754,24 +752,22 @@ function addBansToTourneyItem(pickBansItem, banArray, teamId, phaseNum) {
 }
 
 function addWinPicksToTourneyItem(pickBansItem, teamObject, teamId) {
-    const initTourneyPickBans = {
-        'BluePicks': 0,
-        'RedPicks': 0,
-        'NumWins': 0,
-        'Phase1Bans': 0,
-        'Phase2Bans': 0,
-        'BluePhase1Bans': 0,
-        'RedPhase1Bans': 0,
-        'BluePhase2Bans': 0,
-        'RedPhase2Bans': 0
-    };
-
     let playersObject = teamObject['Players'];
     for (let k = 0; k < Object.values(playersObject).length; ++k) {
         let playerObject = Object.values(playersObject)[k];
         let champPicked = playerObject['ChampId'];
         if (!(champPicked in pickBansItem)) {
-            pickBansItem[champPicked] = initTourneyPickBans;
+            pickBansItem[champPicked] = {
+                'BluePicks': 0,
+                'RedPicks': 0,
+                'NumWins': 0,
+                'Phase1Bans': 0,
+                'Phase2Bans': 0,
+                'BluePhase1Bans': 0,
+                'RedPhase1Bans': 0,
+                'BluePhase2Bans': 0,
+                'RedPhase2Bans': 0
+            };
         }
         if (teamId == GLOBAL.BLUE_ID) {
             pickBansItem[champPicked]['BluePicks']++;

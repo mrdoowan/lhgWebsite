@@ -43,71 +43,64 @@ const useStyles = makeStyles((theme) => ({
     leftHeader: {
         textAlign: 'left',
         fontWeight: 'bold',
+        textDecoration: 'underline',
         padding: theme.spacing(1),
     },
     midHeader: {
         textAlign: 'middle',
+        textDecoration: 'underline',
         fontWeight: 'bold',
+        padding: theme.spacing(1),
     },
     colDate: {
         width: "8%",
         textAlign: 'left',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colEnemy: {
         width: "12%",
         textAlign: 'left',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colTime: {
         width: "5%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colStats: {
         width: "10%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colTop: {
         width: "9%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colJng: {
         width: "9%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colMid: {
         width: "9%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colBot: {
         width: "9%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colSup: {
         width: "9%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     colBansAgainst: {
         width: "20%",
         textAlign: 'center',
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
+        padding: theme.spacing(1),
     },
     layoutChamps: {
         width: '100%',
@@ -135,7 +128,7 @@ export default function TeamGameLog({ games }) {
                         <td className={classes.leftHeader}>Date</td>
                         <td className={classes.leftHeader}>Opponent</td>
                         <td className={classes.midHeader}>Duration</td>
-                        <td className={classes.midHeader}>Stats</td>
+                        <td className={classes.midHeader}>Team Stats</td>
                         <td className={classes.midHeader}></td>
                         <td className={classes.midHeader}></td>
                         <td className={classes.midHeader}>Champions Picked</td>
@@ -166,28 +159,23 @@ export default function TeamGameLog({ games }) {
                             <td className={classes.colStats}>
                                 <b>{match.Kills} / {match.Deaths} / {match.Assists}</b><br />
                                 <b>{match.GoldPerMinute}</b> GPM<br />
-                                {(match.GoldDiffEarly) ? (<React.Fragment><b>{(match.GoldDiffEarly > 0) ? '+' : ''}{match.GoldDiffEarly}</b> GD@15</React.Fragment>) : ''}<br />
-                                {(match.GoldDiffMid) ? (<React.Fragment><b>{(match.GoldDiffMid > 0) ? '+' : ''}{match.GoldDiffMid}</b> GD@25</React.Fragment>) : ''}<br />
+                                {goldString(match.GoldDiffEarly, 'GD@15')}
+                                {goldString(match.GoldDiffMid, 'GD@25')}
                             </td>
                             <td className={classes.colTop}>
-                                <ChampionSquare id={Top.ChampId} /><br />
-                                <Link to={`/profile/${Top.ProfileName}/games/${games.SeasonShortName}`} className={classes.link}>{Top.ProfileName}</Link>
+                                {playerCell(Top, games.SeasonShortName, classes)}
                             </td>
                             <td className={classes.colJng}>
-                                <ChampionSquare id={Jungle.ChampId} /><br />
-                                <Link to={`/profile/${Jungle.ProfileName}/games/${games.SeasonShortName}`} className={classes.link}>{Jungle.ProfileName}</Link>
+                                {playerCell(Jungle, games.SeasonShortName, classes)}
                             </td>
                             <td className={classes.colMid}>
-                                <ChampionSquare id={Middle.ChampId} /><br />
-                                <Link to={`/profile/${Middle.ProfileName}/games/${games.SeasonShortName}`} className={classes.link}>{Middle.ProfileName}</Link>
+                                {playerCell(Middle, games.SeasonShortName, classes)}
                             </td>
                             <td className={classes.colBot}>
-                                <ChampionSquare id={Bottom.ChampId} /><br />
-                                <Link to={`/profile/${Bottom.ProfileName}/games/${games.SeasonShortName}`} className={classes.link}>{Bottom.ProfileName}</Link>
+                                {playerCell(Bottom, games.SeasonShortName, classes)}
                             </td>
                             <td className={classes.colSup}>
-                                <ChampionSquare id={Support.ChampId} /><br />
-                                <Link to={`/profile/${Support.ProfileName}/games/${games.SeasonShortName}`} className={classes.link}>{Support.ProfileName}</Link>
+                                {playerCell(Support, games.SeasonShortName, classes)}
                             </td>
                             <td className={classes.colBansAgainst}>
                                 <div className={classes.layoutChamps}>
@@ -201,4 +189,31 @@ export default function TeamGameLog({ games }) {
             </table>
         </Paper>
     )
+}
+
+/**
+ * Displays Gold as i.e. '+1000' or '-1000'.
+ * @param {number} gold     If gold is null, return ''.
+ * @param {string} label    'GD15' or 'GD25'
+ */
+function goldString(gold, label) {
+    return (gold) ? (<React.Fragment><b>{(gold > 0) ? '+' : ''}{gold}</b> {label}<br /></React.Fragment>) : '';
+}
+
+/**
+ * Returns a JSX Element of a Player's profile
+ * @param {object} playerObject     From ChampPicks in Team's GameLog
+ * @param {object} seasonShortName  Code of season
+ * @param {object} classes          Material-ui styles
+ */
+function playerCell(playerObject, seasonShortName, classes) {
+    return (
+        <div>
+            <ChampionSquare id={playerObject.ChampId} /><br />
+            <Link to={`/profile/${playerObject.ProfileName}/games/${seasonShortName}`} className={classes.link}>{playerObject.ProfileName}</Link><br />
+            <b>{playerObject.PlayerKills} / {playerObject.PlayerDeaths} / {playerObject.PlayerAssists}</b><br />
+            {goldString(playerObject.PlayerGoldDiffEarly, 'GD@15')}
+            {goldString(playerObject.PlayerGoldDiffMid, 'GD@25')}
+        </div>
+    );
 }

@@ -47,8 +47,12 @@ const useStyles = makeStyles((theme) => ({
         width: "5%",
         textAlign: 'middle',
     },
+    colPatch: {
+        width: "5%",
+        textAlign: 'middle',
+    },
     colBlueTeam: {
-        width: "25%",
+        width: "20%",
         textAlign: 'right',
     },
     colVs: {
@@ -56,11 +60,11 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'middle',
     },
     colRedTeam: {
-        width: "25%",
+        width: "20%",
         textAlign: 'left',
     },
     colLink: {
-        width: "20%",
+        width: "25%",
         textAlign: 'middle',
     },
     win: {
@@ -89,9 +93,10 @@ export default function TourneyGames({ games }) {
                         <tr className={classes.row}>
                             <td className={classes.header}>Date Played</td>
                             <td className={classes.header}>Duration</td>
-                            <td className={classes.headerBlue}>Blue Side</td>
+                            <td className={classes.header}>Patch</td>
+                            <td className={classes.headerBlue}><b>Blue Side</b></td>
                             <td className={classes.header}></td>
-                            <td className={classes.headerRed}>Red Side</td>
+                            <td className={classes.headerRed}><b>Red Side</b></td>
                             <td className={classes.header}>Link</td>
                         </tr>
                     </thead>
@@ -100,6 +105,7 @@ export default function TourneyGames({ games }) {
                         <tr key={match.MatchPId} className={classes.row}>
                             <td className={classes.colDate}>{lhgString.date(match.DatePlayed / 1000)}</td>
                             <td className={classes.colDuration}>{lhgString.time(match.Duration)}</td>
+                            <td className={classes.colPatch}>{match.Patch}</td>
                             <td className={classes.colBlueTeam}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
                             <td className={classes.colVs}>VS.</td>
                             <td className={classes.colRedTeam}>{teamName(classes, match.RedTeamName, !match.BlueWin)}</td>
