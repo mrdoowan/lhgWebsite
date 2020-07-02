@@ -50,25 +50,35 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="TotalKills" alignment="center" dataType="number" caption="Kills" />
                     <Column dataField="TotalDeaths" alignment="center" dataType="number" caption="Deaths" />
                     <Column dataField="TotalAssists" alignment="center" dataType="number" caption="Assists" />
+                    <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVGK" />
+                    <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVGD" />
+                    <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVGA" />
                     <Column dataField="KillPct" alignment="center" dataType="number" caption="Kill%" format={fixedPercent()} />
                     <Column dataField="DeathPct" alignment="center" dataType="number" caption="Death%" format={fixedPercent()} />
                     <Column dataField="FirstBloodPct" alignment="center" dataType="number" caption="FB%" format={fixedPercent()} />
-                    <Column dataField="GoldPct" alignment="center" dataType="number" caption="Gold%" format={fixedPercent()} />
+                    <Column dataField="GoldPct" alignment="center" dataType="number" caption="GOLD%" format={fixedPercent()} />
                     <Column dataField="DamagePct" alignment="center" dataType="number" caption="DMG%" format={fixedPercent()} />
                     <Column dataField="VisionScorePct" alignment="center" dataType="number" caption="VS%" format={fixedPercent()} />
-                    <Column dataField="GoldPerMinute" alignment="center" dataType="number" caption="GPM" format={fixedPoint(2)} />
-                    <Column dataField="DamagePerMinute" alignment="center" dataType="number" caption="DPM" format={fixedPoint(2)} />
-                    <Column dataField="CreepScorePerMinute" alignment="center" dataType="number" caption="CSPM" format={fixedPoint(2)} />
-                    <Column dataField="VisionScorePerMinute" alignment="center" dataType="number" caption="VSPM" format={fixedPoint(2)} />
-                    <Column dataField="WardsPerMinute" alignment="center" dataType="number" caption="WPM" format={fixedPoint(2)} />
-                    <Column dataField="ControlWardsPerMinute" alignment="center" dataType="number" caption="CWPM" format={fixedPoint(2)} />
-                    <Column dataField="WardsClearedPerMinute" alignment="center" dataType="number" caption="WCPM" format={fixedPoint(2)} />
+                    <Column dataField="DamagePerGold" alignment="center" dataType="number" caption="DMG/GOLD" format={fixedPoint(4)} />
+                    <Column dataField="GoldPerMinute" alignment="center" dataType="number" caption="GOLD/MIN" format={fixedPoint(2)} />
+                    <Column dataField="DamagePerMinute" alignment="center" dataType="number" caption="DMG/MIN" format={fixedPoint(2)} />
+                    <Column dataField="CreepScorePerMinute" alignment="center" dataType="number" caption="CS/MIN" format={fixedPoint(2)} />
+                    <Column dataField="VisionScorePerMinute" alignment="center" dataType="number" caption="VS/MIN" format={fixedPoint(2)} />
+                    <Column dataField="WardsPerMinute" alignment="center" dataType="number" caption="WARD/MIN" format={fixedPoint(2)} />
+                    <Column dataField="ControlWardsPerMinute" alignment="center" dataType="number" caption="CW/MIN" format={fixedPoint(2)} />
+                    <Column dataField="WardsClearedPerMinute" alignment="center" dataType="number" caption="WC/MIN" format={fixedPoint(2)} />
                     <Column dataField="AverageCsDiffEarly" alignment="center" dataType="number" caption="AVG CSD@15" format={fixedPoint(1)} />
+                    <Column dataField="AverageCsDiffMid" alignment="center" dataType="number" caption="AVG CSD@25" format={fixedPoint(1)} />
                     <Column dataField="AverageGoldDiffEarly" alignment="center" dataType="number" caption="AVG GD@15" format={fixedPoint(0)} />
+                    <Column dataField="AverageGoldDiffMid" alignment="center" dataType="number" caption="AVG GD@25" format={fixedPoint(0)} />
                     <Column dataField="AverageXpDiffEarly" alignment="center" dataType="number" caption="AVG XPD@15" format={fixedPoint(0)} />
+                    <Column dataField="AverageXpDiffMid" alignment="center" dataType="number" caption="AVG XPD@25" format={fixedPoint(0)} />
                     <Column dataField="AverageCsAtEarly" alignment="center" dataType="number" caption="AVG CS@15" format={fixedPoint(1)} />
+                    <Column dataField="AverageCsAtMid" alignment="center" dataType="number" caption="AVG CS@25" format={fixedPoint(1)} />
                     <Column dataField="AverageGoldAtEarly" alignment="center" dataType="number" caption="AVG G@15" format={fixedPoint(0)} />
+                    <Column dataField="AverageGoldAtMid" alignment="center" dataType="number" caption="AVG G@25" format={fixedPoint(0)} />
                     <Column dataField="AverageXpAtEarly" alignment="center" dataType="number" caption="AVG XP@15" format={fixedPoint(0)} />
+                    <Column dataField="AverageXpAtMid" alignment="center" dataType="number" caption="AVG XP@25" format={fixedPoint(0)} />
                     <Column dataField="TotalSoloKills" alignment="center" dataType="number" caption="Solo Kills" />
                     <Column dataField="TotalDoubleKills" alignment="center" dataType="number" caption="Double Kills" />
                     <Column dataField="TotalTripleKills" alignment="center" dataType="number" caption="Triple Kills" />

@@ -129,11 +129,11 @@ export default function TeamGameLog({ games }) {
                         <td className={classes.leftHeader}>Opponent</td>
                         <td className={classes.midHeader}>Duration</td>
                         <td className={classes.midHeader}>Team Stats</td>
-                        <td className={classes.midHeader}></td>
-                        <td className={classes.midHeader}></td>
-                        <td className={classes.midHeader}>Champions Picked</td>
-                        <td className={classes.midHeader}></td>
-                        <td className={classes.midHeader}></td>
+                        <td className={classes.midHeader}>Top</td>
+                        <td className={classes.midHeader}>Jungle</td>
+                        <td className={classes.midHeader}>Middle</td>
+                        <td className={classes.midHeader}>Bottom</td>
+                        <td className={classes.midHeader}>Support</td>
                         <td className={classes.midHeader}>Bans Against Team</td>
                     </tr>
                 </thead>
