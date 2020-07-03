@@ -80,7 +80,7 @@ export default function LeaderboardPlayers({ playerRecords }) {
                                 {playerRecords[recordType].map((item, i) => (
                                     <tr key={i} className={classes.row}>
                                         <td className={classes.columnImage}>
-                                            <ChampionSquare id={item.ChampId} />
+                                            <ChampionSquare patch={item.Patch} id={item.ChampId} />
                                         </td>
                                         <td className={classes.columnName}>
                                             {thisTeam(item, classes)}
