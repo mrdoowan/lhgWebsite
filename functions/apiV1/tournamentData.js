@@ -544,6 +544,7 @@ function updateTourneyOverall(tournamentPId) {
                 playerMostDamageItem['ProfileHId'] = GLOBAL.getProfileHId(mostDamageRowSql.profilePId);
                 playerMostDamageItem['ChampId'] = mostDamageRowSql.champId;
                 playerMostDamageItem['Role'] = mostDamageRowSql.role;
+                playerMostDamageItem['Side'] = mostDamageRowSql.side;
                 playerMostDamageItem['DamagePerMin'] = mostDamageRowSql.dmgDealtPerMin;
                 playerMostDamageItem['DamageDealt'] = mostDamageRowSql.damageDealt;
                 playerMostDamageList.push(playerMostDamageItem);
@@ -558,6 +559,7 @@ function updateTourneyOverall(tournamentPId) {
                 playerMostFarmItem['ProfileHId'] = GLOBAL.getProfileHId(mostFarmRowSql.profilePId);
                 playerMostFarmItem['ChampId'] = mostFarmRowSql.champId;
                 playerMostFarmItem['Role'] = mostFarmRowSql.role;
+                playerMostFarmItem['Side'] = mostFarmRowSql.side;
                 playerMostFarmItem['CsPerMin'] = mostFarmRowSql.csPerMin;
                 playerMostFarmItem['CreepScore'] = mostFarmRowSql.creepScore;
                 playerMostFarmList.push(playerMostFarmItem);
@@ -572,6 +574,7 @@ function updateTourneyOverall(tournamentPId) {
                 playerMostGDiffEarlyItem['ProfileHId'] = GLOBAL.getProfileHId(mostGDiffEarlyRowSql.profilePId);
                 playerMostGDiffEarlyItem['ChampId'] = mostGDiffEarlyRowSql.champId;
                 playerMostGDiffEarlyItem['Role'] = mostGDiffEarlyRowSql.role;
+                playerMostGDiffEarlyItem['Side'] = mostGDiffEarlyRowSql.side;
                 playerMostGDiffEarlyItem['GDiffEarly'] = mostGDiffEarlyRowSql.goldDiffEarly;
                 playerMostGDiffEarlyItem['GAtEarly'] = mostGDiffEarlyRowSql.goldAtEarly;
                 playerMostGDiffEarlyList.push(playerMostGDiffEarlyItem);
@@ -586,6 +589,7 @@ function updateTourneyOverall(tournamentPId) {
                 playerMostXpDiffEarlyItem['ProfileHId'] = GLOBAL.getProfileHId(mostXpDiffEarlyRowSql.profilePId);
                 playerMostXpDiffEarlyItem['ChampId'] = mostXpDiffEarlyRowSql.champId;
                 playerMostXpDiffEarlyItem['Role'] = mostXpDiffEarlyRowSql.role;
+                playerMostXpDiffEarlyItem['Side'] = mostXpDiffEarlyRowSql.side;
                 playerMostXpDiffEarlyItem['XpDiffEarly'] = mostXpDiffEarlyRowSql.xpDiffEarly;
                 playerMostXpDiffEarlyItem['XpAtEarly'] = mostXpDiffEarlyRowSql.xpAtEarly;
                 playerMostXpDiffEarlyList.push(playerMostXpDiffEarlyItem);
@@ -600,6 +604,7 @@ function updateTourneyOverall(tournamentPId) {
                 playerMostVisionItem['ProfileHId'] = GLOBAL.getProfileHId(mostVisionRowSql.profilePId);
                 playerMostVisionItem['ChampId'] = mostVisionRowSql.champId;
                 playerMostVisionItem['Role'] = mostVisionRowSql.role;
+                playerMostVisionItem['Side'] = mostVisionRowSql.side;
                 playerMostVisionItem['VsPerMin'] = mostVisionRowSql.vsPerMin;
                 playerMostVisionItem['VisionScore'] = mostVisionRowSql.visionScore;
                 playerMostVisionList.push(playerMostVisionItem);

@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
         fontSize: 'x-large',
     },
     titlePaper: {
+        fontWeight: 'bold',
         textDecoration: 'underline',
         padding: theme.spacing(2),
         fontSize: 'large',
@@ -35,14 +36,14 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'right',
     },
     columnName: {
-        width: "20%",
+        width: "30%",
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
         paddingBottom: '5px',
     },
     columnData: {
-        width: "75%",
+        width: "65%",
         padding: '5px 20px 5px 20px',
         textAlign: 'left',
         wordWrap: 'break-word',
@@ -78,9 +79,16 @@ export default function LeaderboardPlayers({ playerRecords }) {
                                 <tbody>
                                 {playerRecords[recordType].map((item, i) => (
                                     <tr key={i} className={classes.row}>
-                                        <td className={classes.columnImage}><ChampionSquare id={item.ChampId}  /></td>
-                                        <td className={classes.columnName}><Link className={classes.link} to={`/profile/${item.ProfileName}`}>{item.ProfileName}</Link></td>
-                                        <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>{item.BlueTeamName} vs. {item.RedTeamName}</Link>)</td>
+                                        <td className={classes.columnImage}>
+                                            <ChampionSquare id={item.ChampId} />
+                                        </td>
+                                        <td className={classes.columnName}>
+                                            {thisTeam(item, classes)}
+                                            &nbsp;<Link className={classes.link} to={`/profile/${item.ProfileName}`}>{item.ProfileName}</Link>
+                                        </td>
+                                        <td className={classes.columnData}>
+                                            {recordString(recordType, item)} {enemyTeam(item, classes)}
+                                        </td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -93,6 +101,11 @@ export default function LeaderboardPlayers({ playerRecords }) {
     )
 }
 
+/**
+ * Returns leaderboard description type of stat
+ * @param {string} type     Type of leaderboard
+ * @param {object} item     Data containing the MySql row
+ */
 function recordString(type, item) {
     switch (type) {
         case 'PlayerMostDamage':
@@ -108,4 +121,30 @@ function recordString(type, item) {
         default:
             return '';
     }
+}
+
+/**
+ * Returns JSX element of the player's team in following format: [TSM]
+ * @param {object} item     Data containing the MySql row
+ * @param {object} classes  Material-UI styles
+ */
+function thisTeam(item, classes) {
+    let teamName = (item.Side === 'Blue') ? item.BlueTeamName :
+        (item.Side === 'Red') ? item.RedTeamName : null;
+    let shortName = (item.Side === 'Blue') ? item.BlueTeamShortName : 
+        (item.Side === 'Red') ? item.RedTeamShortName : null;
+    
+    return (<React.Fragment>[<Link className={classes.link} to={`/team/${teamName}`}>{shortName}</Link>]</React.Fragment>);
+}
+
+/**
+ * Returns JSX element of enemy team in the following format: (vs. C9)
+ * @param {object} item     Data containing the MySql row
+ * @param {object} classes  Material-UI styles
+ */
+function enemyTeam(item, classes) {
+    let shortName = (item.Side === 'Blue') ? item.RedTeamShortName : 
+        (item.Side === 'Red') ? item.BlueTeamShortName : null;
+
+    return (<React.Fragment>(<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {shortName}</Link>)</React.Fragment>);
 }

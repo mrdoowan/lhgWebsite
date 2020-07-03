@@ -24,18 +24,19 @@ const useStyles = makeStyles((theme) => ({
         fontSize: 'x-large',
     },
     title: {
+        fontWeight: 'bold',
         textDecoration: 'underline',
         padding: theme.spacing(2),
         fontSize: 'large',
     },
     columnName: {
-        width: "25%",
+        width: "35%",
         textAlign: 'left',
         verticalAlign: 'middle',
         wordWrap: 'break-word',
     },
     columnData: {
-        width: "75%",
+        width: "65%",
         padding: '5px 20px 5px 20px',
         textAlign: 'left',
         wordWrap: 'break-word',
@@ -68,7 +69,7 @@ export default function LeaderboardTeams({ teamRecords }) {
                                 {teamRecords[recordType].map((item, i) => (
                                     <tr key={i} className={classes.row}>
                                         <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
-                                        <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item.TeamName, item.BlueTeamName, item.RedTeamName)}</Link>)</td>
+                                        <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item)}</Link>)</td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -93,6 +94,6 @@ function recordString(type, item) {
     }
 }
 
-function opposingTeam(team, blue, red) {
-    return (team === red) ? blue : red;
+function opposingTeam(item) {
+    return (item.TeamName === item.BlueTeamName) ? item.RedTeamShortName : item.BlueTeamShortName;
 }
