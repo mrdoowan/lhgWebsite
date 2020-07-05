@@ -27,17 +27,20 @@ const useStyles = makeStyles((theme) => ({
     },
     header: {
         textDecoration: 'underline',
-        textAlign: 'middle'
+        textAlign: 'middle',
+        fontWeight: 'bold',
     },
     headerBlue: {
         textDecoration: 'underline',
         textAlign: 'right',
         color: '#2863e1',
+        fontWeight: 'bold',
     },
     headerRed: {
         textDecoration: 'underline',
         textAlign: 'left',
         color: '#d83729',
+        fontWeight: 'bold',
     },
     colDate: {
         width: "15%",

@@ -74,6 +74,7 @@ class App extends Component {
                         <Route path="/profile/:profileName/games/:seasonShortName" component={profileGames} exact/>
                         <Route path="/profile/:profileName/stats" component={profileStats} exact/>
                         <Route path="/profile/:profileName/stats/:tournamentShortName" component={profileStats} exact/>
+                        {/* <Route path="/player/namechange" component={profileBase} exact/> */}
 
                         { /* Match Links */ }
                         <Route path="/match/:matchPId" component={matchBase} exact/>

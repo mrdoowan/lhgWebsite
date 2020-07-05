@@ -88,7 +88,7 @@ export class tournamentPlayers extends Component {
             this.setState({ statusCode: err.response.status })
         });
 
-        axios.get(`/api/tournament/v1/players/name/${params.tournamentShortName}`)
+        axios.get(`/api/tournament/v1/players/stats/name/${params.tournamentShortName}`)
         .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -132,7 +132,7 @@ export class tournamentTeams extends Component {
             this.setState({ statusCode: err.response.status })
         });
 
-        axios.get(`/api/tournament/v1/teams/name/${params.tournamentShortName}`)
+        axios.get(`/api/tournament/v1/teams/stats/name/${params.tournamentShortName}`)
         .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -279,51 +279,97 @@ export class tournamentUpdate extends Component {
 
     handleSubmit = (event) => {
         const { match: { params } } = this.props;
-
         event.preventDefault();
         this.setState({
             response: null,
             loading: true,
         });
-        const body = {
-            tournamentShortName: params.tournamentShortName
-        }
-        
-        axios.put('/api/tournament/v1/update/players', body)
-        .then((res) => {
-            this.setState({
-                statusCode: res.status,
-                playersNum: res.data.playersNum,
-            });
-            this.setState({ loading: !(this.allUpdated()) });
-        })
-        .catch((err) => { 
-            console.error(err); 
+
+        // Do multiple PUT requests to update each Player
+        axios.get(`/api/tournament/v1/players/ids/name/${params.tournamentShortName}`)
+        .then(async (res) => {
+            const playerList = res.data;
+            let success = true;
+
+            for (let i = 0; i < playerList.length; ++i) {
+                const playerPId = playerList[i];
+                const body = {
+                    tournamentShortName: params.tournamentShortName,
+                    playerPId: playerPId,
+                }
+                await axios.put('/api/tournament/v1/update/player', body)
+                // eslint-disable-next-line
+                .catch((err) => {
+                    console.error(err);
+                    this.setState({
+                        statusCode: err.response.status,
+                        response: null,
+                        loading: false,
+                    });
+                    i = playerList.length; // Super jank
+                    success = false;
+                });
+            }
+            if (success) {
+                this.setState({ 
+                    statusCode: res.status,
+                    playersNum: playerList.length,
+                });
+                this.setState({ loading: !(this.allUpdated()) });
+            }
+        }).catch((err) => {
+            console.error(err);
             this.setState({
                 statusCode: err.response.status,
                 response: null,
                 loading: false,
-            })
-        })
-
-        axios.put('/api/tournament/v1/update/teams', body)
-        .then((res) => {
-            this.setState({
-                statusCode: res.status,
-                teamsNum: res.data.teamsNum,
             });
-            this.setState({ loading: !(this.allUpdated()) });
-        })
-        .catch((err) => { 
-            console.error(err); 
+        });
+
+        // Do multiple PUT requests to update each Team
+        axios.get(`/api/tournament/v1/teams/ids/name/${params.tournamentShortName}`)
+        .then(async (res) => {
+            const teamList = res.data;
+            let success = true;
+            for (let i = 0; i < teamList.length; ++i) {
+                const teamPId = teamList[i];
+                const body = {
+                    tournamentShortName: params.tournamentShortName,
+                    teamPId: teamPId,
+                }
+                await axios.put('/api/tournament/v1/update/team', body)
+                // eslint-disable-next-line
+                .catch((err) => {
+                    console.error(err);
+                    this.setState({
+                        statusCode: err.response.status,
+                        response: null,
+                        loading: false,
+                    });
+                    i = teamList.length; // Super jank
+                    success = false;
+                });
+            }
+            if (success) {
+                this.setState({
+                    statusCode: res.status,
+                    teamsNum: teamList.length,
+                });
+                this.setState({ loading: !(this.allUpdated()) })
+            }
+        }).catch((err) => {
+            console.error(err);
             this.setState({
                 statusCode: err.response.status,
                 response: null,
                 loading: false,
-            })
-        })
+            });
+        });
 
-        axios.put('/api/tournament/v1/update/overall', body)
+        // PUT request to update all games
+        axios.put('/api/tournament/v1/update/overall', {
+            tournamentShortName: params.tournamentShortName,
+        })
         .then((res) => {
             this.setState({
                 statusCode: res.status,
@@ -338,7 +384,7 @@ export class tournamentUpdate extends Component {
                 response: null,
                 loading: false,
             })
-        })
+        });
     }
 
     render() {

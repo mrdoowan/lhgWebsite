@@ -200,6 +200,10 @@ function getTourneyLeaderboards(tPId) {
     });
 }
 
+/**
+ * Returns an Object['PlayerList'] that contains a list of Stats for each Player in the Tournament
+ * @param {number} tPId 
+ */
 function getTourneyPlayerStats(tPId) {
     const cacheKey = keyBank.TN_PLAYER_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
@@ -276,6 +280,10 @@ function getTourneyPlayerStats(tPId) {
     });
 }
 
+/**
+ * Returns an Object['TeamList'] that contains a list of Stats for each Team in the Tournament
+ * @param {number} tPId 
+ */
 function getTourneyTeamStats(tPId) {
     const cacheKey = keyBank.TN_TEAM_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
@@ -399,7 +407,10 @@ function getTourneyGames(tPId) {
     });
 }
 
-// Returns a list of players that participated in the Tournament
+/**
+ * Returns a unique list of Player IDs that participated in the Tournament
+ * @param {number} tournamentPId 
+ */
 function getPlayerList(tournamentPId) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -410,7 +421,10 @@ function getPlayerList(tournamentPId) {
     });
 }
 
-// Returns a list of teams that participated in the Tournament
+/**
+ * Returns a unique list of Team IDs that participated in the Tournament
+ * @param {number} tournamentPId 
+ */
 function getTeamList(tournamentPId) {
     return new Promise(async (resolve, reject) => {
         try {
