@@ -4,11 +4,11 @@ import HelmetComponent from './HelmetComponent';
 
 export default function TournamnetHelmet({ info, players, teams, pickbans, games }) {
     const metaTitle = `${info.TournamentName} - ${
-        (info && players) ? "Complete Player Stats" :
-        (info && teams) ? "Complete Team Stats" :
+        (info && players) ? "Player Stats" :
+        (info && teams) ? "Team Stats" :
         (info && pickbans) ? "Pick/Ban Stats" :
-        (info && games) ? "List of Games" :
-        "Overall Information"
+        (info && games) ? "Games" :
+        "Tournament Info"
     }`;
 
     const metaDescription = (info && players) ? (

@@ -44,7 +44,6 @@ export default function HomeComponent() {
 
     return (<div>
         <HelmetComponent
-            title="LHG Competitive Leagues"
             description="The main site for LHG Competitive Leagues"
             image="https://lhg-images.s3.us-east-2.amazonaws.com/LHG_S2020_Logo.png"
         />
