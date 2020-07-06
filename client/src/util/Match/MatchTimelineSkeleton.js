@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import DataWrapper from '../../components/DataWrapper';
 import MatchHeader from '../../components/Match/MatchHeader';
 import MatchTimeline from '../../components/Match/MatchTimeline';
+import MatchHelmet from '../../components/Helmet/MatchHelmet';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -23,6 +24,7 @@ export default function MatchTimelineSkeleton({ match }) {
 
     return (
         <div className={classes.root}>
+            <MatchHelmet match={match} type="Timeline" />
             <DataWrapper data={match} component={headerComponent} emptyMessage={infoEmpty} />
             <DataWrapper data={match} component={timelineComponent} emptyMessage={timelineEmpty} />
         </div>

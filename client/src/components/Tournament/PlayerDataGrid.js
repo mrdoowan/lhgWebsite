@@ -32,7 +32,7 @@ export default function PlayerDataGrid({ players }) {
                 <DataGrid
                     id="gridContainer"
                     columnWidth={100}
-                    dataSource={players}
+                    dataSource={players.PlayerList}
                     hoverStateEnabled={true}
                     showBorders={true}
                     wordWrapEnabled={true}

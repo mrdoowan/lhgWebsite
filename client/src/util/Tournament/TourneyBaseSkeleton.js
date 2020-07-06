@@ -8,6 +8,7 @@ import TourneyStats from '../../components/Tournament/TourneyStats';
 import LeaderboardGames from '../../components/Tournament/LeaderboardGames';
 import LeaderboardPlayers from '../../components/Tournament/LeaderboardPlayers';
 import LeaderboardTeams from '../../components/Tournament/LeaderboardTeams';
+import TournamentHelmet from '../../components/Helmet/TournamentHelmet';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -37,6 +38,7 @@ export default function TourneyBaseSkeleton({info, stats, lb}) {
 
     return (
         <div className={classes.root}>
+            <TournamentHelmet info={info} />
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
             <DataWrapper data={stats} component={statsComponent} emptyMessage={statsEmpty} />
             <DataWrapper data={lb} component={lbComponents} emptyMessage={lbEmpty} />

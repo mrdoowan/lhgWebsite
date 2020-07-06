@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import DataWrapper from '../../components/DataWrapper';
 import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileStats from '../../components/Profile/ProfileStats';
+import ProfileHelmet from '../../components/Helmet/ProfileHelmet';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -23,6 +24,7 @@ export default function ProfileStatsSkeleton({ info, stats }) {
 
     return (
         <div className={classes.root}>
+            <ProfileHelmet info={info} stats={stats} />
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
             <DataWrapper data={stats} component={statsComponent} emptyMessage={statsEmpty} />
         </div>

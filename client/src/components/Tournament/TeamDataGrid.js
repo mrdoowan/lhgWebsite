@@ -34,7 +34,7 @@ export default function TeamDataGrid({ teams }) {
                 <DataGrid
                     id="gridContainer"
                     columnWidth={100}
-                    dataSource={teams}
+                    dataSource={teams.TeamList}
                     hoverStateEnabled={true}
                     showBorders={true}
                     wordWrapEnabled={true}

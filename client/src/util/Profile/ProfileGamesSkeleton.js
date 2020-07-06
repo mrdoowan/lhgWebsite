@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import DataWrapper from '../../components/DataWrapper';
 import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileGames from '../../components/Profile/ProfileGames';
+import ProfileHelmet from '../../components/Helmet/ProfileHelmet';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -23,6 +24,7 @@ export default function ProfileGamesSkeleton({ info, games }) {
 
     return (
         <div className={classes.root}>
+            <ProfileHelmet info={info} games={games} />
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
             <DataWrapper data={games} component={gamesComponent} emptyMessage={gamesEmpty} />
         </div>

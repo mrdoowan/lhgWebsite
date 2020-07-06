@@ -10,8 +10,8 @@ export class homeBase extends Component {
     }
 
     render() {
-        return (
+        return (<div>
             <HomeComponent />
-        );
+        </div>);
     }
 }

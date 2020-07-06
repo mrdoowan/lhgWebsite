@@ -35,11 +35,13 @@ async function getMatchData(Id) {
                 let tourneyPId = matchJson['TournamentPId'];
                 matchJson['TournamentShortName'] = await Tournament.getShortName(tourneyPId);
                 matchJson['TournamentName'] = await Tournament.getName(tourneyPId);
+                matchJson['TournamentTabName'] = await Tournament.getTabName(tourneyPId);
                 let gameDurationMinute = matchJson['GameDuration'] / 60;
                 for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
                     let teamId = Object.keys(matchJson['Teams'])[i];
                     let teamJson = matchJson['Teams'][teamId];
                     teamJson['TeamName'] = await Team.getName(teamJson['TeamHId']);
+                    teamJson['TeamShortName'] = await Team.getShortName(teamJson['TeamHId']);
                     for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
                         let partId = Object.keys(teamJson['Players'])[j];
                         let playerJson = teamJson['Players'][partId];

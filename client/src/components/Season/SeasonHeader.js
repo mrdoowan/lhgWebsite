@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 // Components
-
+import SeasonHelmet from '../Helmet/SeasonHelmet';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -40,13 +40,12 @@ export default function SeasonHeader({ info }) {
         </div>
     ) : ( <div></div> );
 
-    return (
-        <div className={classes.root}>
-            <Grid container spacing={3}>
-                <Grid item xs={12}><Paper className={classes.paper}>
-                    {seasonBaseMarkup}
-                </Paper></Grid>
-            </Grid>
-        </div>
-    );
+    return (<div className={classes.root}>
+        <SeasonHelmet info={info} />
+        <Grid container spacing={3}>
+            <Grid item xs={12}><Paper className={classes.paper}>
+                {seasonBaseMarkup}
+            </Paper></Grid>
+        </Grid>
+    </div>);
 }

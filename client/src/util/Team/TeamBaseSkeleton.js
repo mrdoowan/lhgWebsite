@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import DataWrapper from '../../components/DataWrapper';
 import TeamHeader from '../../components/Team/TeamHeader';
 import TeamInfo from '../../components/Team/TeamInfo';
+import TeamHelmet from '../../components/Helmet/TeamHelmet';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -22,6 +23,7 @@ export default function TeamBaseSkeleton({ info }) {
 
     return (
         <div className={classes.root}>
+            <TeamHelmet info={info} />
             <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
             <DataWrapper data={info} component={infoComponent} emptyMessage={headerEmpty} />
         </div>

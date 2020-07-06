@@ -9,6 +9,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+// Component
+import HelmetComponent from '../Helmet/HelmetComponent';
 
 const StyledTableCell = withStyles((theme) => ({
     head: {
@@ -59,28 +61,32 @@ export default function LeagueTable(props) {
     const classes = useStyles();
     const { seasonList } = props;
     
-    return (
+    return (<div>
+        <HelmetComponent
+            title="Leagues List"
+            description={`Past Leagues held in LHG: ${seasonList.Leagues.map(a => a.SeasonTime).join(", ")}`}
+        />
         <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="customized table">
-            <TableHead>
-                <TableRow>
-                    <StyledTableCell className={classes.header} align="center">Season</StyledTableCell>
-                    <StyledTableCell className={classes.header} align="center">LHGCL</StyledTableCell>
-                    <StyledTableCell className={classes.header} align="center">LHGPL</StyledTableCell>
-                    <StyledTableCell className={classes.header} align="center">LHGAL</StyledTableCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-            {seasonList.Leagues.map((season) => (
-                <StyledTableRow key={season.SeasonTime}>
-                    <StyledTableCell component="th" scope="row" align="center"><b>{season.SeasonTime}</b></StyledTableCell>
-                    <SeasonTableCell item={season.Champions} />
-                    <SeasonTableCell item={season.Premier} />
-                    <SeasonTableCell item={season.Academy} />
-                </StyledTableRow>
-            ))}
-            </TableBody>
-        </Table>
+            <Table className={classes.table} aria-label="customized table">
+                <TableHead>
+                    <TableRow>
+                        <StyledTableCell className={classes.header} align="center">Season</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">LHGCL</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">LHGPL</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">LHGAL</StyledTableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                {seasonList.Leagues.map((season) => (
+                    <StyledTableRow key={season.SeasonTime}>
+                        <StyledTableCell component="th" scope="row" align="center"><b>{season.SeasonTime}</b></StyledTableCell>
+                        <SeasonTableCell item={season.Champions} />
+                        <SeasonTableCell item={season.Premier} />
+                        <SeasonTableCell item={season.Academy} />
+                    </StyledTableRow>
+                ))}
+                </TableBody>
+            </Table>
         </TableContainer>
-    );
+    </div>);
 }

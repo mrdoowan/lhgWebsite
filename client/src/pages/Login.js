@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import { Helmet } from "react-helmet";
 
 const styles = (theme) => ({
     root: {
@@ -55,7 +56,11 @@ class login extends Component {
     render() {
         const { classes } = this.props;
 
-        return (
+        return (<div>
+            <Helmet>
+                <title>Login - LHG Competitive Leagues</title>
+                <meta name="description" content="Login to LHG Competitive Leagues" />
+            </Helmet>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
@@ -92,7 +97,7 @@ class login extends Component {
                     </Paper>
                 </Grid>
             </Grid>
-        );
+        </div>);
     }
 }
 
