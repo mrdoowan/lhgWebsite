@@ -1,5 +1,6 @@
 # Overall
-* vB.3 - Next Release
+* vB.4 - Next Release
+* vB.3 - Client 0.1.2, Server 0.1.3
 * vB.2 - Client 0.1.1, Server 0.1.2
 * vB.1 - Client 0.1.0, Server 0.1.1
 * vB.0 - Client 0.1.0, Server 0.1.0
@@ -20,6 +21,8 @@
 * 1.0.0 will be the first major release
 
 # Client
++ 0.1.2
+    + react-helmet title (meta tags), Profile Game Log page
 + 0.1.1
     + Axios, TTL reduced, QoL changes
 + 0.1.0
@@ -50,6 +53,8 @@
     + First Github commit for collaboration purposes.
 
 # Server
++ 0.1.3
+    + Tournament Overall PUT request broken into individual requests
 + 0.1.2
     + DELETE request made, and overall tournament update function made
 + 0.1.1
