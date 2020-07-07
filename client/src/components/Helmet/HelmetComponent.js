@@ -5,7 +5,7 @@ export default function HelmetComponent({ title, description, image, url }) {
 
     return (
         <Helmet>
-            {(title) ? <title>{`${title} - LHG Leagues`}</title> : null}
+            <title>{(title) ? `${title} - LHG Leagues` : "LHG Competitive Leagues"}</title>
             {(description) ? <meta name="description" content={description} /> : null}
             {/* Og - Open Graph */}
             {(title) ? <meta property="og:title" content={title} /> : null}
