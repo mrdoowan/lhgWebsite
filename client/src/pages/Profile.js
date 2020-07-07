@@ -73,8 +73,8 @@ export class profileGames extends Component {
                 }
                 this.setState({ games: res.data });
             }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
+                this.setState({ statusCode: err.response.status })
+            });
         }
         else {
             // Latest season
@@ -85,8 +85,8 @@ export class profileGames extends Component {
                 }
                 this.setState({ games: res.data });
             }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
+                this.setState({ statusCode: err.response.status })
+            });
         }
     }
 

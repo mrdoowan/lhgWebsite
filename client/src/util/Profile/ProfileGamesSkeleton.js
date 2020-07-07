@@ -17,7 +17,7 @@ export default function ProfileGamesSkeleton({ info, games }) {
     const classes = useStyles();
 
     let headerComponent = (<ProfileHeader info={info} type={"Games"} />);
-    let gamesComponent = (<ProfileGames games={games} />);
+    let gamesComponent = (<ProfileGames info={info} games={games} />);
     
     let headerEmpty = "There is no Information logged for this Player.";
     let gamesEmpty = "There are no Games logged for this Player.";

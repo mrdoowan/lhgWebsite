@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // If version is blank, grab most recent DDragon Version.
-export default function ChampionSquare({ id, patch='', version='', withName=false, vertical=false, num=0 }) {
+export default function ChampionSquare({ id, patch='', version='', withName=false, vertical=false, num=0, width="30", height="30", }) {
     const classes = useStyles();
 
     let urlId = getChampUrlId(id);
@@ -58,19 +58,19 @@ export default function ChampionSquare({ id, patch='', version='', withName=fals
     let ddragonVersion = (patch === '') ? 
         ((version === '') ? getCurrentVersion() : version) : 
         getVersionByPatch(patch);
-    let url = 'https://ddragon.leagueoflegends.com/cdn/' + ddragonVersion + '/img/champion/' + urlId + '.png';
+    let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
 
     return (withName) ? (
         <div>
-            <React.Fragment><img className={classes.spacing} src={url} alt={urlId} width="30" height="30" /> {name}</React.Fragment>
+            <React.Fragment><img className={classes.spacing} src={url} alt={urlId} width={width} height={height} /> {name}</React.Fragment>
         </div>
     ) : (vertical) ? (
         <div className={classes.spacing}>
-            <img className={classes.spacing} src={url} alt={urlId} width="30" height="30" /><br />
+            <img className={classes.spacing} src={url} alt={urlId} width={width} height={height} /><br />
             {num}
         </div>
     ) : (
-        <img className={classes.spacing} src={url} alt={urlId} width="30" height="30" />
+        <img className={classes.spacing} src={url} alt={urlId} width={width} height={height} />
     );
 }
 

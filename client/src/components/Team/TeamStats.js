@@ -19,6 +19,15 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
+    paper2: {
+        height: "100%",
+        padding: theme.spacing(2),
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "top",
+        color: theme.palette.text.primary,
+        background: '#A9A9A9',
+    },
     link: {
         color: 'blue',
     },
@@ -103,7 +112,7 @@ export default function TeamStats({ info, stats }) {
             </Grid>
             <Grid container spacing={3}>
                 <Grid item xs={6}>
-                    <Paper className={classes.paper}>
+                    <Paper className={classes.paper2}>
                         <div className={classes.title}>Combat</div>
                         <table>
                             <tbody>
@@ -136,7 +145,7 @@ export default function TeamStats({ info, stats }) {
                     </Paper>
                 </Grid>
                 <Grid item xs={6}>
-                    <Paper className={classes.paper}>
+                    <Paper className={classes.paper2}>
                         <div className={classes.title}>Objectives</div>
                         <table>
                             <tbody>
@@ -179,7 +188,7 @@ export default function TeamStats({ info, stats }) {
                     </Paper>
                 </Grid>
                 <Grid item xs={6}>
-                    <Paper className={classes.paper}>
+                    <Paper className={classes.paper2}>
                         <div className={classes.title}>Income</div>        
                         <table>
                             <tbody>
@@ -212,7 +221,7 @@ export default function TeamStats({ info, stats }) {
                     </Paper>
                 </Grid>
                 <Grid item xs={6}>
-                    <Paper className={classes.paper}>
+                    <Paper className={classes.paper2}>
                         <div className={classes.title}>Vision</div>
                         <table>
                             <tbody>

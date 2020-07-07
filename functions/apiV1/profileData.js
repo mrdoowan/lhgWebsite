@@ -136,7 +136,6 @@ function getProfileGamesBySeason(pPId, sPId=null) {
                     else if (data != null) { resolve(JSON.parse(data)); return; }
                     let profileGamesJson = gameLogJson[seasonId];
                     if (profileGamesJson == null) { resolve(null); return; } // Not Found
-
                     // Process Data
                     profileGamesJson['SeasonTime'] = await Season.getTime(seasonId);
                     profileGamesJson['SeasonName'] = await Season.getName(seasonId);
@@ -145,10 +144,16 @@ function getProfileGamesBySeason(pPId, sPId=null) {
                         let matchJson = Object.values(profileGamesJson['Matches'])[i];
                         matchJson['TeamName'] = await Team.getName(matchJson['TeamHId']);
                         matchJson['EnemyTeamName'] = await Team.getName(matchJson['EnemyTeamHId']);
+                        matchJson['Kda'] = (matchJson['Deaths'] > 0) ? ((matchJson['Kills'] + matchJson['Deaths']) / matchJson['Deaths']).toFixed(2) : "Perfect";
                         matchJson['KillPct'] = ((matchJson['Kills'] + matchJson['Assists']) / matchJson['TeamKills']).toFixed(4);
                         matchJson['DamagePct'] = (matchJson['DamageDealt'] / matchJson['TeamDamage']).toFixed(4);
                         matchJson['GoldPct'] = (matchJson['Gold'] / matchJson['TeamGold']).toFixed(4);
                         matchJson['VisionScorePct'] = (matchJson['VisionScore'] / matchJson['TeamVS']).toFixed(4);
+                        let gameDurationMinute = matchJson['GameDuration'] / 60;
+                        matchJson['CreepScorePerMinute'] = (matchJson['CreepScore'] / gameDurationMinute).toFixed(2);
+                        matchJson['DamagePerMinute'] = (matchJson['DamageDealt'] / gameDurationMinute).toFixed(2);
+                        matchJson['GoldPerMinute'] = (matchJson['Gold'] / gameDurationMinute).toFixed(2);
+                        matchJson['VisionScorePerMinute'] = (matchJson['VisionScore'] / gameDurationMinute).toFixed(2);
                     }
                     cache.set(cacheKey, JSON.stringify(profileGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
                     resolve(profileGamesJson);
@@ -445,6 +450,7 @@ function updateProfileGameLog(profilePId, tournamentPId) {
                     'Kills': sqlPlayerStats.kills,
                     'Deaths': sqlPlayerStats.deaths,
                     'Assists': sqlPlayerStats.assists,
+                    'CreepScore': sqlPlayerStats.creepScore,
                     'DamageDealt': sqlPlayerStats.damageDealt,
                     'Gold': sqlPlayerStats.gold,
                     'VisionScore': sqlPlayerStats.visionScore,
