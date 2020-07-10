@@ -19,7 +19,7 @@ body {
 }
 .container-wrap {
   margin: 80px auto 0 auto;
-  max-width: 1500px;
+  max-width: 1600px;
   width: 94%;
 }
 .footer {
@@ -30,10 +30,6 @@ body {
   padding: 1rem;
   text-align: center;
   font-size: small;
-}
-.nav-container {
-  margin: auto;
-  color: 'white';
 }
 a {
   color: inherit;

@@ -50,9 +50,9 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="TotalKills" alignment="center" dataType="number" caption="Kills" />
                     <Column dataField="TotalDeaths" alignment="center" dataType="number" caption="Deaths" />
                     <Column dataField="TotalAssists" alignment="center" dataType="number" caption="Assists" />
-                    <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVGK" />
-                    <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVGD" />
-                    <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVGA" />
+                    <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVG Kills" />
+                    <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVG Deaths" />
+                    <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVG Assists" />
                     <Column dataField="KillPct" alignment="center" dataType="number" caption="Kill%" format={fixedPercent()} />
                     <Column dataField="DeathPct" alignment="center" dataType="number" caption="Death%" format={fixedPercent()} />
                     <Column dataField="FirstBloodPct" alignment="center" dataType="number" caption="FB%" format={fixedPercent()} />

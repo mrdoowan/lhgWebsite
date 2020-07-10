@@ -200,11 +200,11 @@ export default function TeamGameLog({ games }) {
  * @param {string} label    'GD15' or 'GD25'
  */
 function goldString(gold, label) {
-    return (gold) ? (<React.Fragment><b>{(gold > 0) ? '+' : ''}{gold.toLocaleString()}</b> {label}<br /></React.Fragment>) : '';
+    return (gold != null) ? (<React.Fragment><b>{(gold > 0) ? '+' : ''}{gold.toLocaleString()}</b> {label}<br /></React.Fragment>) : '';
 }
 
 /**
- * Returns a JSX Element of a Player's profile
+ * Returns the JSX Element of the Player's stats within that game
  * @param {object} playerObject     From ChampPicks in Team's GameLog
  * @param {object} seasonShortName  Code of season
  * @param {object} classes          Material-ui styles
@@ -219,6 +219,11 @@ function playerCell(playerObject, seasonShortName, classes) {
     </div>);
 }
 
+/**
+ * Returns JSX element of the side the Team played on
+ * @param {string} side     'Blue' or 'Red'
+ * @param {object} classes  Material-ui styles
+ */
 function sideString(side, classes) {
     return (side === 'Blue') ? (<div className={classes.blueSide}>B</div>) : (side === 'Red') ? (<div className={classes.redSide}>R</div>) : '';
 }

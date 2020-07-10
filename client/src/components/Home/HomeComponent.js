@@ -51,7 +51,7 @@ export default function HomeComponent() {
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
                     <img src='https://lhg-images.s3.us-east-2.amazonaws.com/LHG_S2020_Logo.png' className={classes.imgSpacing} alt='LHG Logo' width="300" height="300" />
-                    <p className={classes.title}><h1><u>LHG Competitive Leagues (Public Beta Website)</u></h1></p>
+                    <h1 className={classes.title}><u>LHG Competitive Leagues (Public Beta Website)</u></h1><br />
                     <p>
                         Welcome to the Public Beta website of LHG's (Last Hit God) Competitive Leagues for League of Legends tournaments! 
                         As with all Public Betas, many features are incomplete and are still in process of being implemented. In the meantime, 

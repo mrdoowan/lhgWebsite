@@ -280,14 +280,25 @@ export default function ProfileGames({ info, games }) {
                 </Paper>
             </Grid>
         </Grid>
-        
     </div>);
 }
 
+/**
+ * String format of the differential value. (i.e. '+1,000', '-1,500')
+ * @param {number} diff     Differential stat value
+ */
 function diffString(diff) {
     return (diff != null) ? (<React.Fragment><b>{(diff > 0) ? '+' : ''}{diff.toLocaleString()}</b></React.Fragment>) : '';
 }
 
+/**
+ * String format of Diff + At values.
+ * 15th minute is structured as "AT (<b>DIFF</b>)"
+ * 25th minute is structured as "(<b>DIFF</b>) AT"
+ * @param {number} at       At minute value (used as a null check)
+ * @param {number} diff     Differential value (used as a null check)
+ * @param {number} min      Minute value ('15' or '25')
+ */
 function diffValueString(at, diff, min) {
     return (at != null && diff != null) ? (
         (min === 15) ? (<React.Fragment>{at.toLocaleString()} (<b>{diffString(diff)}</b>)</React.Fragment>) : 
@@ -296,10 +307,19 @@ function diffValueString(at, diff, min) {
     ) : '';
 }
 
+/**
+ * Converts <1 value to a percentage and rounds to nearest number (i.e. 75%) 
+ * @param {number} pct  A value normally with fixed at 4 decimal places
+ */
 function pctString(pct) {
-    return (pct * 100).toFixed(0);
+    return Math.round(pct * 100);
 }
 
+/**
+ * Returns JSX element of the side the Team played on
+ * @param {*} side 
+ * @param {*} classes 
+ */
 function sideString(side, classes) {
     return (side === 'Blue') ? (<div className={classes.blueSide}>B</div>) : (side === 'Red') ? (<div className={classes.redSide}>R</div>) : '';
 }
