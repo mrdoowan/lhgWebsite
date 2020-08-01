@@ -21,6 +21,8 @@
 * 1.0.0 will be the first major release
 
 # Client
++ 0.1.3
+    + Added a search field into the Nav Bar
 + 0.1.2
     + react-helmet title (meta tags), Profile Game Log page
 + 0.1.1

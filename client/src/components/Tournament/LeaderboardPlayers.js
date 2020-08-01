@@ -31,6 +31,10 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2),
         fontSize: 'large',
     },
+    columnNum: {
+        width: "3%",
+        textAlign: 'right',
+    },
     columnImage: {
         width: "5%",
         textAlign: 'right',
@@ -43,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
         paddingBottom: '5px',
     },
     columnData: {
-        width: "65%",
+        width: "62%",
         padding: '5px 20px 5px 20px',
         textAlign: 'left',
         wordWrap: 'break-word',
@@ -79,6 +83,9 @@ export default function LeaderboardPlayers({ playerRecords }) {
                                 <tbody>
                                 {playerRecords[recordType].map((item, i) => (
                                     <tr key={i} className={classes.row}>
+                                        <td className={classes.columnNum}>
+                                            {i + 1})
+                                        </td>
                                         <td className={classes.columnImage}>
                                             <ChampionSquare patch={item.Patch} id={item.ChampId} />
                                         </td>

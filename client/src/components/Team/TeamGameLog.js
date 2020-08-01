@@ -98,15 +98,12 @@ const useStyles = makeStyles((theme) => ({
     },
     colBansAgainst: {
         width: "20%",
-        textAlign: 'center',
-        fontSize: 'small',
+        fontSize: 'large',
         padding: theme.spacing(1),
     },
     layoutChamps: {
         width: '100%',
-        alignItems: 'center',
         justifyContent: 'center',
-        wordWrap: 'break-word',
         display: 'flex',
         flexWrap: 'wrap',
         padding: theme.spacing(1),
@@ -163,7 +160,6 @@ export default function TeamGameLog({ games }) {
                         </td>
                         <td className={classes.colStats}>
                             <b>{match.Kills} / {match.Deaths} / {match.Assists}</b><br />
-                            <b>{match.GoldPerMinute}</b> GPM<br />
                             {goldString(match.GoldDiffEarly, 'GD@15')}
                             {goldString(match.GoldDiffMid, 'GD@25')}
                         </td>
@@ -185,6 +181,9 @@ export default function TeamGameLog({ games }) {
                         <td className={classes.colBansAgainst}>
                             <div className={classes.layoutChamps}>
                                 {BannedAgainst.map((Id) => (<ChampionSquare key={Id} id={Id} />))}
+                                {/* {BannedAgainstPhase1.map((Id) => (<ChampionSquare key={Id} id={Id} />))}
+                                &nbsp;|&nbsp;
+                                {BannedAgainstPhase2.map((Id) => (<ChampionSquare key={Id} id={Id} />))} */}
                             </div>
                         </td>
                     </tr>)

@@ -20,6 +20,10 @@ const Profile = require('./profileData');
 const Team = require('./teamData');
 const GLOBAL = require('./global');
 
+/**
+ * Get the data of a specific Match from DynamoDb
+ * @param {string} Id       Match Id in string format
+ */
 async function getMatchData(Id) {
     return new Promise(function(resolve, reject) {
         const cacheKey = keyBank.MATCH_PREFIX + Id;

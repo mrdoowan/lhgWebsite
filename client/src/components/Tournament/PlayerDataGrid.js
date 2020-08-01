@@ -53,15 +53,15 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVG Kills" />
                     <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVG Deaths" />
                     <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVG Assists" />
-                    <Column dataField="KillPct" alignment="center" dataType="number" caption="Kill%" format={fixedPercent()} />
+                    <Column dataField="KillPct" alignment="center" dataType="number" caption="K/P%" format={fixedPercent()} />
                     <Column dataField="DeathPct" alignment="center" dataType="number" caption="Death%" format={fixedPercent()} />
                     <Column dataField="FirstBloodPct" alignment="center" dataType="number" caption="FB%" format={fixedPercent()} />
                     <Column dataField="GoldPct" alignment="center" dataType="number" caption="GOLD%" format={fixedPercent()} />
                     <Column dataField="DamagePct" alignment="center" dataType="number" caption="DMG%" format={fixedPercent()} />
                     <Column dataField="VisionScorePct" alignment="center" dataType="number" caption="VS%" format={fixedPercent()} />
-                    <Column dataField="DamagePerGold" alignment="center" dataType="number" caption="DMG/GOLD" format={fixedPoint(4)} />
                     <Column dataField="GoldPerMinute" alignment="center" dataType="number" caption="GOLD/MIN" format={fixedPoint(2)} />
                     <Column dataField="DamagePerMinute" alignment="center" dataType="number" caption="DMG/MIN" format={fixedPoint(2)} />
+                    <Column dataField="DamagePerGold" alignment="center" dataType="number" caption="DMG/GOLD" format={fixedPoint(4)} />
                     <Column dataField="CreepScorePerMinute" alignment="center" dataType="number" caption="CS/MIN" format={fixedPoint(2)} />
                     <Column dataField="VisionScorePerMinute" alignment="center" dataType="number" caption="VS/MIN" format={fixedPoint(2)} />
                     <Column dataField="WardsPerMinute" alignment="center" dataType="number" caption="WARD/MIN" format={fixedPoint(2)} />

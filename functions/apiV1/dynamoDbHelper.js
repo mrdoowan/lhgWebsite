@@ -22,7 +22,7 @@ const CHANGE_DYNAMO = (process.env.CHANGE_DB === 'true') || (process.env.NODE_EN
  * Gets an item from the Table based on keyValue. Returns 'undefined' if key item does NOT EXIST
  * @param {string} tableName        Table name of DynamoDb
  * @param {string} partitionName    Column name of the Partition Key
- * @param {string} keyValue         Specific item to look for
+ * @param {*} keyValue              Specific item to look for
  */
 function getItemInDynamoDB(tableName, partitionName, keyValue) {
     var params = {

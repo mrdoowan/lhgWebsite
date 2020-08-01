@@ -241,6 +241,7 @@ function getTourneyPlayerStats(tPId) {
                                 'CreepScorePerMinute': statsObj.CreepScorePerMinute,
                                 'GoldPerMinute': statsObj.GoldPerMinute,
                                 'DamagePerMinute': statsObj.DamagePerMinute,
+                                'DamagePerMinuteStdDev': statsObj.DamagePerMinuteStdDev,
                                 'DamagePerGold': statsObj.DamagePerGold,
                                 'VisionScorePerMinute': statsObj.VisionScorePerMinute,
                                 'WardsPerMinute': statsObj.WardsPerMinute,
@@ -435,6 +436,10 @@ function getTeamList(tournamentPId) {
     });
 }
 
+/**
+ * Updates Tourney Information into DynamoDb by grabbing from the list of Matches
+ * @param {number} tournamentPId 
+ */
 function updateTourneyOverall(tournamentPId) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -552,7 +557,7 @@ function updateTourneyOverall(tournamentPId) {
             // Players Most Damage
             let playerMostDamageList = [];
             let mostDamageListSql = await mySql.callSProc('playerMostDamageByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < mostDamageListSql.length; ++j) {
                 let mostDamageRowSql = mostDamageListSql[j];
                 let playerMostDamageItem = buildDefaultLeaderboardItem(mostDamageRowSql); GLOBAL.getProfileHId
                 playerMostDamageItem['ProfileHId'] = GLOBAL.getProfileHId(mostDamageRowSql.profilePId);
@@ -567,7 +572,7 @@ function updateTourneyOverall(tournamentPId) {
             // Player Most Farm
             let playerMostFarmList = [];
             let mostFarmListSql = await mySql.callSProc('playerMostFarmByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < mostFarmListSql.length; ++j) {
                 let mostFarmRowSql = mostFarmListSql[j];
                 let playerMostFarmItem = buildDefaultLeaderboardItem(mostFarmRowSql);
                 playerMostFarmItem['ProfileHId'] = GLOBAL.getProfileHId(mostFarmRowSql.profilePId);
@@ -582,7 +587,7 @@ function updateTourneyOverall(tournamentPId) {
             // Player Most GD@Early
             let playerMostGDiffEarlyList = [];
             let mostGDiffEarlyList = await mySql.callSProc('playerMostGDEarlyByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < mostGDiffEarlyList.length; ++j) {
                 let mostGDiffEarlyRowSql = mostGDiffEarlyList[j];
                 let playerMostGDiffEarlyItem = buildDefaultLeaderboardItem(mostGDiffEarlyRowSql);
                 playerMostGDiffEarlyItem['ProfileHId'] = GLOBAL.getProfileHId(mostGDiffEarlyRowSql.profilePId);
@@ -597,7 +602,7 @@ function updateTourneyOverall(tournamentPId) {
             // Player Most XPD@Early
             let playerMostXpDiffEarlyList = [];
             let mostXpDiffListSql = await mySql.callSProc('playerMostXPDEarlyByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < mostXpDiffListSql.length; ++j) {
                 let mostXpDiffEarlyRowSql = mostXpDiffListSql[j];
                 let playerMostXpDiffEarlyItem = buildDefaultLeaderboardItem(mostXpDiffEarlyRowSql);
                 playerMostXpDiffEarlyItem['ProfileHId'] = GLOBAL.getProfileHId(mostXpDiffEarlyRowSql.profilePId);
@@ -612,7 +617,7 @@ function updateTourneyOverall(tournamentPId) {
             // Player Most Vision
             let playerMostVisionList = [];
             let mostVisionListSql = await mySql.callSProc('playerMostVisionByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < mostVisionListSql.length; ++j) {
                 let mostVisionRowSql = mostVisionListSql[j];
                 let playerMostVisionItem = buildDefaultLeaderboardItem(mostVisionRowSql);
                 playerMostVisionItem['ProfileHId'] = GLOBAL.getProfileHId(mostVisionRowSql.profilePId);
@@ -631,7 +636,7 @@ function updateTourneyOverall(tournamentPId) {
             // Team Top Baron Power Plays
             let teamTopBaronPPList = [];
             let topBaronPPListSql = await mySql.callSProc('teamTopBaronPPByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < topBaronPPListSql.length; ++j) {
                 let topBaronPPRowSql = topBaronPPListSql[j];
                 let teamBaronPPItem = buildDefaultLeaderboardItem(topBaronPPRowSql);
                 teamBaronPPItem['TeamHId'] = GLOBAL.getTeamHId(topBaronPPRowSql.teamPId);
@@ -643,7 +648,7 @@ function updateTourneyOverall(tournamentPId) {
             // Team Earliest Towers
             let teamEarliestTowerList = [];
             let earliestTowerListSql = await mySql.callSProc('teamEarliestTowerByTournamentId', tournamentPId);
-            for (let j = 0; j < GLOBAL.LEADERBOARD_NUM; ++j) {
+            for (let j = 0; j < earliestTowerListSql.length; ++j) {
                 let earliestTowerRowSql = earliestTowerListSql[j];
                 let teamEarliestTowerItem = buildDefaultLeaderboardItem(earliestTowerRowSql);
                 teamEarliestTowerItem['TeamHId'] = GLOBAL.getTeamHId(earliestTowerRowSql.teamPId);

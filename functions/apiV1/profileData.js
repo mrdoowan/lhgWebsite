@@ -578,6 +578,7 @@ function updateProfileStatsLog(profilePId, tournamentPId) {
                 statsRoleItem['TotalAssists'] = playerStatsTotalRow.totalAssists;
                 statsRoleItem['TotalCreepScore'] = playerStatsTotalRow.totalCreepScore;
                 statsRoleItem['TotalDamage'] = playerStatsTotalRow.totalDamage;
+                statsRoleItem['DamagePerMinuteStdDev'] = playerStatsTotalRow.stdDamage;
                 statsRoleItem['TotalGold'] = playerStatsTotalRow.totalGold;
                 statsRoleItem['TotalVisionScore'] = playerStatsTotalRow.totalVisionScore;
                 statsRoleItem['TotalCsAtEarly'] = playerStatsTotalRow.totalCsAtEarly;

@@ -29,6 +29,12 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2),
         fontSize: 'large',
     },
+    columnNum: {
+        width: "3%",
+        textAlign: 'right',
+        paddingLeft: theme.spacing(0.5),
+        paddingRight: theme.spacing(0.5),
+    },
     columnName: {
         width: "35%",
         textAlign: 'left',
@@ -36,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
         wordWrap: 'break-word',
     },
     columnData: {
-        width: "65%",
+        width: "62%",
         padding: '5px 20px 5px 20px',
         textAlign: 'left',
         wordWrap: 'break-word',
@@ -56,30 +62,29 @@ export default function LeaderboardTeams({ teamRecords }) {
         'TeamEarliestTower': "Earliest Tower", 
     }
 
-    return (
-        <div>
-            <div className={classes.titleOutside}>Team Leaderboards</div>
-            <Grid container spacing={3}>
-                {Object.keys(teamRecords).map((recordType) => (
-                    <Grid key={recordType} item xs={6}>
-                        <Paper className={classes.paper}>
-                            <div className={classes.title}>{titles[recordType]}</div>
-                            <table>
-                                <tbody>
-                                {teamRecords[recordType].map((item, i) => (
-                                    <tr key={i} className={classes.row}>
-                                        <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
-                                        <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item)}</Link>)</td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        </Paper>
-                    </Grid>
-                ))}
-            </Grid>
-        </div>
-    )
+    return (<div>
+        <div className={classes.titleOutside}>Team Leaderboards</div>
+        <Grid container spacing={3}>
+            {Object.keys(teamRecords).map((recordType) => (
+                <Grid key={recordType} item xs={6}>
+                    <Paper className={classes.paper}>
+                        <div className={classes.title}>{titles[recordType]}</div>
+                        <table>
+                            <tbody>
+                            {teamRecords[recordType].map((item, i) => (
+                                <tr key={i} className={classes.row}>
+                                    <td className={classes.columnNum}>{i + 1})</td>
+                                    <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
+                                    <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item)}</Link>)</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </Paper>
+                </Grid>
+            ))}
+        </Grid>
+    </div>)
 }
 
 function recordString(type, item) {
