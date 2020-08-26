@@ -1,12 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/styles';
 
-const styles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
     paper: {
         height: "100%",
         padding: theme.spacing(1),
@@ -18,36 +16,26 @@ const styles = makeStyles((theme) => ({
     },
     title: {
         marginTop: theme.spacing(2),
-        'text-decoration': 'bold',
+        textDecoration: 'bold',
         fontSize: 'large',
     },
 }));
 
-class profileStats extends Component {
-    
+export default function ProfileStats({ stats }) {
+    const classes = useStyles();
 
-    render() {
-        const { classes } = this.props;
-
-        return (<div>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Paper className={classes.paper}>
-                        <p className={classes.title}>Player Stats Log Coming Soon!</p>
-                        {/* <table><tbody>
-                            <tr>
-                                
-                            </tr>
-                        </tbody></table> */}
-                    </Paper>
-                </Grid>
+    return (<div>
+        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                    <p className={classes.title}>Player Stats Log Coming Soon!</p>
+                    {/* <table><tbody>
+                        <tr>
+                            
+                        </tr>
+                    </tbody></table> */}
+                </Paper>
             </Grid>
-        </div>)
-    };
+        </Grid>
+    </div>)
 }
-
-profileStats.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(profileStats);

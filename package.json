@@ -14,19 +14,19 @@
   "author": "mrdoowan",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.662.0",
-    "bcrypt": "^4.0.1",
-    "concurrently": "^5.1.0",
+    "aws-sdk": "^2.739.0",
+    "bcrypt": "^5.0.0",
+    "concurrently": "^5.3.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-http-to-https": "^1.1.4",
     "hashids": "^2.2.1",
-    "mongodb": "^3.5.9",
+    "mongodb": "^3.6.0",
     "mysql": "^2.18.1",
     "random-js": "^2.1.0",
     "redis": "^3.0.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.4"
   }
 }

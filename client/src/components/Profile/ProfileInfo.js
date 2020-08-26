@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     },
     title: {
         marginTop: theme.spacing(2),
-        'text-decoration': 'bold',
+        textDecoration: 'bold',
         fontSize: 'large',
     },
 }));
@@ -24,15 +24,13 @@ const useStyles = makeStyles((theme) => ({
 export default function ProfileInfo({ info }) {
     const classes = useStyles();
 
-    return (
-        <div>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Paper className={classes.paper}>
-                        <p className={classes.title}>Player Information Coming Soon!</p>
-                    </Paper>
-                </Grid>
+    return (<div>
+        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                    <p className={classes.title}>Player Information Coming Soon!</p>
+                </Paper>
             </Grid>
-        </div>
-    )
+        </Grid>
+    </div>)
 }
