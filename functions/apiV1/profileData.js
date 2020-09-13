@@ -112,7 +112,7 @@ function getProfileInfo(pPId) {
                     if (statsLogJson != null) {
                         profileInfoJson['TournamentList'] = await GLOBAL.getTourneyItems(Object.keys(statsLogJson));
                     }
-                    cache.set(cacheKey, JSON.stringify(profileInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(profileInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(profileInfoJson);
                 }
                 else {
@@ -155,7 +155,7 @@ function getProfileGamesBySeason(pPId, sPId=null) {
                         matchJson['GoldPerMinute'] = (matchJson['Gold'] / gameDurationMinute).toFixed(2);
                         matchJson['VisionScorePerMinute'] = (matchJson['VisionScore'] / gameDurationMinute).toFixed(2);
                     }
-                    cache.set(cacheKey, JSON.stringify(profileGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(profileGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(profileGamesJson);
                 })
             }
@@ -218,7 +218,7 @@ function getProfileStatsByTourney(pPId, tPId=null) {
                         statsJson['AverageXpDiffMid'] = (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
                         statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
                     }
-                    cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(profileStatsJson);
                 });
             }

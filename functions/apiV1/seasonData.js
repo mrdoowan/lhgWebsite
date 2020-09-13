@@ -126,18 +126,19 @@ function getLeagues() {
                 if (seasonList != null) {
                     let leagueObject = {};
                     seasonList.map((seasonInfoDb) => {
-                        const { SeasonTime, DateOpened, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
+                        const { SeasonTime, DateOpened, LeagueCode, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
                         if (!(SeasonTime in leagueObject)) {
                             leagueObject[SeasonTime] = { 'SeasonTime': SeasonTime }
                         }
                         leagueObject[SeasonTime]['Date'] = DateOpened;
-                        leagueObject[SeasonTime][LeagueType] = {};
-                        leagueObject[SeasonTime][LeagueType]['League'] = LeagueType;
-                        leagueObject[SeasonTime][LeagueType]['ShortName'] = SeasonShortName;
+                        leagueObject[SeasonTime][LeagueCode] = {};
+                        leagueObject[SeasonTime][LeagueCode]['LeagueType'] = LeagueType;
+                        leagueObject[SeasonTime][LeagueCode]['LeagueCode'] = LeagueCode;
+                        leagueObject[SeasonTime][LeagueCode]['ShortName'] = SeasonShortName;
                     });
                     let returnObject = {};
                     returnObject['Leagues'] = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
-                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(returnObject);
                 }
                 else {
@@ -176,7 +177,7 @@ function getSeasonInformation(sPId) {
                         seasonInfoJson['AllStars']['BotName'] = await Profile.getName(seasonInfoJson['AllStars']['BotHId']);
                         seasonInfoJson['AllStars']['SupportName'] = await Profile.getName(seasonInfoJson['AllStars']['SupportHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonInfoJson);
                 }
                 else {
@@ -222,7 +223,7 @@ function getSeasonRoster(sPId) {
                             playerJson['ProfileName'] = await Profile.getName(profileHId);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonRosterJson);
                 }
                 else {
@@ -257,7 +258,7 @@ function getRegularSeason(sPId) {
                         gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonRegularJson);
                 }
                 else {
@@ -294,7 +295,7 @@ function getSeasonPlayoffs(sPId) {
                         gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(playoffJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(playoffJson);
                 }
                 else {

@@ -66,7 +66,7 @@ async function getMatchData(Id) {
                         playerJson['WardsClearedPerMinute'] = (playerJson['WardsCleared'] / gameDurationMinute).toFixed(2);
                     }
                 }
-                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                 resolve(matchJson);
             }
             catch (error) { console.error(error); reject(error); }

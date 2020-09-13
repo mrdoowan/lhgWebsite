@@ -109,7 +109,7 @@ function getTeamInfo(teamPId) {
                     if (statsLogJson != null) {
                         teamInfoJson['TournamentList'] = await GLOBAL.getTourneyItems(Object.keys(statsLogJson));
                     }
-                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(teamInfoJson);
                 }
                 else {
@@ -152,7 +152,7 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
                             statsJson['VsPctPlayer'] = (statsJson['TotalVsPlayer'] / statsJson['TotalVsTeam']).toFixed(4);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(teamScoutingSeasonJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(teamScoutingSeasonJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(teamScoutingSeasonJson);
                 });
             }
@@ -191,7 +191,7 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
                         }
                         matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(teamSeasonGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(teamSeasonGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(teamSeasonGamesJson);
                 });
             }
@@ -253,7 +253,7 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
                     tourneyStatsJson['AverageGoldDiffMid'] = (tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION_3HRS);
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 });
             }

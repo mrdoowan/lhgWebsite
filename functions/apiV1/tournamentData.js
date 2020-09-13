@@ -114,7 +114,7 @@ function getTourneyInfo(tPId) {
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await Season.getName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await Season.getShortName(tourneyInfoJson['SeasonPId']);
-                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyInfoJson);
                 }
                 else {
@@ -135,7 +135,7 @@ function getTourneyStats(tPId) {
             try {
                 let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
-                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 }
                 else {
@@ -188,7 +188,7 @@ function getTourneyLeaderboards(tPId) {
                             teamObject['RedTeamShortName'] = await Team.getShortName(teamObject['RedTeamHId']);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(leaderboardJson);
                 }
                 else {
@@ -269,7 +269,7 @@ function getTourneyPlayerStats(tPId) {
                     }
                     let profileObject = {};
                     profileObject['PlayerList'] = profileStatsList;
-                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(profileObject);
                 }
                 else {
@@ -335,7 +335,7 @@ function getTourneyTeamStats(tPId) {
                     }
                     let teamObject = {};
                     teamObject['TeamList'] = teamStatsList;
-                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(teamObject);
                 }
                 else {
@@ -371,7 +371,7 @@ function getTourneyPickBans(tPId) {
                         pbList.push(champObject);
                     }
                     pickBansJson['PickBanList'] = pbList;
-                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                 }
                 resolve(pickBansJson);
             }
@@ -396,7 +396,7 @@ function getTourneyGames(tPId) {
                         gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
                         gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2), 'EX', GLOBAL.TTL_DURATION_2HRS);
+                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(gameLogJson);
                 }
                 else {

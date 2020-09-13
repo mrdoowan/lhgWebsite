@@ -53,13 +53,15 @@ function SeasonTableCell({ item }) {
         return (<StyledTableCell align="center"></StyledTableCell>);
     }
     else {
-        return (<StyledTableCell align="center"><Link className={classes.link} to={`/season/${item.ShortName}`}>{item.League}</Link></StyledTableCell>);
+        return (<StyledTableCell align="center"><Link className={classes.link} to={`/season/${item.ShortName}`}>{item.LeagueType}</Link></StyledTableCell>);
     }
 }
 
 export default function LeagueTable(props) {
     const classes = useStyles();
     const { seasonList } = props;
+
+    console.log(seasonList);
     
     return (<div>
         <HelmetComponent
@@ -72,6 +74,7 @@ export default function LeagueTable(props) {
                     <TableRow>
                         <StyledTableCell className={classes.header} align="center">Season</StyledTableCell>
                         <StyledTableCell className={classes.header} align="center">LHGCL</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">LHGUL</StyledTableCell>
                         <StyledTableCell className={classes.header} align="center">LHGPL</StyledTableCell>
                         <StyledTableCell className={classes.header} align="center">LHGAL</StyledTableCell>
                     </TableRow>
@@ -80,9 +83,10 @@ export default function LeagueTable(props) {
                 {seasonList.Leagues.map((season) => (
                     <StyledTableRow key={season.SeasonTime}>
                         <StyledTableCell component="th" scope="row" align="center"><b>{season.SeasonTime}</b></StyledTableCell>
-                        <SeasonTableCell item={season.Champions} />
-                        <SeasonTableCell item={season.Premier} />
-                        <SeasonTableCell item={season.Academy} />
+                        <SeasonTableCell item={season.LHGCL} />
+                        <SeasonTableCell item={season.LHGUL} />
+                        <SeasonTableCell item={season.LHGPL} />
+                        <SeasonTableCell item={season.LHGAL} />
                     </StyledTableRow>
                 ))}
                 </TableBody>
