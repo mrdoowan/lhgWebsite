@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const handler = require('../../functions/apiV1/handlers');
+const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
 const Team = require('../../functions/apiV1/teamData');

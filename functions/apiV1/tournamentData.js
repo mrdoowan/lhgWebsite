@@ -20,11 +20,11 @@ require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
-/*  Import helper function modules */
-const GLOBAL = require('./global');
-const dynamoDb = require('./dynamoDbHelper');
-const mySql = require('./mySqlHelper');
-const keyBank = require('./cacheKeys');
+/*  Import dependency modules */
+const GLOBAL = require('./dependencies/global');
+const dynamoDb = require('./dependencies/dynamoDbHelper');
+const mySql = require('./dependencies/mySqlHelper');
+const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Profile = require('./profileData');
@@ -49,7 +49,10 @@ function getTournamentId(shortName) {
     });
 }
 
-// Get TournamentShortName from DynamoDb
+/**
+ * Get TournamentShortName of a Tourney Id from DynamoDb. Returns a string (i.e. "w2020plpost")
+ * @param {number} sPId      Tourney Id in number format
+ */
 function getTournamentShortName(tPId) {
     const cacheKey = keyBank.TN_CODE_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
@@ -67,7 +70,10 @@ function getTournamentShortName(tPId) {
     });
 }
 
-// Get TournamentName from DynamoDb
+/**
+ * Get TournamentName of a Tourney Id from DynamoDb. Returns a string (i.e. "Winter 2020 Premier League Playoffs")
+ * @param {number} sPId      Tourney Id in number format
+ */
 function getTournamentName(tPId) {
     const cacheKey = keyBank.TN_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {

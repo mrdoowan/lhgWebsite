@@ -16,10 +16,10 @@ require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
-/*  Import helper function modules */
-const GLOBAL = require('./global');
-const dynamoDb = require('./dynamoDbHelper');
-const keyBank = require('./cacheKeys');
+/*  Import dependency modules */
+const GLOBAL = require('./dependencies/global');
+const dynamoDb = require('./dependencies/dynamoDbHelper');
+const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Tournament = require('./tournamentData');
 const Profile = require('./profileData');
@@ -44,7 +44,10 @@ function getSeasonId(shortName) {
     });
 }
 
-// Get SeasonShortName from DynamoDb
+/**
+ * Get ShortName of a Season Id from DynamoDb. Returns a string (i.e. "f2019pl")
+ * @param {number} sPId      Season Id in number format
+ */
 function getSeasonShortName(sPId) {
     const cacheKey = keyBank.SEASON_CODE_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
@@ -62,7 +65,10 @@ function getSeasonShortName(sPId) {
     });
 }
 
-// Get SeasonName from DynamoDb
+/**
+ * Get SeasonName of a Season Id from DynamoDb. Returns a string (i.e. "Fall 2019 Premier League")
+ * @param {number} sPId      Season Id in number format
+ */
 function getSeasonName(sPId) {
     const cacheKey = keyBank.SEASON_NAME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {

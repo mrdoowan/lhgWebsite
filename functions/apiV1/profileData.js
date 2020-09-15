@@ -18,12 +18,12 @@ require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
-/*  Import helper function modules */
-const GLOBAL = require('./global');
-const dynamoDb = require('./dynamoDbHelper');
-const mySql = require('./mySqlHelper');
-const lambda = require('./awsLambdaHelper');
-const keyBank = require('./cacheKeys');
+/*  Import dependency modules */
+const GLOBAL = require('./dependencies/global');
+const dynamoDb = require('./dependencies/dynamoDbHelper');
+const mySql = require('./dependencies/mySqlHelper');
+const lambda = require('./dependencies/awsLambdaHelper');
+const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
@@ -236,7 +236,7 @@ function getProfileStatsByTourney(pPId, tPId=null) {
 // Won't need to cache this. Just call directly from Riot API
 function getSummonerIdBySummonerName(summName) {
     return new Promise(function(resolve, reject) {
-        lambda.getSummonerId(summName).then((data) => {
+        lambda.getRiotSummonerId(summName).then((data) => {
             try { resolve(data['id']); }
             catch { resolve(null); } // Not Found
         }).catch((err) => { reject(err); })

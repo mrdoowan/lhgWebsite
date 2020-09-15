@@ -19,7 +19,7 @@ export class matchBase extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        axios.get(`/api/match/v1/${params.matchPId}`)
+        axios.get(`/api/match/v1/data/${params.matchPId}`)
         .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -52,7 +52,7 @@ export class matchStats extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
         
-        axios.get(`/api/match/v1/${params.matchPId}`)
+        axios.get(`/api/match/v1/data/${params.matchPId}`)
         .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -85,7 +85,7 @@ export class matchTimeline extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        axios.get(`/api/match/v1/${params.matchPId}`)
+        axios.get(`/api/match/v1/data/${params.matchPId}`)
         .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });
@@ -118,7 +118,7 @@ export class matchBuilds extends Component {
     componentDidMount() {
         const { match: { params } } = this.props;
 
-        axios.get(`/api/match/v1/${params.matchPId}`)
+        axios.get(`/api/match/v1/data/${params.matchPId}`)
         .then((res) => {
             if (this.statusCode === 200 || this.statusCode == null) {
                 this.setState({ statusCode: res.status });

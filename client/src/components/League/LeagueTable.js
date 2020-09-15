@@ -60,8 +60,6 @@ function SeasonTableCell({ item }) {
 export default function LeagueTable(props) {
     const classes = useStyles();
     const { seasonList } = props;
-
-    console.log(seasonList);
     
     return (<div>
         <HelmetComponent

@@ -37,8 +37,8 @@ const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
 const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
 const dynamoDb = require('./dynamoDbHelper');
-const Season = require('./seasonData');
-const Tournament = require('./tournamentData');
+const Season = require('../seasonData');
+const Tournament = require('../tournamentData');
 
 // Turn number into string
 function strPadZeroes(num, size) {

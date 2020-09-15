@@ -16,16 +16,20 @@ require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
-/*  Import helper function modules */
-const GLOBAL = require('./global');
-const dynamoDb = require('./dynamoDbHelper');
-const mySql = require('./mySqlHelper');
-const keyBank = require('./cacheKeys');
+/*  Import dependency modules */
+const GLOBAL = require('./dependencies/global');
+const dynamoDb = require('./dependencies/dynamoDbHelper');
+const mySql = require('./dependencies/mySqlHelper');
+const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
 const Profile = require('./profileData');
 
+/**
+ * Get the TeamPId of its Name from DynamoDb
+ * @param {string} name       Team's name
+ */
 // Get TeamPId from TeamName
 function getTeamPId(name) {
     let simpleName = GLOBAL.filterName(name);
@@ -45,9 +49,13 @@ function getTeamPId(name) {
     });
 }
 
+/**
+ * Get the TeamName of its hash ID from DynamoDb
+ * @param {string} teamHId       Team's hash
+ */
 // Get TeamName from DynamoDb
-function getTeamName(tHId) {
-    let tPId = GLOBAL.getTeamPId(tHId);
+function getTeamName(teamHId) {
+    let tPId = GLOBAL.getTeamPId(teamHId);
     const cacheKey = keyBank.TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -64,9 +72,13 @@ function getTeamName(tHId) {
     });
 }
 
+/**
+ * Get the TeamShortName of its hash ID from DynamoDb
+ * @param {string} teamHId       Team's hash
+ */
 // Get Shortname from DynamoDb
-function getTeamShortName(tHId) {
-    let tPId = GLOBAL.getTeamPId(tHId);
+function getTeamShortName(teamHId) {
+    let tPId = GLOBAL.getTeamPId(teamHId);
     const cacheKey = keyBank.TEAM_SHORTNAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {

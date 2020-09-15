@@ -1,5 +1,7 @@
 module.exports = {
     getData: getMatchData,
+    getSetup: getMatchSetup,
+    putNewSetup: putMatchNewSetup,
     putPlayersFix: putMatchPlayerFix,
     deleteData: removeMatchFromDb,
 }
@@ -9,16 +11,17 @@ require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
-/*  Import helper function modules */
-const dynamoDb = require('./dynamoDbHelper');
-const mySql = require('./mySqlHelper');
-const keyBank = require('./cacheKeys');
+/*  Import dependency modules */
+const dynamoDb = require('./dependencies/dynamoDbHelper');
+const mySql = require('./dependencies/mySqlHelper');
+const lambda = require('./dependencies/awsLambdaHelper');
+const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
 const Profile = require('./profileData');
 const Team = require('./teamData');
-const GLOBAL = require('./global');
+const GLOBAL = require('./dependencies/global');
 
 /**
  * Get the data of a specific Match from DynamoDb
@@ -32,7 +35,7 @@ async function getMatchData(Id) {
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
                 let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', Id);
-                if (matchJson == null) { resolve(null); return; } // Not Found
+                if (matchJson == null || "Setup" in matchJson) { resolve(null); return; } // Not Found or it's a Setup
                 let seasonPId = matchJson['SeasonPId'];
                 matchJson['SeasonShortName'] = await Season.getShortName(seasonPId);
                 matchJson['SeasonName'] = await Season.getName(seasonPId);
@@ -74,13 +77,149 @@ async function getMatchData(Id) {
     })
 }
 
+/**
+ * Get the 'Setup' object of a specific Match from DynamoDb
+ * @param {string} Id       Match Id in string format
+ */
+async function getMatchSetup(Id) {
+    return new Promise(async function(resolve, reject) {
+        try {
+            let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', Id);
+            if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
+            let matchSetupJson = matchJson['Setup'];
+            matchSetupJson['SeasonName'] = await Season.getName(matchSetupJson['SeasonPId']);
+            matchSetupJson['TournamentName'] = await Tournament.getName(matchSetupJson['TournamentPId']);
+            
+            // Edit names into the Json
+            let teamsObject = matchSetupJson['Teams'];
+            for (let teamIdx = 0; teamIdx < Object.values(teamsObject).length; ++teamIdx) {
+                let teamJson = Object.values(teamsObject)[teamIdx];
+                if ('TeamHId' in teamJson) { teamJson['TeamName'] = await Team.getName(teamJson['TeamHId']) }
+                let playersList = teamJson['Players'];
+                for (let i = 0; i < playersList.length; ++i) {
+                    let playerJson = playersList[i];
+                    if ('ProfileHId' in playerJson) {
+                        playerJson['ProfileName'] = await Profile.getName(playerJson['ProfileHId']);
+                    }
+                }
+            }
+
+            resolve(matchSetupJson);
+        }
+        catch (error) { console.error(error); reject(error); }
+    })
+}
+
+/**
+ * Get the data of a specific Match from DynamoDb
+ * @param {string} matchId      Match Id (string)
+ * @param {string} seasonId     ID of Season (number)
+ * @param {string} tournamentId ID of Tournament (number)
+ */
+async function putMatchNewSetup(matchId, seasonId, tournamentId) {
+    return new Promise(async function(resolve, reject) {
+        try {
+            // Check if matchId already exists
+            if (await dynamoDb.getItem('Matches', 'MatchPId', matchId) != null) {
+                console.error(`Match ID ${matchId} already exists.`);
+                resolve(null); 
+                return; 
+            }
+            // Check if seasonId exists
+            if (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentId) == null) {
+                console.error(`Tournament ID ${tournamentId} doesn't exists.`);
+                resolve(null); 
+                return; 
+            }
+            // Check if tournamentId exists
+            if (await dynamoDb.getItem('Season', 'SeasonPId', seasonId) == null) {
+                console.error(`Season ID ${seasonId} doesn't exists.`);
+                resolve(null); 
+                return; 
+            }
+
+            // Get data from Riot API
+            const matchDataRiotJson = (await lambda.getRiotMatchData(matchId))['Data'];
+
+            let setupObject = {}
+            setupObject['RiotMatchId'] = matchId;
+            setupObject['SeasonPId'] = seasonId;
+            setupObject['TournamentPId'] = tournamentId;
+            setupObject['Teams'] = {}
+            setupObject['Teams']['BlueTeam'] = {}
+            setupObject['Teams']['RedTeam'] = {}
+            // Iterate through Riot's 'teams' Object:
+            // 1) Make Bans List
+            for (let teamIdx = 0; teamIdx < matchDataRiotJson['teams'].length; ++teamIdx) {
+                // Make Bans List
+                const teamDataRiotJson = matchDataRiotJson['teams'][teamIdx];
+                
+                // 0 = BlueTeam
+                // 1 = RedTeam
+                // https://stackoverflow.com/questions/19590865/from-an-array-of-objects-extract-value-of-a-property-as-array
+                if (teamIdx === 0) {
+                    setupObject['Teams']['BlueTeam']['Bans'] = teamDataRiotJson['bans'].map(b => b.championId);
+                }
+                else if (teamIdx === 1) {
+                    setupObject['Teams']['RedTeam']['Bans'] = teamDataRiotJson['bans'].map(b => b.championId);
+                }
+            }
+            // Iterate through Riot's 'participants' Object:
+            // 1) Make Players List
+            let newBluePlayerList = [];
+            let newRedPlayerList = [];
+            for (let playerIdx = 0; playerIdx < matchDataRiotJson['participants'].length; ++playerIdx) {
+                let newPlayerObject = {}
+                const playerRiotJson = matchDataRiotJson['participants'][playerIdx];
+                newPlayerObject['ChampId'] = playerRiotJson['championId'];
+                newPlayerObject['Spell1Id'] = playerRiotJson['spell1Id'];
+                newPlayerObject['Spell2Id'] = playerRiotJson['spell2Id'];
+                const playerTimelineRiotJson = playerRiotJson['timeline'];
+                newPlayerObject['Role'] = (playerTimelineRiotJson['lane'] === 'TOP') ? "Top" :
+                    (playerTimelineRiotJson['lane'] === 'JUNGLE') ? "Jungle" :
+                    (playerTimelineRiotJson['lane'] === 'MIDDLE') ? "Middle" :
+                    (playerTimelineRiotJson['lane'] === 'BOTTOM' && playerTimelineRiotJson['role'] == 'DUO_CARRY') ? "Bottom" :
+                    (playerTimelineRiotJson['lane'] === 'BOTTOM' && playerTimelineRiotJson['role'] == 'DUO_SUPPORT') ? "Support" :
+                    "Unknown";
+                // Add to List
+                if (playerRiotJson['teamId'] === 100) { newBluePlayerList.push(newPlayerObject); }
+                else if (playerRiotJson['teamId'] === 200) { newRedPlayerList.push(newPlayerObject); }
+            }
+            setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList;
+            setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList;
+
+            // Push into DynamoDb
+            await dynamoDb.updateItem('Matches', 'MatchPId', matchId,
+                'SET #setup = :obj',
+                {
+                    '#setup': 'Setup',
+                },
+                {
+                    ':obj': setupObject,
+                }
+            );
+            resolve({
+                response: `New Setup for Match ID '${matchId}' successfully created.`,
+                objectCreated: setupObject,
+            });
+        }
+        catch (error) { console.error(error); reject(error); }
+    });
+}
+
 // BODY EXAMPLE:
 // {
+//     "matchId": "3450759464",
 //     playersToFix: {
 //         [champId]: 'P_ID',
 //         // etc.
 //     },
 // }
+/**
+ * Get the data of a specific Match from DynamoDb
+ * @param {string} playersToFix  JSON Object 
+ * @param {string} matchId       Match Id in string format
+ */
 async function putMatchPlayerFix(playersToFix, matchId) {
     return new Promise(function(resolve, reject) {
         getMatchData(matchId).then(async (data) => {
@@ -164,30 +303,49 @@ async function putMatchPlayerFix(playersToFix, matchId) {
     });
 }
 
+/**
+ * Removes the specific Match item from from DynamoDb
+ * @param {string} matchId      Match Id in string format
+ */
 async function removeMatchFromDb(matchId) {
     return new Promise(async (resolve, reject) => {
         try {
-            // 1) Remove and update Game Logs from EACH Profile Collection
-            // 2) Remove and update Game Logs from EACH Team Collection
-            // 3) Remove from Match Collection
+            // 1) Remove and update Game Logs from EACH Profile Table
+            // 2) Remove and update Game Logs from EACH Team Table
+            // 3) Remove from Match Table
             // 4) Remove from MySQL
             let matchData = await dynamoDb.getItem('Matches', 'MatchPId', matchId);
             if (matchData == null) { resolve(null); return; } // Not found
-            let seasonPId = matchData['SeasonPId'];
-            const { Teams } = matchData;
-            for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
-                let teamObject = Object.values(Teams)[teamIdx];
-                let teamPId = GLOBAL.getTeamPId(teamObject['TeamHId']);
-                let teamSeasonGameLog = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
-                delete teamSeasonGameLog[matchId];
-                const { Players } = teamObject;
-                for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
-                    let playerObject = Object.values(Players)[playerIdx];
-                    let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
-                    let playerSeasonGameLog = (await dynamoDb.getItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
-                    delete playerSeasonGameLog[matchId];
-                    // 1)
-                    await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+            // Check if it's just a Setup Match table. If it is, skip everything below
+            if (!('Setup' in matchData)) {
+                let seasonPId = matchData['SeasonPId'];
+                const { Teams } = matchData;
+                for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
+                    let teamObject = Object.values(Teams)[teamIdx];
+                    let teamPId = GLOBAL.getTeamPId(teamObject['TeamHId']);
+                    let teamSeasonGameLog = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
+                    delete teamSeasonGameLog[matchId];
+                    const { Players } = teamObject;
+                    for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
+                        let playerObject = Object.values(Players)[playerIdx];
+                        let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
+                        let playerSeasonGameLog = (await dynamoDb.getItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
+                        delete playerSeasonGameLog[matchId];
+                        // 1)
+                        await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                            'SET #gLog.#sPId.#mtch = :data',
+                            {
+                                '#gLog': 'GameLog',
+                                '#sPId': seasonPId,
+                                '#mtch': 'Matches'
+                            },
+                            {
+                                ':data': playerSeasonGameLog,
+                            }
+                        );
+                    }
+                    // 2)
+                    await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
                         'SET #gLog.#sPId.#mtch = :data',
                         {
                             '#gLog': 'GameLog',
@@ -195,27 +353,16 @@ async function removeMatchFromDb(matchId) {
                             '#mtch': 'Matches'
                         },
                         {
-                            ':data': playerSeasonGameLog,
+                            ':data': teamSeasonGameLog,
                         }
                     );
                 }
-                // 2)
-                await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
-                    'SET #gLog.#sPId.#mtch = :data',
-                    {
-                        '#gLog': 'GameLog',
-                        '#sPId': seasonPId,
-                        '#mtch': 'Matches'
-                    },
-                    {
-                        ':data': teamSeasonGameLog,
-                    }
-                );
+                // 4) 
+                await mySql.callSProc('removeMatchByMatchId', parseInt(matchId));
             }
+            
             // 3) 
             await dynamoDb.deleteItem('Matches', 'MatchPId', matchId);
-            // 4) 
-            await mySql.callSProc('removeMatchByMatchId', parseInt(matchId));
 
             // Del from Cache
             cache.del(`${keyBank.MATCH_PREFIX}${matchId}`);
