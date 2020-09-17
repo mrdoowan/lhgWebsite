@@ -98,9 +98,7 @@ async function getMatchSetup(Id) {
                 let playersList = teamJson['Players'];
                 for (let i = 0; i < playersList.length; ++i) {
                     let playerJson = playersList[i];
-                    if ('ProfileHId' in playerJson) {
-                        playerJson['ProfileName'] = await Profile.getName(playerJson['ProfileHId']);
-                    }
+                    if ('ProfileHId' in playerJson) { playerJson['ProfileName'] = await Profile.getName(playerJson['ProfileHId']); }
                 }
             }
 

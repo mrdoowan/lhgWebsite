@@ -35,10 +35,12 @@ export default function TourneyUpdateTemporary({ info, loading, handleSubmit, re
         ) : (
             <React.Fragment><Button type="submit" variant="contained" color="primary">Update</Button></React.Fragment>
         )}
-    </form>)
+    </form>);
+
     const loadingComponent = (loading) ? (<div className={classes.pad}>
         <CircularProgress color="secondary" />
     </div>) : (<div></div>);
+    
     const responseReceived = (response) ? (<div className={classes.pad}>
         {(response.playersNum) ? (<React.Fragment>{response.playersNum} Players updated<br /></React.Fragment>) : '' }
         {(response.teamsNum) ? (<React.Fragment>{response.teamsNum} Teams updated<br /></React.Fragment>) : '' }

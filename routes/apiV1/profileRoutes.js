@@ -113,28 +113,29 @@ router.get('/stats/latest/name/:profileName', (req, res) => {
  */
 router.post('/add/new', (req, res) => {
     const { profileName, summonerName } = req.body;
-    // Check if Profile name already exists.
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId != null) {
-            // Id Found in DB. That means Profile name exists. Reject.
-            return handler.res400s(res, req, `Profile '${profileName}' already exists under Profile ID '${pPId}'`);
+    // Check if the IGN exists. 
+    Profile.getSummonerId(summonerName).then((summId) => {
+        if (summId == null) {
+            // Summoner Id does not exist
+            return handler.res400s(res, req, `Summoner Name '${summonerName}' does not exist.`);
         }
-        // Check if the IGN exists. 
-        Profile.getSummonerId(summonerName).then((summId) => {
-            if (summId == null) {
-                // Summoner Id does not exist
-                return handler.res400s(res, req, `Summoner Name '${summonerName}' does not exist.`);
+        // Check if summoner Name has its ID already registered. 
+        Profile.getIdBySummonerId(summId).then((pPId) => {
+            if (pPId != null) {
+                // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
+                Profile.getName(pPId, false).then((pName) => {
+                    return handler.res400s(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'`);
+                }).catch((err) => handler.error500s(err, res, "GET Profile Name Error."));
+                return;
             }
-            // Check if summoner Name has its ID already registered. 
-            Profile.getIdBySummonerId(summId).then((pPId) => {
+            // New Summoner Id found.
+            // Check if Profile name already exists.
+            Profile.getIdByName(profileName).then((pPId) => {
                 if (pPId != null) {
-                    // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                    Profile.getName(pPId, false).then((pName) => {
-                        return handler.res400s(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'`);
-                    }).catch((err) => handler.error500s(err, res, "GET Profile Name Error."));
-                    return;
+                    // Id Found in DB. That means Profile name exists. Reject.
+                    return handler.res400s(res, req, `Profile '${profileName}' already exists under Profile ID '${pPId}'`);
                 }
-                // New Summoner Id found. Make new Profile.
+                // Make new Profile
                 Profile.postNew(profileName, summId).then((data) => {
                     return handler.res200s(res, req, data);
                 }).catch((err) => handler.error500s(err, res, "POST Profile Add New Error 1."));
@@ -150,25 +151,25 @@ router.post('/add/new', (req, res) => {
  */
 router.put('/add/account', (req, res) => {
     const { profileName, summonerName } = req.body;
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId == null) {
-            // Profile does not exist
-            return handler.res400s(res, req, `Profile '${profileName}' does not exist.`);
+    // Check if the IGN exists (Riot API call)
+    Profile.getSummonerId(summonerName).then((summId) => {
+        if (summId == null) {
+            // Summoner Id does not exist
+            return handler.res400s(res, req, `Summoner Name '${summonerName}' does not exist.`);
         }
-        // Check if the IGN exists. 
-        Profile.getSummonerId(summonerName).then((summId) => {
-            if (summId == null) {
-                // Summoner Id does not exist
-                return handler.res400s(res, req, `Summoner Name '${summonerName}' does not exist.`);
+        Profile.getIdBySummonerId(summId).then((profileIdExist) => {
+            if (profileIdExist != null) {
+                // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
+                Profile.getName(profileIdExist, false).then((pName) => {
+                    return handler.res400s(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${profileIdExist}'`);
+                }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 1."));
+                return;
             }
-            // Check if summoner Name has its ID already registered. 
-            Profile.getIdBySummonerId(summId).then((profileIdExist) => {
-                if (profileIdExist != null) {
-                    // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                    Profile.getName(profileIdExist, false).then((pName) => {
-                        return handler.res400s(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${profileIdExist}'`);
-                    }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 1."));
-                    return;
+            // Check if Profile Name exists
+            Profile.getIdByName(profileName).then((pPId) => {
+                if (pPId == null) {
+                    // Profile does not exist
+                    return handler.res400s(res, req, `Profile '${profileName}' does not exist.`);
                 }
                 // Get Profile Information
                 Profile.getInfo(pPId).then((infoData) => {

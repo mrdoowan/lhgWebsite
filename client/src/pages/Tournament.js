@@ -9,7 +9,7 @@ import TourneyTeamsSkeleton from '../util/Tournament/TourneyTeamsSkeleton';
 import TourneyPlayersSkeleton from '../util/Tournament/TourneyPlayersSkeleton';
 import TourneyChampsSkeleton from '../util/Tournament/TourneyChampsSkeleton';
 import TourneyGamesSkeleton from '../util/Tournament/TourneyGamesSkeleton';
-// temporary
+// Direct Component
 import TourneyUpdateTemporary from '../components/Tournament/TourneyUpdate';
 
 // {MAIN}/tournament/:tournamentShortName

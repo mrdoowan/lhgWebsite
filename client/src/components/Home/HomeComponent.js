@@ -80,7 +80,7 @@ export default function HomeComponent() {
                             If you are interested in helping out to improve LHG, please fill out the form below!
                         </b>
                     </p>
-                    <a href='https://forms.gle/KSpW2fMLLz18iioN9'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/google_forms_icon.png' className={classes.imgSpacing} alt='Google Form Logo' width="100" height="100"/></a>
+                    <a href='https://forms.gle/96TzTnqEybWTBtcU6'><img src='https://lhg-images.s3.us-east-2.amazonaws.com/google_forms_icon.png' className={classes.imgSpacing} alt='Google Form Logo' width="100" height="100"/></a>
                 </Paper>
             </Grid>
         </Grid>
