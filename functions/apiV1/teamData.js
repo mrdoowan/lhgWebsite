@@ -181,8 +181,9 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
 function getTeamGamesBySeason(teamPId, sPId=null) {
     return new Promise(async function(resolve, reject) {
         try {
-            let gameLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'];
-            if (gameLogJson != null) {
+            let teamObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);
+            if (teamObject != null) {
+                let gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                 const cacheKey = keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
                 cache.get(cacheKey, async (err, data) => {
@@ -220,8 +221,9 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
 function getTeamStatsByTourney(teamPId, tPId=null) {
     return new Promise(async function(resolve, reject) {
         try {
-            let statsLogJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['StatsLog'];
-            if (statsLogJson != null) {
+            let teamObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);
+            if (teamObject != null) {
+                let statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 const cacheKey = keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
                 cache.get(cacheKey, async (err, data) => {

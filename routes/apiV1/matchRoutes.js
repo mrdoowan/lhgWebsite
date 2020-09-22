@@ -101,7 +101,7 @@ router.delete('/:matchId', (req, res) => {
     console.log(`DELETE Request Match '${matchId}'.`);
     Match.deleteData(matchId).then((message) => {
         if (message == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
-        return handler.res200s(res, req, data);
+        return handler.res200s(res, req, message);
     }).catch((err) => handler.error500s(err, res, "DELETE Match Data Error."));
 });
 

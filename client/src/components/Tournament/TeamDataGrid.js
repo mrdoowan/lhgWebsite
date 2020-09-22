@@ -44,7 +44,7 @@ export default function TeamDataGrid({ teams }) {
                     <FilterBuilderPopup position={filterBuilderPopupPosition} />
                     <Paging enabled={false} />
 
-                    <Column dataField="TeamName" caption="Name" width={150} fixed={true} cellRender={cellLink} />
+                    <Column dataField="TeamName" caption="Name" width={200} fixed={true} cellRender={cellLink} />
                     <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" />
                     <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
                     <Column dataField="AverageGameDuration" alignment="center" dataType="number" caption="AVG Time" format={formatTime()} />

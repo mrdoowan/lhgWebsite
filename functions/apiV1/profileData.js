@@ -127,8 +127,9 @@ function getProfileInfo(pPId) {
 function getProfileGamesBySeason(pPId, sPId=null) {
     return new Promise(async function(resolve, reject) {
         try {
-            let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['GameLog'];
-            if (gameLogJson != null) {
+            let profileObject = await dynamoDb.getItem('Profile', 'ProfilePId', pPId);
+            if (profileObject != null) {
+                let gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                 const cacheKey = keyBank.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
                 cache.get(cacheKey, async (err, data) => {
@@ -171,8 +172,9 @@ function getProfileGamesBySeason(pPId, sPId=null) {
 function getProfileStatsByTourney(pPId, tPId=null) {
     return new Promise(async function(resolve, reject) {
         try {
-            let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['StatsLog'];
-            if (statsLogJson != null) {
+            let profileObject = await dynamoDb.getItem('Profile', 'ProfilePId', pPId);
+            if (profileObject != null) {
+                let statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 const cacheKey = keyBank.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
                 cache.get(cacheKey, async (err, data) => {
