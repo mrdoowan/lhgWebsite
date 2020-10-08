@@ -239,9 +239,10 @@ async function putMatchPlayerFix(playersToFix, matchId) {
                         //await Profile.getName(newProfileId); // For HId
                         if (name == null) { resolve(null); return; } // Not found
                         namesChanged.push(name); // For response
-                        await mySql.callSProcUpdate('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
+                        await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
                         playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfilePId);
                         delete playerObject['ProfileName']; // In the database for no reason
+
                         // Remove from Profile GameLog in former Profile Id and Team GameLog
                         let profileGameLog = await Profile.getGames(thisProfilePId, seasonId);
                         if (matchId in profileGameLog['Matches']) {

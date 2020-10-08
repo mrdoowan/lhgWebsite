@@ -2,7 +2,7 @@
 module.exports = {
     insertQuery: insertMySQLQuery,
     callSProc: sProcCallMySqlQuery,
-    updateQuery: updateMySqlQuery,
+    makeQuery: makeSqlQuery,
 }
 
 /*  Declaring MySQL npm modules */
@@ -23,7 +23,10 @@ const sqlPool = mysql.createPool({
 /*  'true' when comfortable changing MySQL db */
 const CHANGE_MYSQL = (process.env.CHANGE_DB === 'true') || (process.env.NODE_ENV === 'production');
 
-// DETAILED FUNCTION DESCRIPTION XD
+/**
+ * Call Stored Procedure from MySQL
+ * @param {string} sProcName 
+ */
 function sProcCallMySqlQuery(sProcName) {
     let argArray = arguments; // Because arguments gets replaced by the function below
     return new Promise(function(resolve, reject) {
@@ -57,7 +60,11 @@ function sProcCallMySqlQuery(sProcName) {
     });
 }
 
-// DETAILED FUNCTION DESCRIPTION XD
+/**
+ * MySQL Insert query
+ * @param {object} queryObject  Each key is the "Column Name" for its values
+ * @param {string} tableName    Table name in MySQL
+ */
 function insertMySQLQuery(queryObject, tableName) {
     if (CHANGE_MYSQL) {
         return new Promise(function(resolve, reject) {
@@ -97,37 +104,25 @@ function insertMySQLQuery(queryObject, tableName) {
     }
 }
 
-function updateMySqlQuery(tableName, setMap, whereCondition) {
-    if (CHANGE_MYSQL) {
-        return new Promise(function(resolve, reject) {
-            try {
-                let queryStr = `UPDATE ${tableName} SET `;
-                for (let i = 0; i < Object.keys(setMap).length; ++i) {
-                    const columnName = Object.keys(setMap)[i];
-                    const val = setMap[columnName];
-                    queryStr += (`${columnName}='${val}',`);
-                }
-                queryStr = queryStr.slice(0, -1); // trimEnd of last comma
-                queryStr += ` WHERE ${whereCondition};`;
-
-                sqlPool.getConnection(function(err, connection) {
-                    if (err) { reject(err); }
-                    connection.query(queryStr, function(error, results, fields) {
-                        connection.release();
-                        if (error) { reject(error); }
-                        console.log(`MySQL: Update Row into Table '${tableName}' with SET '${setMap}' WHERE '${whereCondition} - Affected ${results.affectedRows} row(s).`);
-                        resolve(results);
-                    });
-                });
-            }
-            catch (error) {
-                console.error(`ERROR - updateMySqlQuery '${tableName}' Promise rejected.`);
-                reject(error);
-            }
-        });
-    }
-    else {
-        // debugging
-        console.log(`[TEST - UPDATE] - MySQL Table '${tableName}'. SET '${setMap}' at WHERE '${whereCondition}'`);
-    }
+/**
+ * MySQL query command
+ * @param {string} queryString      Generic MySQL query in string format
+ */
+function makeSqlQuery(queryString) {
+    return new Promise(function(resolve, reject) {
+        try {
+            sqlPool.getConnection(function(err, connection) {
+                if (err) { reject(err); }
+                connection.query(queryString, function(error, results, fields) {
+                    connection.release();
+                    if (error) { reject(error); }
+                    console.log("MySQL: Called query command '" + queryStr + "'");
+                    resolve(results[0]);
+                })
+            })
+        }
+        catch (error) {
+            console.error("ERROR - makeQuery '" + queryString + "' Promise rejected.");
+        }
+    })
 }

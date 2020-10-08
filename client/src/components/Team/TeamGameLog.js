@@ -181,9 +181,6 @@ export default function TeamGameLog({ games }) {
                         <td className={classes.colBansAgainst}>
                             <div className={classes.layoutChamps}>
                                 {BannedAgainst.map((Id) => (<ChampionSquare key={Id} id={Id} />))}
-                                {/* {BannedAgainstPhase1.map((Id) => (<ChampionSquare key={Id} id={Id} />))}
-                                &nbsp;|&nbsp;
-                                {BannedAgainstPhase2.map((Id) => (<ChampionSquare key={Id} id={Id} />))} */}
                             </div>
                         </td>
                     </tr>)

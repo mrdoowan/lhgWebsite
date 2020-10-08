@@ -10,7 +10,6 @@ module.exports = {
     TTL_DURATION: 60 * 60 * 12,  // 12 Hours
     MINUTE_AT_EARLY: 15,
     MINUTE_AT_MID: 25,
-    PHASE2_BANS: 2,
     BLUE_ID: "100",
     RED_ID: "200",
     SIDE_STRING: { 

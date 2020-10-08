@@ -21,6 +21,7 @@ const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
+const champById = require('../../client/src/static/champById.json')
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 const mySql = require('./dependencies/mySqlHelper');
@@ -368,18 +369,25 @@ function getTourneyPickBans(tPId) {
                 let pickBansJson = {}
                 if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
                     pbList = [];
-                    let numberGames = tourneyJson['TourneyStats']['NumberGames'];
+                    const numberGames = tourneyJson['TourneyStats']['NumberGames'];
                     pickBansJson['NumberGames'] = numberGames;
+                    let numberChampsWithPresence = 0;
                     for (let i = 0; i < Object.keys(tourneyJson['PickBans']).length; ++i) {
                         let champId = Object.keys(tourneyJson['PickBans'])[i];
                         let champObject = tourneyJson['PickBans'][champId];
                         champObject['Id'] = champId;
                         champObject['TimesPicked'] = champObject['BluePicks'] + champObject['RedPicks'];
-                        champObject['TimesBanned'] = champObject['Phase1Bans'] + champObject['Phase2Bans'];
-                        champObject['Presence'] = ((champObject['TimesPicked'] + champObject['TimesBanned']) / numberGames).toFixed(4);
+                        champObject['TimesBanned'] = champObject['BlueBans'] + champObject['RedBans'];
+                        const presence = champObject['TimesPicked'] + champObject['TimesBanned'];
+                        if (presence > 0) { numberChampsWithPresence++; }
+                        champObject['Presence'] = (numberGames == 0) ? 0 : (presence / numberGames).toFixed(4);
+                        champObject['PickPct'] = (numberGames == 0) ? 0 : (champObject['TimesPicked'] / numberGames).toFixed(4);
+                        champObject['BanPct'] = (numberGames == 0) ? 0 : (champObject['TimesBanned'] / numberGames).toFixed(4);
                         champObject['NumLosses'] = champObject['TimesPicked'] - champObject['NumWins'];
+                        champObject['WinPct'] = (champObject['TimesPicked'] == 0) ? 0 : (champObject['NumWins'] / champObject['TimesPicked']).toFixed(4);
                         pbList.push(champObject);
                     }
+                    pickBansJson['ChampsWithPresence'] = numberChampsWithPresence;
                     pickBansJson['PickBanList'] = pbList;
                     cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                 }
@@ -470,7 +478,7 @@ function updateTourneyOverall(tournamentPId) {
                 'MountainDrakes': 0,
                 'ElderDrakes': 0,
             }
-            let pickBansItem = {};
+            let pickBansObject = initPickBansObject();
             let profileHIdSet = new Set();
             let teamHIdSet = new Set();
             let gameLogTourneyItem = {};
@@ -514,12 +522,9 @@ function updateTourneyOverall(tournamentPId) {
                         --------------
                     */
                     // Bans
-                    let phase1BanArray = teamObject['Phase1Bans'];
-                    addBansToTourneyItem(pickBansItem, phase1BanArray, teamId, 1);
-                    let phase2BanArray = teamObject['Phase2Bans'];
-                    addBansToTourneyItem(pickBansItem, phase2BanArray, teamId, 2);
+                    addBansToTourneyItem(pickBansObject, teamObject['Bans'], teamId);
                     // Picks
-                    addWinPicksToTourneyItem(pickBansItem, teamObject, teamId);
+                    addWinPicksToTourneyItem(pickBansObject, teamObject, teamId);
                     /*
                         --------------
                         'ProfileHIdList' / 'TeamHIdList'
@@ -701,7 +706,7 @@ function updateTourneyOverall(tournamentPId) {
                     '#pb': 'PickBans'
                 },
                 {
-                    ':val': pickBansItem
+                    ':val': pickBansObject
                 }
             );
             await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
@@ -768,61 +773,68 @@ function updateTourneyOverall(tournamentPId) {
     ----------------------
 */
 //#region Helper
-function addBansToTourneyItem(pickBansItem, banArray, teamId, phaseNum) {
-    let banPhaseString = 'Phase' + phaseNum + 'Bans';
-    for (let k = 0; k < banArray.length; ++k) {
-        let champBanned = banArray[k];
-        if (!(champBanned in pickBansItem)) {
-            pickBansItem[champBanned] = {
-                'BluePicks': 0,
-                'RedPicks': 0,
-                'NumWins': 0,
-                'Phase1Bans': 0,
-                'Phase2Bans': 0,
-                'BluePhase1Bans': 0,
-                'RedPhase1Bans': 0,
-                'BluePhase2Bans': 0,
-                'RedPhase2Bans': 0
-            };
+
+/**
+ * Returns an initialized pickBansObject
+ */
+function initPickBansObject() {
+    let newPickBansObject = {};
+    for (let i = 0; i < Object.keys(champById).length; ++i) {
+        const champId = Object.keys(champById)[i];
+        newPickBansObject[champId] = {
+            'BluePicks': 0,
+            'RedPicks': 0,
+            'NumWins': 0,
+            'BlueBans': 0,
+            'RedBans': 0,
         }
-        pickBansItem[champBanned][banPhaseString]++;
+    }
+    return newPickBansObject;
+}
+
+/**
+ * Add ban array into existing pickBansObject
+ * @param {object} pickBansObject   Pick bans object
+ * @param {Array} banArray          Array of ban Ids from Team
+ * @param {string} teamId           "100" == Blue, "200" == Red
+ */
+function addBansToTourneyItem(pickBansObject, banArray, teamId) {
+    for (let k = 0; k < banArray.length; ++k) {
+        const champBanned = banArray[k];
         if (teamId == GLOBAL.BLUE_ID) {
-            pickBansItem[champBanned]['Blue'+banPhaseString]++;
+            pickBansObject[champBanned]['BlueBans']++;
         }
         else if (teamId == GLOBAL.RED_ID) {
-            pickBansItem[champBanned]['Red'+banPhaseString]++;
+            pickBansObject[champBanned]['RedBans']++;
         }
     }
 }
 
-function addWinPicksToTourneyItem(pickBansItem, teamObject, teamId) {
+/**
+ * Add champs played array into existing pickBansObject
+ * @param {object} pickBansObject       Pick Bans object
+ * @param {object} teamObject           Item from Team['Players']
+ * @param {string} teamId               "100" == Blue, "200" == Red
+ */
+function addWinPicksToTourneyItem(pickBansObject, teamObject, teamId) {
     let playersObject = teamObject['Players'];
     for (let k = 0; k < Object.values(playersObject).length; ++k) {
         let playerObject = Object.values(playersObject)[k];
         let champPicked = playerObject['ChampId'];
-        if (!(champPicked in pickBansItem)) {
-            pickBansItem[champPicked] = {
-                'BluePicks': 0,
-                'RedPicks': 0,
-                'NumWins': 0,
-                'Phase1Bans': 0,
-                'Phase2Bans': 0,
-                'BluePhase1Bans': 0,
-                'RedPhase1Bans': 0,
-                'BluePhase2Bans': 0,
-                'RedPhase2Bans': 0
-            };
-        }
         if (teamId == GLOBAL.BLUE_ID) {
-            pickBansItem[champPicked]['BluePicks']++;
+            pickBansObject[champPicked]['BluePicks']++;
         }
         else if (teamId == GLOBAL.RED_ID) {
-            pickBansItem[champPicked]['RedPicks']++;
+            pickBansObject[champPicked]['RedPicks']++;
         }
-        pickBansItem[champPicked]['NumWins'] += teamObject['Win'];
+        pickBansObject[champPicked]['NumWins'] += teamObject['Win'];
     }
 }
 
+/**
+ * 
+ * @param {object} matchSqlRow      Each row of the MySQL query from MatchStats
+ */
 function buildDefaultLeaderboardItem(matchSqlRow) {
     return {
         'GameDuration': matchSqlRow.duration,

@@ -42,7 +42,7 @@ export default function ChampsDataGrid({ pickbans }) {
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
                 <div className={classes.title}>{pickbans.NumberGames} Games Played</div>
-                <div className={classes.blurb}>{pickbans.PickBanList.length} / {Object.keys(champById).length} Champions Picked or Banned</div>
+                <div className={classes.blurb}>{pickbans.ChampsWithPresence} / {Object.keys(champById).length} Champions Picked or Banned</div>
                 <DataGrid
                     id="gridContainer"
                     width="inherit"
@@ -62,16 +62,15 @@ export default function ChampsDataGrid({ pickbans }) {
                     <Column dataField="Presence" alignment="center" dataType="number" caption="Presence" format={fixedPercent()} cssClass="myClass" />
                     <Column dataField="TimesPicked" alignment="center" dataType="number" caption="Picks" cssClass="myClass" />
                     <Column dataField="TimesBanned" alignment="center" dataType="number" caption="Bans" cssClass="myClass" />
+                    <Column dataField="PickPct" alignment="center" dataType="number" caption="Pick %" format={fixedPercent()} cssClass="myClass" />
+                    <Column dataField="BanPct" alignment="center" dataType="number" caption="Ban %" format={fixedPercent()} cssClass="myClass" />
                     <Column dataField="NumWins" alignment="center" dataType="number" caption="Wins" cssClass="myClass" />
                     <Column dataField="NumLosses" alignment="center" dataType="number" caption="Losses" cssClass="myClass" />
+                    <Column dataField="WinPct" alignment="center" dataType="number" caption="Win %" format={fixedPercent()} cssClass="myClass" />
                     <Column dataField="BluePicks" alignment="center" dataType="number" caption="Blue Picks" cssClass="myClass" />
                     <Column dataField="RedPicks" alignment="center" dataType="number" caption="Red Picks" cssClass="myClass" />
-                    <Column dataField="Phase1Bans" alignment="center" dataType="number" caption="P1 Bans" cssClass="myClass" />
-                    <Column dataField="Phase2Bans" alignment="center" dataType="number" caption="P2 Bans" cssClass="myClass" />
-                    <Column dataField="BluePhase1Bans" alignment="center" dataType="number" caption="Blue P1 Bans" cssClass="myClass" />
-                    <Column dataField="RedPhase1Bans" alignment="center" dataType="number" caption="Red P1 Bans" cssClass="myClass" />
-                    <Column dataField="BluePhase2Bans" alignment="center" dataType="number" caption="Blue P2 Bans" cssClass="myClass" />
-                    <Column dataField="RedPhase2Bans" alignment="center" dataType="number" caption="Red P2 Bans" cssClass="myClass" />
+                    <Column dataField="BlueBans" alignment="center" dataType="number" caption="Blue Bans" cssClass="myClass" />
+                    <Column dataField="RedBans" alignment="center" dataType="number" caption="Red Bans" cssClass="myClass" />
                 </DataGrid>
                 </Paper>
             </Grid>

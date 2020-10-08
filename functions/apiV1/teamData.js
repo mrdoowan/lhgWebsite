@@ -433,14 +433,10 @@ function updateTeamGameLog(teamPId, tournamentPId) {
                         'PlayerGoldDiffMid': playerSqlRow.goldDiffMid,
                     };
                 }
-                for (let phase = 1; phase <= 2; ++phase) {
-                    for (let k = 0; k < bannedChampMatchSqlList.length; ++k) {
-                        let champSqlRow = bannedChampMatchSqlList[k];
-                        if (champSqlRow.phase == phase) {
-                            if (champSqlRow.teamBannedById == teamPId) { teamGameItem['BannedByTeam'].push(champSqlRow.champId); }
-                            else { teamGameItem['BannedAgainst'].push(champSqlRow.champId); }
-                        }
-                    }
+                for (let k = 0; k < bannedChampMatchSqlList.length; ++k) {
+                    let champSqlRow = bannedChampMatchSqlList[k];
+                    if (champSqlRow.teamBannedById == teamPId) { teamGameItem['BannedByTeam'].push(champSqlRow.champId); }
+                    else { teamGameItem['BannedAgainst'].push(champSqlRow.champId); }
                 }
                 gameLogTeamItem[matchPId] = teamGameItem;
             }
