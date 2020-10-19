@@ -832,7 +832,6 @@ function addWinPicksToTourneyItem(pickBansObject, teamObject, teamId) {
 }
 
 /**
- * 
  * @param {object} matchSqlRow      Each row of the MySQL query from MatchStats
  */
 function buildDefaultLeaderboardItem(matchSqlRow) {

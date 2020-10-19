@@ -116,13 +116,13 @@ export default function LeaderboardPlayers({ playerRecords }) {
 function recordString(type, item) {
     switch (type) {
         case 'PlayerMostDamage':
-            return item.DamagePerMin.toFixed(2) + ' DPM - ' + item.DamageDealt + ' in ' + lhgString.time(item.GameDuration);
+            return item.DamagePerMin.toFixed(2).toLocaleString() + ' DPM - ' + item.DamageDealt + ' in ' + lhgString.time(item.GameDuration);
         case 'PlayerMostFarm':
             return item.CsPerMin.toFixed(2) + ' CSPM - ' + item.CreepScore + ' in ' + lhgString.time(item.GameDuration);
         case 'PlayerMostGoldDiffEarly':
-            return '+' + item.GDiffEarly + ' GD@15 - ' + item.GAtEarly + ' Gold';
+            return '+' + item.GDiffEarly.toLocaleString() + ' GD@15 - ' + item.GAtEarly + ' Gold';
         case 'PlayerMostXpDiffEarly':
-            return '+' + item.XpDiffEarly + ' XPD@15 - ' + item.XpAtEarly + ' XP';
+            return '+' + item.XpDiffEarly.toLocaleString() + ' XPD@15 - ' + item.XpAtEarly + ' XP';
         case 'PlayerMostVision':
             return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + lhgString.time(item.GameDuration);
         default:

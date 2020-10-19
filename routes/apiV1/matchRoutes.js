@@ -92,11 +92,11 @@ router.post('/setup/new', (req, res) => {
  */
 
 /**
- * @route   DELETE api/match/v1/:matchId
+ * @route   DELETE api/match/v1/remove/:matchId
  * @desc    Remove a match from Records
  * @access  Private (to Admins)
  */
-router.delete('/:matchId', (req, res) => {
+router.delete('/remove/:matchId', (req, res) => {
     const { matchId } = req.params;
     console.log(`DELETE Request Match '${matchId}'.`);
     Match.deleteData(matchId).then((message) => {

@@ -91,7 +91,7 @@ function recordString(type, item) {
     let tsSeconds = Math.floor(item.Timestamp / 1000);
     switch (type) {
         case 'TeamTopBaronPowerPlay':
-            return '+' + item.BaronPowerPlay + ' Power Play - Taken at ' + lhgString.time(tsSeconds);
+            return '+' + item.BaronPowerPlay.toLocaleString() + ' Power Play - Taken at ' + lhgString.time(tsSeconds);
         case 'TeamEarliestTower':
             return item.Lane + ' ' + item.TowerType + ' Tower - Taken at ' + lhgString.time(tsSeconds);
         default:

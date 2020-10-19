@@ -1,5 +1,6 @@
 # Overall
-* vB.5 - Next Release
+* vB.6 - Next Release
+* vB.5 - Client 0.1.4, Server 0.1.4
 * vB.4 - Client 0.1.3, Server 0.1.3
 * vB.3 - Client 0.1.2, Server 0.1.3
 * vB.2 - Client 0.1.1, Server 0.1.2
@@ -22,6 +23,8 @@
 * 1.0.0 will be the first major release
 
 # Client
++ 0.1.4
+    + New Tournament Pick/Bans table
 + 0.1.3
     + Added a search field into the Nav Bar
 + 0.1.2
@@ -56,6 +59,8 @@
     + First Github commit for collaboration purposes.
 
 # Server
++ 0.1.4
+    + Framework established for more Match API requests. Modified tournament API requests for pick/bans
 + 0.1.3
     + Tournament Overall PUT request broken into individual requests
 + 0.1.2
