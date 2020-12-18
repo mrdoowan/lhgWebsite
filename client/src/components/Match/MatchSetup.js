@@ -3,14 +3,14 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 // Components
-import Error from '../components/ErrorComponent';
+import Error from '../ErrorComponent';
 // MUI
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 // Components
-import ChampionSquare from '../components/ChampionSquare';
+import ChampionSquare from '../ChampionSquare';
 
 const useStyles = (theme) => ({
     paper: {
@@ -66,7 +66,6 @@ const useStyles = (theme) => ({
 // {MAIN}/match/:matchPId/setup
 class matchSetup extends Component {
     constructor() {
-        super();
 
         this.state = {
             setup: null,
