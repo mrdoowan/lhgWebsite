@@ -1,18 +1,13 @@
-import React, { Component } from "react";
-import axios from 'axios';
-import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
-// Components
-import Error from '../ErrorComponent';
+import React from "react";
 // MUI
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 // Components
 import ChampionSquare from '../ChampionSquare';
 
-const useStyles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
     paper: {
         height: "100%",
         padding: theme.spacing(1),
@@ -61,109 +56,14 @@ const useStyles = (theme) => ({
         border: '1px solid black',
     },
 
-});
+}));
 
-// {MAIN}/match/:matchPId/setup
-class matchSetup extends Component {
-    constructor() {
+export default function MatchSetup({ setupData }) {
 
-        this.state = {
-            setup: null,
-            statusCode: null,
-        }
-    }
-
-    componentDidMount() {
-        const { match: { params } } = this.props;
-
-        axios.get(`/api/match/v1/setup/${params.matchPId}`)
-        .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ setup: res.data });
-        }).catch((err) => {
-            this.setState({ statusCode: 500 })
-        });
-    }
-
-    handleSubmit = (event) => {
+    const classes = useStyles();
+    const handleSubmit = (event) => {
         event.preventDefault();
         console.log("Pog");
-    }
-
-    render() {
-        const { classes } = this.props;
-        const { setup, statusCode } = this.state;
-
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Match" />) :
-            (setup == null) ? (<div></div>) : // Yikes this is jank af
-            (<div>
-                <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                        <Paper className={classes.paper}>
-                            <p className={classes.title}>
-                                {setup.TournamentName} <br />
-                                {setup.RiotMatchId}
-                            </p>
-                            <table>
-                                <thead>
-                                    <tr className={classes.rowTeam}>
-                                        <td className={classes.colBlueTeam}>
-                                            <u>Blue Team Name</u> <br />
-                                            <input
-                                                id="blueTeamName"
-                                                name="blueTeamName"
-                                                type="text"
-                                                defaultValue={setup.Teams.BlueTeam.TeamName}
-                                                className={classes.textField}
-                                            />
-                                        </td>
-                                        <td className={classes.colRedTeam}>
-                                            <u>Red Team Name</u> <br />
-                                            <input
-                                                id="redTeamName"
-                                                name="redTeamName"
-                                                type="text"
-                                                defaultValue={setup.Teams.RedTeam.TeamName}
-                                                className={classes.textField}
-                                            />
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr className={classes.rowBody}>
-                                        <td className={classes.colBody} id="bluePlayers">
-                                            {this.playerTableFields(setup.Teams.BlueTeam.Players, 
-                                                "blue", 
-                                                classes)}
-                                        </td>
-                                        <td className={classes.colBody} id="redPlayers">
-                                            {this.playerTableFields(setup.Teams.RedTeam.Players, 
-                                                "red", 
-                                                classes)}
-                                        </td>
-                                    </tr>
-                                    <tr className={classes.rowBody}>
-                                        <td className={classes.colBody}>
-                                            <b>Bans: </b>
-                                        </td>
-                                        <td className={classes.colBody}>
-                                            <b>Bans: </b>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            {/* https://stackoverflow.com/questions/37462047/how-to-create-several-submit-buttons-in-a-react-js-form */}
-                            <form onSubmit={this.handleSubmit} className={classes.button}>
-                                <Button type="submit" variant="contained" color="primary" >Submit</Button>
-                            </form>
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </div>)
-        );
     }
 
     /**
@@ -171,7 +71,7 @@ class matchSetup extends Component {
      * @param {string} color        Either "blue" or "red"
      * @param {object} classes      Material-UI css class
      */
-    playerTableFields(playerList, color, classes) {
+    const playerTableFields = (playerList, color, classes) => {
         return (<table><tbody>
             {playerList.map((playerObj, idx) => (
                 <tr key={`${color}Player${idx}`}>
@@ -200,10 +100,69 @@ class matchSetup extends Component {
             ))}
         </tbody></table>);
     }
+
+    return (<div>
+        <Grid container spacing={3}>
+            <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                    <p className={classes.title}>
+                        {setupData.TournamentName} <br />
+                        {setupData.RiotMatchId}
+                    </p>
+                    <table>
+                        <thead>
+                            <tr className={classes.rowTeam}>
+                                <td className={classes.colBlueTeam}>
+                                    <u>Blue Team Name</u> <br />
+                                    <input
+                                        id="blueTeamName"
+                                        name="blueTeamName"
+                                        type="text"
+                                        defaultValue={setupData.Teams.BlueTeam.TeamName}
+                                        className={classes.textField}
+                                    />
+                                </td>
+                                <td className={classes.colRedTeam}>
+                                    <u>Red Team Name</u> <br />
+                                    <input
+                                        id="redTeamName"
+                                        name="redTeamName"
+                                        type="text"
+                                        defaultValue={setupData.Teams.RedTeam.TeamName}
+                                        className={classes.textField}
+                                    />
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className={classes.rowBody}>
+                                <td className={classes.colBody} id="bluePlayers">
+                                    {playerTableFields(setupData.Teams.BlueTeam.Players, 
+                                        "blue", 
+                                        classes)}
+                                </td>
+                                <td className={classes.colBody} id="redPlayers">
+                                    {playerTableFields(setupData.Teams.RedTeam.Players, 
+                                        "red", 
+                                        classes)}
+                                </td>
+                            </tr>
+                            <tr className={classes.rowBody}>
+                                <td className={classes.colBody}>
+                                    <b>Bans: </b>
+                                </td>
+                                <td className={classes.colBody}>
+                                    <b>Bans: </b>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {/* https://stackoverflow.com/questions/37462047/how-to-create-several-submit-buttons-in-a-react-js-form */}
+                    <form onSubmit={handleSubmit} className={classes.button}>
+                        <Button type="submit" variant="contained" color="primary" >Submit</Button>
+                    </form>
+                </Paper>
+            </Grid>
+        </Grid>
+    </div>);
 }
-
-matchSetup.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
-
-export default withRouter(withStyles(useStyles)(matchSetup));
