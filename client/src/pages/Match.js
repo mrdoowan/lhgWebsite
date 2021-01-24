@@ -147,13 +147,13 @@ export const MatchSetupPage = (props) => {
     const [matchSetupData, setMatchSetupData] = useState({});
     const [statusCode, setStatusCode] = useState(null);
 
-    const { match: { params } } = props;
-
     // Mount Component
     useEffect(() => {
+        const { match: { params } } = props;
+
         axios.get(`/api/match/v1/setup/${params.matchPId}`)
         .then((res) => {
-            if (statusCode === 200 || statusCode == null) {
+            if (statusCode === 200 || statusCode === null) {
                 setStatusCode(res.status);
             }
             setMatchSetupData(res.data);
