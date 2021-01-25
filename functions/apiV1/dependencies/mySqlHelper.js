@@ -21,7 +21,7 @@ const sqlPool = mysql.createPool({
 
 /*  'false' to test without affecting the databases. */
 /*  'true' when comfortable changing MySQL db */
-const CHANGE_MYSQL = (process.env.CHANGE_DB === 'true') || (process.env.NODE_ENV === 'production');
+const CHANGE_MYSQL = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV === 'production');
 
 /**
  * Call Stored Procedure from MySQL

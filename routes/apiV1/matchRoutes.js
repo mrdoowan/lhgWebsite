@@ -18,6 +18,7 @@ const Match = require('../../functions/apiV1/matchData');
  */
 router.get('/data/:matchId', (req, res) => {
     const { matchId } = req.params;
+
     console.log(`GET Request Match '${matchId}' Data.`);
     Match.getData(matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
@@ -32,6 +33,7 @@ router.get('/data/:matchId', (req, res) => {
  */
 router.get('/setup/:matchId', (req, res) => {
     const { matchId } = req.params;
+
     console.log(`GET Request Match '${matchId}' Setup.`);
     Match.getSetup(matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Setup Not Found`); }
@@ -50,6 +52,7 @@ router.get('/setup/:matchId', (req, res) => {
  */
 router.put('/players/update', (req, res) => {
     const { playersToFix, matchId } = req.body;
+
     console.log(`PUT Request Match '${matchId}' Players`);
     Match.putPlayersFix(playersToFix, matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
@@ -64,6 +67,7 @@ router.put('/players/update', (req, res) => {
  */
 router.post('/setup/new', (req, res) => {
     const { riotMatchId, seasonId, tournamentId } = req.body;
+
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
     Match.putNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
@@ -98,6 +102,7 @@ router.post('/setup/new', (req, res) => {
  */
 router.delete('/remove/:matchId', (req, res) => {
     const { matchId } = req.params;
+    
     console.log(`DELETE Request Match '${matchId}'.`);
     Match.deleteData(matchId).then((message) => {
         if (message == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
