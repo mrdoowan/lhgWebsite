@@ -18,10 +18,9 @@ const Match = require('../../functions/apiV1/matchData');
  */
 router.get('/data/:matchId', (req, res) => {
     const { matchId } = req.params;
-    const testFlag = !!req.get('testFlag');
 
     console.log(`GET Request Match '${matchId}' Data.`);
-    Match.getData(matchId, testFlag).then((data) => {
+    Match.getData(matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "GET Match Data Error."));
@@ -34,10 +33,9 @@ router.get('/data/:matchId', (req, res) => {
  */
 router.get('/setup/:matchId', (req, res) => {
     const { matchId } = req.params;
-    const testFlag = !!req.get('testFlag');
 
     console.log(`GET Request Match '${matchId}' Setup.`);
-    Match.getSetup(matchId, testFlag).then((data) => {
+    Match.getSetup(matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Setup Not Found`); }
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "GET Match Setup Error."));
@@ -54,10 +52,9 @@ router.get('/setup/:matchId', (req, res) => {
  */
 router.put('/players/update', (req, res) => {
     const { playersToFix, matchId } = req.body;
-    const testFlag = !!req.get('testFlag');
 
     console.log(`PUT Request Match '${matchId}' Players`);
-    Match.putPlayersFix(playersToFix, matchId, testFlag).then((data) => {
+    Match.putPlayersFix(playersToFix, matchId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "PUT Match Update Error."));
@@ -70,10 +67,9 @@ router.put('/players/update', (req, res) => {
  */
 router.post('/setup/new', (req, res) => {
     const { riotMatchId, seasonId, tournamentId } = req.body;
-    const testFlag = !!req.get('testFlag');
 
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
-    Match.postNewSetup(riotMatchId, seasonId, tournamentId, testFlag).then((data) => {
+    Match.putNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
         if (data == null) { return handler.res400s(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "POST Match New Setup Error."));
@@ -106,10 +102,9 @@ router.post('/setup/new', (req, res) => {
  */
 router.delete('/remove/:matchId', (req, res) => {
     const { matchId } = req.params;
-    const testFlag = !!req.get('testFlag');
-
+    
     console.log(`DELETE Request Match '${matchId}'.`);
-    Match.deleteData(matchId, testFlag).then((message) => {
+    Match.deleteData(matchId).then((message) => {
         if (message == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
         return handler.res200s(res, req, message);
     }).catch((err) => handler.error500s(err, res, "DELETE Match Data Error."));
