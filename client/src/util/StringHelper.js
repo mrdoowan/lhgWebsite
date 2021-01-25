@@ -1,25 +1,33 @@
 // npm modules
-var moment = require('moment-timezone');
+import { unix as _unix } from 'moment-timezone';
 
 // Helper Functions
-module.exports = {
-    time: getTimeString,
-    date: getDateString,
-    dateTime: getDateTimeString,
-}
-
-function getTimeString(seconds) {
-    return Math.floor(seconds / 60) + ':' + pad(Math.floor(seconds % 60));
-}
-
-function pad(num) {
+const pad = (num) => {
     return ("0"+num).slice(-2);
 }
 
-function getDateString(unix, timeZone='EST') {
-    return moment.unix(unix).tz(timeZone).format('MM/DD/YYYY');
+/**
+ * Turns number of seconds into a string (600 -> 10:00)
+ * @param {number} seconds
+ */
+export const getTimeString = (seconds) => {
+    return Math.floor(seconds / 60) + ':' + pad(Math.floor(seconds % 60));
 }
 
-function getDateTimeString(unix, timeZone='EST') {
-    return moment.unix(unix).tz(timeZone).format('MM/DD/YYYY - hh:mma');
+/**
+ * Converts unix value into a Date (i.e. 01/01/2020)
+ * @param {number} unix 
+ * @param {string} timeZone
+ */
+export const getDateString = (unix, timeZone='EST') => {
+    return _unix(unix).tz(timeZone).format('MM/DD/YYYY');
+}
+
+/**
+ * Converts unix value into a Date and time (i.e. 01/01/2020)
+ * @param {number} unix 
+ * @param {string} timeZone
+ */
+export const getDateTimeString = (unix, timeZone='EST') => {
+    return _unix(unix).tz(timeZone).format('MM/DD/YYYY - hh:mma');
 }

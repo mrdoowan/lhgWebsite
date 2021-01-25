@@ -8,7 +8,10 @@ import Grid from '@material-ui/core/Grid';
 import ChampionSquare from '../ChampionSquare';
 import Dragdown from '../Dragdown';
 // Util
-const lhgString = require('../../util/StringHelper');
+import {
+    getTimeString,
+    getDateString
+} from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -204,9 +207,9 @@ export default function ProfileGames({ info, games }) {
 
                             return (<tr key={matchId} className={(match.Win) ? classes.rowWin : classes.rowLose}>
                                 <td className={classes.colDate}>
-                                    <Link to={`/match/${matchId}`} className={classes.link}>{lhgString.date(match.DatePlayed / 1000)}</Link><br />
+                                    <Link to={`/match/${matchId}`} className={classes.link}>{getDateString(match.DatePlayed / 1000)}</Link><br />
                                     {match.TournamentType}<br />
-                                    ({lhgString.time(match.GameDuration)})<br />
+                                    ({getTimeString(match.GameDuration)})<br />
                                 </td>
                                 <td className={classes.colTeams}>
                                     <Link to={`/team/${match.TeamName}/games/${games.SeasonShortName}`} className={classes.link}>{match.TeamName}</Link> [{sideString(match.Side, classes)}]<br />

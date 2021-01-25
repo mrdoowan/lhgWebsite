@@ -21,7 +21,7 @@ const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
-import { ChampById } from '../../client/src/static/ChampById';
+const ChampById = require('../../client/src/static/ChampById');
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 const mySql = require('./dependencies/mySqlHelper');

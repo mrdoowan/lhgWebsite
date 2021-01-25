@@ -5,7 +5,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Util
-const lhgString = require('../../util/StringHelper');
+import {
+    getTimeString,
+    getDateString
+} from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -49,7 +52,7 @@ export default function LeaderboardGames({ gameRecords }) {
                             <Link className={classes.link} to={`/team/${ShortestGame.BlueTeamName}`}>{ShortestGame.BlueTeamName}</Link>
                             &nbsp;vs.&nbsp;
                             <Link className={classes.link} to={`/team/${ShortestGame.RedTeamName}`}>{ShortestGame.RedTeamName}</Link>
-                            &nbsp;- <Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{lhgString.time(ShortestGame.GameDuration)}</Link>
+                            &nbsp;- <Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{getTimeString(ShortestGame.GameDuration)}</Link>
                         </p>
                     </Paper>
                 </Grid>
@@ -60,7 +63,7 @@ export default function LeaderboardGames({ gameRecords }) {
                             <Link className={classes.link} to={`/team/${LongestGame.BlueTeamName}`}>{LongestGame.BlueTeamName}</Link>
                             &nbsp;vs.&nbsp;
                             <Link className={classes.link} to={`/team/${LongestGame.RedTeamName}`}>{LongestGame.RedTeamName}</Link>
-                            &nbsp;- <Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{lhgString.time(LongestGame.GameDuration)}</Link>
+                            &nbsp;- <Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{getTimeString(LongestGame.GameDuration)}</Link>
                         </p>
                     </Paper>
                 </Grid>

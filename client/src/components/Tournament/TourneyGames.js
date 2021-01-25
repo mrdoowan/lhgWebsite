@@ -5,7 +5,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Util
-const lhgString = require('../../util/StringHelper');
+import {
+    getTimeString,
+    getDateString
+} from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -106,8 +109,8 @@ export default function TourneyGames({ games }) {
                     <tbody>
                     {gamesListSorted.map((match) => (
                         <tr key={match.MatchPId} className={classes.row}>
-                            <td className={classes.colDate}>{lhgString.date(match.DatePlayed / 1000)}</td>
-                            <td className={classes.colDuration}>{lhgString.time(match.Duration)}</td>
+                            <td className={classes.colDate}>{getDateString(match.DatePlayed / 1000)}</td>
+                            <td className={classes.colDuration}>{getTimeString(match.Duration)}</td>
                             <td className={classes.colPatch}>{match.Patch}</td>
                             <td className={classes.colBlueTeam}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
                             <td className={classes.colVs}>VS.</td>
