@@ -22,7 +22,7 @@ const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV
  * Gets an item from the Table based on keyValue. Returns 'undefined' if key item does NOT EXIST
  * @param {string} tableName        Table name of DynamoDb
  * @param {string} partitionName    Column name of the Partition Key
- * @param {string} keyValue         Specific item to look for
+ * @param {*} keyValue              Specific item to look for
  */
 function getItemInDynamoDB(tableName, partitionName, keyValue) {
     const params = {
@@ -54,7 +54,7 @@ function getItemInDynamoDB(tableName, partitionName, keyValue) {
  * PUTs a DynamoDb Item into DynamoDb
  * @param {string} tableName    Table name of DynamoDb
  * @param {Object} items        The entire object being put into DynamoDb
- * @param {string} keyValue     Only used for debugging purposes
+ * @param {*} keyValue          Only used for debugging purposes
  */
 function putItemInDynamoDB(tableName, items, keyValue) {
     const params = {
