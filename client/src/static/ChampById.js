@@ -1,3 +1,5 @@
+// http://ddragon.leagueoflegends.com/cdn/11.2.1/data/en_US/champion.json
+
 export const ChampById = {
     "1": {
         "id": "Annie",
@@ -447,6 +449,10 @@ export const ChampById = {
         "id": "Kaisa",
         "name": "Kai'Sa"
     },
+    "147": {
+        "id": "Seraphine",
+        "name": "Seraphine"
+    },
     "150": {
         "id": "Gnar",
         "name": "Gnar"
@@ -490,6 +496,10 @@ export const ChampById = {
     "223": {
         "id": "TahmKench",
         "name": "Tahm Kench"
+    },
+    "234": {
+        "id": "Viego",
+        "name": "Viego"
     },
     "235": {
         "id": "Senna",
@@ -586,6 +596,10 @@ export const ChampById = {
     "523": {
         "id": "Aphelios",
         "name": "Aphelios"
+    },
+    "526": {
+        "id": "Rell",
+        "name": "Rell"
     },
     "555": {
         "id": "Pyke",
