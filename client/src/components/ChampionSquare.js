@@ -3,8 +3,8 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-const versions = require('../static/versions.json');
-const champById = require('../static/champById.json');
+import { Versions } from '../static/Versions';
+import { ChampById } from '../static/ChampById';
 
 const useStyles = makeStyles((theme) => ({
     tableName: {
@@ -75,27 +75,27 @@ export default function ChampionSquare({ id, patch='', version='', withName=fals
 }
 
 function getChampUrlId(id) {
-    if (!(id in champById)) {
+    if (!(id in ChampById)) {
         return id;
     }
     else {
-        return champById[id]['id'];
+        return ChampById[id]['id'];
     }
 }
 
 function getChampName(id) {
-    if (!(id in champById)) {
+    if (!(id in ChampById)) {
         return id;
     }
     else {
-        return champById[id]['name'];
+        return ChampById[id]['name'];
     }
 }
 
 function getCurrentVersion() {
-    return versions[0];
+    return Versions[0];
 }
 
 function getVersionByPatch(patch) {
-    return versions[0]; // TODO: grab DDragon version based on patch
+    return Versions[0]; // TODO: grab DDragon version based on patch
 }

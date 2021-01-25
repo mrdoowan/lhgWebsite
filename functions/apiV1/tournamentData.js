@@ -21,7 +21,7 @@ const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
-const champById = require('../../client/src/static/champById.json')
+import { ChampById } from '../../client/src/static/ChampById';
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 const mySql = require('./dependencies/mySqlHelper');
@@ -779,8 +779,8 @@ function updateTourneyOverall(tournamentPId) {
  */
 function initPickBansObject() {
     let newPickBansObject = {};
-    for (let i = 0; i < Object.keys(champById).length; ++i) {
-        const champId = Object.keys(champById)[i];
+    for (let i = 0; i < Object.keys(ChampById).length; ++i) {
+        const champId = Object.keys(ChampById)[i];
         newPickBansObject[champId] = {
             'BluePicks': 0,
             'RedPicks': 0,

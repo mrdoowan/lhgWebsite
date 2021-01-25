@@ -1,4 +1,4 @@
-{
+export const ChampById = {
     "1": {
         "id": "Annie",
         "name": "Annie"
