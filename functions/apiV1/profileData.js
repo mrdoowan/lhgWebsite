@@ -28,7 +28,6 @@ const keyBank = require('./dependencies/cacheKeys');
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
 const Team = require('./teamData');
-const matchData = require('./matchData');
 
 // Get ProfilePId from ProfileName
 function getProfilePIdByName(name) {

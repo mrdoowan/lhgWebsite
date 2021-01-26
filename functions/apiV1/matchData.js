@@ -1,11 +1,3 @@
-module.exports = {
-    getData: getMatchData,
-    getSetup: getMatchSetup,
-    putNewSetup: putMatchNewSetup,
-    putPlayersFix: putMatchPlayerFix,
-    deleteData: removeMatchFromDb,
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
@@ -25,16 +17,16 @@ const GLOBAL = require('./dependencies/global');
 
 /**
  * Get the data of a specific Match from DynamoDb
- * @param {string} Id       Match Id in string format
+ * @param {string} id       Match Id in string format
  */
-async function getMatchData(Id) {
+export const getMatchData = async (id) => {
     return new Promise(function(resolve, reject) {
-        const cacheKey = keyBank.MATCH_PREFIX + Id;
+        const cacheKey = keyBank.MATCH_PREFIX + id;
         cache.get(cacheKey, async (err, data) => {
             if (err) { console.error(err); reject(err); }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', Id);
+                let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', id);
                 if (matchJson == null || "Setup" in matchJson) { resolve(null); return; } // Not Found or it's a Setup
                 let seasonPId = matchJson['SeasonPId'];
                 matchJson['SeasonShortName'] = await Season.getShortName(seasonPId);
@@ -79,12 +71,12 @@ async function getMatchData(Id) {
 
 /**
  * Get the 'Setup' object of a specific Match from DynamoDb
- * @param {string} Id       Match Id in string format
+ * @param {string} id       Match Id in string format
  */
-async function getMatchSetup(Id) {
+export const getMatchSetup = async (id) => {
     return new Promise(async function(resolve, reject) {
         try {
-            let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', Id);
+            let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', id);
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
             let matchSetupJson = matchJson['Setup'];
             matchSetupJson['SeasonName'] = await Season.getName(matchSetupJson['SeasonPId']);
@@ -114,7 +106,7 @@ async function getMatchSetup(Id) {
  * @param {string} seasonId     ID of Season (number)
  * @param {string} tournamentId ID of Tournament (number)
  */
-async function putMatchNewSetup(matchId, seasonId, tournamentId) {
+export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
     return new Promise(async function(resolve, reject) {
         try {
             // Check if matchId already exists
@@ -218,7 +210,7 @@ async function putMatchNewSetup(matchId, seasonId, tournamentId) {
  * @param {string} playersToFix  JSON Object 
  * @param {string} matchId       Match Id in string format
  */
-async function putMatchPlayerFix(playersToFix, matchId) {
+export const putMatchPlayerFix = async (playersToFix, matchId) => {
     return new Promise(function(resolve, reject) {
         getMatchData(matchId).then(async (data) => {
             if (data == null) { resolve(null); return; } // Not found
@@ -306,7 +298,7 @@ async function putMatchPlayerFix(playersToFix, matchId) {
  * Removes the specific Match item from from DynamoDb
  * @param {string} matchId      Match Id in string format
  */
-async function removeMatchFromDb(matchId) {
+export const deleteMatchData = async (matchId) => {
     return new Promise(async (resolve, reject) => {
         try {
             // 1) Remove and update Game Logs from EACH Profile Table
