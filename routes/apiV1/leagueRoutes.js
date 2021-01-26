@@ -1,6 +1,10 @@
-const router = require('express').Router();
-const handler = require('./dependencies/handlers');
 
+const router = require('express').Router();
+
+import {
+    res200sOK,
+    error500sServerError,
+} from './dependencies/handlers';
 /*  Import helper Data function modules */
 import { getLeagues } from '../../functions/apiV1/seasonData';
 
@@ -20,8 +24,8 @@ import { getLeagues } from '../../functions/apiV1/seasonData';
 router.get('/', (req, res) => {
     console.log("GET Request Leagues.");
     getLeagues().then((data) => {
-        return handler.res200s(res, req, data);
-    }).catch((err) => handler.error500s(err, res, "GET Leagues Information Error."));
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "GET Leagues Information Error."));
 });
 
 //#endregion

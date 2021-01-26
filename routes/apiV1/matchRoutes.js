@@ -1,6 +1,10 @@
 const router = require('express').Router();
-const handler = require('./dependencies/handlers');
 
+import {
+    res200sOK,
+    res400sClientError,
+    error500sServerError,
+} from './dependencies/handlers';
 /*  Import helper Data function modules */
 import {
     getMatchData,
@@ -27,9 +31,9 @@ router.get('/data/:matchId', (req, res) => {
 
     console.log(`GET Request Match '${matchId}' Data.`);
     getMatchData(matchId).then((data) => {
-        if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
-        return handler.res200s(res, req, data);
-    }).catch((err) => handler.error500s(err, res, "GET Match Data Error."));
+        if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "GET Match Data Error."));
 });
 
 /**
@@ -42,9 +46,9 @@ router.get('/setup/:matchId', (req, res) => {
 
     console.log(`GET Request Match '${matchId}' Setup.`);
     getMatchSetup(matchId).then((data) => {
-        if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' Setup Not Found`); }
-        return handler.res200s(res, req, data);
-    }).catch((err) => handler.error500s(err, res, "GET Match Setup Error."));
+        if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' Setup Not Found`); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "GET Match Setup Error."));
 });
 
 //#endregion
@@ -61,9 +65,9 @@ router.put('/players/update', (req, res) => {
 
     console.log(`PUT Request Match '${matchId}' Players`);
     putMatchPlayerFix(playersToFix, matchId).then((data) => {
-        if (data == null) { return handler.res400s(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
-        return handler.res200s(res, req, data);
-    }).catch((err) => handler.error500s(err, res, "PUT Match Update Error."));
+        if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
 });
 
 /**
@@ -76,9 +80,9 @@ router.post('/setup/new', (req, res) => {
 
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
     putMatchNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
-        if (data == null) { return handler.res400s(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
-        return handler.res200s(res, req, data);
-    }).catch((err) => handler.error500s(err, res, "POST Match New Setup Error."));
+        if (data == null) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
 });
 
 /**
@@ -111,9 +115,9 @@ router.delete('/remove/:matchId', (req, res) => {
     
     console.log(`DELETE Request Match '${matchId}'.`);
     deleteMatchData(matchId).then((message) => {
-        if (message == null) { return handler.res400s(res, req, `Match ID '${matchId}' Not Found`); }
-        return handler.res200s(res, req, message);
-    }).catch((err) => handler.error500s(err, res, "DELETE Match Data Error."));
+        if (message == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
+        return res200sOK(res, req, message);
+    }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
 });
 
 //#endregion

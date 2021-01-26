@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const handler = require('./dependencies/handlers');
 
+import { error500sServerError } from './dependencies/handlers';
 /*  Import helper Data function modules */
 import { putNewStaff } from '../../functions/apiV1/staffData';
 
@@ -27,7 +27,7 @@ import { putNewStaff } from '../../functions/apiV1/staffData';
 router.put('/add', (req, res) => {
     putNewStaff(req.body).then((response) => {
         return res.status(200).json(response);
-    }).catch((err) => handler.error500s(err, res, "PUT Profile Add Staff Error."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Add Staff Error."));
 });
 
 /**
