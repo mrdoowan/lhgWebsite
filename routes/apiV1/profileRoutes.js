@@ -240,4 +240,4 @@ profileV1Routes.put('/update/name', (req, res) => {
 
 //#endregion
 
-export const profileV1Routes;
+export default profileV1Routes;

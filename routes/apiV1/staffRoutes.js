@@ -55,4 +55,4 @@ staffV1Routes.put('/remove', (req, res) => {
 
 //#endregion
 
-export const staffV1Routes;
+export default staffV1Routes;

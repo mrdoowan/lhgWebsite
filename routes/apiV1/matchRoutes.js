@@ -122,4 +122,4 @@ matchV1Routes.delete('/remove/:matchId', (req, res) => {
 
 //#endregion
 
-export const matchV1Routes;
+export default matchV1Routes;

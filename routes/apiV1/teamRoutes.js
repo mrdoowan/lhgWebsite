@@ -175,4 +175,4 @@ teamV1Routes.post('/add/new', (req, res) => {
 
 //#endregion
 
-export const teamV1Routes;
+export default teamV1Routes;

@@ -29,4 +29,4 @@ authV1Routes.post('/logout', (req, res) => {
 
 //#endregion
 
-export const authV1Routes;
+export default authV1Routes;

@@ -7,14 +7,14 @@ const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 require('dotenv').config();
 
 // Import Routes
-import { authV1Routes } from './routes/apiV1/authRoutes';
-import { leagueV1Routes } from './routes/apiV1/leagueRoutes';
-import { seasonV1Routes } from './routes/apiV1/seasonRoutes';
-import { tournamentV1Routes } from './routes/apiV1/tournamentRoutes';
-import { profileV1Routes } from './routes/apiV1/profileRoutes';
-import { teamV1Routes } from './routes/apiV1/teamRoutes';
-import { matchV1Routes } from './routes/apiV1/matchRoutes';
-import { staffV1Routes } from './routes/apiV1/staffRoutes';
+import authV1Routes from './routes/apiV1/authRoutes.js';
+import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
+import seasonV1Routes from './routes/apiV1/seasonRoutes.js';
+import tournamentV1Routes from './routes/apiV1/tournamentRoutes.js';
+import profileV1Routes from './routes/apiV1/profileRoutes.js';
+import teamV1Routes from './routes/apiV1/teamRoutes.js';
+import matchV1Routes from './routes/apiV1/matchRoutes.js';
+import staffV1Routes from './routes/apiV1/staffRoutes.js';
 
 // Configure express
 app.use(bodyParser.json());

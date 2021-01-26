@@ -30,4 +30,4 @@ leagueV1Routes.get('/', (req, res) => {
 
 //#endregion
 
-export const leagueV1Routes;
+export default leagueV1Routes;

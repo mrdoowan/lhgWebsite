@@ -88,4 +88,4 @@ seasonV1Routes.get('/playoffs/name/:seasonShortName', (req, res) => {
 
 //#endregion
 
-export const seasonV1Routes;
+export default seasonV1Routes;

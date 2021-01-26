@@ -246,4 +246,4 @@ tournamentV1Routes.put('/update/team', (req, res) => {
 
 //#endregion
 
-export const tournamentV1Routes;
+export default tournamentV1Routes;
