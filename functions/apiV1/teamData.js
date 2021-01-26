@@ -1,16 +1,3 @@
-module.exports = {
-    getId: getTeamPId,
-    getName: getTeamName,
-    getShortName: getTeamShortName,
-    getInfo: getTeamInfo,
-    getScouting: getTeamScoutingBySeason,
-    getGames: getTeamGamesBySeason,
-    getStats: getTeamStatsByTourney,
-    putGameLog: updateTeamGameLog,
-    putStatsLog: updateTeamStatsLog,
-    postNew: postNewTeam,
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
