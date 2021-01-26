@@ -6,7 +6,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
-const lambda = require('./dependencies/awsLambdaHelper');
+import { getRiotMatchData } from './dependencies/awsLambdaHelper';
 const keyBank = require('./dependencies/cacheKeys');
 /*  Import data functions */
 import {
@@ -144,7 +144,7 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
             }
 
             // Get data from Riot API
-            const matchDataRiotJson = (await lambda.getRiotMatchData(matchId))['Data'];
+            const matchDataRiotJson = (await getRiotMatchData(matchId))['Data'];
 
             let setupObject = {}
             setupObject['RiotMatchId'] = matchId;

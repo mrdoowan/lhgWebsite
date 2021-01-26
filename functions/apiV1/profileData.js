@@ -7,7 +7,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
-const lambda = require('./dependencies/awsLambdaHelper');
+import { getRiotSummonerId } from './dependencies/awsLambdaHelper';
 const keyBank = require('./dependencies/cacheKeys');
 /*  Import data functions */
 import {
@@ -229,7 +229,7 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
 // Won't need to cache this. Just call directly from Riot API
 export const getSummonerIdBySummonerName = (summName) => {
     return new Promise(function(resolve, reject) {
-        lambda.getRiotSummonerId(summName).then((data) => {
+        getRiotSummonerId(summName).then((data) => {
             try { resolve(data['id']); }
             catch { resolve(null); } // Not Found
         }).catch((err) => { reject(err); })
