@@ -24,6 +24,7 @@ The following npm modules are used in the server:
 * express-http-to-https
 * babel-preset-env
 * babel-cli (-g)
+* babel-plugin-dotenv-import
 
 The following npm modules are used in the client:
 * react
