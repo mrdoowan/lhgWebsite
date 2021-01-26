@@ -1,7 +1,6 @@
 // Modularize the DynamoDB functions
 /*  Declaring AWS npm modules */
 const AWS = require('aws-sdk'); // Interfacing with DynamoDB
-require('dotenv').config({ path: '../../.env' });
 /*  Configurations of npm modules */
 AWS.config.update({ region: 'us-east-2' });
 const dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });

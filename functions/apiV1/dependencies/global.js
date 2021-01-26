@@ -1,5 +1,4 @@
 /*  Declaring npm modules */
-require('dotenv').config({ path: '../../.env' });
 const { Random } = require('random-js');
 const Hashids = require('hashids/cjs'); // For hashing and unhashing
 

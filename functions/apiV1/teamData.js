@@ -1,5 +1,4 @@
 /*  Declaring npm modules */
-require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -62,13 +61,13 @@ export const getTeamPIdByName = (name) => {
  */
 // Get TeamName from DynamoDb
 export const getTeamName = (teamHId) => {
-    let tPId = getTeamPIdFromHash(teamHId);
-    const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + tPId;
+    const teamPId = getTeamPIdFromHash(teamHId);
+    const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Team', 'TeamPId', tPId)
+            dynamoDbGetItem('Team', 'TeamPId', teamPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const name = obj['TeamName'];

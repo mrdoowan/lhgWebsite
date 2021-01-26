@@ -1,6 +1,5 @@
 /*  Declaring MySQL npm modules */
 const mysql = require('mysql'); // Interfacing with mysql DB
-require('dotenv').config({ path: '../../.env' });
 
 /*  Configurations of npm modules */
 const sqlPool = mysql.createPool({

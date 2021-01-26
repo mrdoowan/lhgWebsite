@@ -1,12 +1,5 @@
-/*  Declaring npm modules */
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-const path = require('path');
-const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
-require('dotenv').config();
-
 // Import Routes
+import dotenv from 'dotenv';
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
 import seasonV1Routes from './routes/apiV1/seasonRoutes.js';
@@ -15,6 +8,14 @@ import profileV1Routes from './routes/apiV1/profileRoutes.js';
 import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
+
+/*  Declaring npm modules */
+dotenv.config();
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const path = require('path');
+const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 
 // Configure express
 app.use(bodyParser.json());

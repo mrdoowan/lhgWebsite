@@ -22,6 +22,8 @@ The following npm modules are used in the server:
 * bcrypt
 * random-js
 * express-http-to-https
+* babel-preset-env
+* babel-cli (-g)
 
 The following npm modules are used in the client:
 * react
