@@ -6,10 +6,7 @@ import Grid from '@material-ui/core/Grid';
 // Components
 import PieGraph from '../PieGraph';
 // Util
-import {
-    getTimeString,
-    getDateString
-} from '../../util/StringHelper';
+import { getTimeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
