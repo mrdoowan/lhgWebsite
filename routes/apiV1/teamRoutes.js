@@ -2,7 +2,14 @@ const router = require('express').Router();
 const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
-const Team = require('../../functions/apiV1/teamData');
+import {
+    getTeamPId,
+    getTeamInfo,
+    getTeamScoutingBySeason,
+    getTeamGamesBySeason,
+    getTeamStatsByTourney,
+    postNewTeam,
+} from '../../functions/apiV1/teamData';
 import { getSeasonId } from './seasonData';
 const Tournament = require('../../functions/apiV1/tournamentData');
 
@@ -22,9 +29,9 @@ const Tournament = require('../../functions/apiV1/tournamentData');
 router.get('/information/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Information.`);
-    Team.getId(teamName).then((teamId) => {
+    getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Team.getInfo(teamId).then((data) => {
+        getTeamInfo(teamId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Team Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Team ID Error."));
@@ -38,11 +45,11 @@ router.get('/information/name/:teamName', async (req, res) => {
 router.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from Season '${seasonShortName}'.`);
-    Team.getId(teamName).then((teamId) => {
+    getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
         getSeasonId(seasonShortName).then((sPId) => {
             if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
-            Team.getScouting(teamId, sPId).then((data) => {
+            getTeamScoutingBySeason(teamId, sPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${teamName}' does not have Season '${seasonShortName}' Scouting logged`) }
                 return handler.res200s(res, req, data);
             }).catch((err) => handler.error500s(err, res, "GET Team Scouting Error."));
@@ -58,11 +65,11 @@ router.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
 router.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from Season '${seasonShortName}'.`);
-    Team.getId(teamName).then((teamId) => {
+    getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
         getSeasonId(seasonShortName).then((sPId) => {
             if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
-            Team.getGames(teamId, sPId).then((data) => {
+            getTeamGamesBySeason(teamId, sPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${teamName}' does not have Season '${seasonShortName}' Games logged`); }
                 return handler.res200s(res, req, data);
             }).catch((err) => handler.error500s(err, res, "GET Team Games Error."));
@@ -78,11 +85,11 @@ router.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
 router.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
     const { teamName, tournamentName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats Log from Tournament '${tournamentName}'.`);
-    Team.getId(teamName).then((teamId) => {
+    getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
         Tournament.getId(tournamentName).then((tPId) => {
             if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentName}' Not Found`); }
-            Team.getStats(teamId, tPId).then((data) => {
+            getTeamStatsByTourney(teamId, tPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${teamName}' does not have Tournament '${tournamentName}' Stats logged`); }
                 return handler.res200s(res, req, data);
             }).catch((err) => handler.error500s(err, res, "GET Team Stats Error."));
@@ -98,9 +105,9 @@ router.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
 router.get('/scouting/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from the latest Season.`);
-    Team.getId(req.params.teamName).then((teamId) => {
+    getTeamPId(req.params.teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Team.getScouting(teamId).then((data) => {
+        getTeamScoutingBySeason(teamId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Team Scouting Error."));
     }).catch((err) => handler.error500s(err, res, "GET Team ID Error."));
@@ -114,9 +121,9 @@ router.get('/scouting/latest/name/:teamName', async (req, res) => {
 router.get('/games/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from the latest Season.`);
-    Team.getId(teamName).then((teamId) => {
+    getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Team.getGames(teamId).then((data) => {
+        getTeamGamesBySeason(teamId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Team Games Error."));
     }).catch((err) => handler.error500s(err, res, "GET Team ID Error."));
@@ -130,9 +137,9 @@ router.get('/games/latest/name/:teamName', async (req, res) => {
 router.get('/stats/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats from the latest Tournament.`);
-    Team.getId(teamName).then((teamId) => {
+    getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Team.getStats(teamId).then((data) => {
+        getTeamStatsByTourney(teamId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Team Stats Error."));
     }).catch((err) => handler.error500s(err, res, "GET Team ID Error."));
@@ -150,13 +157,13 @@ router.get('/stats/latest/name/:teamName', async (req, res) => {
 router.post('/add/new', (req, res) => {
     const { teamName, shortName } = req.body;
     // Check if Team Name already exists
-    Team.getId(teamName).then((tPId) => {
+    getTeamPId(teamName).then((tPId) => {
         if (tPId != null) {
             // Id found in DB. Team name exists. Reject.
             handler.res400s(res, req, `Team '${teamName}' already exists under Team ID '${tPId}'`);
             return;
         }
-        Team.postNew(teamName, shortName).then((data) => {
+        postNewTeam(teamName, shortName).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "POST Team Add New Error 1"));
     }).catch((err) => handler.error500s(err, res, "POST Team Add New Error 2"));

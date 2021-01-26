@@ -18,6 +18,11 @@ import {
     getProfileName,
     getProfileGamesBySeason,
 } from './profileData';
+import {
+    getTeamName,
+    getTeamShortName,
+    getTeamGamesBySeason,
+} from './teamData';
 const Team = require('./teamData');
 const GLOBAL = require('./dependencies/global');
 
@@ -45,8 +50,8 @@ export const getMatchData = async (id) => {
                 for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
                     let teamId = Object.keys(matchJson['Teams'])[i];
                     let teamJson = matchJson['Teams'][teamId];
-                    teamJson['TeamName'] = await Team.getName(teamJson['TeamHId']);
-                    teamJson['TeamShortName'] = await Team.getShortName(teamJson['TeamHId']);
+                    teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
+                    teamJson['TeamShortName'] = await getTeamShortName(teamJson['TeamHId']);
                     for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
                         let partId = Object.keys(teamJson['Players'])[j];
                         let playerJson = teamJson['Players'][partId];
@@ -92,7 +97,7 @@ export const getMatchSetup = async (id) => {
             let teamsObject = matchSetupJson['Teams'];
             for (let teamIdx = 0; teamIdx < Object.values(teamsObject).length; ++teamIdx) {
                 let teamJson = Object.values(teamsObject)[teamIdx];
-                if ('TeamHId' in teamJson) { teamJson['TeamName'] = await Team.getName(teamJson['TeamHId']) }
+                if ('TeamHId' in teamJson) { teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']) }
                 let playersList = teamJson['Players'];
                 for (let i = 0; i < playersList.length; ++i) {
                     let playerJson = playersList[i];
@@ -256,7 +261,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                                 }
                             );
                         }
-                        let teamGameLog = await Team.getGames(thisTeamPId, seasonId);
+                        let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
                         if (matchId in teamGameLog['Matches']) {
                             delete teamGameLog['Matches'][matchId];
                             await dynamoDb.updateItem('Team', 'TeamPId', thisTeamPId,

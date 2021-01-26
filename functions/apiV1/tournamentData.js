@@ -35,7 +35,11 @@ import {
     getProfileName,
     getProfileStatsByTourney,
 } from './profileData';
-const Team = require('./teamData');
+import {
+    getTeamName,
+    getTeamShortName,
+    getTeamStatsByTourney,
+} from './teamData';
 
 // Get TournamentPId from DynamoDb
 function getTournamentId(shortName) {
@@ -172,10 +176,10 @@ function getTourneyLeaderboards(tPId) {
                     let gameRecords = leaderboardJson['GameRecords'];
                     for (let i = 0; i < Object.values(gameRecords).length; ++i) {
                         let gameObject = Object.values(gameRecords)[i];
-                        gameObject['BlueTeamName'] = await Team.getName(gameObject['BlueTeamHId']);
-                        gameObject['RedTeamName'] = await Team.getName(gameObject['RedTeamHId']);
-                        gameObject['BlueTeamShortName'] = await Team.getShortName(gameObject['BlueTeamHId']);
-                        gameObject['RedTeamShortName'] = await Team.getShortName(gameObject['RedTeamHId']);
+                        gameObject['BlueTeamName'] = await getTeamName(gameObject['BlueTeamHId']);
+                        gameObject['RedTeamName'] = await getTeamName(gameObject['RedTeamHId']);
+                        gameObject['BlueTeamShortName'] = await getTeamShortName(gameObject['BlueTeamHId']);
+                        gameObject['RedTeamShortName'] = await getTeamShortName(gameObject['RedTeamHId']);
                     }
                     let playerRecords = leaderboardJson['PlayerSingleRecords'];
                     for (let i = 0; i < Object.values(playerRecords).length; ++i) {
@@ -183,10 +187,10 @@ function getTourneyLeaderboards(tPId) {
                         for (let j = 0; j < playerList.length; ++j) {
                             let playerObject = playerList[j];
                             playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
-                            playerObject['BlueTeamName'] = await Team.getName(playerObject['BlueTeamHId']);
-                            playerObject['RedTeamName'] = await Team.getName(playerObject['RedTeamHId']);
-                            playerObject['BlueTeamShortName'] = await Team.getShortName(playerObject['BlueTeamHId']);
-                            playerObject['RedTeamShortName'] = await Team.getShortName(playerObject['RedTeamHId']);
+                            playerObject['BlueTeamName'] = await getTeamName(playerObject['BlueTeamHId']);
+                            playerObject['RedTeamName'] = await getTeamName(playerObject['RedTeamHId']);
+                            playerObject['BlueTeamShortName'] = await getTeamShortName(playerObject['BlueTeamHId']);
+                            playerObject['RedTeamShortName'] = await getTeamShortName(playerObject['RedTeamHId']);
                         }
                     }
                     let teamRecords = leaderboardJson['TeamSingleRecords'];
@@ -194,11 +198,11 @@ function getTourneyLeaderboards(tPId) {
                         let teamList = Object.values(teamRecords)[i];
                         for (let j = 0; j < teamList.length; ++j) {
                             let teamObject = teamList[j];
-                            teamObject['TeamName'] = await Team.getName(teamObject['TeamHId']);
-                            teamObject['BlueTeamName'] = await Team.getName(teamObject['BlueTeamHId']);
-                            teamObject['RedTeamName'] = await Team.getName(teamObject['RedTeamHId']);
-                            teamObject['BlueTeamShortName'] = await Team.getShortName(teamObject['BlueTeamHId']);
-                            teamObject['RedTeamShortName'] = await Team.getShortName(teamObject['RedTeamHId']);
+                            teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
+                            teamObject['BlueTeamName'] = await getTeamName(teamObject['BlueTeamHId']);
+                            teamObject['RedTeamName'] = await getTeamName(teamObject['RedTeamHId']);
+                            teamObject['BlueTeamShortName'] = await getTeamShortName(teamObject['BlueTeamHId']);
+                            teamObject['RedTeamShortName'] = await getTeamShortName(teamObject['RedTeamHId']);
                         }
                     }
                     cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
@@ -312,10 +316,10 @@ function getTourneyTeamStats(tPId) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
                         let teamId = GLOBAL.getTeamPId(teamHIdList[i]);
-                        let teamStatsLog = await Team.getStats(teamId, tPId);
+                        let teamStatsLog = await getTeamStatsByTourney(teamId, tPId);
                         if (teamStatsLog != null) {
                             teamStatsList.push({
-                                'TeamName': await Team.getName(teamHIdList[i]),
+                                'TeamName': await getTeamName(teamHIdList[i]),
                                 'GamesPlayed': teamStatsLog.GamesPlayed,
                                 'GamesWin': teamStatsLog.GamesWon,
                                 'AverageGameDuration': teamStatsLog.AverageGameDuration,
@@ -417,8 +421,8 @@ function getTourneyGames(tPId) {
                         let matchId = Object.keys(gameLogJson)[i];
                         let gameJson = gameLogJson[matchId];
                         gameJson['MatchPId'] = matchId;
-                        gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
-                        gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHId']);
+                        gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
+                        gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
                     }
                     cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(gameLogJson);

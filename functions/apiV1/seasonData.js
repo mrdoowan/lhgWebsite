@@ -10,7 +10,7 @@ const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Tournament = require('./tournamentData');
 import { getProfileName } from './profileData';
-const Team = require('./teamData');
+import { getTeamName } from './teamData';
 
 // Get SeasonPId from DynamoDb
 export const getSeasonId = (shortName) => {
@@ -157,7 +157,7 @@ export const getSeasonInformation = (sPId) => {
                     if ('FinalStandings' in seasonInfoJson) {
                         for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
                             let teamObject = seasonInfoJson['FinalStandings'][i];
-                            teamObject['TeamName'] = await Team.getName(teamObject['TeamHId']);
+                            teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
                         }
                     }
                     if ('FinalsMvpHId' in seasonInfoJson) {
@@ -241,13 +241,13 @@ export const getRegularSeason = (sPId) => {
                         let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
                         for (let j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
                             let teamJson = divisionJson['RegularSeasonTeams'][j];
-                            teamJson['TeamName'] = await Team.getName(teamJson['TeamHId']);
+                            teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
                         }
                     }
                     for (let i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
                         let gameJson = seasonRegularJson['RegularSeasonGames'][i];
-                        gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
-                        gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHid']);
+                        gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
+                        gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHid']);
                         gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
                     }
@@ -283,8 +283,8 @@ export const getSeasonPlayoffs = (sPId) => {
                     }
                     for (let i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
                         let gameJson = playoffJson['PlayoffGames'][i];
-                        gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
-                        gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHId']);
+                        gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
+                        gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
                         gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
                         gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
                     }

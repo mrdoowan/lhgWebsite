@@ -35,7 +35,7 @@ import { getProfileName } from './profileData';
  * @param {string} name       Team's name
  */
 // Get TeamPId from TeamName
-function getTeamPId(name) {
+export const getTeamPId = (name) => {
     let simpleName = GLOBAL.filterName(name);
     const cacheKey = keyBank.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
@@ -58,7 +58,7 @@ function getTeamPId(name) {
  * @param {string} teamHId       Team's hash
  */
 // Get TeamName from DynamoDb
-function getTeamName(teamHId) {
+export const getTeamName = (teamHId) => {
     let tPId = GLOBAL.getTeamPId(teamHId);
     const cacheKey = keyBank.TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
@@ -81,7 +81,7 @@ function getTeamName(teamHId) {
  * @param {string} teamHId       Team's hash
  */
 // Get Shortname from DynamoDb
-function getTeamShortName(teamHId) {
+export const getTeamShortName = (teamHId) => {
     let tPId = GLOBAL.getTeamPId(teamHId);
     const cacheKey = keyBank.TEAM_SHORTNAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
@@ -99,7 +99,7 @@ function getTeamShortName(teamHId) {
     });
 }
 
-function getTeamInfo(teamPId) {
+export const getTeamInfo = (teamPId) => {
     const cacheKey = keyBank.TEAM_INFO_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -138,7 +138,7 @@ function getTeamInfo(teamPId) {
 }
 
 // Returns Object
-function getTeamScoutingBySeason(teamPId, sPId=null) {
+export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
             let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['Scouting'];
@@ -182,7 +182,7 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
 }
 
 // Returns Object
-function getTeamGamesBySeason(teamPId, sPId=null) {
+export const getTeamGamesBySeason = (teamPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
             let teamObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);
@@ -222,7 +222,7 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
 }
 
 // Returns Object
-function getTeamStatsByTourney(teamPId, tPId=null) {
+export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
             let teamObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);
@@ -292,7 +292,7 @@ function getTeamStatsByTourney(teamPId, tPId=null) {
 //     "shortName": "XXX",
 // }
 // Add new Team to "Team", "TeamNameMap"
-function postNewTeam(teamName, shortName) {
+export const postNewTeam = (teamName, shortName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Generate new Team PId
@@ -325,7 +325,7 @@ function postNewTeam(teamName, shortName) {
 }
 
 // Doing both "GameLog" and "StatsLog" for Team Item
-function updateTeamGameLog(teamPId, tournamentPId) {
+export const updateTeamGameLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let tourneyDbObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId);
@@ -570,7 +570,7 @@ function updateTeamGameLog(teamPId, tournamentPId) {
 }
 
 // Update Stats Log
-function updateTeamStatsLog(teamPId, tournamentPId) {
+export const updateTeamStatsLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let teamDbObject = await dynamoDb.getItem('Team', 'TeamPId', teamPId);

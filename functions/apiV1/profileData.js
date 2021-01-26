@@ -16,7 +16,7 @@ import {
     getSeasonTime,
 } from './seasonData';
 const Tournament = require('./tournamentData');
-const Team = require('./teamData');
+import { getTeamName } from './teamData';
 
 // Get ProfilePId from ProfileName
 export const getProfilePIdByName = (name) => {
@@ -88,7 +88,7 @@ export const getProfileInfo = (pPId) => {
                         profileInfoJson['ActiveSeasonName'] = await getSeasonName(profileInfoJson['ActiveSeasonPId']);
                     }
                     if ('ActiveTeamHId' in profileInfoJson) {
-                        profileInfoJson['ActiveTeamName'] = await Team.getName(profileInfoJson['ActiveTeamHId']);
+                        profileInfoJson['ActiveTeamName'] = await getTeamName(profileInfoJson['ActiveTeamHId']);
                     }
                     // Add Season List
                     let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['GameLog'];
@@ -131,8 +131,8 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
                     profileGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
                         let matchJson = Object.values(profileGamesJson['Matches'])[i];
-                        matchJson['TeamName'] = await Team.getName(matchJson['TeamHId']);
-                        matchJson['EnemyTeamName'] = await Team.getName(matchJson['EnemyTeamHId']);
+                        matchJson['TeamName'] = await getTeamName(matchJson['TeamHId']);
+                        matchJson['EnemyTeamName'] = await getTeamName(matchJson['EnemyTeamHId']);
                         matchJson['Kda'] = (matchJson['Deaths'] > 0) ? ((matchJson['Kills'] + matchJson['Assists']) / matchJson['Deaths']).toFixed(2) : "Perfect";
                         matchJson['KillPct'] = (matchJson['TeamKills'] == 0) ? 0 : ((matchJson['Kills'] + matchJson['Assists']) / matchJson['TeamKills']).toFixed(4);
                         matchJson['DamagePct'] = (matchJson['DamageDealt'] / matchJson['TeamDamage']).toFixed(4);

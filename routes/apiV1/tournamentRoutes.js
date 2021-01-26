@@ -8,7 +8,10 @@ import {
     updateProfileGameLog,
     updateProfileStatsLog,
 } from './profileData';
-const Team = require('../../functions/apiV1/teamData');
+import {
+    updateTeamGameLog,
+    updateTeamStatsLog,
+} from './teamData';
 
 /*  
     ----------------------
@@ -214,9 +217,9 @@ router.put('/update/team', (req, res) => {
     console.log(`PUT Request Tournament ${tournamentShortName} Team Stats of ID '${teamPId}'`);
     Tournament.getId(tournamentShortName).then(async (tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        try { await Team.putGameLog(teamPId, tourneyPId) }
+        try { await updateTeamGameLog(teamPId, tourneyPId) }
         catch (err) { return handler.error500s(err, res, "PUT Team Game Log Error."); }
-        try { await Team.putStatsLog(teamPId, tourneyPId) }
+        try { await updateTeamStatsLog(teamPId, tourneyPId) }
         catch (err) { return handler.error500s(err, res, "PUT Team Stats Log Error."); }
         handler.res200s(res, req, {
             'profilePId': teamPId,
