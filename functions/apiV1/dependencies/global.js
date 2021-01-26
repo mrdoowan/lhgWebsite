@@ -36,7 +36,10 @@ const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
 const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
 const dynamoDb = require('./dynamoDbHelper');
-const Season = require('../seasonData');
+import {
+    getSeasonTabName,
+    getSeasonShortName,
+} from './seasonData';
 const Tournament = require('../tournamentData');
 
 // Turn number into string
@@ -79,8 +82,8 @@ function getSeasonItems(idList) {
                 let seasonId = parseInt(idList[i]);
                 seasonList.push({
                     'PId': seasonId,
-                    'ItemName': await Season.getTabName(seasonId),
-                    'ShortName': await Season.getShortName(seasonId),
+                    'ItemName': await getSeasonTabName(seasonId),
+                    'ShortName': await getSeasonShortName(seasonId),
                 });
             }
             resolve(seasonList);

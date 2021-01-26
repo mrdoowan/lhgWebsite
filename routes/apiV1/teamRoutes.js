@@ -3,7 +3,7 @@ const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
 const Team = require('../../functions/apiV1/teamData');
-const Season = require('../../functions/apiV1/seasonData');
+import { getSeasonId } from './seasonData';
 const Tournament = require('../../functions/apiV1/tournamentData');
 
 /*  
@@ -40,7 +40,7 @@ router.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
     console.log(`GET Request Team '${teamName}' Scouting from Season '${seasonShortName}'.`);
     Team.getId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Season.getId(seasonShortName).then((sPId) => {
+        getSeasonId(seasonShortName).then((sPId) => {
             if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
             Team.getScouting(teamId, sPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${teamName}' does not have Season '${seasonShortName}' Scouting logged`) }
@@ -60,7 +60,7 @@ router.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
     console.log(`GET Request Team '${teamName}' Game Log from Season '${seasonShortName}'.`);
     Team.getId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Season.getId(seasonShortName).then((sPId) => {
+        getSeasonId(seasonShortName).then((sPId) => {
             if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
             Team.getGames(teamId, sPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${teamName}' does not have Season '${seasonShortName}' Games logged`); }

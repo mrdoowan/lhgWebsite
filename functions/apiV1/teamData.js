@@ -22,7 +22,11 @@ const dynamoDb = require('./dependencies/dynamoDbHelper');
 const mySql = require('./dependencies/mySqlHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
-const Season = require('./seasonData');
+import {
+    getSeasonName,
+    getSeasonShortName,
+    getSeasonTime,
+} from './seasonData';
 const Tournament = require('./tournamentData');
 import { getProfileName } from './profileData';
 
@@ -107,8 +111,8 @@ function getTeamInfo(teamPId) {
                     if ('TrophyCase' in teamInfoJson) {
                         for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
                             let sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
-                            teamInfoJson['TrophyCase'][sPId]['Seasonname'] = Season.getName(sPId);
-                            teamInfoJson['TrophyCase'][sPId]['SeasonShortName'] = Season.getShortName(sPId);
+                            teamInfoJson['TrophyCase'][sPId]['Seasonname'] = getSeasonName(sPId);
+                            teamInfoJson['TrophyCase'][sPId]['SeasonShortName'] = getSeasonShortName(sPId);
                         }
                     }
                     // Add Season List
@@ -148,9 +152,9 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
                     if (teamScoutingSeasonJson == null) { resolve(null); return; } // Not Found
 
                     // Process Data
-                    teamScoutingSeasonJson['SeasonTime'] = await Season.getTime(seasonId);
-                    teamScoutingSeasonJson['SeasonName'] = await Season.getName(seasonId);
-                    teamScoutingSeasonJson['SeasonShortName'] = await Season.getShortName(seasonId);
+                    teamScoutingSeasonJson['SeasonTime'] = await getSeasonTime(seasonId);
+                    teamScoutingSeasonJson['SeasonName'] = await getSeasonName(seasonId);
+                    teamScoutingSeasonJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(teamScoutingSeasonJson['PlayerLog']).length; ++i) {
                         let roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
                         for (let j = 0; j < Object.keys(roleMap).length; ++j) {
@@ -193,9 +197,9 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
                     if (teamSeasonGamesJson == null) { resolve(null); return; } // Not Found
 
                     // Process Data
-                    teamSeasonGamesJson['SeasonTime'] = await Season.getTime(seasonId);
-                    teamSeasonGamesJson['SeasonName'] = await Season.getName(seasonId);
-                    teamSeasonGamesJson['SeasonShortName'] = await Season.getShortName(seasonId);
+                    teamSeasonGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
+                    teamSeasonGamesJson['SeasonName'] = await getSeasonName(seasonId);
+                    teamSeasonGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(teamSeasonGamesJson['Matches']).length; ++i) {
                         let matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
                         for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {

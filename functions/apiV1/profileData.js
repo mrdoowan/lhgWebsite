@@ -10,7 +10,11 @@ const mySql = require('./dependencies/mySqlHelper');
 const lambda = require('./dependencies/awsLambdaHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
-const Season = require('./seasonData');
+import {
+    getSeasonName,
+    getSeasonShortName,
+    getSeasonTime,
+} from './seasonData';
 const Tournament = require('./tournamentData');
 const Team = require('./teamData');
 
@@ -80,8 +84,8 @@ export const getProfileInfo = (pPId) => {
                 let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['Information'];
                 if (profileInfoJson != null) { 
                     if ('ActiveSeasonPId' in profileInfoJson) {
-                        profileInfoJson['ActiveSeasonShortName'] = await Season.getShortName(profileInfoJson['ActiveSeasonPId']);
-                        profileInfoJson['ActiveSeasonName'] = await Season.getName(profileInfoJson['ActiveSeasonPId']);
+                        profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
+                        profileInfoJson['ActiveSeasonName'] = await getSeasonName(profileInfoJson['ActiveSeasonPId']);
                     }
                     if ('ActiveTeamHId' in profileInfoJson) {
                         profileInfoJson['ActiveTeamName'] = await Team.getName(profileInfoJson['ActiveTeamHId']);
@@ -122,9 +126,9 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
                     let profileGamesJson = gameLogJson[seasonId];
                     if (profileGamesJson == null) { resolve(null); return; } // Not Found
                     // Process Data
-                    profileGamesJson['SeasonTime'] = await Season.getTime(seasonId);
-                    profileGamesJson['SeasonName'] = await Season.getName(seasonId);
-                    profileGamesJson['SeasonShortName'] = await Season.getShortName(seasonId);
+                    profileGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
+                    profileGamesJson['SeasonName'] = await getSeasonName(seasonId);
+                    profileGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
                         let matchJson = Object.values(profileGamesJson['Matches'])[i];
                         matchJson['TeamName'] = await Team.getName(matchJson['TeamHId']);

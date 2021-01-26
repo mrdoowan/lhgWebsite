@@ -2,7 +2,7 @@ const router = require('express').Router();
 const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
-const Season = require('../../functions/apiV1/seasonData');
+import { getLeagues } from './seasonData';
 
 /*  
     ----------------------
@@ -19,7 +19,7 @@ const Season = require('../../functions/apiV1/seasonData');
  */
 router.get('/', (req, res) => {
     console.log("GET Request Leagues.");
-    Season.getLeagues().then((data) => {
+    getLeagues().then((data) => {
         return handler.res200s(res, req, data);
     }).catch((err) => handler.error500s(err, res, "GET Leagues Information Error."));
 });

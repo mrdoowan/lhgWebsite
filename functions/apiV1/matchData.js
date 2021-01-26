@@ -9,7 +9,10 @@ const mySql = require('./dependencies/mySqlHelper');
 const lambda = require('./dependencies/awsLambdaHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
-const Season = require('./seasonData');
+import {
+    getSeasonName,
+    getSeasonShortName,
+} from './seasonData';
 const Tournament = require('./tournamentData');
 import {
     getProfileName,
@@ -32,8 +35,8 @@ export const getMatchData = async (id) => {
                 let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', id);
                 if (matchJson == null || "Setup" in matchJson) { resolve(null); return; } // Not Found or it's a Setup
                 let seasonPId = matchJson['SeasonPId'];
-                matchJson['SeasonShortName'] = await Season.getShortName(seasonPId);
-                matchJson['SeasonName'] = await Season.getName(seasonPId);
+                matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
+                matchJson['SeasonName'] = await getSeasonName(seasonPId);
                 let tourneyPId = matchJson['TournamentPId'];
                 matchJson['TournamentShortName'] = await Tournament.getShortName(tourneyPId);
                 matchJson['TournamentName'] = await Tournament.getName(tourneyPId);
@@ -82,7 +85,7 @@ export const getMatchSetup = async (id) => {
             let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', id);
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
             let matchSetupJson = matchJson['Setup'];
-            matchSetupJson['SeasonName'] = await Season.getName(matchSetupJson['SeasonPId']);
+            matchSetupJson['SeasonName'] = await getSeasonName(matchSetupJson['SeasonPId']);
             matchSetupJson['TournamentName'] = await Tournament.getName(matchSetupJson['TournamentPId']);
             
             // Edit names into the Json

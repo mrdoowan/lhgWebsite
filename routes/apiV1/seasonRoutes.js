@@ -2,7 +2,13 @@ const router = require('express').Router();
 const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
-const Season = require('../../functions/apiV1/seasonData');
+import {
+    getSeasonId,
+    getSeasonInformation,
+    getSeasonRoster,
+    getRegularSeason,
+    getSeasonPlayoffs,
+} from './seasonData';
 
 /*  
     ----------------------
@@ -20,9 +26,9 @@ const Season = require('../../functions/apiV1/seasonData');
 router.get('/information/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`GET Request Season '${seasonShortName}' Information.`);
-    Season.getId(seasonShortName).then((sPId) => {
+    getSeasonId(seasonShortName).then((sPId) => {
         if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        Season.getInfo(sPId).then((data) => {
+        getSeasonInformation(sPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Season Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Season ID Error."));
@@ -36,9 +42,9 @@ router.get('/information/name/:seasonShortName', (req, res) => {
 router.get('/roster/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`GET Request Season '${seasonShortName}' Roster.`);
-    Season.getId(seasonShortName).then((sPId) => {
+    getSeasonId(seasonShortName).then((sPId) => {
         if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        Season.getRoster(sPId).then((data) => {
+        getSeasonRoster(sPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Season Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Season ID Error."));
@@ -52,9 +58,9 @@ router.get('/roster/name/:seasonShortName', (req, res) => {
 router.get('/regular/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`"GET Request Season '${seasonShortName}' Regular."`);
-    Season.getId(seasonShortName).then((sPId) => {
+    getSeasonId(seasonShortName).then((sPId) => {
         if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        Season.getRegular(sPId).then((data) => {
+        getRegularSeason(sPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Season Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Season ID Error."));
@@ -68,9 +74,9 @@ router.get('/regular/name/:seasonShortName', (req, res) => {
 router.get('/playoffs/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`"GET Request Season '${seasonShortName}' Regular."`);
-    Season.getId(seasonShortName).then((sPId) => {
+    getSeasonId(seasonShortName).then((sPId) => {
         if (sPId == null) { return handler.res400s(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        Season.getPlayoffs(sPId).then((data) => {
+        getSeasonPlayoffs(sPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Season Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Season ID Error."));

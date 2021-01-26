@@ -1,16 +1,3 @@
-module.exports = {
-    getId: getSeasonId,
-    getShortName: getSeasonShortName,
-    getName: getSeasonName,
-    getTime: getSeasonTime,
-    getTabName: getSeasonTabName,
-    getLeagues: getLeagues,
-    getInfo: getSeasonInformation,
-    getRoster: getSeasonRoster,
-    getRegular: getRegularSeason,
-    getPlayoffs: getSeasonPlayoffs,
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
@@ -26,7 +13,7 @@ import { getProfileName } from './profileData';
 const Team = require('./teamData');
 
 // Get SeasonPId from DynamoDb
-function getSeasonId(shortName) {
+export const getSeasonId = (shortName) => {
     let simpleName = GLOBAL.filterName(shortName);
     const cacheKey = keyBank.SEASON_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
@@ -48,7 +35,7 @@ function getSeasonId(shortName) {
  * Get ShortName of a Season Id from DynamoDb. Returns a string (i.e. "f2019pl")
  * @param {number} sPId      Season Id in number format
  */
-function getSeasonShortName(sPId) {
+export const getSeasonShortName = (sPId) => {
     const cacheKey = keyBank.SEASON_CODE_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -69,7 +56,7 @@ function getSeasonShortName(sPId) {
  * Get SeasonName of a Season Id from DynamoDb. Returns a string (i.e. "Fall 2019 Premier League")
  * @param {number} sPId      Season Id in number format
  */
-function getSeasonName(sPId) {
+export const getSeasonName = (sPId) => {
     const cacheKey = keyBank.SEASON_NAME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -87,7 +74,7 @@ function getSeasonName(sPId) {
 }
 
 // Returns a Season Time (i.e. Winter 2020)
-function getSeasonTime(sPId) {
+export const getSeasonTime = (sPId) => {
     const cacheKey = keyBank.SEASON_TIME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -104,7 +91,7 @@ function getSeasonTime(sPId) {
     });
 }
 
-function getSeasonTabName(sPId) {
+export const getSeasonTabName = (sPId) => {
     const cacheKey = keyBank.SEASON_TAB_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -122,7 +109,7 @@ function getSeasonTabName(sPId) {
 }
 
 // For leagues page
-function getLeagues() {
+export const getLeagues = () => {
     return new Promise(function(resolve, reject) {
         cache.get(keyBank.LEAGUE_KEY, async (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -156,7 +143,7 @@ function getLeagues() {
     })
 }
 
-function getSeasonInformation(sPId) {
+export const getSeasonInformation = (sPId) => {
     const cacheKey = keyBank.SEASON_INFO_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -195,7 +182,7 @@ function getSeasonInformation(sPId) {
     });
 }
 
-function getSeasonRoster(sPId) {
+export const getSeasonRoster = (sPId) => {
     const cacheKey = keyBank.SEASON_ROSTER_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -241,7 +228,7 @@ function getSeasonRoster(sPId) {
     });
 }
 
-function getRegularSeason(sPId) {
+export const getRegularSeason = (sPId) => {
     const cacheKey = keyBank.SEASON_REGULAR_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -276,7 +263,7 @@ function getRegularSeason(sPId) {
     });
 }
 
-function getSeasonPlayoffs(sPId) {
+export const getSeasonPlayoffs = (sPId) => {
     const cacheKey = keyBank.SEASON_PLAYOFF_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {

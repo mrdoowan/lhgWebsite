@@ -27,7 +27,10 @@ const dynamoDb = require('./dependencies/dynamoDbHelper');
 const mySql = require('./dependencies/mySqlHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
-const Season = require('./seasonData');
+import {
+    getSeasonName,
+    getSeasonShortName,
+} from './seasonData';
 import {
     getProfileName,
     getProfileStatsByTourney,
@@ -122,8 +125,8 @@ function getTourneyInfo(tPId) {
             try {
                 let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['Information'];
                 if (tourneyInfoJson != null) {
-                    tourneyInfoJson['SeasonName'] = await Season.getName(tourneyInfoJson['SeasonPId']);
-                    tourneyInfoJson['SeasonShortName'] = await Season.getShortName(tourneyInfoJson['SeasonPId']);
+                    tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
+                    tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
                     cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyInfoJson);
                 }
