@@ -1,13 +1,5 @@
-// Modularize the MySQL functions
-module.exports = {
-    insertQuery: insertMySQLQuery,
-    callSProc: sProcCallMySqlQuery,
-    makeQuery: makeSqlQuery,
-}
-
 /*  Declaring MySQL npm modules */
 const mysql = require('mysql'); // Interfacing with mysql DB
-require('dotenv').config({ path: '../../.env' });
 
 /*  Configurations of npm modules */
 const sqlPool = mysql.createPool({
@@ -27,8 +19,8 @@ const CHANGE_MYSQL = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV 
  * Call Stored Procedure from MySQL
  * @param {string} sProcName 
  */
-function sProcCallMySqlQuery(sProcName) {
-    let argArray = arguments; // Because arguments gets replaced by the function below
+export const mySqlCallSProc = (sProcName) => {
+    const argArray = arguments; // Because arguments gets replaced by the fxn below
     return new Promise(function(resolve, reject) {
         try {
             let queryStr = `CALL ${sProcName}(`;
@@ -65,7 +57,7 @@ function sProcCallMySqlQuery(sProcName) {
  * @param {object} queryObject  Each key is the "Column Name" for its values
  * @param {string} tableName    Table name in MySQL
  */
-function insertMySQLQuery(queryObject, tableName) {
+export const mySqlInsertQuery = (queryObject, tableName) => {
     if (CHANGE_MYSQL) {
         return new Promise(function(resolve, reject) {
             try {
@@ -108,7 +100,7 @@ function insertMySQLQuery(queryObject, tableName) {
  * MySQL query command
  * @param {string} queryString      Generic MySQL query in string format
  */
-function makeSqlQuery(queryString) {
+export const mySqlMakeQuery = (queryString) => {
     return new Promise(function(resolve, reject) {
         try {
             sqlPool.getConnection(function(err, connection) {

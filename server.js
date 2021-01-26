@@ -1,20 +1,21 @@
+// Import Routes
+import dotenv from 'dotenv';
+import authV1Routes from './routes/apiV1/authRoutes.js';
+import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
+import seasonV1Routes from './routes/apiV1/seasonRoutes.js';
+import tournamentV1Routes from './routes/apiV1/tournamentRoutes.js';
+import profileV1Routes from './routes/apiV1/profileRoutes.js';
+import teamV1Routes from './routes/apiV1/teamRoutes.js';
+import matchV1Routes from './routes/apiV1/matchRoutes.js';
+import staffV1Routes from './routes/apiV1/staffRoutes.js';
+
 /*  Declaring npm modules */
+dotenv.config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const path = require('path');
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
-require('dotenv').config();
-
-// Import Routes
-const authV1Routes = require('./routes/apiV1/authRoutes');
-const leagueV1Routes = require('./routes/apiV1/leagueRoutes');
-const seasonV1Routes = require('./routes/apiV1/seasonRoutes');
-const tournamentV1Routes = require('./routes/apiV1/tournamentRoutes');
-const profileV1Routes = require('./routes/apiV1/profileRoutes');
-const teamV1Routes = require('./routes/apiV1/teamRoutes');
-const matchV1Routes = require('./routes/apiV1/matchRoutes');
-const staffV1Routes = require('./routes/apiV1/staffRoutes');
 
 // Configure express
 app.use(bodyParser.json());

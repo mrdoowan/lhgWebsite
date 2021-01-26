@@ -7,7 +7,7 @@ import Grid from '@material-ui/core/Grid';
 // Component
 import ChampionSquare from '../ChampionSquare';
 // Util
-const lhgString = require('../../util/StringHelper');
+import { getTimeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -116,15 +116,15 @@ export default function LeaderboardPlayers({ playerRecords }) {
 function recordString(type, item) {
     switch (type) {
         case 'PlayerMostDamage':
-            return item.DamagePerMin.toFixed(2).toLocaleString() + ' DPM - ' + item.DamageDealt + ' in ' + lhgString.time(item.GameDuration);
+            return item.DamagePerMin.toFixed(2).toLocaleString() + ' DPM - ' + item.DamageDealt + ' in ' + getTimeString(item.GameDuration);
         case 'PlayerMostFarm':
-            return item.CsPerMin.toFixed(2) + ' CSPM - ' + item.CreepScore + ' in ' + lhgString.time(item.GameDuration);
+            return item.CsPerMin.toFixed(2) + ' CSPM - ' + item.CreepScore + ' in ' + getTimeString(item.GameDuration);
         case 'PlayerMostGoldDiffEarly':
             return '+' + item.GDiffEarly.toLocaleString() + ' GD@15 - ' + item.GAtEarly + ' Gold';
         case 'PlayerMostXpDiffEarly':
             return '+' + item.XpDiffEarly.toLocaleString() + ' XPD@15 - ' + item.XpAtEarly + ' XP';
         case 'PlayerMostVision':
-            return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + lhgString.time(item.GameDuration);
+            return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + getTimeString(item.GameDuration);
         default:
             return '';
     }

@@ -1,22 +1,16 @@
-// Modularize the AWS Lambda functions
-module.exports = {
-    getRiotSummonerId: getSummonerIdLambda,
-    getRiotMatchData: getMatchDataLambda,
-    getRiotSpectateData: getSpectateLambda,
-}
-
 /*  Declaring AWS npm modules */
-var AWS = require('aws-sdk'); // Interfacing with our AWS Lambda functions
+const AWS = require('aws-sdk'); // Interfacing with our AWS Lambda functions
 /*  Configurations of npm modules */
 AWS.config.update({ region: 'us-east-2' });
-var lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
+const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 
 /**
+ * (AWS Lambda function)
  * Calls Riot API and gets the Summoner ID of the summoner account
  * Returns the request object from Riot API
  * @param {string} name     Summoner IGN
  */
-function getSummonerIdLambda(name) {
+export const getRiotSummonerId = (name) => {
     return new Promise((resolve, reject) => {
         let params = {
             FunctionName: 'riotAPILambda',
@@ -33,11 +27,12 @@ function getSummonerIdLambda(name) {
 }
 
 /**
+ * (AWS Lambda function)
  * Calls Riot API and gets the Match Data of the input Match ID
  * Returns the request object of Match with items "Data" and "Timeline"
- * @param {string} matchId     Summoner IGN
+ * @param {string} matchId
  */
-function getMatchDataLambda(matchId) {
+export const getRiotMatchData = (matchId) => {
     return new Promise((resolve, reject) => {
         let params = {
             FunctionName: 'riotAPILambda',
@@ -54,11 +49,12 @@ function getMatchDataLambda(matchId) {
 }
 
 /**
+ * (AWS Lambda function)
  * Calls Riot API and gets the Spectate Data of the input Summoner ID
  * Returns the request object of Spectate Request
  * @param {string} summonerId     Summoner ID
  */
-function getSpectateLambda(summonerId) {
+export const getRiotSpectateData = (summonerId) => {
     return new Promise((resolve, reject) => {
         let params = {
             FunctionName: 'riotAPILambda',

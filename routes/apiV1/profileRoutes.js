@@ -1,10 +1,25 @@
-const router = require('express').Router();
-const handler = require('./dependencies/handlers');
+const profileV1Routes = require('express').Router();
 
+import {
+    res200sOK,
+    res400sClientError,
+    error500sServerError,
+} from './dependencies/handlers';
 /*  Import helper Data function modules */
-const Profile = require('../../functions/apiV1/profileData');
-const Season = require('../../functions/apiV1/seasonData');
-const Tournament = require('../../functions/apiV1/tournamentData');
+import {
+    getProfilePIdByName,
+    getProfilePIdBySummonerId,
+    getProfileName,
+    getProfileInfo,
+    getProfileGamesBySeason,
+    getProfileStatsByTourney,
+    getSummonerIdBySummonerName,
+    postNewProfile,
+    updateProfileInfo,
+    updateProfileName,
+} from '../../functions/apiV1/profileData';
+import { getSeasonId } from '../../functions/apiV1/seasonData';
+import { getTournamentId } from '../../functions/apiV1/tournamentData';
 
 /*  
     ----------------------
@@ -19,15 +34,15 @@ const Tournament = require('../../functions/apiV1/tournamentData');
  * @desc    Get Profile Information
  * @access  Public
  */
-router.get('/information/name/:profileName', (req, res) => {
+profileV1Routes.get('/information/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`GET Request Profile '${profileName}' Information.`);
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId == null) { return handler.res400s(res, req, `Profile Name '${profileName}' Not Found`); }
-        Profile.getInfo(pPId).then((data) => {
-            return handler.res200s(res, req, data);
-        }).catch((err) => handler.error500s(err, res, "GET Profile Information Error."));
-    }).catch((err) => handler.error500s(err, res, "GET Profile ID Error."));
+    getProfilePIdByName(profileName).then((pPId) => {
+        if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        getProfileInfo(pPId).then((data) => {
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "GET Profile Information Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Profile ID Error."));
 });
 
 /**
@@ -35,19 +50,19 @@ router.get('/information/name/:profileName', (req, res) => {
  * @desc    Get Profile Game Log
  * @access  Public
  */
-router.get('/games/name/:profileName/:seasonShortName', (req, res) => {
+profileV1Routes.get('/games/name/:profileName/:seasonShortName', (req, res) => {
     const { profileName, seasonShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Game Log from Season '${seasonShortName}'.`);
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId == null) { return handler.res400s(res, req, `Profile Name '${profileName}' Not Found`); }
-        Season.getId(seasonShortName).then((sPId) => {
-            if (sPId == null) { return handler.res400s(res, req, `Season Shortname '${seasonShortName}' Not Found`); }
-            Profile.getGames(pPId, sPId).then((data) => {
-                if (data == null) { return handler.res400s(res, req, `'${profileName}' does not have the Season '${seasonShortName}' logged.`); }
-                return handler.res200s(res, req, data);
-            }).catch((err) => handler.error500s(err, res, "GET Profile Games Error."));
-        }).catch((err) => handler.error500s(err, res, "GET Season ID Error."));
-    }).catch((err) => handler.error500s(err, res, "GET Profile ID Error."));
+    getProfilePIdByName(profileName).then((pPId) => {
+        if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        getSeasonId(seasonShortName).then((sPId) => {
+            if (sPId == null) { return res400sClientError(res, req, `Season Shortname '${seasonShortName}' Not Found`); }
+            getProfileGamesBySeason(pPId, sPId).then((data) => {
+                if (data == null) { return res400sClientError(res, req, `'${profileName}' does not have the Season '${seasonShortName}' logged.`); }
+                return res200sOK(res, req, data);
+            }).catch((err) => error500sServerError(err, res, "GET Profile Games Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Profile ID Error."));
 });
 
 /**
@@ -55,19 +70,19 @@ router.get('/games/name/:profileName/:seasonShortName', (req, res) => {
  * @desc    Get Profile Stats Log
  * @access  Public
  */
-router.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => {
+profileV1Routes.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => {
     const { profileName, tournamentShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Stats Log from Tournament '${tournamentShortName}'.`);
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId == null) { return handler.res400s(res, req, `Profile Name '${profileName}' Not Found`); }
-        Tournament.getId(tournamentShortName).then((tPId) => {
-            if (tPId == null) { return handler.res400s(res, req, `Tournament Shortname '${tournamentShortName}' Not Found`); }
-            Profile.getStats(pPId, tPId).then((data) => {
-                if (data == null) { return handler.res400s(res, req, `'${profileName}' does not have the Season '${tournamentShortName}' logged.`); }
-                return handler.res200s(res, req, data);
-            }).catch((err) => handler.error500s(err, res, "GET Profile Stats Error."));
-        }).catch((err) => handler.error500s(err, res, "GET Tournament ID Error."));
-    }).catch((err) => handler.error500s(err, res, "GET Profile ID Error."));
+    getProfilePIdByName(profileName).then((pPId) => {
+        if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        getTournamentId(tournamentShortName).then((tPId) => {
+            if (tPId == null) { return res400sClientError(res, req, `Tournament Shortname '${tournamentShortName}' Not Found`); }
+            getProfileStatsByTourney(pPId, tPId).then((data) => {
+                if (data == null) { return res400sClientError(res, req, `'${profileName}' does not have the Season '${tournamentShortName}' logged.`); }
+                return res200sOK(res, req, data);
+            }).catch((err) => error500sServerError(err, res, "GET Profile Stats Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Tournament ID Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Profile ID Error."));
 });
 
 /**
@@ -75,15 +90,15 @@ router.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => 
  * @desc    Get Profile Game Log from the latest season
  * @access  Public
  */
-router.get('/games/latest/name/:profileName', (req, res) => {
+profileV1Routes.get('/games/latest/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`"GET Request Profile '${profileName}' Game Log from the latest Season."`);
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId == null) { return handler.res400s(res, req, `Profile Name '${profileName}' Not Found`); }
-        Profile.getGames(pPId).then((data) => {
-            return handler.res200s(res, req, data);
-        }).catch((err) => handler.error500s(err, res, "GET Profile Games Error."));
-    }).catch((err) => handler.error500s(err, res, "GET Profile ID Error."));
+    getProfilePIdByName(profileName).then((pPId) => {
+        if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        getProfileGamesBySeason(pPId).then((data) => {
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "GET Profile Games Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Profile ID Error."));
 });
 
 /**
@@ -91,15 +106,15 @@ router.get('/games/latest/name/:profileName', (req, res) => {
  * @desc    Get Profile Stats Log from the latest tournament
  * @access  Public
  */
-router.get('/stats/latest/name/:profileName', (req, res) => {
+profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`"GET Request Profile '${profileName}' Game Log from the latest Tournament"`);
-    Profile.getIdByName(profileName).then((pPId) => {
-        if (pPId == null) { return handler.res400s(res, req, `Profile Name '${profileName}' Not Found`); }
-        Profile.getStats(pPId).then((data) => {
-            return handler.res200s(res, req, data);
-        }).catch((err) => handler.error500s(err, res, "GET Profile Games Error."));
-    }).catch((err) => handler.error500s(err, res, "GET Profile ID Error."));
+    getProfilePIdByName(profileName).then((pPId) => {
+        if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        getProfileStatsByTourney(pPId).then((data) => {
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "GET Profile Games Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Profile ID Error."));
 });
 
 //#endregion
@@ -111,36 +126,36 @@ router.get('/stats/latest/name/:profileName', (req, res) => {
  * @desc    Add new Profile with primary summoner account
  * @access  Private (to Admins)
  */
-router.post('/add/new', (req, res) => {
+profileV1Routes.post('/add/new', (req, res) => {
     const { profileName, summonerName } = req.body;
     // Check if the IGN exists. 
-    Profile.getSummonerId(summonerName).then((summId) => {
+    getSummonerIdBySummonerName(summonerName).then((summId) => {
         if (summId == null) {
             // Summoner Id does not exist
-            return handler.res400s(res, req, `Summoner Name '${summonerName}' does not exist.`);
+            return res400sClientError(res, req, `Summoner Name '${summonerName}' does not exist.`);
         }
         // Check if summoner Name has its ID already registered. 
-        Profile.getIdBySummonerId(summId).then((pPId) => {
+        getProfilePIdBySummonerId(summId).then((pPId) => {
             if (pPId != null) {
                 // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                Profile.getName(pPId, false).then((pName) => {
-                    return handler.res400s(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'`);
-                }).catch((err) => handler.error500s(err, res, "GET Profile Name Error."));
+                getProfileName(pPId, false).then((pName) => {
+                    return res400sClientError(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'`);
+                }).catch((err) => error500sServerError(err, res, "GET Profile Name Error."));
                 return;
             }
             // New Summoner Id found.
             // Check if Profile name already exists.
-            Profile.getIdByName(profileName).then((pPId) => {
+            getProfilePIdByName(profileName).then((pPId) => {
                 if (pPId != null) {
                     // Id Found in DB. That means Profile name exists. Reject.
-                    return handler.res400s(res, req, `Profile '${profileName}' already exists under Profile ID '${pPId}'`);
+                    return res400sClientError(res, req, `Profile '${profileName}' already exists under Profile ID '${pPId}'`);
                 }
                 // Make new Profile
-                Profile.postNew(profileName, summId).then((data) => {
-                    return handler.res200s(res, req, data);
-                }).catch((err) => handler.error500s(err, res, "POST Profile Add New Error 1."));
-            }).catch((err) => handler.error500s(err, res, "POST Profile Add New Error 3."));
-        }).catch((err) => handler.error500s(err, res, "POST Profile Add New Error 4."));
+                postNewProfile(profileName, summId).then((data) => {
+                    return res200sOK(res, req, data);
+                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 1."));
+            }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 3."));
+        }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 4."));
     });
 });
 
@@ -149,38 +164,38 @@ router.post('/add/new', (req, res) => {
  * @desc    Add a Summoner account to the Profile
  * @access  Private (to Admins)
  */
-router.put('/add/account', (req, res) => {
+profileV1Routes.put('/add/account', (req, res) => {
     const { profileName, summonerName } = req.body;
     // Check if the IGN exists (Riot API call)
-    Profile.getSummonerId(summonerName).then((summId) => {
+    getSummonerIdBySummonerName(summonerName).then((summId) => {
         if (summId == null) {
             // Summoner Id does not exist
-            return handler.res400s(res, req, `Summoner Name '${summonerName}' does not exist.`);
+            return res400sClientError(res, req, `Summoner Name '${summonerName}' does not exist.`);
         }
-        Profile.getIdBySummonerId(summId).then((profileIdExist) => {
+        getProfilePIdBySummonerId(summId).then((profileIdExist) => {
             if (profileIdExist != null) {
                 // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                Profile.getName(profileIdExist, false).then((pName) => {
-                    return handler.res400s(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${profileIdExist}'`);
-                }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 1."));
+                getProfileName(profileIdExist, false).then((pName) => {
+                    return res400sClientError(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${profileIdExist}'`);
+                }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 1."));
                 return;
             }
             // Check if Profile Name exists
-            Profile.getIdByName(profileName).then((pPId) => {
+            getProfilePIdByName(profileName).then((pPId) => {
                 if (pPId == null) {
                     // Profile does not exist
-                    return handler.res400s(res, req, `Profile '${profileName}' does not exist.`);
+                    return res400sClientError(res, req, `Profile '${profileName}' does not exist.`);
                 }
                 // Get Profile Information
-                Profile.getInfo(pPId).then((infoData) => {
+                getProfileInfo(pPId).then((infoData) => {
                     infoData['LeagueAccounts'][summId] = { 'MainAccount': false };
-                    Profile.putInfo(pPId, summId, infoData).then((data) => {
-                        return handler.res200s(res, req, data);
-                    }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 2."));
-                }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 3."));
-            }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 4."));
-        }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 5."));
-    }).catch((err) => handler.error500s(err, res, "PUT Profile Info Error 6."));
+                    updateProfileInfo(pPId, summId, infoData).then((data) => {
+                        return res200sOK(res, req, data);
+                    }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 2."));
+                }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 3."));
+            }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 4."));
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 5."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 6."));
 })
 
 /**
@@ -194,7 +209,7 @@ router.put('/add/account', (req, res) => {
 //     "profileName": "NAME",
 //     "summonerId": "SUMM_ID",
 // }
-router.put('/remove/account', (req, res) => {
+profileV1Routes.put('/remove/account', (req, res) => {
 
 })
 
@@ -203,26 +218,26 @@ router.put('/remove/account', (req, res) => {
  * @desc    Change profile Name
  * @access  Private (to Admins)
  */
-router.put('/update/name', (req, res) => {
+profileV1Routes.put('/update/name', (req, res) => {
     const { currentName, newName } = req.body;
     // Check if currentName and newName exist
-    Profile.getIdByName(currentName).then((profileId) => {
+    getProfilePIdByName(currentName).then((profileId) => {
         if (profileId == null) {
             // Profile Name does not exist
-            return handler.res400s(res, req, `Profile '${currentName}' does not exist.`);
+            return res400sClientError(res, req, `Profile '${currentName}' does not exist.`);
         }
-        Profile.getIdByName(newName).then((checkId) => {
+        getProfilePIdByName(newName).then((checkId) => {
             if (checkId != null) {
                 // New name already exists in Db
-                return handler.res400s(res, req, `New profile name '${newName}' is already taken!`);
+                return res400sClientError(res, req, `New profile name '${newName}' is already taken!`);
             }
-            Profile.putName(profileId, newName, currentName).then((data) => {
-                return handler.res200s(res, req, data);
-            }).catch((err) => handler.error500s(err, res, "PUT Profile Name Change Error 1."));
-        }).catch((err) => handler.error500s(err, res, "PUT Profile Name Change Error 2."));
-    }).catch((err) => handler.error500s(err, res, "PUT Profile Name Change Error 3."))
+            updateProfileName(profileId, newName, currentName).then((data) => {
+                return res200sOK(res, req, data);
+            }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 1."));
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 2."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 3."))
 })
 
 //#endregion
 
-module.exports = router;
+export default profileV1Routes;

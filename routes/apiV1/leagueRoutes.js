@@ -1,8 +1,12 @@
-const router = require('express').Router();
-const handler = require('./dependencies/handlers');
 
+const leagueV1Routes = require('express').Router();
+
+import {
+    res200sOK,
+    error500sServerError,
+} from './dependencies/handlers';
 /*  Import helper Data function modules */
-const Season = require('../../functions/apiV1/seasonData');
+import { getLeagues } from '../../functions/apiV1/seasonData';
 
 /*  
     ----------------------
@@ -17,13 +21,13 @@ const Season = require('../../functions/apiV1/seasonData');
  * @desc    List all the Leagues in LHG
  * @access  Public
  */
-router.get('/', (req, res) => {
+leagueV1Routes.get('/', (req, res) => {
     console.log("GET Request Leagues.");
-    Season.getLeagues().then((data) => {
-        return handler.res200s(res, req, data);
-    }).catch((err) => handler.error500s(err, res, "GET Leagues Information Error."));
+    getLeagues().then((data) => {
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "GET Leagues Information Error."));
 });
 
 //#endregion
 
-module.exports = router;
+export default leagueV1Routes;

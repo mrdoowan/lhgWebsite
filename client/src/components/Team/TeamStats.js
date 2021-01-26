@@ -7,7 +7,7 @@ import Grid from '@material-ui/core/Grid';
 // Components
 import Dragdown from '../Dragdown';
 // Util
-const lhgString = require('../../util/StringHelper');
+import { getTimeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -101,7 +101,7 @@ export default function TeamStats({ info, stats }) {
                             </tr>
                             <tr>
                                 <td className={classes.topDesc}>Average Game Duration:</td>
-                                <td className={classes.topValue}>{lhgString.time(stats.AverageGameDuration)}</td>
+                                <td className={classes.topValue}>{getTimeString(stats.AverageGameDuration)}</td>
                             </tr>
                         </tbody>
                     </table>
