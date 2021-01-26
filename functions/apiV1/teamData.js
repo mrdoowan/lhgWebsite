@@ -24,7 +24,7 @@ const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
-const Profile = require('./profileData');
+import { getProfileName } from './profileData';
 
 /**
  * Get the TeamPId of its Name from DynamoDb
@@ -156,7 +156,7 @@ function getTeamScoutingBySeason(teamPId, sPId=null) {
                         for (let j = 0; j < Object.keys(roleMap).length; ++j) {
                             let profileHId = Object.keys(roleMap)[j];
                             let statsJson = roleMap[profileHId];
-                            statsJson['ProfileName'] = await Profile.getName(profileHId);
+                            statsJson['ProfileName'] = await getProfileName(profileHId);
                             statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
                             statsJson['KillPctPlayer'] = (statsJson['TotalKillsTeam'] == 0) ? 0 : ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalKillsTeam']).toFixed(4);
                             statsJson['DamagePctPlayer'] = (statsJson['TotalDamagePlayer'] / statsJson['TotalDamageTeam']).toFixed(4);
@@ -200,7 +200,7 @@ function getTeamGamesBySeason(teamPId, sPId=null) {
                         let matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
                         for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
                             let champObject = Object.values(matchObject['ChampPicks'])[j];
-                            champObject['ProfileName'] = await Profile.getName(champObject['ProfileHId']);
+                            champObject['ProfileName'] = await getProfileName(champObject['ProfileHId']);
                         }
                         matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
                     }

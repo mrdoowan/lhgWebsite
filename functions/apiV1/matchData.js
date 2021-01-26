@@ -11,7 +11,10 @@ const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
 const Tournament = require('./tournamentData');
-const Profile = require('./profileData');
+import {
+    getProfileName,
+    getProfileGamesBySeason,
+} from './profileData';
 const Team = require('./teamData');
 const GLOBAL = require('./dependencies/global');
 
@@ -44,7 +47,7 @@ export const getMatchData = async (id) => {
                     for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
                         let partId = Object.keys(teamJson['Players'])[j];
                         let playerJson = teamJson['Players'][partId];
-                        playerJson['ProfileName'] = await Profile.getName(playerJson['ProfileHId']);
+                        playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']);
                         playerJson['Kda'] = (playerJson['Deaths'] > 0) ? (((playerJson['Kills'] + playerJson['Assists']) / playerJson['Deaths']).toFixed(2)).toString() : "Perfect";
                         playerJson['KillPct'] = (teamJson['TeamKills'] == 0) ? 0 : ((playerJson['Kills'] + playerJson['Assists']) / teamJson['TeamKills']).toFixed(4);
                         playerJson['DeathPct'] = (teamJson['TeamDeaths'] == 0) ? 0 : (playerJson['Deaths'] / teamJson['TeamDeaths']).toFixed(4);
@@ -90,7 +93,7 @@ export const getMatchSetup = async (id) => {
                 let playersList = teamJson['Players'];
                 for (let i = 0; i < playersList.length; ++i) {
                     let playerJson = playersList[i];
-                    if ('ProfileHId' in playerJson) { playerJson['ProfileName'] = await Profile.getName(playerJson['ProfileHId']); }
+                    if ('ProfileHId' in playerJson) { playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']); }
                 }
             }
 
@@ -227,8 +230,8 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                     let champId = playerObject['ChampId'].toString();
                     if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
                         let newProfilePId = playersToFix[champId];
-                        let name = await Profile.getName(newProfilePId, false); // For PId
-                        //await Profile.getName(newProfileId); // For HId
+                        let name = await getProfileName(newProfilePId, false); // For PId
+                        //await getProfileName(newProfileId); // For HId
                         if (name == null) { resolve(null); return; } // Not found
                         namesChanged.push(name); // For response
                         await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
@@ -236,7 +239,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                         delete playerObject['ProfileName']; // In the database for no reason
 
                         // Remove from Profile GameLog in former Profile Id and Team GameLog
-                        let profileGameLog = await Profile.getGames(thisProfilePId, seasonId);
+                        let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
                         if (matchId in profileGameLog['Matches']) {
                             delete profileGameLog['Matches'][matchId];
                             await dynamoDb.updateItem('Profile', 'ProfilePId', thisProfilePId,

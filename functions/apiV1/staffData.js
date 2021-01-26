@@ -13,6 +13,10 @@ const dynamoDb = require('./dependencies/dynamoDbHelper');
 const keyBank = require('./dependencies/cacheKeys');
 const GLOBAL = require('./dependencies/global');
 // Data Functions
+import {
+    getProfilePIdByName,
+    getProfileInfo,
+} from './profileData';
 const Profile = require('./profileData');
 
 // Need to reset Cache with each new put/post
@@ -27,7 +31,7 @@ const Profile = require('./profileData');
 // }
 function putNewStaff(staff) {
     return new Promise((resolve, reject) => {
-        Profile.getIdByName(staff.profile).then((pPId) => {
+        getProfilePIdByName(staff.profile).then((pPId) => {
             if (pPId == null) { resolve(null); return; } // Not Found
             bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
                 if (err) { console.error(err); reject(err); return; }
@@ -40,7 +44,7 @@ function putNewStaff(staff) {
                         ':data': hash,
                     }
                 );
-                Profile.getInfo(pPId).then((profileInfo) => {
+                getProfileInfo(pPId).then((profileInfo) => {
                     profileInfo['Admin'] = staff.admin;
                     profileInfo['Moderator'] = staff.moderator;
                     dynamoDb.updateItem('Profile', 'ProfilePId', pPId,

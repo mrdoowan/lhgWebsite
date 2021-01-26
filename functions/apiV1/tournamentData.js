@@ -28,7 +28,10 @@ const mySql = require('./dependencies/mySqlHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Season = require('./seasonData');
-const Profile = require('./profileData');
+import {
+    getProfileName,
+    getProfileStatsByTourney,
+} from './profileData';
 const Team = require('./teamData');
 
 // Get TournamentPId from DynamoDb
@@ -176,7 +179,7 @@ function getTourneyLeaderboards(tPId) {
                         let playerList = Object.values(playerRecords)[i];
                         for (let j = 0; j < playerList.length; ++j) {
                             let playerObject = playerList[j];
-                            playerObject['ProfileName'] = await Profile.getName(playerObject['ProfileHId']);
+                            playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
                             playerObject['BlueTeamName'] = await Team.getName(playerObject['BlueTeamHId']);
                             playerObject['RedTeamName'] = await Team.getName(playerObject['RedTeamHId']);
                             playerObject['BlueTeamShortName'] = await Team.getShortName(playerObject['BlueTeamHId']);
@@ -223,13 +226,13 @@ function getTourneyPlayerStats(tPId) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
                         let pPId = GLOBAL.getProfilePId(profileHIdList[i]);
-                        let profileStatsLog = await Profile.getStats(pPId, tPId);
+                        let profileStatsLog = await getProfileStatsByTourney(pPId, tPId);
                         if (profileStatsLog != null) {
                             for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
                                 let role = Object.keys(profileStatsLog['RoleStats'])[j];
                                 let statsObj = profileStatsLog['RoleStats'][role];
                                 profileStatsList.push({
-                                    'ProfileName': await Profile.getName(profileHIdList[i]),
+                                    'ProfileName': await getProfileName(profileHIdList[i]),
                                     'Role': role,
                                     'GamesPlayed': statsObj.GamesPlayed,
                                     'GamesWin': statsObj.GamesWin,

@@ -4,7 +4,10 @@ const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
 const Tournament = require('../../functions/apiV1/tournamentData');
-const Profile = require('../../functions/apiV1/profileData');
+import {
+    updateProfileGameLog,
+    updateProfileStatsLog,
+} from './profileData';
 const Team = require('../../functions/apiV1/teamData');
 
 /*  
@@ -189,9 +192,9 @@ router.put('/update/player', (req, res) => {
     console.log(`PUT Request Tournament ${tournamentShortName} Player Stats of ID '${playerPId}'`);
     Tournament.getId(tournamentShortName).then(async (tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        try { await Profile.putGameLog(playerPId, tourneyPId) }
+        try { await updateProfileGameLog(playerPId, tourneyPId) }
         catch (err) { return handler.error500s(err, res, "PUT Profile Game Log Error."); }
-        try { await Profile.putStatsLog(playerPId, tourneyPId) }
+        try { await updateProfileStatsLog(playerPId, tourneyPId) }
         catch (err) { return handler.error500s(err, res, "PUT Profile Stats Log Error."); }
         handler.res200s(res, req, {
             'profilePId': playerPId,

@@ -1,18 +1,3 @@
-module.exports = {
-    getIdByName: getProfilePIdByName,
-    getIdBySummonerId: getProfilePIdBySummonerId,
-    getName: getProfileName,
-    getInfo: getProfileInfo,
-    getGames: getProfileGamesBySeason,
-    getStats: getProfileStatsByTourney,
-    getSummonerId: getSummonerIdBySummonerName,
-    postNew: postNewProfile,
-    putInfo: updateProfileInfo,
-    putGameLog: updateProfileGameLog,
-    putStatsLog: updateProfileStatsLog,
-    putName: updateProfileName,
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
@@ -30,7 +15,7 @@ const Tournament = require('./tournamentData');
 const Team = require('./teamData');
 
 // Get ProfilePId from ProfileName
-function getProfilePIdByName(name) {
+export const getProfilePIdByName = (name) => {
     let simpleName = GLOBAL.filterName(name);
     const cacheKey = keyBank.PROFILE_PID_BYNAME_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
@@ -49,7 +34,7 @@ function getProfilePIdByName(name) {
 }
 
 // Get ProfilePId from Riot Summoner Id
-function getProfilePIdBySummonerId(summId) {
+export const getProfilePIdBySummonerId = (summId) => {
     const cacheKey = keyBank.PROFILE_PID_BYSUMM_PREFIX + summId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -68,7 +53,7 @@ function getProfilePIdBySummonerId(summId) {
 
 // Get ProfileName from DynamoDb
 // hash=true if id is HId, hash=false if id id PId
-function getProfileName(id, hash=true) {
+export const getProfileName = (id, hash=true) => {
     let pPId = (hash) ? GLOBAL.getProfilePId(id) : id;
     const cacheKey = keyBank.PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
@@ -85,7 +70,7 @@ function getProfileName(id, hash=true) {
     });
 }
 
-function getProfileInfo(pPId) {
+export const getProfileInfo = (pPId) => {
     const cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
@@ -123,7 +108,7 @@ function getProfileInfo(pPId) {
     });
 }
 
-function getProfileGamesBySeason(pPId, sPId=null) {
+export const getProfileGamesBySeason = (pPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
             let profileObject = await dynamoDb.getItem('Profile', 'ProfilePId', pPId);
@@ -168,7 +153,7 @@ function getProfileGamesBySeason(pPId, sPId=null) {
     });
 }
 
-function getProfileStatsByTourney(pPId, tPId=null) {
+export const getProfileStatsByTourney = (pPId, tPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
             let profileObject = await dynamoDb.getItem('Profile', 'ProfilePId', pPId);
@@ -235,7 +220,7 @@ function getProfileStatsByTourney(pPId, tPId=null) {
 
 // Get Summoner Id from Summoner Name
 // Won't need to cache this. Just call directly from Riot API
-function getSummonerIdBySummonerName(summName) {
+export const getSummonerIdBySummonerName = (summName) => {
     return new Promise(function(resolve, reject) {
         lambda.getRiotSummonerId(summName).then((data) => {
             try { resolve(data['id']); }
@@ -252,7 +237,7 @@ function getSummonerIdBySummonerName(summName) {
 //     "summonerName": "SUMM_NAME",
 // }
 // Add to "Profile", "ProfileNameMap", "SummonerIdMap" Table
-function postNewProfile(profileName, summId) {
+export const postNewProfile = (profileName, summId) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Generate a new Profile ID
@@ -302,7 +287,7 @@ function postNewProfile(profileName, summId) {
 //     "summonerName": "SUMM_NAME",
 // }
 // Update "Profile" Information
-function updateProfileInfo(profilePId, summId, item) {
+export const updateProfileInfo = (profilePId, summId, item) => {
     return new Promise(async (resolve, reject) => {
         try {
             await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
@@ -337,7 +322,7 @@ function updateProfileInfo(profilePId, summId, item) {
 //     "newName": "NEW_NAME",
 // }
 // Change Profile name. Update "Profile", "ProfileNameMap" table
-function updateProfileName(profilePId, newName, oldName) {
+export const updateProfileName = (profilePId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Update "Profile" table
@@ -375,7 +360,7 @@ function updateProfileName(profilePId, newName, oldName) {
 }
 
 // Returns an object indicating Profile GameLog has been updated
-function updateProfileGameLog(profilePId, tournamentPId) {
+export const updateProfileGameLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let tourneyDbObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId);
@@ -507,7 +492,7 @@ function updateProfileGameLog(profilePId, tournamentPId) {
 }
 
 // Returns an object indicating Profile StatsLog has been updated
-function updateProfileStatsLog(profilePId, tournamentPId) {
+export const updateProfileStatsLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let profileDbObject = await dynamoDb.getItem('Profile', 'ProfilePId', profilePId);

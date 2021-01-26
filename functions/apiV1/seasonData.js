@@ -22,7 +22,7 @@ const dynamoDb = require('./dependencies/dynamoDbHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
 const Tournament = require('./tournamentData');
-const Profile = require('./profileData');
+import { getProfileName } from './profileData';
 const Team = require('./teamData');
 
 // Get SeasonPId from DynamoDb
@@ -174,14 +174,14 @@ function getSeasonInformation(sPId) {
                         }
                     }
                     if ('FinalsMvpHId' in seasonInfoJson) {
-                        seasonInfoJson['FinalsMvpName'] = await Profile.getName(seasonInfoJson['FinalsMvpHId']);
+                        seasonInfoJson['FinalsMvpName'] = await getProfileName(seasonInfoJson['FinalsMvpHId']);
                     }
                     if ('AllStars' in seasonInfoJson) {
-                        seasonInfoJson['AllStars']['TopName'] = await Profile.getName(seasonInfoJson['AllStars']['TopHId']);
-                        seasonInfoJson['AllStars']['JungleName'] = await Profile.getName(seasonInfoJson['AllStars']['JungleHId']);
-                        seasonInfoJson['AllStars']['MidName'] = await Profile.getName(seasonInfoJson['AllStars']['MidHId']);
-                        seasonInfoJson['AllStars']['BotName'] = await Profile.getName(seasonInfoJson['AllStars']['BotHId']);
-                        seasonInfoJson['AllStars']['SupportName'] = await Profile.getName(seasonInfoJson['AllStars']['SupportHId']);
+                        seasonInfoJson['AllStars']['TopName'] = await getProfileName(seasonInfoJson['AllStars']['TopHId']);
+                        seasonInfoJson['AllStars']['JungleName'] = await getProfileName(seasonInfoJson['AllStars']['JungleHId']);
+                        seasonInfoJson['AllStars']['MidName'] = await getProfileName(seasonInfoJson['AllStars']['MidHId']);
+                        seasonInfoJson['AllStars']['BotName'] = await getProfileName(seasonInfoJson['AllStars']['BotHId']);
+                        seasonInfoJson['AllStars']['SupportName'] = await getProfileName(seasonInfoJson['AllStars']['SupportHId']);
                     }
                     cache.set(cacheKey, JSON.stringify(seasonInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonInfoJson);
@@ -212,7 +212,7 @@ function getSeasonRoster(sPId) {
                             for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
                                 let profileHId = Object.keys(teamJson['Players'])[j];
                                 let playerJson = teamJson['Players'][profileHId];
-                                playerJson['ProfileName'] = await Profile.getName(profileHId);
+                                playerJson['ProfileName'] = await getProfileName(profileHId);
                             }
                         }
                     }
@@ -220,13 +220,13 @@ function getSeasonRoster(sPId) {
                         for (let i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
                             let profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
                             let playerJson = seasonRosterJson['FreeAgents'][profileHId];
-                            playerJson['ProfileName'] = await Profile.getName(profileHId);
+                            playerJson['ProfileName'] = await getProfileName(profileHId);
                         }
                     }
                     if ('ESubs' in seasonRosterJson) {
                         for (let i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
                             let profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
-                            playerJson['ProfileName'] = await Profile.getName(profileHId);
+                            playerJson['ProfileName'] = await getProfileName(profileHId);
                         }
                     }
                     cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
@@ -261,8 +261,8 @@ function getRegularSeason(sPId) {
                         let gameJson = seasonRegularJson['RegularSeasonGames'][i];
                         gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
                         gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHid']);
-                        gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
-                        gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
+                        gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
+                        gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
                     }
                     cache.set(cacheKey, JSON.stringify(seasonRegularJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(seasonRegularJson);
@@ -289,17 +289,17 @@ function getSeasonPlayoffs(sPId) {
                         let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
                         for (let j = 0; j < roundTypeArray.length; ++j) {
                             let seriesJson = roundTypeArray[j];
-                            seriesJson['HigherTeamName'] = await Profile.getName(seriesJson['HigherTeamHId']);
-                            seriesJson['LowerTeamName'] = await Profile.getName(seriesJson['LowerTeamHId']);
-                            seriesJson['SeriesMvpName'] = await Profile.getName(seriesJson['SeriesMvpHId']);
+                            seriesJson['HigherTeamName'] = await getProfileName(seriesJson['HigherTeamHId']);
+                            seriesJson['LowerTeamName'] = await getProfileName(seriesJson['LowerTeamHId']);
+                            seriesJson['SeriesMvpName'] = await getProfileName(seriesJson['SeriesMvpHId']);
                         }
                     }
                     for (let i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
                         let gameJson = playoffJson['PlayoffGames'][i];
                         gameJson['BlueTeamName'] = await Team.getName(gameJson['BlueTeamHId']);
                         gameJson['RedTeamName'] = await Team.getName(gameJson['RedTeamHId']);
-                        gameJson['ModeratorName'] = await Profile.getName(gameJson['ModeratorHId']);
-                        gameJson['MvpName'] = await Profile.getName(gameJson['MvpHId']);
+                        gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
+                        gameJson['MvpName'] = await getProfileName(gameJson['MvpHId']);
                     }
                     cache.set(cacheKey, JSON.stringify(playoffJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(playoffJson);
