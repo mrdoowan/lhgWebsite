@@ -1,9 +1,12 @@
 import React from "react";
+// Formik
+import { Formik, Form, useField } from 'formik';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 // Components
 import ChampionSquare from '../ChampionSquare';
 
@@ -58,6 +61,43 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+
+
+/**
+ * @param {Array} playerList    Object of Players from Match GET Request "Setup"
+ * @param {string} color        Either "blue" or "red"
+ * @param {object} classes      Material-UI css class
+ */
+const playerTableFields = (playerList, color, classes) => {
+    return (<table><tbody>
+        {playerList.map((playerObj, idx) => (
+            <tr key={`${color}Player${idx}`}>
+                <td>
+                    <ChampionSquare id={playerObj.ChampId} width="60" height="60" />
+                </td>
+                <td>
+                    <input
+                        id={`${color}PlayerName${idx}`}
+                        name={`${color}Player${idx}`}
+                        type="text"
+                        defaultValue={playerObj.Name}
+                        className={classes.textField}
+                    />
+                </td>
+                <td>
+                    <input
+                        id={`${color}PlayerRole${idx}`}
+                        name={`${color}Player${idx}`}
+                        type="text"
+                        defaultValue={playerObj.Role}
+                        className={classes.textField}
+                    />
+                </td>
+            </tr>
+        ))}
+    </tbody></table>);
+}
+
 export default function MatchSetup({ setupData }) {
 
     const classes = useStyles();
@@ -66,49 +106,72 @@ export default function MatchSetup({ setupData }) {
         console.log("Pog");
     }
 
-    /**
-     * @param {Array} playerList    Object of Players from Match GET Request "Setup"
-     * @param {string} color        Either "blue" or "red"
-     * @param {object} classes      Material-UI css class
-     */
-    const playerTableFields = (playerList, color, classes) => {
-        return (<table><tbody>
-            {playerList.map((playerObj, idx) => (
-                <tr key={`${color}Player${idx}`}>
-                    <td>
-                        <ChampionSquare id={playerObj.ChampId} width="60" height="60" />
-                    </td>
-                    <td>
-                        <input
-                            id={`${color}PlayerName${idx}`}
-                            name={`${color}Player${idx}`}
-                            type="text"
-                            defaultValue={playerObj.Name}
-                            className={classes.textField}
-                        />
-                    </td>
-                    <td>
-                        <input
-                            id={`${color}PlayerRole${idx}`}
-                            name={`${color}Player${idx}`}
-                            type="text"
-                            defaultValue={playerObj.Role}
-                            className={classes.textField}
-                        />
-                    </td>
-                </tr>
-            ))}
-        </tbody></table>);
-    }
-
     return (<div>
         <Grid container spacing={3}>
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
-                    <p className={classes.title}>
+                    <h1 className={classes.title}>
                         {setupData.TournamentName} <br />
                         {setupData.RiotMatchId}
-                    </p>
+                    </h1>
+                    <Formik
+
+                    >
+                        <Form>
+                            <table>
+                                <thead>
+                                    <tr className={classes.rowTeam}>
+                                        <td className={classes.colBlueTeam}>
+                                            <u>Blue Team Name</u> <br />
+                                            <input
+                                                id="blueTeamName"
+                                                name="blueTeamName"
+                                                type="text"
+                                                defaultValue={setupData.Teams.BlueTeam.TeamName}
+                                                className={classes.textField}
+                                            />
+                                        </td>
+                                        <td className={classes.colRedTeam}>
+                                            <u>Red Team Name</u> <br />
+                                            <input
+                                                id="redTeamName"
+                                                name="redTeamName"
+                                                type="text"
+                                                defaultValue={setupData.Teams.RedTeam.TeamName}
+                                                className={classes.textField}
+                                            />
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className={classes.rowBody}>
+                                        <td className={classes.colBody} id="bluePlayers">
+                                            {playerTableFields(setupData.Teams.BlueTeam.Players, 
+                                                "blue", 
+                                                classes)}
+                                        </td>
+                                        <td className={classes.colBody} id="redPlayers">
+                                            {playerTableFields(setupData.Teams.RedTeam.Players, 
+                                                "red", 
+                                                classes)}
+                                        </td>
+                                    </tr>
+                                    <tr className={classes.rowBody}>
+                                        <td className={classes.colBody}>
+                                            <b>Bans: </b>
+                                        </td>
+                                        <td className={classes.colBody}>
+                                            <b>Bans: </b>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {/* https://stackoverflow.com/questions/37462047/how-to-create-several-submit-buttons-in-a-react-js-form */}
+                            <form onSubmit={handleSubmit} className={classes.button}>
+                                <Button type="submit" variant="contained" color="primary" >Submit</Button>
+                            </form>
+                        </Form>
+                    </Formik>
                     <table>
                         <thead>
                             <tr className={classes.rowTeam}>
