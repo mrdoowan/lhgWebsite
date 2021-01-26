@@ -6,7 +6,11 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 import { ChampById } from '../../client/src/static/ChampById';
 const GLOBAL = require('./dependencies/global');
-const dynamoDb = require('./dependencies/dynamoDbHelper');
+import {
+    dynamoDbGetItem,
+    dynamoDbUpdateItem,
+    dynamoDbScanTable,
+} from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
@@ -35,7 +39,7 @@ export const getTournamentId = (shortName) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
-            dynamoDb.scanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
+            dynamoDbScanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
             .then((obj) => {
                 if (obj.length === 0) { resolve(null); return; } // Not Found
                 let Id = obj[0]['TournamentPId'];
@@ -56,7 +60,7 @@ export const getTournamentShortName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let shortName = obj['TournamentShortName'];
@@ -77,7 +81,7 @@ export const getTournamentName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { reject(null); return; } // Not Found
                 let name = obj['Information']['TournamentName'];
@@ -95,7 +99,7 @@ export const getTournamentTabName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['TournamentTabName'];
@@ -113,7 +117,7 @@ export const getTournamentInfo = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['Information'];
+                let tourneyInfoJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['Information'];
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
@@ -136,7 +140,7 @@ export const getTournamentStats = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['TourneyStats'];
+                let tourneyStatsJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyStatsJson);
@@ -157,7 +161,7 @@ export const getTournamentLeaderboards = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['Leaderboards'];
+                let leaderboardJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['Leaderboards'];
                 if (leaderboardJson != null) {
                     let gameRecords = leaderboardJson['GameRecords'];
                     for (let i = 0; i < Object.values(gameRecords).length; ++i) {
@@ -214,7 +218,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
+                let profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
                 if (profileHIdList != null) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
@@ -297,7 +301,7 @@ export const getTournamentTeamStats = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['TeamHIdList'];
+                let teamHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TeamHIdList'];
                 if (teamHIdList != null) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
@@ -361,7 +365,7 @@ export const getTournamentPickBans = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId));
+                let tourneyJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId));
                 let pickBansJson = {}
                 if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
                     pbList = [];
@@ -401,7 +405,7 @@ export const getTournamentGames = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['GameLog'];
+                let gameLogJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['GameLog'];
                 if (gameLogJson != null) {
                     for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
                         let matchId = Object.keys(gameLogJson)[i];
@@ -457,7 +461,7 @@ export const getTournamentTeamList = (tournamentPId) => {
 export const updateTournamentOverallStats = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId);
+            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
             /*  
                 -------------------
                 Init DynamoDB Items
@@ -508,7 +512,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 tourneyStatsItem['MountainDrakes'] += matchStatsSqlRow.mountainDragons;
                 tourneyStatsItem['ElderDrakes'] += matchStatsSqlRow.elderDragons;
     
-                let matchObject = await dynamoDb.getItem('Matches', 'MatchPId', matchPId.toString());
+                let matchObject = await dynamoDbGetItem('Matches', 'MatchPId', matchPId.toString());
                 for (let teamIdx = 0; teamIdx < Object.keys(matchObject['Teams']).length; ++teamIdx) {
                     let teamId = Object.keys(matchObject['Teams'])[teamIdx];
                     let teamObject = matchObject['Teams'][teamId];    
@@ -678,7 +682,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 -------------------
             */
             //#region Push to Db
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #info = :val',
                 {
                     '#info': 'Information'
@@ -687,7 +691,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyDbObject['Information']
                 }
             );
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #tStats = :val',
                 {
                     '#tStats': 'TourneyStats'
@@ -696,7 +700,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyStatsItem
                 }
             );
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #pb = :val',
                 {
                     '#pb': 'PickBans'
@@ -705,7 +709,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': pickBansObject
                 }
             );
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #pHIdList = :val',
                 {
                     '#pHIdList': 'ProfileHIdList'
@@ -714,7 +718,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(profileHIdSet)
                 }
             );
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #tHIdList = :val',
                 {
                     '#tHIdList': 'TeamHIdList'
@@ -723,7 +727,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(teamHIdSet)
                 }
             );
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #gLog = :val',
                 {
                     '#gLog': 'GameLog'
@@ -732,7 +736,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': gameLogTourneyItem
                 }
             );
-            await dynamoDb.updateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
                 'SET #lb = :val',
                 {
                     '#lb': 'Leaderboards'

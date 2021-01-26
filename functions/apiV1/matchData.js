@@ -4,7 +4,11 @@ const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
-const dynamoDb = require('./dependencies/dynamoDbHelper');
+import {
+    dynamoDbGetItem,
+    dynamoDbUpdateItem,
+    dynamoDbDeleteItem,
+} from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { getRiotMatchData } from './dependencies/awsLambdaHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -41,7 +45,7 @@ export const getMatchData = async (id) => {
             if (err) { console.error(err); reject(err); }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', id);
+                let matchJson = await dynamoDbGetItem('Matches', 'MatchPId', id);
                 if (matchJson == null || "Setup" in matchJson) { resolve(null); return; } // Not Found or it's a Setup
                 let seasonPId = matchJson['SeasonPId'];
                 matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
@@ -91,7 +95,7 @@ export const getMatchData = async (id) => {
 export const getMatchSetup = async (id) => {
     return new Promise(async function(resolve, reject) {
         try {
-            let matchJson = await dynamoDb.getItem('Matches', 'MatchPId', id);
+            let matchJson = await dynamoDbGetItem('Matches', 'MatchPId', id);
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
             let matchSetupJson = matchJson['Setup'];
             matchSetupJson['SeasonName'] = await getSeasonName(matchSetupJson['SeasonPId']);
@@ -125,19 +129,19 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
     return new Promise(async function(resolve, reject) {
         try {
             // Check if matchId already exists
-            if (await dynamoDb.getItem('Matches', 'MatchPId', matchId) != null) {
+            if (await dynamoDbGetItem('Matches', 'MatchPId', matchId) != null) {
                 console.error(`Match ID ${matchId} already exists.`);
                 resolve(null); 
                 return; 
             }
             // Check if seasonId exists
-            if (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentId) == null) {
+            if (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentId) == null) {
                 console.error(`Tournament ID ${tournamentId} doesn't exists.`);
                 resolve(null); 
                 return; 
             }
             // Check if tournamentId exists
-            if (await dynamoDb.getItem('Season', 'SeasonPId', seasonId) == null) {
+            if (await dynamoDbGetItem('Season', 'SeasonPId', seasonId) == null) {
                 console.error(`Season ID ${seasonId} doesn't exists.`);
                 resolve(null); 
                 return; 
@@ -194,7 +198,7 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
             setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList;
 
             // Push into DynamoDb
-            await dynamoDb.updateItem('Matches', 'MatchPId', matchId,
+            await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
                 'SET #setup = :obj',
                 {
                     '#setup': 'Setup',
@@ -254,7 +258,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                         let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
                         if (matchId in profileGameLog['Matches']) {
                             delete profileGameLog['Matches'][matchId];
-                            await dynamoDb.updateItem('Profile', 'ProfilePId', thisProfilePId,
+                            await dynamoDbUpdateItem('Profile', 'ProfilePId', thisProfilePId,
                                 'SET #glog.#sId = :data',
                                 {
                                     '#glog': 'GameLog',
@@ -268,7 +272,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                         let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
                         if (matchId in teamGameLog['Matches']) {
                             delete teamGameLog['Matches'][matchId];
-                            await dynamoDb.updateItem('Team', 'TeamPId', thisTeamPId,
+                            await dynamoDbUpdateItem('Team', 'TeamPId', thisTeamPId,
                                 'SET #gLog.#sId = :val',
                                 {
                                     '#gLog': 'GameLog',
@@ -284,7 +288,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                 }
             }
             if (changesMade) {
-                await dynamoDb.updateItem('Matches', 'MatchPId', matchId,
+                await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
                     'SET #teams = :data',
                     {
                         '#teams': 'Teams',
@@ -320,7 +324,7 @@ export const deleteMatchData = async (matchId) => {
             // 2) Remove and update Game Logs from EACH Team Table
             // 3) Remove from Match Table
             // 4) Remove from MySQL
-            let matchData = await dynamoDb.getItem('Matches', 'MatchPId', matchId);
+            let matchData = await dynamoDbGetItem('Matches', 'MatchPId', matchId);
             if (matchData == null) { resolve(null); return; } // Not found
             // Check if it's just a Setup Match table. If it is, skip everything below
             if (!('Setup' in matchData)) {
@@ -329,16 +333,16 @@ export const deleteMatchData = async (matchId) => {
                 for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
                     let teamObject = Object.values(Teams)[teamIdx];
                     let teamPId = GLOBAL.getTeamPId(teamObject['TeamHId']);
-                    let teamSeasonGameLog = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
+                    let teamSeasonGameLog = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
                     delete teamSeasonGameLog[matchId];
                     const { Players } = teamObject;
                     for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
                         let playerObject = Object.values(Players)[playerIdx];
                         let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
-                        let playerSeasonGameLog = (await dynamoDb.getItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
+                        let playerSeasonGameLog = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
                         delete playerSeasonGameLog[matchId];
                         // 1)
-                        await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                        await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                             'SET #gLog.#sPId.#mtch = :data',
                             {
                                 '#gLog': 'GameLog',
@@ -351,7 +355,7 @@ export const deleteMatchData = async (matchId) => {
                         );
                     }
                     // 2)
-                    await dynamoDb.updateItem('Team', 'TeamPId', teamPId,
+                    await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
                         'SET #gLog.#sPId.#mtch = :data',
                         {
                             '#gLog': 'GameLog',
@@ -368,7 +372,7 @@ export const deleteMatchData = async (matchId) => {
             }
             
             // 3) 
-            await dynamoDb.deleteItem('Matches', 'MatchPId', matchId);
+            await dynamoDbDeleteItem('Matches', 'MatchPId', matchId);
 
             // Del from Cache
             cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);

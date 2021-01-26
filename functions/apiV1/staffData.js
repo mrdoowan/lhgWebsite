@@ -5,7 +5,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 const bcrypt = require('bcrypt');
 
 /*  Import dependency modules */
-const dynamoDb = require('./dependencies/dynamoDbHelper');
+import { dynamoDbUpdateItem } from './dependencies/dynamoDbHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
 const GLOBAL = require('./dependencies/global');
 /*  Import data functions */
@@ -30,7 +30,7 @@ export const putNewStaff = (staff) => {
             if (pPId == null) { resolve(null); return; } // Not Found
             bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
                 if (err) { console.error(err); reject(err); return; }
-                dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
+                dynamoDbUpdateItem('Profile', 'ProfilePId', pPId,
                     'SET #pw = :data',
                     {
                         '#pw': 'Password',
@@ -42,7 +42,7 @@ export const putNewStaff = (staff) => {
                 getProfileInfo(pPId).then((profileInfo) => {
                     profileInfo['Admin'] = staff.admin;
                     profileInfo['Moderator'] = staff.moderator;
-                    dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
+                    dynamoDbUpdateItem('Profile', 'ProfilePId', pPId,
                         'SET #info = :data',
                         {
                             '#info': 'Information',

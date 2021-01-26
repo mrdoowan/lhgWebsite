@@ -37,6 +37,7 @@ import {
     getTournamentShortName,
     getTournamentTabName,
 } from '../tournamentData';
+import { dynamoDbGetItem } from './dynamoDbHelper';
 
 const oldEnv = true; // 'true' for Dynamodb, 'false' for MongoDb
 const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
@@ -45,7 +46,6 @@ const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.L
 const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
 const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
-const dynamoDb = require('./dynamoDbHelper');
 
 // Turn number into string
 function strPadZeroes(num, size) {
@@ -121,13 +121,13 @@ function generateNewPId(type) {
         while (duplicate) {
             let newPId = strPadZeroes(randomNumber.integer(1, 99999999), 8); // 8 digit number
             if (type.toLowerCase() === "profile") {
-                if (!(await dynamoDb.getItem('Profile', 'ProfilePId', newPId))) {
+                if (!(await dynamoDbGetItem('Profile', 'ProfilePId', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }
             }
             else if (type.toLowerCase() === "team") {
-                if (!(await dynamoDb.getItem('Team', 'TeamPId', newPId))) {
+                if (!(await dynamoDbGetItem('Team', 'TeamPId', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }

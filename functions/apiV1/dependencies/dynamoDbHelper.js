@@ -1,12 +1,4 @@
 // Modularize the DynamoDB functions
-module.exports = {
-    getItem: getItemInDynamoDB,
-    updateItem: updateItemInDynamoDB,
-    putItem: putItemInDynamoDB,
-    scanTable: scanTableLoopInDynamoDB,
-    deleteItem: deleteItemInDynamoDB,
-}
-
 /*  Declaring AWS npm modules */
 const AWS = require('aws-sdk'); // Interfacing with DynamoDB
 require('dotenv').config({ path: '../../.env' });
@@ -24,7 +16,7 @@ const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV
  * @param {string} partitionName    Column name of the Partition Key
  * @param {*} keyValue              Specific item to look for
  */
-function getItemInDynamoDB(tableName, partitionName, keyValue) {
+export const dynamoDbGetItem = (tableName, partitionName, keyValue) => {
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
@@ -56,7 +48,7 @@ function getItemInDynamoDB(tableName, partitionName, keyValue) {
  * @param {Object} items        The entire object being put into DynamoDb
  * @param {*} keyValue          Only used for debugging purposes
  */
-function putItemInDynamoDB(tableName, items, keyValue) {
+export const dynamoDbPutItem = (tableName, items, keyValue) => {
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Item: items
@@ -84,7 +76,7 @@ function putItemInDynamoDB(tableName, items, keyValue) {
  * @param {Object} keyObject        Map of Keys (i.e. { '#glog': 'GameLog' })
  * @param {Object} valueObject      Map of Values (i.e. { ':data': (DATA) })
  */
-function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyObject, valueObject) {
+export const dynamoDbUpdateItem = (tableName, partitionName, key, updateExp, keyObject, valueObject) => {
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
@@ -118,7 +110,7 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyObjec
  * @param {string} attributeName    Criteria Column Name (to refine search/condition)
  * @param {string} attributeValue   Root value for attributeName
  */ 
-function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null, attributeValue=null) {
+export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=null, attributeValue=null) => {
     let params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
     };
@@ -154,7 +146,7 @@ function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null
  * @param {*} key                   Value of Partition Key to remove
  * @param {boolean} testFlag        Deletes the item from test DB
  */
-function deleteItemInDynamoDB(tableName, partitionName, key) {
+export const dynamoDbDeleteItem = (tableName, partitionName, key) => {
     let params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {

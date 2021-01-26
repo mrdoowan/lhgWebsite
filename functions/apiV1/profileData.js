@@ -5,7 +5,12 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 
 /*  Import dependency modules */
 const GLOBAL = require('./dependencies/global');
-const dynamoDb = require('./dependencies/dynamoDbHelper');
+import {
+    dynamoDbGetItem,
+    dynamoDbUpdateItem,
+    dynamoDbPutItem,
+    dynamoDbDeleteItem,
+} from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { getRiotSummonerId } from './dependencies/awsLambdaHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -29,7 +34,7 @@ export const getProfilePIdByName = (name) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('ProfileNameMap', 'ProfileName', simpleName)
+            dynamoDbGetItem('ProfileNameMap', 'ProfileName', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found 
                 let pPId = GLOBAL.getProfilePId(obj['ProfileHId']);
@@ -47,7 +52,7 @@ export const getProfilePIdBySummonerId = (summId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('SummonerIdMap', 'SummonerId', summId)
+            dynamoDbGetItem('SummonerIdMap', 'SummonerId', summId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let pPId = GLOBAL.getProfilePId(obj['ProfileHId']);
@@ -67,7 +72,7 @@ export const getProfileName = (id, hash=true) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Profile', 'ProfilePId', pPId)
+            dynamoDbGetItem('Profile', 'ProfilePId', pPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 cache.set(cacheKey, obj['ProfileName']);
@@ -84,7 +89,7 @@ export const getProfileInfo = (pPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileInfoJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['Information'];
+                let profileInfoJson = (await dynamoDbGetItem('Profile', 'ProfilePId', pPId))['Information'];
                 if (profileInfoJson != null) { 
                     if ('ActiveSeasonPId' in profileInfoJson) {
                         profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
@@ -94,12 +99,12 @@ export const getProfileInfo = (pPId) => {
                         profileInfoJson['ActiveTeamName'] = await getTeamName(profileInfoJson['ActiveTeamHId']);
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['GameLog'];
+                    let gameLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', pPId))['GameLog'];
                     if (gameLogJson != null) {
                         profileInfoJson['SeasonList'] = await GLOBAL.getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDb.getItem('Profile', 'ProfilePId', pPId))['StatsLog'];
+                    let statsLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', pPId))['StatsLog'];
                     if (statsLogJson != null) {
                         profileInfoJson['TournamentList'] = await GLOBAL.getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -118,7 +123,7 @@ export const getProfileInfo = (pPId) => {
 export const getProfileGamesBySeason = (pPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
-            let profileObject = await dynamoDb.getItem('Profile', 'ProfilePId', pPId);
+            let profileObject = await dynamoDbGetItem('Profile', 'ProfilePId', pPId);
             if (profileObject != null) {
                 let gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
@@ -163,7 +168,7 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
 export const getProfileStatsByTourney = (pPId, tPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
-            let profileObject = await dynamoDb.getItem('Profile', 'ProfilePId', pPId);
+            let profileObject = await dynamoDbGetItem('Profile', 'ProfilePId', pPId);
             if (profileObject != null) {
                 let statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
@@ -262,20 +267,20 @@ export const postNewProfile = (profileName, summId) => {
                 'ProfilePId': newPId,
             };
             // Add to 'Profile' Table
-            await dynamoDb.putItem('Profile', newProfileItem, newPId);
+            await dynamoDbPutItem('Profile', newProfileItem, newPId);
             // Add to 'ProfileNameMap' Table
             let simpleProfileName = GLOBAL.filterName(newProfileItem['ProfileName']);
             let newProfileMap = {
                 'ProfileName': simpleProfileName,
                 'ProfileHId': GLOBAL.getProfileHId(newPId),
             }
-            await dynamoDb.putItem('ProfileNameMap', newProfileMap, simpleProfileName);
+            await dynamoDbPutItem('ProfileNameMap', newProfileMap, simpleProfileName);
             // Add to 'SummonerIdMap' Table
             let newSummonerMap = {
                 'SummonerId': summId,
                 'ProfileHId': GLOBAL.getProfileHId(newPId),
             };
-            await dynamoDb.putItem('SummonerIdMap', newSummonerMap, summId);
+            await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
             
             resolve({
                 'SummonerId': summId,
@@ -297,7 +302,7 @@ export const postNewProfile = (profileName, summId) => {
 export const updateProfileInfo = (profilePId, summId, item) => {
     return new Promise(async (resolve, reject) => {
         try {
-            await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                 'SET #key = :data',
                 {
                     '#key': 'Information',
@@ -311,7 +316,7 @@ export const updateProfileInfo = (profilePId, summId, item) => {
                 'SummonerId': summId,
                 'ProfileHId': GLOBAL.getProfileHId(profilePId),
             };
-            await dynamoDb.putItem('SummonerIdMap', newSummonerMap, summId);
+            await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
 
             // Cache set Key: PROFILE_INFO_PREFIX
             cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
@@ -333,7 +338,7 @@ export const updateProfileName = (profilePId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Update "Profile" table
-            await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                 'SET #name = :new, #info.#name = :new',
                 {
                     '#name': 'ProfileName',
@@ -344,12 +349,12 @@ export const updateProfileName = (profilePId, newName, oldName) => {
                 }
             );
             // Add newName to "ProfileNameMap" table
-            await dynamoDb.putItem('ProfileNameMap', {
+            await dynamoDbPutItem('ProfileNameMap', {
                 'ProfileName': GLOBAL.filterName(newName),
                 'ProfileHId': GLOBAL.getProfileHId(profilePId),
             }, GLOBAL.filterName(newName));
             // Delete oldName from "ProfileNameMap" table
-            await dynamoDb.deleteItem('ProfileNameMap', 'ProfileName', GLOBAL.filterName(oldName));
+            await dynamoDbDeleteItem('ProfileNameMap', 'ProfileName', GLOBAL.filterName(oldName));
 
             // Del Cache
             cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + GLOBAL.filterName(oldName));
@@ -370,9 +375,9 @@ export const updateProfileName = (profilePId, newName, oldName) => {
 export const updateProfileGameLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId);
+            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
             let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let profileDbObject = await dynamoDb.getItem('Profile', 'ProfilePId', profilePId);
+            let profileDbObject = await dynamoDbGetItem('Profile', 'ProfilePId', profilePId);
             
             /*  
                 -------------------
@@ -386,7 +391,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             const initProfileGameLog = { [seasonPId]: initProfileSeasonGames };
             // Check if 'GameLog' exists in Profile
             if (!('GameLog' in profileDbObject)) {
-                await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                     'SET #gLog = :val',
                     { 
                         '#gLog': 'GameLog'
@@ -399,7 +404,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             }
             // Check if that season exists in the GameLogs
             else if (!(seasonPId in profileDbObject['GameLog'])) {
-                await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                     'SET #gLog.#sId = :val',
                     {
                         '#gLog': 'GameLog',
@@ -473,7 +478,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                 'SET #glog.#sId.#mtch = :data',
                 {
                     '#glog': 'GameLog',
@@ -502,7 +507,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
 export const updateProfileStatsLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileDbObject = await dynamoDb.getItem('Profile', 'ProfilePId', profilePId);
+            let profileDbObject = await dynamoDbGetItem('Profile', 'ProfilePId', profilePId);
 
             /*  
                 -------------------
@@ -515,7 +520,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             const initStatsLog = { [tournamentPId]: initProfileTourneyStatsGames };
             if (!('StatsLog' in profileDbObject)) {
-                await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                     'SET #sLog = :val',
                     { 
                         '#sLog': 'StatsLog'
@@ -528,7 +533,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             // Check if that TournamentPId in StatsLog
             else if (!(tournamentPId in profileDbObject['StatsLog'])) {
-                await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
                     'SET #sLog.#tId = :val',
                     { 
                         '#sLog': 'StatsLog',
@@ -608,7 +613,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDb.updateItem('Profile', 'ProfilePId', profilePId, 
+            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId, 
                 'SET #slog.#tId.#rStats = :data',
                 {
                     '#slog': 'StatsLog',
