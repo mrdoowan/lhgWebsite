@@ -6,7 +6,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
-const keyBank = require('./dependencies/cacheKeys');
+import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
@@ -15,7 +15,7 @@ import { getTeamName } from './teamData';
 // Get SeasonPId from DynamoDb
 export const getSeasonId = (shortName) => {
     let simpleName = GLOBAL.filterName(shortName);
-    const cacheKey = keyBank.SEASON_ID_PREFIX + simpleName;
+    const cacheKey = CACHE_KEYS.SEASON_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -36,7 +36,7 @@ export const getSeasonId = (shortName) => {
  * @param {number} sPId      Season Id in number format
  */
 export const getSeasonShortName = (sPId) => {
-    const cacheKey = keyBank.SEASON_CODE_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_CODE_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -57,7 +57,7 @@ export const getSeasonShortName = (sPId) => {
  * @param {number} sPId      Season Id in number format
  */
 export const getSeasonName = (sPId) => {
-    const cacheKey = keyBank.SEASON_NAME_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_NAME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -75,7 +75,7 @@ export const getSeasonName = (sPId) => {
 
 // Returns a Season Time (i.e. Winter 2020)
 export const getSeasonTime = (sPId) => {
-    const cacheKey = keyBank.SEASON_TIME_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_TIME_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -92,7 +92,7 @@ export const getSeasonTime = (sPId) => {
 }
 
 export const getSeasonTabName = (sPId) => {
-    const cacheKey = keyBank.SEASON_TAB_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_TAB_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -111,7 +111,7 @@ export const getSeasonTabName = (sPId) => {
 // For leagues page
 export const getLeagues = () => {
     return new Promise(function(resolve, reject) {
-        cache.get(keyBank.LEAGUE_KEY, async (err, data) => {
+        cache.get(CACHE_KEYS.LEAGUE_KEY, async (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
@@ -131,7 +131,7 @@ export const getLeagues = () => {
                     });
                     let returnObject = {};
                     returnObject['Leagues'] = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
-                    cache.set(keyBank.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(CACHE_KEYS.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(returnObject);
                 }
                 else {
@@ -144,7 +144,7 @@ export const getLeagues = () => {
 }
 
 export const getSeasonInformation = (sPId) => {
-    const cacheKey = keyBank.SEASON_INFO_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_INFO_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -183,7 +183,7 @@ export const getSeasonInformation = (sPId) => {
 }
 
 export const getSeasonRoster = (sPId) => {
-    const cacheKey = keyBank.SEASON_ROSTER_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_ROSTER_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -229,7 +229,7 @@ export const getSeasonRoster = (sPId) => {
 }
 
 export const getRegularSeason = (sPId) => {
-    const cacheKey = keyBank.SEASON_REGULAR_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_REGULAR_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -264,7 +264,7 @@ export const getRegularSeason = (sPId) => {
 }
 
 export const getSeasonPlayoffs = (sPId) => {
-    const cacheKey = keyBank.SEASON_PLAYOFF_PREFIX + sPId;
+    const cacheKey = CACHE_KEYS.SEASON_PLAYOFF_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return }

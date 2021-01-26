@@ -8,7 +8,7 @@ const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { getRiotSummonerId } from './dependencies/awsLambdaHelper';
-const keyBank = require('./dependencies/cacheKeys');
+import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import {
     getSeasonName,
@@ -24,7 +24,7 @@ import { getTeamName } from './teamData';
 // Get ProfilePId from ProfileName
 export const getProfilePIdByName = (name) => {
     let simpleName = GLOBAL.filterName(name);
-    const cacheKey = keyBank.PROFILE_PID_BYNAME_PREFIX + simpleName;
+    const cacheKey = CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -42,7 +42,7 @@ export const getProfilePIdByName = (name) => {
 
 // Get ProfilePId from Riot Summoner Id
 export const getProfilePIdBySummonerId = (summId) => {
-    const cacheKey = keyBank.PROFILE_PID_BYSUMM_PREFIX + summId;
+    const cacheKey = CACHE_KEYS.PROFILE_PID_BYSUMM_PREFIX + summId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -62,7 +62,7 @@ export const getProfilePIdBySummonerId = (summId) => {
 // hash=true if id is HId, hash=false if id id PId
 export const getProfileName = (id, hash=true) => {
     let pPId = (hash) ? GLOBAL.getProfilePId(id) : id;
-    const cacheKey = keyBank.PROFILE_NAME_PREFIX + pPId;
+    const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -78,7 +78,7 @@ export const getProfileName = (id, hash=true) => {
 }
 
 export const getProfileInfo = (pPId) => {
-    const cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
+    const cacheKey = CACHE_KEYS.PROFILE_INFO_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -122,7 +122,7 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
             if (profileObject != null) {
                 let gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
-                const cacheKey = keyBank.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
+                const cacheKey = CACHE_KEYS.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -167,7 +167,7 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
             if (profileObject != null) {
                 let statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
-                const cacheKey = keyBank.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
+                const cacheKey = CACHE_KEYS.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -314,7 +314,7 @@ export const updateProfileInfo = (profilePId, summId, item) => {
             await dynamoDb.putItem('SummonerIdMap', newSummonerMap, summId);
 
             // Cache set Key: PROFILE_INFO_PREFIX
-            cache.del(keyBank.PROFILE_INFO_PREFIX + profilePId);
+            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
             resolve(item);
         }
@@ -352,9 +352,9 @@ export const updateProfileName = (profilePId, newName, oldName) => {
             await dynamoDb.deleteItem('ProfileNameMap', 'ProfileName', GLOBAL.filterName(oldName));
 
             // Del Cache
-            cache.del(keyBank.PROFILE_PID_BYNAME_PREFIX + GLOBAL.filterName(oldName));
-            cache.del(keyBank.PROFILE_NAME_PREFIX + profilePId);
-            cache.del(keyBank.PROFILE_INFO_PREFIX + profilePId)
+            cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + GLOBAL.filterName(oldName));
+            cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId);
+            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId)
 
             resolve({
                 'ProfilePId': profilePId,
@@ -485,7 +485,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                 }
             );
             // Delete Cache
-            cache.del(keyBank.PROFILE_GAMES_PREFIX + profilePId + '-' + seasonPId);
+            cache.del(CACHE_KEYS.PROFILE_GAMES_PREFIX + profilePId + '-' + seasonPId);
 
             resolve({
                 profileId: profilePId,
@@ -621,7 +621,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             );
             
             // Delete Cache
-            cache.del(`${keyBank.PROFILE_STATS_PREFIX}${profilePId}-${tournamentPId}`);
+            cache.del(`${CACHE_KEYS.PROFILE_STATS_PREFIX}${profilePId}-${tournamentPId}`);
             
             resolve({
                 profileId: profilePId,

@@ -1,6 +1,5 @@
 // Code === ShortName
-
-module.exports = {
+export const CACHE_KEYS = {
     LEAGUE_KEY: 'Leagues',                      // TTL: Yes
     SEASON_CODE_PREFIX: 'SnCode-',              // Key: SeasonId, TTL: Never
     SEASON_NAME_PREFIX: 'SnName-',              // Key: SeasonId, TTL: Never

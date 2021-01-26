@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 /*  Import dependency modules */
 const dynamoDb = require('./dependencies/dynamoDbHelper');
-const keyBank = require('./dependencies/cacheKeys');
+import { CACHE_KEYS } from './dependencies/cacheKeys'
 const GLOBAL = require('./dependencies/global');
 /*  Import data functions */
 import {
@@ -52,7 +52,7 @@ export const putNewStaff = (staff) => {
                         }
                     );
                     // Update Cache
-                    const cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
+                    const cacheKey = CACHE_KEYS.PROFILE_INFO_PREFIX + pPId;
                     cache.set(cacheKey, JSON.stringify(profileInfo, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     profileInfo['Password'] = hash;
                     resolve(profileInfo);

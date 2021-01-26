@@ -7,7 +7,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { getRiotMatchData } from './dependencies/awsLambdaHelper';
-const keyBank = require('./dependencies/cacheKeys');
+import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import {
     getSeasonName,
@@ -36,7 +36,7 @@ const GLOBAL = require('./dependencies/global');
  */
 export const getMatchData = async (id) => {
     return new Promise(function(resolve, reject) {
-        const cacheKey = keyBank.MATCH_PREFIX + id;
+        const cacheKey = CACHE_KEYS.MATCH_PREFIX + id;
         cache.get(cacheKey, async (err, data) => {
             if (err) { console.error(err); reject(err); }
             else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -294,7 +294,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                     }
                 );
                 // Delete match cache
-                cache.del(`${keyBank.MATCH_PREFIX}${matchId}`);
+                cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
                 
                 // Return
                 resolve({
@@ -371,7 +371,7 @@ export const deleteMatchData = async (matchId) => {
             await dynamoDb.deleteItem('Matches', 'MatchPId', matchId);
 
             // Del from Cache
-            cache.del(`${keyBank.MATCH_PREFIX}${matchId}`);
+            cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
             resolve({ response: `Match ID '${matchId}' removed from the database.` });
         }
         catch (err) { reject({ error: err }) };

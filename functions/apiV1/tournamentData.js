@@ -8,7 +8,7 @@ import { ChampById } from '../../client/src/static/ChampById';
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
-const keyBank = require('./dependencies/cacheKeys');
+import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import {
     getSeasonName,
@@ -30,7 +30,7 @@ import {
  */
 export const getTournamentId = (shortName) => {
     let simpleName = GLOBAL.filterName(shortName);
-    const cacheKey = keyBank.TN_ID_PREFIX + simpleName;
+    const cacheKey = CACHE_KEYS.TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -51,7 +51,7 @@ export const getTournamentId = (shortName) => {
  * @param {number} tournamentPId      Tourney Id in number format
  */
 export const getTournamentShortName = (tournamentPId) => {
-    const cacheKey = keyBank.TN_CODE_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_CODE_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -72,7 +72,7 @@ export const getTournamentShortName = (tournamentPId) => {
  * @param {number} tournamentPId      Tourney Id in number format
  */
 export const getTournamentName = (tournamentPId) => {
-    const cacheKey = keyBank.TN_NAME_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_NAME_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -90,7 +90,7 @@ export const getTournamentName = (tournamentPId) => {
 
 // Get TournamentTabName from DynamoDb
 export const getTournamentTabName = (tournamentPId) => {
-    const cacheKey = keyBank.TN_TAB_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_TAB_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -107,7 +107,7 @@ export const getTournamentTabName = (tournamentPId) => {
 }
 
 export const getTournamentInfo = (tournamentPId) => {
-    const cacheKey = keyBank.TN_INFO_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_INFO_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -130,7 +130,7 @@ export const getTournamentInfo = (tournamentPId) => {
 }
 
 export const getTournamentStats = (tournamentPId) => {
-    const cacheKey = keyBank.TN_STATS_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_STATS_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -151,7 +151,7 @@ export const getTournamentStats = (tournamentPId) => {
 }
 
 export const getTournamentLeaderboards = (tournamentPId) => {
-    const cacheKey = keyBank.TN_LEADER_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_LEADER_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -208,7 +208,7 @@ export const getTournamentLeaderboards = (tournamentPId) => {
  * @param {number} tournamentPId 
  */
 export const getTournamentPlayerStats = (tournamentPId) => {
-    const cacheKey = keyBank.TN_PLAYER_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_PLAYER_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -291,7 +291,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
  * @param {number} tournamentPId 
  */
 export const getTournamentTeamStats = (tournamentPId) => {
-    const cacheKey = keyBank.TN_TEAM_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_TEAM_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -355,7 +355,7 @@ export const getTournamentTeamStats = (tournamentPId) => {
 }
 
 export const getTournamentPickBans = (tournamentPId) => {
-    const cacheKey = keyBank.TN_PICKBANS_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_PICKBANS_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -395,7 +395,7 @@ export const getTournamentPickBans = (tournamentPId) => {
 }
 
 export const getTournamentGames = (tournamentPId) => {
-    const cacheKey = keyBank.TN_GAMES_PREFIX + tournamentPId;
+    const cacheKey = CACHE_KEYS.TN_GAMES_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -743,13 +743,13 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             );
             //#endregion
             //#region Remove Cache
-            cache.del(keyBank.TN_INFO_PREFIX + tournamentPId);
-            cache.del(keyBank.TN_STATS_PREFIX + tournamentPId);
-            cache.del(keyBank.TN_PLAYER_PREFIX + tournamentPId);
-            cache.del(keyBank.TN_TEAM_PREFIX + tournamentPId);
-            cache.del(keyBank.TN_PICKBANS_PREFIX + tournamentPId);
-            cache.del(keyBank.TN_GAMES_PREFIX + tournamentPId);
-            cache.del(keyBank.TN_LEADER_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_INFO_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_STATS_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_PLAYER_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_TEAM_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_PICKBANS_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_GAMES_PREFIX + tournamentPId);
+            cache.del(CACHE_KEYS.TN_LEADER_PREFIX + tournamentPId);
             //#endregion
 
             // Return

@@ -7,7 +7,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
-const keyBank = require('./dependencies/cacheKeys');
+import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import {
     getSeasonName,
@@ -27,7 +27,7 @@ import { getProfileName } from './profileData';
 // Get TeamPId from TeamName
 export const getTeamPId = (name) => {
     let simpleName = GLOBAL.filterName(name);
-    const cacheKey = keyBank.TEAM_PID_PREFIX + simpleName;
+    const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -50,7 +50,7 @@ export const getTeamPId = (name) => {
 // Get TeamName from DynamoDb
 export const getTeamName = (teamHId) => {
     let tPId = GLOBAL.getTeamPId(teamHId);
-    const cacheKey = keyBank.TEAM_NAME_PREFIX + tPId;
+    const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -73,7 +73,7 @@ export const getTeamName = (teamHId) => {
 // Get Shortname from DynamoDb
 export const getTeamShortName = (teamHId) => {
     let tPId = GLOBAL.getTeamPId(teamHId);
-    const cacheKey = keyBank.TEAM_SHORTNAME_PREFIX + tPId;
+    const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -90,7 +90,7 @@ export const getTeamShortName = (teamHId) => {
 }
 
 export const getTeamInfo = (teamPId) => {
-    const cacheKey = keyBank.TEAM_INFO_PREFIX + teamPId;
+    const cacheKey = CACHE_KEYS.TEAM_INFO_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
@@ -134,7 +134,7 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
             let scoutingJson = (await dynamoDb.getItem('Team', 'TeamPId', teamPId))['Scouting'];
             if (scoutingJson != null) {
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
-                const cacheKey = keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
+                const cacheKey = CACHE_KEYS.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -179,7 +179,7 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
             if (teamObject != null) {
                 let gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
-                const cacheKey = keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
+                const cacheKey = CACHE_KEYS.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -219,7 +219,7 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
             if (teamObject != null) {
                 let statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
-                const cacheKey = keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
+                const cacheKey = CACHE_KEYS.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -544,8 +544,8 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 }
             );
             // Remove cache
-            cache.del(keyBank.TEAM_GAMES_PREFIX + teamPId + '-' + seasonPId);
-            cache.del(keyBank.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonPId);
+            cache.del(CACHE_KEYS.TEAM_GAMES_PREFIX + teamPId + '-' + seasonPId);
+            cache.del(CACHE_KEYS.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonPId);
             
             resolve({
                 teamId: teamPId,
@@ -653,7 +653,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 }
             );
             // Remove cache
-            cache.del(keyBank.TEAM_STATS_PREFIX + teamPId + '-' + tournamentPId);
+            cache.del(CACHE_KEYS.TEAM_STATS_PREFIX + teamPId + '-' + tournamentPId);
 
             resolve({
                 teamId: teamPId,
