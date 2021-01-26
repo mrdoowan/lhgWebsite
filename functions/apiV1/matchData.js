@@ -13,7 +13,11 @@ import {
     getSeasonName,
     getSeasonShortName,
 } from './seasonData';
-const Tournament = require('./tournamentData');
+import {
+    getTournamentName,
+    getTournamentShortName,
+    getTournamentTabName,
+} from './tournamentData';
 import {
     getProfileName,
     getProfileGamesBySeason,
@@ -43,9 +47,9 @@ export const getMatchData = async (id) => {
                 matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
                 matchJson['SeasonName'] = await getSeasonName(seasonPId);
                 let tourneyPId = matchJson['TournamentPId'];
-                matchJson['TournamentShortName'] = await Tournament.getShortName(tourneyPId);
-                matchJson['TournamentName'] = await Tournament.getName(tourneyPId);
-                matchJson['TournamentTabName'] = await Tournament.getTabName(tourneyPId);
+                matchJson['TournamentShortName'] = await getTournamentShortName(tourneyPId);
+                matchJson['TournamentName'] = await getTournamentName(tourneyPId);
+                matchJson['TournamentTabName'] = await getTournamentTabName(tourneyPId);
                 let gameDurationMinute = matchJson['GameDuration'] / 60;
                 for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
                     let teamId = Object.keys(matchJson['Teams'])[i];
@@ -91,7 +95,7 @@ export const getMatchSetup = async (id) => {
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
             let matchSetupJson = matchJson['Setup'];
             matchSetupJson['SeasonName'] = await getSeasonName(matchSetupJson['SeasonPId']);
-            matchSetupJson['TournamentName'] = await Tournament.getName(matchSetupJson['TournamentPId']);
+            matchSetupJson['TournamentName'] = await getTournamentName(matchSetupJson['TournamentPId']);
             
             // Edit names into the Json
             let teamsObject = matchSetupJson['Teams'];

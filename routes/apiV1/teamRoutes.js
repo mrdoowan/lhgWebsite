@@ -10,8 +10,8 @@ import {
     getTeamStatsByTourney,
     postNewTeam,
 } from '../../functions/apiV1/teamData';
-import { getSeasonId } from './seasonData';
-const Tournament = require('../../functions/apiV1/tournamentData');
+import { getSeasonId } from '../../functions/apiV1/seasonData';
+import { getTournamentId } from '../../functions/apiV1/tournamentData';
 
 /*  
     ----------------------
@@ -87,7 +87,7 @@ router.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
     console.log(`GET Request Team '${teamName}' Stats Log from Tournament '${tournamentName}'.`);
     getTeamPId(teamName).then((teamId) => {
         if (teamId == null) { return handler.res400s(res, req, `Team Name '${teamName}' Not Found`); }
-        Tournament.getId(tournamentName).then((tPId) => {
+        getTournamentId(tournamentName).then((tPId) => {
             if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentName}' Not Found`); }
             getTeamStatsByTourney(teamId, tPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${teamName}' does not have Tournament '${tournamentName}' Stats logged`); }

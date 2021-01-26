@@ -28,6 +28,16 @@ require('dotenv').config({ path: '../../.env' });
 const { Random } = require('random-js');
 const Hashids = require('hashids/cjs'); // For hashing and unhashing
 
+/*  Import data functions*/
+import {
+    getSeasonTabName,
+    getSeasonShortName,
+} from '../seasonData';
+import {
+    getTournamentShortName,
+    getTournamentTabName,
+} from '../tournamentData';
+
 const oldEnv = true; // 'true' for Dynamodb, 'false' for MongoDb
 const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
 const teamHidSalt = (oldEnv) ? process.env.OLD_TEAM_HID_SALT : process.env.SALT_TEAM_HID;
@@ -36,11 +46,6 @@ const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
 const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
 const dynamoDb = require('./dynamoDbHelper');
-import {
-    getSeasonTabName,
-    getSeasonShortName,
-} from './seasonData';
-const Tournament = require('../tournamentData');
 
 // Turn number into string
 function strPadZeroes(num, size) {
@@ -100,8 +105,8 @@ function getTourneyItems(idList) {
                 let tnId = parseInt(idList[i]);
                 tourneyList.push({
                     'PId': tnId,
-                    'ItemName': await Tournament.getTabName(tnId),
-                    'ShortName': await Tournament.getShortName(tnId),
+                    'ItemName': await getTournamentTabName(tnId),
+                    'ShortName': await getTournamentShortName(tnId),
                 });
             }
             resolve(tourneyList);

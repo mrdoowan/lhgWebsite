@@ -3,15 +3,27 @@ const router = Router();
 const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
-const Tournament = require('../../functions/apiV1/tournamentData');
+import {
+    getTournamentId,
+    getTournamentInfo,
+    getTournamentStats,
+    getTournamentLeaderboards,
+    getTournamentPlayerStats,
+    getTournamentTeamStats,
+    getTournamentPickBans,
+    getTournamentGames,
+    getTournamentPlayerList,
+    getTournamentTeamList,
+    updateTournamentOverallStats,
+} from '../../functions/apiV1/tournamentData';
 import {
     updateProfileGameLog,
     updateProfileStatsLog,
-} from './profileData';
+} from '../../functions/apiV1/profileData';
 import {
     updateTeamGameLog,
     updateTeamStatsLog,
-} from './teamData';
+} from '../../functions/apiV1/teamData';
 
 /*  
     ----------------------
@@ -29,9 +41,9 @@ import {
 router.get('/information/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Information.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getInfo(tPId).then((data) => {
+        getTournamentInfo(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -45,9 +57,9 @@ router.get('/information/name/:tournamentShortName', (req, res) => {
 router.get('/stats/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Tournament Stats.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getTourneyStats(tPId).then((data) => {
+        getTournamentStats(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Information Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -61,9 +73,9 @@ router.get('/stats/name/:tournamentShortName', (req, res) => {
 router.get('/leaderboards/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Leaderboards.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getLeaderboards(tPId).then((data) => {
+        getTournamentLeaderboards(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Leaderboard Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -77,9 +89,9 @@ router.get('/leaderboards/name/:tournamentShortName', (req, res) => {
 router.get('/players/stats/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Player Stats.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getPlayerStats(tPId).then((data) => {
+        getTournamentPlayerStats(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Players Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -93,9 +105,9 @@ router.get('/players/stats/name/:tournamentShortName', (req, res) => {
 router.get('/teams/stats/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Team Stats.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getTeamStats(tPId).then((data) => {
+        getTournamentTeamStats(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Teams Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -109,9 +121,9 @@ router.get('/teams/stats/name/:tournamentShortName', (req, res) => {
 router.get('/pickbans/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Pick Bans.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getPBStats(tPId).then((data) => {
+        getTournamentPickBans(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Pick Bans Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -125,9 +137,9 @@ router.get('/pickbans/name/:tournamentShortName', (req, res) => {
 router.get('/games/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Game Log.`);
-    Tournament.getId(tournamentShortName).then((tPId) => {
+    getTournamentId(tournamentShortName).then((tPId) => {
         if (tPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getGames(tPId).then((data) => {
+        getTournamentGames(tPId).then((data) => {
             return handler.res200s(res, req, data);
         }).catch((err) => handler.error500s(err, res, "GET Tourney Games Error."));
     }).catch((err) => handler.error500s(err, res, "GET Tourney ID Error."));
@@ -141,9 +153,9 @@ router.get('/games/name/:tournamentShortName', (req, res) => {
 router.get('/players/ids/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Player IDs List.`);
-    Tournament.getId(tournamentShortName).then((tourneyPId) => {
+    getTournamentId(tournamentShortName).then((tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getPlayerList(tourneyPId).then((playerList) => {
+        getTournamentPlayerList(tourneyPId).then((playerList) => {
             return handler.res200s(res, req, playerList);
         });
     });
@@ -157,9 +169,9 @@ router.get('/players/ids/name/:tournamentShortName', (req, res) => {
 router.get('/teams/ids/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Team IDs List.`);
-    Tournament.getId(tournamentShortName).then((tourneyPId) => {
+    getTournamentId(tournamentShortName).then((tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.getTeamList(tourneyPId).then((teamList) => {
+        getTournamentTeamList(tourneyPId).then((teamList) => {
             return handler.res200s(res, req, teamList);
         });
     });
@@ -173,9 +185,9 @@ router.get('/teams/ids/name/:tournamentShortName', (req, res) => {
 router.put('/update/overall', (req, res) => {
     const { tournamentShortName } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Overall Stats.`);
-    Tournament.getId(tournamentShortName).then((tourneyPId) => {
+    getTournamentId(tournamentShortName).then((tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        Tournament.putOverallStats(tourneyPId).then((tourneyResponse) => {
+        updateTournamentOverallStats(tourneyPId).then((tourneyResponse) => {
             return handler.res200s(res, req, {
                 gamesNum: tourneyResponse.gamesUpdated,
                 tournamentShortName: tournamentShortName,
@@ -193,7 +205,7 @@ router.put('/update/overall', (req, res) => {
 router.put('/update/player', (req, res) => {
     const { tournamentShortName, playerPId } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Player Stats of ID '${playerPId}'`);
-    Tournament.getId(tournamentShortName).then(async (tourneyPId) => {
+    getTournamentId(tournamentShortName).then(async (tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
         try { await updateProfileGameLog(playerPId, tourneyPId) }
         catch (err) { return handler.error500s(err, res, "PUT Profile Game Log Error."); }
@@ -215,7 +227,7 @@ router.put('/update/player', (req, res) => {
 router.put('/update/team', (req, res) => {
     const { tournamentShortName, teamPId } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Team Stats of ID '${teamPId}'`);
-    Tournament.getId(tournamentShortName).then(async (tourneyPId) => {
+    getTournamentId(tournamentShortName).then(async (tourneyPId) => {
         if (tourneyPId == null) { return handler.res400s(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
         try { await updateTeamGameLog(teamPId, tourneyPId) }
         catch (err) { return handler.error500s(err, res, "PUT Team Game Log Error."); }

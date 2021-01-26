@@ -8,7 +8,7 @@ const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 const keyBank = require('./dependencies/cacheKeys');
 // Data Functions
-const Tournament = require('./tournamentData');
+import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
 import { getTeamName } from './teamData';
 
@@ -152,8 +152,8 @@ export const getSeasonInformation = (sPId) => {
             try {
                 let seasonInfoJson = (await dynamoDb.getItem('Season', 'SeasonPId', sPId))['Information'];
                 if (seasonInfoJson != null) {
-                    seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await Tournament.getShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
-                    seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await Tournament.getShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
+                    seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
+                    seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
                     if ('FinalStandings' in seasonInfoJson) {
                         for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
                             let teamObject = seasonInfoJson['FinalStandings'][i];

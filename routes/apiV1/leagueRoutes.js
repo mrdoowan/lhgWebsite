@@ -2,7 +2,7 @@ const router = require('express').Router();
 const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
-import { getLeagues } from './seasonData';
+import { getLeagues } from '../../functions/apiV1/seasonData';
 
 /*  
     ----------------------

@@ -15,7 +15,10 @@ import {
     getSeasonShortName,
     getSeasonTime,
 } from './seasonData';
-const Tournament = require('./tournamentData');
+import {
+    getTournamentName,
+    getTournamentShortName,
+} from './tournamentData';
 import { getTeamName } from './teamData';
 
 // Get ProfilePId from ProfileName
@@ -171,8 +174,8 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                     // Process Data
                     let profileStatsJson = statsLogJson[tourneyId];
                     if (profileStatsJson == null) { resolve(null); return; }    // Not Found
-                    profileStatsJson['TournamentName'] = await Tournament.getName(tourneyId);
-                    profileStatsJson['TournamentShortName'] = await Tournament.getShortName(tourneyId);
+                    profileStatsJson['TournamentName'] = await getTournamentName(tourneyId);
+                    profileStatsJson['TournamentShortName'] = await getTournamentShortName(tourneyId);
                     for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
                         let role = Object.keys(profileStatsJson['RoleStats'])[i];
                         let statsJson = profileStatsJson['RoleStats'][role];

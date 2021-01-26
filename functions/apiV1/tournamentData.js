@@ -1,20 +1,3 @@
-module.exports = {
-    getId: getTournamentId,
-    getShortName: getTournamentShortName,
-    getTabName: getTournamentTabName,
-    getName: getTournamentName,
-    getInfo: getTourneyInfo,
-    getTourneyStats: getTourneyStats,
-    getLeaderboards: getTourneyLeaderboards,
-    getPlayerStats: getTourneyPlayerStats,
-    getTeamStats: getTourneyTeamStats,
-    getPBStats: getTourneyPickBans,
-    getGames: getTourneyGames,
-    getPlayerList: getPlayerList,
-    getTeamList: getTeamList,
-    putOverallStats: updateTourneyOverall,
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
@@ -41,8 +24,11 @@ import {
     getTeamStatsByTourney,
 } from './teamData';
 
-// Get TournamentPId from DynamoDb
-function getTournamentId(shortName) {
+/**
+ * Get TournamentPId from DynamoDb
+ * @param {string} shortName 
+ */
+export const getTournamentId = (shortName) => {
     let simpleName = GLOBAL.filterName(shortName);
     const cacheKey = keyBank.TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
@@ -62,15 +48,15 @@ function getTournamentId(shortName) {
 
 /**
  * Get TournamentShortName of a Tourney Id from DynamoDb. Returns a string (i.e. "w2020plpost")
- * @param {number} sPId      Tourney Id in number format
+ * @param {number} tournamentPId      Tourney Id in number format
  */
-function getTournamentShortName(tPId) {
-    const cacheKey = keyBank.TN_CODE_PREFIX + tPId;
+export const getTournamentShortName = (tournamentPId) => {
+    const cacheKey = keyBank.TN_CODE_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tPId)
+            dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let shortName = obj['TournamentShortName'];
@@ -83,15 +69,15 @@ function getTournamentShortName(tPId) {
 
 /**
  * Get TournamentName of a Tourney Id from DynamoDb. Returns a string (i.e. "Winter 2020 Premier League Playoffs")
- * @param {number} sPId      Tourney Id in number format
+ * @param {number} tournamentPId      Tourney Id in number format
  */
-function getTournamentName(tPId) {
-    const cacheKey = keyBank.TN_NAME_PREFIX + tPId;
+export const getTournamentName = (tournamentPId) => {
+    const cacheKey = keyBank.TN_NAME_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tPId)
+            dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { reject(null); return; } // Not Found
                 let name = obj['Information']['TournamentName'];
@@ -103,13 +89,13 @@ function getTournamentName(tPId) {
 }
 
 // Get TournamentTabName from DynamoDb
-function getTournamentTabName(tPId) {
-    const cacheKey = keyBank.TN_TAB_PREFIX + tPId;
+export const getTournamentTabName = (tournamentPId) => {
+    const cacheKey = keyBank.TN_TAB_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDb.getItem('Tournament', 'TournamentPId', tPId)
+            dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['TournamentTabName'];
@@ -120,14 +106,14 @@ function getTournamentTabName(tPId) {
     });
 }
 
-function getTourneyInfo(tPId) {
-    const cacheKey = keyBank.TN_INFO_PREFIX + tPId;
+export const getTournamentInfo = (tournamentPId) => {
+    const cacheKey = keyBank.TN_INFO_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['Information'];
+                let tourneyInfoJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['Information'];
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
@@ -143,14 +129,14 @@ function getTourneyInfo(tPId) {
     });
 }
 
-function getTourneyStats(tPId) {
-    const cacheKey = keyBank.TN_STATS_PREFIX + tPId;
+export const getTournamentStats = (tournamentPId) => {
+    const cacheKey = keyBank.TN_STATS_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['TourneyStats'];
+                let tourneyStatsJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
                     resolve(tourneyStatsJson);
@@ -164,14 +150,14 @@ function getTourneyStats(tPId) {
     });
 }
 
-function getTourneyLeaderboards(tPId) {
-    const cacheKey = keyBank.TN_LEADER_PREFIX + tPId;
+export const getTournamentLeaderboards = (tournamentPId) => {
+    const cacheKey = keyBank.TN_LEADER_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['Leaderboards'];
+                let leaderboardJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['Leaderboards'];
                 if (leaderboardJson != null) {
                     let gameRecords = leaderboardJson['GameRecords'];
                     for (let i = 0; i < Object.values(gameRecords).length; ++i) {
@@ -219,21 +205,21 @@ function getTourneyLeaderboards(tPId) {
 
 /**
  * Returns an Object['PlayerList'] that contains a list of Stats for each Player in the Tournament
- * @param {number} tPId 
+ * @param {number} tournamentPId 
  */
-function getTourneyPlayerStats(tPId) {
-    const cacheKey = keyBank.TN_PLAYER_PREFIX + tPId;
+export const getTournamentPlayerStats = (tournamentPId) => {
+    const cacheKey = keyBank.TN_PLAYER_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['ProfileHIdList'];
+                let profileHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
                 if (profileHIdList != null) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
                         let pPId = GLOBAL.getProfilePId(profileHIdList[i]);
-                        let profileStatsLog = await getProfileStatsByTourney(pPId, tPId);
+                        let profileStatsLog = await getProfileStatsByTourney(pPId, tournamentPId);
                         if (profileStatsLog != null) {
                             for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
                                 let role = Object.keys(profileStatsLog['RoleStats'])[j];
@@ -302,21 +288,21 @@ function getTourneyPlayerStats(tPId) {
 
 /**
  * Returns an Object['TeamList'] that contains a list of Stats for each Team in the Tournament
- * @param {number} tPId 
+ * @param {number} tournamentPId 
  */
-function getTourneyTeamStats(tPId) {
-    const cacheKey = keyBank.TN_TEAM_PREFIX + tPId;
+export const getTournamentTeamStats = (tournamentPId) => {
+    const cacheKey = keyBank.TN_TEAM_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['TeamHIdList'];
+                let teamHIdList = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['TeamHIdList'];
                 if (teamHIdList != null) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
                         let teamId = GLOBAL.getTeamPId(teamHIdList[i]);
-                        let teamStatsLog = await getTeamStatsByTourney(teamId, tPId);
+                        let teamStatsLog = await getTeamStatsByTourney(teamId, tournamentPId);
                         if (teamStatsLog != null) {
                             teamStatsList.push({
                                 'TeamName': await getTeamName(teamHIdList[i]),
@@ -368,14 +354,14 @@ function getTourneyTeamStats(tPId) {
     });
 }
 
-function getTourneyPickBans(tPId) {
-    const cacheKey = keyBank.TN_PICKBANS_PREFIX + tPId;
+export const getTournamentPickBans = (tournamentPId) => {
+    const cacheKey = keyBank.TN_PICKBANS_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId));
+                let tourneyJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId));
                 let pickBansJson = {}
                 if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
                     pbList = [];
@@ -408,14 +394,14 @@ function getTourneyPickBans(tPId) {
     });
 }
 
-function getTourneyGames(tPId) {
-    const cacheKey = keyBank.TN_GAMES_PREFIX + tPId;
+export const getTournamentGames = (tournamentPId) => {
+    const cacheKey = keyBank.TN_GAMES_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tPId))['GameLog'];
+                let gameLogJson = (await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId))['GameLog'];
                 if (gameLogJson != null) {
                     for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
                         let matchId = Object.keys(gameLogJson)[i];
@@ -440,7 +426,7 @@ function getTourneyGames(tPId) {
  * Returns a unique list of Player IDs that participated in the Tournament
  * @param {number} tournamentPId 
  */
-function getPlayerList(tournamentPId) {
+export const getTournamentPlayerList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let profileIdsSqlList = await mySql.callSProc('profilePIdsByTournamentPId', tournamentPId);
@@ -454,7 +440,7 @@ function getPlayerList(tournamentPId) {
  * Returns a unique list of Team IDs that participated in the Tournament
  * @param {number} tournamentPId 
  */
-function getTeamList(tournamentPId) {
+export const getTournamentTeamList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let teamIdsSqlList = await mySql.callSProc('teamPIdsByTournamentPId', tournamentPId);
@@ -468,7 +454,7 @@ function getTeamList(tournamentPId) {
  * Updates Tourney Information into DynamoDb by grabbing from the list of Matches
  * @param {number} tournamentPId 
  */
-function updateTourneyOverall(tournamentPId) {
+export const updateTournamentOverallStats = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
             let tourneyDbObject = await dynamoDb.getItem('Tournament', 'TournamentPId', tournamentPId);

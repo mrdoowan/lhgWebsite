@@ -14,8 +14,8 @@ import {
     updateProfileInfo,
     updateProfileName,
 } from './profileData';
-import { getSeasonId } from './seasonData';
-const Tournament = require('../../functions/apiV1/tournamentData');
+import { getSeasonId } from '../../functions/apiV1/seasonData';
+import { getTournamentId } from '../../functions/apiV1/tournamentData';
 
 /*  
     ----------------------
@@ -71,7 +71,7 @@ router.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => 
     console.log(`GET Request Profile '${profileName}' Stats Log from Tournament '${tournamentShortName}'.`);
     getProfilePIdByName(profileName).then((pPId) => {
         if (pPId == null) { return handler.res400s(res, req, `Profile Name '${profileName}' Not Found`); }
-        Tournament.getId(tournamentShortName).then((tPId) => {
+        getTournamentId(tournamentShortName).then((tPId) => {
             if (tPId == null) { return handler.res400s(res, req, `Tournament Shortname '${tournamentShortName}' Not Found`); }
             getProfileStatsByTourney(pPId, tPId).then((data) => {
                 if (data == null) { return handler.res400s(res, req, `'${profileName}' does not have the Season '${tournamentShortName}' logged.`); }

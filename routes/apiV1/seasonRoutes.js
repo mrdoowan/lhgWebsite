@@ -8,7 +8,7 @@ import {
     getSeasonRoster,
     getRegularSeason,
     getSeasonPlayoffs,
-} from './seasonData';
+} from '../../functions/apiV1/seasonData';
 
 /*  
     ----------------------

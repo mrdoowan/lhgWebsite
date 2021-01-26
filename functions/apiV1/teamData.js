@@ -14,7 +14,10 @@ import {
     getSeasonShortName,
     getSeasonTime,
 } from './seasonData';
-const Tournament = require('./tournamentData');
+import {
+    getTournamentName,
+    getTournamentShortName
+} from './tournamentData';
 import { getProfileName } from './profileData';
 
 /**
@@ -224,8 +227,8 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                     if (tourneyStatsJson == null) { resolve(null); return; } // Not Found
 
                     // Process Data
-                    tourneyStatsJson['TournamentName'] = await Tournament.getName(tourneyId);
-                    tourneyStatsJson['TournamentShortName'] = await Tournament.getShortName(tourneyId);
+                    tourneyStatsJson['TournamentName'] = await getTournamentName(tourneyId);
+                    tourneyStatsJson['TournamentShortName'] = await getTournamentShortName(tourneyId);
                     let totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
                     tourneyStatsJson['GamesPlayedOnRed'] = tourneyStatsJson['GamesPlayed'] - tourneyStatsJson['GamesPlayedOnBlue'];
                     tourneyStatsJson['RedWins'] = tourneyStatsJson['GamesWon'] - tourneyStatsJson['BlueWins'];
