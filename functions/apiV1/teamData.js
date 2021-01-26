@@ -6,9 +6,9 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
-const mySql = require('./dependencies/mySqlHelper');
+import { mySqlCallSProc } from './dependencies/mySqlHelper';
 const keyBank = require('./dependencies/cacheKeys');
-// Data Functions
+/*  Import data functions */
 import {
     getSeasonName,
     getSeasonShortName,
@@ -387,14 +387,14 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 -------------
             */
             // #region Compile Data
-            let teamMatchesSqlListTourney = await mySql.callSProc('teamMatchesByTournamentPId', teamPId, tournamentPId);
+            let teamMatchesSqlListTourney = await mySqlCallSProc('teamMatchesByTournamentPId', teamPId, tournamentPId);
             for (let matchIdx = 0; matchIdx < teamMatchesSqlListTourney.length; ++matchIdx) {
                 let sqlTeamMatch = teamMatchesSqlListTourney[matchIdx];
                 let matchPId = sqlTeamMatch.riotMatchId;
 
                 // Additional sProcs from MySQL
-                let playerStatsSqlList = await mySql.callSProc('playerStatsByMatchIdTeamId', matchPId, teamPId);
-                let bannedChampMatchSqlList = await mySql.callSProc('bannedChampsByMatchId', matchPId);
+                let playerStatsSqlList = await mySqlCallSProc('playerStatsByMatchIdTeamId', matchPId, teamPId);
+                let bannedChampMatchSqlList = await mySqlCallSProc('bannedChampsByMatchId', matchPId);
                 
                 let teamGameItem = {
                     'DatePlayed': sqlTeamMatch.datePlayed,
@@ -443,13 +443,13 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             */
             // #region Compile Data
             // Banned Champs List
-            const sqlTeamSeasonStats = (await mySql.callSProc('teamStatsBySeasonId', teamPId, seasonPId))[0];
+            const sqlTeamSeasonStats = (await mySqlCallSProc('teamStatsBySeasonId', teamPId, seasonPId))[0];
             scoutingItem['Ongoing'] = false;
             scoutingItem['GamesPlayed'] = sqlTeamSeasonStats.gamesPlayed;
             scoutingItem['GamesWin'] = sqlTeamSeasonStats.gamesWin;
             scoutingItem['BannedByTeam'] = {};
             scoutingItem['BannedAgainstTeam'] = {};
-            const bannedChampsSeasonSqlList = await mySql.callSProc('bannedChampsByTeamIdSeasonId', teamPId, seasonPId);
+            const bannedChampsSeasonSqlList = await mySqlCallSProc('bannedChampsByTeamIdSeasonId', teamPId, seasonPId);
             for (let champIdx = 0; champIdx < bannedChampsSeasonSqlList.length; ++champIdx) {
                 const champSqlRow = bannedChampsSeasonSqlList[champIdx];
                 if (champSqlRow.teamBannedById == teamPId) { 
@@ -466,7 +466,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 }
             }
             // Player Log
-            const playerScoutingSqlList = await mySql.callSProc('playerStatsTotalByTeamIdSeasonId', teamPId, seasonPId);
+            const playerScoutingSqlList = await mySqlCallSProc('playerStatsTotalByTeamIdSeasonId', teamPId, seasonPId);
             let playerLog = {};
             for (let playerIdx = 0; playerIdx < playerScoutingSqlList.length; ++playerIdx) {
                 const playerSqlRow = playerScoutingSqlList[playerIdx];
@@ -493,7 +493,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                         'ChampsPlayed': {}
                     };
                 }
-                const champStatsSqlList = await mySql.callSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID);
+                const champStatsSqlList = await mySqlCallSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID);
                 let champsPlayed = playerLog[role][profileHId]['ChampsPlayed'];
                 for (let champIdx = 0; champIdx < champStatsSqlList.length; ++champIdx) {
                     const champStats = champStatsSqlList[champIdx];
@@ -600,7 +600,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 -------------
             */
             // #region Compile Data
-            let sqlTeamStatsTotal = (await mySql.callSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID))[0];
+            let sqlTeamStatsTotal = (await mySqlCallSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID))[0];
             tourneyTeamStatsItem['GamesPlayed'] = sqlTeamStatsTotal.gamesPlayed;
             tourneyTeamStatsItem['GamesPlayedOverEarly'] = sqlTeamStatsTotal.gamesPlayedOverEarly;
             tourneyTeamStatsItem['GamesPlayedOverMid'] = sqlTeamStatsTotal.gamesPlayedOverMid;

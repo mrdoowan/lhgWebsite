@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 const keyBank = require('./dependencies/cacheKeys');
 const GLOBAL = require('./dependencies/global');
-// Data Functions
+/*  Import data functions */
 import {
     getProfilePIdByName,
     getProfileInfo,

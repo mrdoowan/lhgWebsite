@@ -5,10 +5,10 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 
 /*  Import dependency modules */
 const dynamoDb = require('./dependencies/dynamoDbHelper');
-const mySql = require('./dependencies/mySqlHelper');
+import { mySqlCallSProc } from './dependencies/mySqlHelper';
 const lambda = require('./dependencies/awsLambdaHelper');
 const keyBank = require('./dependencies/cacheKeys');
-// Data Functions
+/*  Import data functions */
 import {
     getSeasonName,
     getSeasonShortName,
@@ -246,7 +246,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                         //await getProfileName(newProfileId); // For HId
                         if (name == null) { resolve(null); return; } // Not found
                         namesChanged.push(name); // For response
-                        await mySql.callSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
+                        await mySqlCallSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
                         playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfilePId);
                         delete playerObject['ProfileName']; // In the database for no reason
 
@@ -364,7 +364,7 @@ export const deleteMatchData = async (matchId) => {
                     );
                 }
                 // 4) 
-                await mySql.callSProc('removeMatchByMatchId', parseInt(matchId));
+                await mySqlCallSProc('removeMatchByMatchId', parseInt(matchId));
             }
             
             // 3) 

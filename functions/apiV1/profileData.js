@@ -6,10 +6,10 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
-const mySql = require('./dependencies/mySqlHelper');
+import { mySqlCallSProc } from './dependencies/mySqlHelper';
 const lambda = require('./dependencies/awsLambdaHelper');
 const keyBank = require('./dependencies/cacheKeys');
-// Data Functions
+/*  Import data functions */
 import {
     getSeasonName,
     getSeasonShortName,
@@ -423,7 +423,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             */
             // #region Compile Data
             // Load each Stat into Profile in tournamentId
-            const matchDataList = await mySql.callSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
+            const matchDataList = await mySqlCallSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
             console.log(`Profile '${profilePId}' played ${matchDataList.length} matches in TournamentPID '${tournamentPId}'.`);
             for (let matchIdx = 0; matchIdx < matchDataList.length; ++matchIdx) {
                 const sqlPlayerStats = matchDataList[matchIdx];
@@ -551,7 +551,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 ----------
             */
             // #region Compile Data
-            let playerStatsTotalData = await mySql.callSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID);
+            let playerStatsTotalData = await mySqlCallSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID);
             for (let idx = 0; idx < playerStatsTotalData.length; ++idx) {
                 let playerStatsTotalRow = playerStatsTotalData[idx];
                 let role = playerStatsTotalRow.playerRole;

@@ -7,7 +7,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
 const keyBank = require('./dependencies/cacheKeys');
-// Data Functions
+/*  Import data functions */
 import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
 import { getTeamName } from './teamData';

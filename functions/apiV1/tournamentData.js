@@ -7,9 +7,9 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 import { ChampById } from '../../client/src/static/ChampById';
 const GLOBAL = require('./dependencies/global');
 const dynamoDb = require('./dependencies/dynamoDbHelper');
-const mySql = require('./dependencies/mySqlHelper');
+import { mySqlCallSProc } from './dependencies/mySqlHelper';
 const keyBank = require('./dependencies/cacheKeys');
-// Data Functions
+/*  Import data functions */
 import {
     getSeasonName,
     getSeasonShortName,
@@ -429,7 +429,7 @@ export const getTournamentGames = (tournamentPId) => {
 export const getTournamentPlayerList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileIdsSqlList = await mySql.callSProc('profilePIdsByTournamentPId', tournamentPId);
+            let profileIdsSqlList = await mySqlCallSProc('profilePIdsByTournamentPId', tournamentPId);
             resolve(profileIdsSqlList.map(a => a.profilePId));
         }
         catch (err) { console.error(err); reject(err); }
@@ -443,7 +443,7 @@ export const getTournamentPlayerList = (tournamentPId) => {
 export const getTournamentTeamList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let teamIdsSqlList = await mySql.callSProc('teamPIdsByTournamentPId', tournamentPId);
+            let teamIdsSqlList = await mySqlCallSProc('teamPIdsByTournamentPId', tournamentPId);
             resolve(teamIdsSqlList.map(a => a.teamPId));
         }
         catch (err) { console.error(err); reject(err); }
@@ -489,7 +489,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 Compile Data
                 -------------------
             */
-            const matchStatsSqlList = await mySql.callSProc('matchStatsByTournamentId', tournamentPId);
+            const matchStatsSqlList = await mySqlCallSProc('matchStatsByTournamentId', tournamentPId);
             //#region Process GameLog Data
             for (let matchIdx = 0; matchIdx < matchStatsSqlList.length; ++matchIdx) {
                 let matchStatsSqlRow = matchStatsSqlList[matchIdx];
@@ -558,7 +558,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             const longestGameSqlRow = matchStatsSqlList[matchStatsSqlList.length - 1];
             gameRecords['LongestGame'] = buildDefaultLeaderboardItem(longestGameSqlRow);
             // Most Kills
-            const mostKillsGameSqlRow = (await mySql.callSProc('mostKillsGameByTournamentId', tournamentPId))[0];
+            const mostKillsGameSqlRow = (await mySqlCallSProc('mostKillsGameByTournamentId', tournamentPId))[0];
             gameRecords['MostKillGame'] = buildDefaultLeaderboardItem(mostKillsGameSqlRow);
             gameRecords['MostKillGame']['Kills'] = mostKillsGameSqlRow.totalKills;
             //#endregion
@@ -567,7 +567,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             //#region PlayerSingleRecords
             // Players Most Damage
             let playerMostDamageList = [];
-            let mostDamageListSql = await mySql.callSProc('playerMostDamageByTournamentId', tournamentPId);
+            let mostDamageListSql = await mySqlCallSProc('playerMostDamageByTournamentId', tournamentPId);
             for (let j = 0; j < mostDamageListSql.length; ++j) {
                 let mostDamageRowSql = mostDamageListSql[j];
                 let playerMostDamageItem = buildDefaultLeaderboardItem(mostDamageRowSql); GLOBAL.getProfileHId
@@ -582,7 +582,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             playerRecords['PlayerMostDamage'] = playerMostDamageList;
             // Player Most Farm
             let playerMostFarmList = [];
-            let mostFarmListSql = await mySql.callSProc('playerMostFarmByTournamentId', tournamentPId);
+            let mostFarmListSql = await mySqlCallSProc('playerMostFarmByTournamentId', tournamentPId);
             for (let j = 0; j < mostFarmListSql.length; ++j) {
                 let mostFarmRowSql = mostFarmListSql[j];
                 let playerMostFarmItem = buildDefaultLeaderboardItem(mostFarmRowSql);
@@ -597,7 +597,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             playerRecords['PlayerMostFarm'] = playerMostFarmList;
             // Player Most GD@Early
             let playerMostGDiffEarlyList = [];
-            let mostGDiffEarlyList = await mySql.callSProc('playerMostGDEarlyByTournamentId', tournamentPId);
+            let mostGDiffEarlyList = await mySqlCallSProc('playerMostGDEarlyByTournamentId', tournamentPId);
             for (let j = 0; j < mostGDiffEarlyList.length; ++j) {
                 let mostGDiffEarlyRowSql = mostGDiffEarlyList[j];
                 let playerMostGDiffEarlyItem = buildDefaultLeaderboardItem(mostGDiffEarlyRowSql);
@@ -612,7 +612,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             playerRecords['PlayerMostGoldDiffEarly'] = playerMostGDiffEarlyList;
             // Player Most XPD@Early
             let playerMostXpDiffEarlyList = [];
-            let mostXpDiffListSql = await mySql.callSProc('playerMostXPDEarlyByTournamentId', tournamentPId);
+            let mostXpDiffListSql = await mySqlCallSProc('playerMostXPDEarlyByTournamentId', tournamentPId);
             for (let j = 0; j < mostXpDiffListSql.length; ++j) {
                 let mostXpDiffEarlyRowSql = mostXpDiffListSql[j];
                 let playerMostXpDiffEarlyItem = buildDefaultLeaderboardItem(mostXpDiffEarlyRowSql);
@@ -627,7 +627,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             playerRecords['PlayerMostXpDiffEarly'] = playerMostXpDiffEarlyList;
             // Player Most Vision
             let playerMostVisionList = [];
-            let mostVisionListSql = await mySql.callSProc('playerMostVisionByTournamentId', tournamentPId);
+            let mostVisionListSql = await mySqlCallSProc('playerMostVisionByTournamentId', tournamentPId);
             for (let j = 0; j < mostVisionListSql.length; ++j) {
                 let mostVisionRowSql = mostVisionListSql[j];
                 let playerMostVisionItem = buildDefaultLeaderboardItem(mostVisionRowSql);
@@ -646,7 +646,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             //#region TeamSingleRecords
             // Team Top Baron Power Plays
             let teamTopBaronPPList = [];
-            let topBaronPPListSql = await mySql.callSProc('teamTopBaronPPByTournamentId', tournamentPId);
+            let topBaronPPListSql = await mySqlCallSProc('teamTopBaronPPByTournamentId', tournamentPId);
             for (let j = 0; j < topBaronPPListSql.length; ++j) {
                 let topBaronPPRowSql = topBaronPPListSql[j];
                 let teamBaronPPItem = buildDefaultLeaderboardItem(topBaronPPRowSql);
@@ -658,7 +658,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             teamRecords['TeamTopBaronPowerPlay'] = teamTopBaronPPList;
             // Team Earliest Towers
             let teamEarliestTowerList = [];
-            let earliestTowerListSql = await mySql.callSProc('teamEarliestTowerByTournamentId', tournamentPId);
+            let earliestTowerListSql = await mySqlCallSProc('teamEarliestTowerByTournamentId', tournamentPId);
             for (let j = 0; j < earliestTowerListSql.length; ++j) {
                 let earliestTowerRowSql = earliestTowerListSql[j];
                 let teamEarliestTowerItem = buildDefaultLeaderboardItem(earliestTowerRowSql);
