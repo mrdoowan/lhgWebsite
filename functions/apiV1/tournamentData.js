@@ -5,7 +5,14 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 
 /*  Import dependency modules */
 import { ChampById } from '../../client/src/static/ChampById';
-const GLOBAL = require('./dependencies/global');
+import {
+    filterName,
+    getProfilePId,
+    getProfileHashId,
+    getTeamPId,
+    getTeamHashId,
+    GLOBAL_CONSTS,
+} from './dependencies/global';
 import {
     dynamoDbGetItem,
     dynamoDbUpdateItem,
@@ -33,7 +40,7 @@ import {
  * @param {string} shortName 
  */
 export const getTournamentId = (shortName) => {
-    let simpleName = GLOBAL.filterName(shortName);
+    let simpleName = filterName(shortName);
     const cacheKey = CACHE_KEYS.TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -121,7 +128,7 @@ export const getTournamentInfo = (tournamentPId) => {
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
-                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(tourneyInfoJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyInfoJson);
                 }
                 else {
@@ -142,7 +149,7 @@ export const getTournamentStats = (tournamentPId) => {
             try {
                 let tourneyStatsJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
-                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 }
                 else {
@@ -195,7 +202,7 @@ export const getTournamentLeaderboards = (tournamentPId) => {
                             teamObject['RedTeamShortName'] = await getTeamShortName(teamObject['RedTeamHId']);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(leaderboardJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(leaderboardJson);
                 }
                 else {
@@ -222,7 +229,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                 if (profileHIdList != null) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
-                        let pPId = GLOBAL.getProfilePId(profileHIdList[i]);
+                        let pPId = getProfilePId(profileHIdList[i]);
                         let profileStatsLog = await getProfileStatsByTourney(pPId, tournamentPId);
                         if (profileStatsLog != null) {
                             for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
@@ -278,7 +285,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                     }
                     let profileObject = {};
                     profileObject['PlayerList'] = profileStatsList;
-                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(profileObject);
                 }
                 else {
@@ -305,7 +312,7 @@ export const getTournamentTeamStats = (tournamentPId) => {
                 if (teamHIdList != null) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
-                        let teamId = GLOBAL.getTeamPId(teamHIdList[i]);
+                        let teamId = getTeamPId(teamHIdList[i]);
                         let teamStatsLog = await getTeamStatsByTourney(teamId, tournamentPId);
                         if (teamStatsLog != null) {
                             teamStatsList.push({
@@ -346,7 +353,7 @@ export const getTournamentTeamStats = (tournamentPId) => {
                     }
                     let teamObject = {};
                     teamObject['TeamList'] = teamStatsList;
-                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(teamObject);
                 }
                 else {
@@ -389,7 +396,7 @@ export const getTournamentPickBans = (tournamentPId) => {
                     }
                     pickBansJson['ChampsWithPresence'] = numberChampsWithPresence;
                     pickBansJson['PickBanList'] = pbList;
-                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(pickBansJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 }
                 resolve(pickBansJson);
             }
@@ -414,7 +421,7 @@ export const getTournamentGames = (tournamentPId) => {
                         gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
                         gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(gameLogJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(gameLogJson);
                 }
                 else {
@@ -543,10 +550,10 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 */
                 gameLogTourneyItem[matchPId] = {
                     'DatePlayed': matchObject.DatePlayed,
-                    'BlueTeamHId': matchObject['Teams'][GLOBAL.BLUE_ID]['TeamHId'],
-                    'RedTeamHId': matchObject['Teams'][GLOBAL.RED_ID]['TeamHId'],
+                    'BlueTeamHId': matchObject['Teams'][GLOBAL_CONSTS.BLUE_ID]['TeamHId'],
+                    'RedTeamHId': matchObject['Teams'][GLOBAL_CONSTS.RED_ID]['TeamHId'],
                     'Duration': matchObject.GameDuration,
-                    'BlueWin': Boolean(matchObject['Teams'][GLOBAL.BLUE_ID]['Win']),
+                    'BlueWin': Boolean(matchObject['Teams'][GLOBAL_CONSTS.BLUE_ID]['Win']),
                     'Patch': matchObject.GamePatchVersion,
                 };
                 // Update 'MostRecentPatch'
@@ -574,8 +581,8 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             let mostDamageListSql = await mySqlCallSProc('playerMostDamageByTournamentId', tournamentPId);
             for (let j = 0; j < mostDamageListSql.length; ++j) {
                 let mostDamageRowSql = mostDamageListSql[j];
-                let playerMostDamageItem = buildDefaultLeaderboardItem(mostDamageRowSql); GLOBAL.getProfileHId
-                playerMostDamageItem['ProfileHId'] = GLOBAL.getProfileHId(mostDamageRowSql.profilePId);
+                let playerMostDamageItem = buildDefaultLeaderboardItem(mostDamageRowSql); getProfileHashId
+                playerMostDamageItem['ProfileHId'] = getProfileHashId(mostDamageRowSql.profilePId);
                 playerMostDamageItem['ChampId'] = mostDamageRowSql.champId;
                 playerMostDamageItem['Role'] = mostDamageRowSql.role;
                 playerMostDamageItem['Side'] = mostDamageRowSql.side;
@@ -590,7 +597,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             for (let j = 0; j < mostFarmListSql.length; ++j) {
                 let mostFarmRowSql = mostFarmListSql[j];
                 let playerMostFarmItem = buildDefaultLeaderboardItem(mostFarmRowSql);
-                playerMostFarmItem['ProfileHId'] = GLOBAL.getProfileHId(mostFarmRowSql.profilePId);
+                playerMostFarmItem['ProfileHId'] = getProfileHashId(mostFarmRowSql.profilePId);
                 playerMostFarmItem['ChampId'] = mostFarmRowSql.champId;
                 playerMostFarmItem['Role'] = mostFarmRowSql.role;
                 playerMostFarmItem['Side'] = mostFarmRowSql.side;
@@ -605,7 +612,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             for (let j = 0; j < mostGDiffEarlyList.length; ++j) {
                 let mostGDiffEarlyRowSql = mostGDiffEarlyList[j];
                 let playerMostGDiffEarlyItem = buildDefaultLeaderboardItem(mostGDiffEarlyRowSql);
-                playerMostGDiffEarlyItem['ProfileHId'] = GLOBAL.getProfileHId(mostGDiffEarlyRowSql.profilePId);
+                playerMostGDiffEarlyItem['ProfileHId'] = getProfileHashId(mostGDiffEarlyRowSql.profilePId);
                 playerMostGDiffEarlyItem['ChampId'] = mostGDiffEarlyRowSql.champId;
                 playerMostGDiffEarlyItem['Role'] = mostGDiffEarlyRowSql.role;
                 playerMostGDiffEarlyItem['Side'] = mostGDiffEarlyRowSql.side;
@@ -620,7 +627,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             for (let j = 0; j < mostXpDiffListSql.length; ++j) {
                 let mostXpDiffEarlyRowSql = mostXpDiffListSql[j];
                 let playerMostXpDiffEarlyItem = buildDefaultLeaderboardItem(mostXpDiffEarlyRowSql);
-                playerMostXpDiffEarlyItem['ProfileHId'] = GLOBAL.getProfileHId(mostXpDiffEarlyRowSql.profilePId);
+                playerMostXpDiffEarlyItem['ProfileHId'] = getProfileHashId(mostXpDiffEarlyRowSql.profilePId);
                 playerMostXpDiffEarlyItem['ChampId'] = mostXpDiffEarlyRowSql.champId;
                 playerMostXpDiffEarlyItem['Role'] = mostXpDiffEarlyRowSql.role;
                 playerMostXpDiffEarlyItem['Side'] = mostXpDiffEarlyRowSql.side;
@@ -635,7 +642,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             for (let j = 0; j < mostVisionListSql.length; ++j) {
                 let mostVisionRowSql = mostVisionListSql[j];
                 let playerMostVisionItem = buildDefaultLeaderboardItem(mostVisionRowSql);
-                playerMostVisionItem['ProfileHId'] = GLOBAL.getProfileHId(mostVisionRowSql.profilePId);
+                playerMostVisionItem['ProfileHId'] = getProfileHashId(mostVisionRowSql.profilePId);
                 playerMostVisionItem['ChampId'] = mostVisionRowSql.champId;
                 playerMostVisionItem['Role'] = mostVisionRowSql.role;
                 playerMostVisionItem['Side'] = mostVisionRowSql.side;
@@ -654,7 +661,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             for (let j = 0; j < topBaronPPListSql.length; ++j) {
                 let topBaronPPRowSql = topBaronPPListSql[j];
                 let teamBaronPPItem = buildDefaultLeaderboardItem(topBaronPPRowSql);
-                teamBaronPPItem['TeamHId'] = GLOBAL.getTeamHId(topBaronPPRowSql.teamPId);
+                teamBaronPPItem['TeamHId'] = getTeamHashId(topBaronPPRowSql.teamPId);
                 teamBaronPPItem['Timestamp'] = topBaronPPRowSql.timestamp;
                 teamBaronPPItem['BaronPowerPlay'] = topBaronPPRowSql.baronPowerPlay;
                 teamTopBaronPPList.push(teamBaronPPItem);
@@ -666,7 +673,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             for (let j = 0; j < earliestTowerListSql.length; ++j) {
                 let earliestTowerRowSql = earliestTowerListSql[j];
                 let teamEarliestTowerItem = buildDefaultLeaderboardItem(earliestTowerRowSql);
-                teamEarliestTowerItem['TeamHId'] = GLOBAL.getTeamHId(earliestTowerRowSql.teamPId);
+                teamEarliestTowerItem['TeamHId'] = getTeamHashId(earliestTowerRowSql.teamPId);
                 teamEarliestTowerItem['Timestamp'] = earliestTowerRowSql.timestamp;
                 teamEarliestTowerItem['Lane'] = earliestTowerRowSql.lane;
                 teamEarliestTowerItem['TowerType'] = earliestTowerRowSql.towerType;
@@ -801,10 +808,10 @@ function initPickBansObject() {
 function addBansToTourneyItem(pickBansObject, banArray, teamId) {
     for (let k = 0; k < banArray.length; ++k) {
         const champBanned = banArray[k];
-        if (teamId == GLOBAL.BLUE_ID) {
+        if (teamId == GLOBAL_CONSTS.BLUE_ID) {
             pickBansObject[champBanned]['BlueBans']++;
         }
-        else if (teamId == GLOBAL.RED_ID) {
+        else if (teamId == GLOBAL_CONSTS.RED_ID) {
             pickBansObject[champBanned]['RedBans']++;
         }
     }
@@ -821,10 +828,10 @@ function addWinPicksToTourneyItem(pickBansObject, teamObject, teamId) {
     for (let k = 0; k < Object.values(playersObject).length; ++k) {
         let playerObject = Object.values(playersObject)[k];
         let champPicked = playerObject['ChampId'];
-        if (teamId == GLOBAL.BLUE_ID) {
+        if (teamId == GLOBAL_CONSTS.BLUE_ID) {
             pickBansObject[champPicked]['BluePicks']++;
         }
-        else if (teamId == GLOBAL.RED_ID) {
+        else if (teamId == GLOBAL_CONSTS.RED_ID) {
             pickBansObject[champPicked]['RedPicks']++;
         }
         pickBansObject[champPicked]['NumWins'] += teamObject['Win'];
@@ -839,8 +846,8 @@ function buildDefaultLeaderboardItem(matchSqlRow) {
         'GameDuration': matchSqlRow.duration,
         'MatchPId': matchSqlRow.riotMatchId,
         'Patch': matchSqlRow.patch,
-        'BlueTeamHId': GLOBAL.getTeamHId(matchSqlRow.blueTeamPId),
-        'RedTeamHId': GLOBAL.getTeamHId(matchSqlRow.redTeamPId),
+        'BlueTeamHId': getTeamHashId(matchSqlRow.blueTeamPId),
+        'RedTeamHId': getTeamHashId(matchSqlRow.redTeamPId),
     };
 }
 //#endregion

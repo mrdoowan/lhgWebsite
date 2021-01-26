@@ -31,8 +31,12 @@ import {
     getTeamShortName,
     getTeamGamesBySeason,
 } from './teamData';
-const Team = require('./teamData');
-const GLOBAL = require('./dependencies/global');
+import {
+    getProfilePId,
+    getProfileHashId,
+    getTeamPId,
+    GLOBAL_CONSTS,
+} from './dependencies/global';
 
 /**
  * Get the data of a specific Match from DynamoDb
@@ -80,7 +84,7 @@ export const getMatchData = async (id) => {
                         playerJson['WardsClearedPerMinute'] = (playerJson['WardsCleared'] / gameDurationMinute).toFixed(2);
                     }
                 }
-                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(matchJson);
             }
             catch (error) { console.error(error); reject(error); }
@@ -238,11 +242,11 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
             let namesChanged = [];
             for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
                 let teamId = Object.keys(data.Teams)[tIdx];
-                let thisTeamPId = GLOBAL.getTeamPId(data.Teams[teamId]['TeamHId']);
+                let thisTeamPId = getTeamPId(data.Teams[teamId]['TeamHId']);
                 let { Players } = data.Teams[teamId];
                 for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
                     let playerObject = Object.values(Players)[pIdx];
-                    let thisProfilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
+                    let thisProfilePId = getProfilePId(playerObject['ProfileHId']);
                     let champId = playerObject['ChampId'].toString();
                     if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
                         let newProfilePId = playersToFix[champId];
@@ -251,7 +255,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
                         if (name == null) { resolve(null); return; } // Not found
                         namesChanged.push(name); // For response
                         await mySqlCallSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
-                        playerObject['ProfileHId'] = GLOBAL.getProfileHId(newProfilePId);
+                        playerObject['ProfileHId'] = getProfileHashId(newProfilePId);
                         delete playerObject['ProfileName']; // In the database for no reason
 
                         // Remove from Profile GameLog in former Profile Id and Team GameLog
@@ -332,13 +336,13 @@ export const deleteMatchData = async (matchId) => {
                 const { Teams } = matchData;
                 for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
                     let teamObject = Object.values(Teams)[teamIdx];
-                    let teamPId = GLOBAL.getTeamPId(teamObject['TeamHId']);
+                    let teamPId = getTeamPId(teamObject['TeamHId']);
                     let teamSeasonGameLog = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
                     delete teamSeasonGameLog[matchId];
                     const { Players } = teamObject;
                     for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
                         let playerObject = Object.values(Players)[playerIdx];
-                        let profilePId = GLOBAL.getProfilePId(playerObject['ProfileHId']);
+                        let profilePId = getProfilePId(playerObject['ProfileHId']);
                         let playerSeasonGameLog = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
                         delete playerSeasonGameLog[matchId];
                         // 1)

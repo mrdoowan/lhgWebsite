@@ -4,7 +4,16 @@ const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
-const GLOBAL = require('./dependencies/global');
+import {
+    filterName,
+    getProfileHashId,
+    getTeamPId,
+    getTeamHashId,
+    getSeasonItems,
+    getTourneyItems,
+    generateNewPId,
+    GLOBAL_CONSTS,
+} from './dependencies/global';
 import {
     dynamoDbGetItem,
     dynamoDbUpdateItem,
@@ -30,7 +39,7 @@ import { getProfileName } from './profileData';
  */
 // Get TeamPId from TeamName
 export const getTeamPId = (name) => {
-    let simpleName = GLOBAL.filterName(name);
+    let simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -39,7 +48,7 @@ export const getTeamPId = (name) => {
             dynamoDbGetItem('TeamNameMap', 'TeamName', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
-                const tPId = GLOBAL.getTeamPId(obj['TeamHId']);
+                const tPId = getTeamPId(obj['TeamHId']);
                 cache.set(cacheKey, tPId);
                 resolve(tPId);
             }).catch((ex) => { console.error(ex); reject(ex) });
@@ -53,7 +62,7 @@ export const getTeamPId = (name) => {
  */
 // Get TeamName from DynamoDb
 export const getTeamName = (teamHId) => {
-    let tPId = GLOBAL.getTeamPId(teamHId);
+    let tPId = getTeamPId(teamHId);
     const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -76,7 +85,7 @@ export const getTeamName = (teamHId) => {
  */
 // Get Shortname from DynamoDb
 export const getTeamShortName = (teamHId) => {
-    let tPId = GLOBAL.getTeamPId(teamHId);
+    let tPId = getTeamPId(teamHId);
     const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -112,14 +121,14 @@ export const getTeamInfo = (teamPId) => {
                     // Add Season List
                     let gameLogJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'];
                     if (gameLogJson != null) {
-                        teamInfoJson['SeasonList'] = await GLOBAL.getSeasonItems(Object.keys(gameLogJson));
+                        teamInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
                     let statsLogJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['StatsLog'];
                     if (statsLogJson != null) {
-                        teamInfoJson['TournamentList'] = await GLOBAL.getTourneyItems(Object.keys(statsLogJson));
+                        teamInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
                     }
-                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(teamInfoJson);
                 }
                 else {
@@ -162,7 +171,7 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
                             statsJson['VsPctPlayer'] = (statsJson['TotalVsPlayer'] / statsJson['TotalVsTeam']).toFixed(4);
                         }
                     }
-                    cache.set(cacheKey, JSON.stringify(teamScoutingSeasonJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamScoutingSeasonJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(teamScoutingSeasonJson);
                 });
             }
@@ -202,7 +211,7 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
                         }
                         matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
                     }
-                    cache.set(cacheKey, JSON.stringify(teamSeasonGamesJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(teamSeasonGamesJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(teamSeasonGamesJson);
                 });
             }
@@ -265,7 +274,7 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                     tourneyStatsJson['AverageGoldDiffMid'] = (tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 });
             }
@@ -290,7 +299,7 @@ export const postNewTeam = (teamName, shortName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Generate new Team PId
-            let newPId = await GLOBAL.generateNewPId('Team');
+            let newPId = await generateNewPId('Team');
             let newTeamItem = {
                 'Information': {
                     'TeamName': teamName,
@@ -302,10 +311,10 @@ export const postNewTeam = (teamName, shortName) => {
             // Add to 'Team' Table
             await dynamoDbPutItem('Team', newTeamItem, newPId);
             // Add to 'TeamNameMap' Table
-            let simpleTeamName = GLOBAL.filterName(newTeamItem['TeamName']);
+            let simpleTeamName = filterName(newTeamItem['TeamName']);
             let newTeamMap = {
                 'TeamName': simpleTeamName,
-                'TeamHId': GLOBAL.getTeamHId(newPId),
+                'TeamHId': getTeamHashId(newPId),
             }
             await dynamoDbPutItem('TeamNameMap', newTeamMap, simpleTeamName);
             
@@ -408,7 +417,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     'Side': sqlTeamMatch.side,
                     'Win': (sqlTeamMatch.win == 1) ? true : false,
                     'Vacated': false,
-                    'EnemyTeamHId': GLOBAL.getTeamHId((sqlTeamMatch.side === 'Blue') ? sqlTeamMatch.redTeamPId : sqlTeamMatch.blueTeamPId),
+                    'EnemyTeamHId': getTeamHashId((sqlTeamMatch.side === 'Blue') ? sqlTeamMatch.redTeamPId : sqlTeamMatch.blueTeamPId),
                     'GameDuration': sqlTeamMatch.duration,
                     'Kills': sqlTeamMatch.totalKills,
                     'Deaths': sqlTeamMatch.totalDeaths,
@@ -422,7 +431,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 for (let playerIdx = 0; playerIdx < playerStatsSqlList.length; ++playerIdx) {
                     let playerSqlRow = playerStatsSqlList[playerIdx];
                     teamGameItem['ChampPicks'][playerSqlRow.role] = { 
-                        'ProfileHId': GLOBAL.getProfileHId(playerSqlRow.profilePId),
+                        'ProfileHId': getProfileHashId(playerSqlRow.profilePId),
                         'ChampId': playerSqlRow.champId,
                         'PlayerKills': playerSqlRow.kills,
                         'PlayerDeaths': playerSqlRow.deaths,
@@ -479,7 +488,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     playerLog[role] = {};
                 }
                 const { profilePId } = playerSqlRow;
-                const profileHId = GLOBAL.getProfileHId(profilePId);
+                const profileHId = getProfileHashId(profilePId);
                 if (!(profileHId in playerLog[role])) {
                     // New entry
                     playerLog[role][profileHId] = {
@@ -497,7 +506,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                         'ChampsPlayed': {}
                     };
                 }
-                const champStatsSqlList = await mySqlCallSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID);
+                const champStatsSqlList = await mySqlCallSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID);
                 let champsPlayed = playerLog[role][profileHId]['ChampsPlayed'];
                 for (let champIdx = 0; champIdx < champStatsSqlList.length; ++champIdx) {
                     const champStats = champStatsSqlList[champIdx];
@@ -604,7 +613,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 -------------
             */
             // #region Compile Data
-            let sqlTeamStatsTotal = (await mySqlCallSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL.MINUTE_AT_EARLY, GLOBAL.MINUTE_AT_MID))[0];
+            let sqlTeamStatsTotal = (await mySqlCallSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID))[0];
             tourneyTeamStatsItem['GamesPlayed'] = sqlTeamStatsTotal.gamesPlayed;
             tourneyTeamStatsItem['GamesPlayedOverEarly'] = sqlTeamStatsTotal.gamesPlayedOverEarly;
             tourneyTeamStatsItem['GamesPlayedOverMid'] = sqlTeamStatsTotal.gamesPlayedOverMid;

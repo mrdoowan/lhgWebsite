@@ -1,28 +1,3 @@
-module.exports = {
-    filterName: filterName,
-    getProfilePId: getProfilePIdString,
-    getProfileHId: getProfileHIdString,
-    getTeamPId: getTeamPIdString,
-    getTeamHId: getTeamHIdString,
-    getSeasonItems: getSeasonItems,
-    getTourneyItems: getTourneyItems,
-    generateNewPId: generateNewPId,
-    TTL_DURATION: 60 * 60 * 12,  // 12 Hours
-    MINUTE_AT_EARLY: 15,
-    MINUTE_AT_MID: 25,
-    BLUE_ID: "100",
-    RED_ID: "200",
-    SIDE_STRING: { 
-        '100': 'Blue', 
-        '200': 'Red', 
-    },
-    BARON_DURATION_PATCH_CHANGE: '9.23',
-    // Baron duration is 3 minutes after this patch, 3.5 minutes before it
-    OLD_BARON_DURATION: 210, // in seconds
-    CURRENT_BARON_DURATION: 180, // in seconds
-    LEADERBOARD_NUM: 5
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const { Random } = require('random-js');
@@ -39,7 +14,7 @@ import {
 } from '../tournamentData';
 import { dynamoDbGetItem } from './dynamoDbHelper';
 
-const oldEnv = true; // 'true' for Dynamodb, 'false' for MongoDb
+const oldEnv = true; // 'true' for old salt name, 'false' for new salt name
 const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
 const teamHidSalt = (oldEnv) ? process.env.OLD_TEAM_HID_SALT : process.env.SALT_TEAM_HID;
 const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.LENGTH_HID);
@@ -47,39 +22,80 @@ const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
 const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
 
-// Turn number into string
+/**
+ * Helper Function:
+ * Turn number into string
+ * @param {number} num 
+ * @param {number} size 
+ */
 function strPadZeroes(num, size) {
     let s = num+"";
     while (s.length < size) s = "0" + s;
     return s;
 }
 
-// Turn Profile HId into PId string
-function getProfilePIdString(hId) {
-    return strPadZeroes(profileHashIds.decode(hId)[0], parseInt(process.env.LENGTH_PID));
+export const GLOBAL_CONSTS = {
+    TTL_DURATION: 60 * 60 * 12,  // 12 Hours
+    MINUTE_AT_EARLY: 15,
+    MINUTE_AT_MID: 25,
+    BLUE_ID: "100",
+    RED_ID: "200",
+    SIDE_STRING: { 
+        '100': 'Blue', 
+        '200': 'Red', 
+    },
+    BARON_DURATION_PATCH_CHANGE: '9.23',
+    // Baron duration is 3 minutes after this patch, 3.5 minutes before it
+    OLD_BARON_DURATION: 210, // in seconds
+    CURRENT_BARON_DURATION: 180, // in seconds
+    LEADERBOARD_NUM: 5
 }
 
-// Turn Team HId into PId string
-function getTeamPIdString(hId) {
-    return strPadZeroes(teamHashIds.decode(hId)[0], parseInt(process.env.LENGTH_PID));
+/**
+ * Turn Profile HId into PId string
+ * @param {string} hashId 
+ */
+export const getProfilePId = (hashId) => {
+    return strPadZeroes(profileHashIds.decode(hashId)[0], parseInt(process.env.LENGTH_PID));
 }
 
-// Lowercases the name and removes all whitespaces
-function filterName(name) {
+/**
+ * Turn Team HId into PId string
+ * @param {string} hashId 
+ */
+export const getTeamPId = (hashId) => {
+    return strPadZeroes(teamHashIds.decode(hashId)[0], parseInt(process.env.LENGTH_PID));
+}
+
+/**
+ * Lowercases the name and removes all whitespaces
+ * @param {string} name 
+ */
+export const filterName = (name) => {
     return name.toLowerCase().replace(/ /g, '');
 }
 
-// Encode Profile PId into HId
-function getProfileHIdString(pPId) {
-    return profileHashIds.encode(pPId);
+/**
+ * Encode Profile PId into HId
+ * @param {*} profilePId 
+ */
+export const getProfileHashId = (profilePId) => {
+    return profileHashIds.encode(profilePId);
 }
 
-// Encode Team PId into HId
-function getTeamHIdString(tPId) {
-    return teamHashIds.encode(tPId);
+/**
+ * Encode Team PId into HId
+ * @param {*} teamPId 
+ */
+export const getTeamHashId = (teamPId) => {
+    return teamHashIds.encode(teamPId);
 }
 
-function getSeasonItems(idList) {
+/**
+ * 
+ * @param {Array} idList 
+ */
+export const getSeasonItems = (idList) => {
     return new Promise(async function(resolve, reject) {
         try {
             let seasonList = [];
@@ -97,7 +113,11 @@ function getSeasonItems(idList) {
     });
 }
 
-function getTourneyItems(idList) {
+/**
+ * 
+ * @param {Array} idList 
+ */
+export const getTourneyItems = (idList) => {
     return new Promise(async function(resolve, reject) {
         try {
             let tourneyList = [];
@@ -115,7 +135,11 @@ function getTourneyItems(idList) {
     });
 }
 
-function generateNewPId(type) {
+/**
+ * Generates a new PId dependent on type
+ * @param {string} type     'Profile', 'Team' 
+ */
+export const generateNewPId = (type) => {
     return new Promise(async function(resolve, reject) {
         let duplicate = true;
         while (duplicate) {
@@ -137,5 +161,4 @@ function generateNewPId(type) {
             }
         }
     })
-    
-} 
+}
