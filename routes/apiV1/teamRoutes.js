@@ -7,7 +7,7 @@ import {
 } from './dependencies/handlers';
 /*  Import helper Data function modules */
 import {
-    getTeamPId,
+    getTeamPIdByName,
     getTeamInfo,
     getTeamScoutingBySeason,
     getTeamGamesBySeason,
@@ -33,7 +33,7 @@ import { getTournamentId } from '../../functions/apiV1/tournamentData';
 teamV1Routes.get('/information/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Information.`);
-    getTeamPId(teamName).then((teamId) => {
+    getTeamPIdByName(teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getTeamInfo(teamId).then((data) => {
             return res200sOK(res, req, data);
@@ -49,7 +49,7 @@ teamV1Routes.get('/information/name/:teamName', async (req, res) => {
 teamV1Routes.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from Season '${seasonShortName}'.`);
-    getTeamPId(teamName).then((teamId) => {
+    getTeamPIdByName(teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getSeasonId(seasonShortName).then((sPId) => {
             if (sPId == null) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
@@ -69,7 +69,7 @@ teamV1Routes.get('/scouting/name/:teamName/:seasonShortName', async (req, res) =
 teamV1Routes.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from Season '${seasonShortName}'.`);
-    getTeamPId(teamName).then((teamId) => {
+    getTeamPIdByName(teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getSeasonId(seasonShortName).then((sPId) => {
             if (sPId == null) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
@@ -89,7 +89,7 @@ teamV1Routes.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
 teamV1Routes.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
     const { teamName, tournamentName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats Log from Tournament '${tournamentName}'.`);
-    getTeamPId(teamName).then((teamId) => {
+    getTeamPIdByName(teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getTournamentId(tournamentName).then((tPId) => {
             if (tPId == null) { return res400sClientError(res, req, `Tournament Name '${tournamentName}' Not Found`); }
@@ -109,7 +109,7 @@ teamV1Routes.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
 teamV1Routes.get('/scouting/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from the latest Season.`);
-    getTeamPId(req.params.teamName).then((teamId) => {
+    getTeamPIdByName(req.params.teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getTeamScoutingBySeason(teamId).then((data) => {
             return res200sOK(res, req, data);
@@ -125,7 +125,7 @@ teamV1Routes.get('/scouting/latest/name/:teamName', async (req, res) => {
 teamV1Routes.get('/games/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from the latest Season.`);
-    getTeamPId(teamName).then((teamId) => {
+    getTeamPIdByName(teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getTeamGamesBySeason(teamId).then((data) => {
             return res200sOK(res, req, data);
@@ -141,7 +141,7 @@ teamV1Routes.get('/games/latest/name/:teamName', async (req, res) => {
 teamV1Routes.get('/stats/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats from the latest Tournament.`);
-    getTeamPId(teamName).then((teamId) => {
+    getTeamPIdByName(teamName).then((teamId) => {
         if (teamId == null) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
         getTeamStatsByTourney(teamId).then((data) => {
             return res200sOK(res, req, data);
@@ -161,7 +161,7 @@ teamV1Routes.get('/stats/latest/name/:teamName', async (req, res) => {
 teamV1Routes.post('/add/new', (req, res) => {
     const { teamName, shortName } = req.body;
     // Check if Team Name already exists
-    getTeamPId(teamName).then((tPId) => {
+    getTeamPIdByName(teamName).then((tPId) => {
         if (tPId != null) {
             // Id found in DB. Team name exists. Reject.
             res400sClientError(res, req, `Team '${teamName}' already exists under Team ID '${tPId}'`);

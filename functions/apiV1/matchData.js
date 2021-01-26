@@ -32,9 +32,9 @@ import {
     getTeamGamesBySeason,
 } from './teamData';
 import {
-    getProfilePId,
+    getProfilePIdFromHash,
     getProfileHashId,
-    getTeamPId,
+    getTeamPIdFromHash,
     GLOBAL_CONSTS,
 } from './dependencies/global';
 
@@ -242,11 +242,11 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
             let namesChanged = [];
             for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
                 let teamId = Object.keys(data.Teams)[tIdx];
-                let thisTeamPId = getTeamPId(data.Teams[teamId]['TeamHId']);
+                let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
                 let { Players } = data.Teams[teamId];
                 for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
                     let playerObject = Object.values(Players)[pIdx];
-                    let thisProfilePId = getProfilePId(playerObject['ProfileHId']);
+                    let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
                     let champId = playerObject['ChampId'].toString();
                     if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
                         let newProfilePId = playersToFix[champId];
@@ -336,13 +336,13 @@ export const deleteMatchData = async (matchId) => {
                 const { Teams } = matchData;
                 for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
                     let teamObject = Object.values(Teams)[teamIdx];
-                    let teamPId = getTeamPId(teamObject['TeamHId']);
+                    let teamPId = getTeamPIdFromHash(teamObject['TeamHId']);
                     let teamSeasonGameLog = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
                     delete teamSeasonGameLog[matchId];
                     const { Players } = teamObject;
                     for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
                         let playerObject = Object.values(Players)[playerIdx];
-                        let profilePId = getProfilePId(playerObject['ProfileHId']);
+                        let profilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
                         let playerSeasonGameLog = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
                         delete playerSeasonGameLog[matchId];
                         // 1)

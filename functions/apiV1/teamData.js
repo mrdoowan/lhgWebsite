@@ -7,7 +7,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 import {
     filterName,
     getProfileHashId,
-    getTeamPId,
+    getTeamPIdFromHash,
     getTeamHashId,
     getSeasonItems,
     getTourneyItems,
@@ -38,7 +38,7 @@ import { getProfileName } from './profileData';
  * @param {string} name       Team's name
  */
 // Get TeamPId from TeamName
-export const getTeamPId = (name) => {
+export const getTeamPIdByName = (name) => {
     let simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
@@ -48,9 +48,9 @@ export const getTeamPId = (name) => {
             dynamoDbGetItem('TeamNameMap', 'TeamName', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
-                const tPId = getTeamPId(obj['TeamHId']);
-                cache.set(cacheKey, tPId);
-                resolve(tPId);
+                const teamPId = getTeamPIdFromHash(obj['TeamHId']);
+                cache.set(cacheKey, teamPId);
+                resolve(teamPId);
             }).catch((ex) => { console.error(ex); reject(ex) });
         });
     });
@@ -62,7 +62,7 @@ export const getTeamPId = (name) => {
  */
 // Get TeamName from DynamoDb
 export const getTeamName = (teamHId) => {
-    let tPId = getTeamPId(teamHId);
+    let tPId = getTeamPIdFromHash(teamHId);
     const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -85,7 +85,7 @@ export const getTeamName = (teamHId) => {
  */
 // Get Shortname from DynamoDb
 export const getTeamShortName = (teamHId) => {
-    let tPId = getTeamPId(teamHId);
+    let tPId = getTeamPIdFromHash(teamHId);
     const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {

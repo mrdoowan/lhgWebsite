@@ -6,7 +6,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 import {
     filterName,
-    getProfilePId,
+    getProfilePIdFromHash,
     getProfileHashId,
     getTeamHashId,
     getSeasonItems,
@@ -46,7 +46,7 @@ export const getProfilePIdByName = (name) => {
             dynamoDbGetItem('ProfileNameMap', 'ProfileName', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found 
-                let pPId = getProfilePId(obj['ProfileHId']);
+                let pPId = getProfilePIdFromHash(obj['ProfileHId']);
                 cache.set(cacheKey, pPId);
                 resolve(pPId);
             }).catch((error) => { console.error(error); reject(error) });
@@ -64,7 +64,7 @@ export const getProfilePIdBySummonerId = (summId) => {
             dynamoDbGetItem('SummonerIdMap', 'SummonerId', summId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
-                let pPId = getProfilePId(obj['ProfileHId']);
+                let pPId = getProfilePIdFromHash(obj['ProfileHId']);
                 cache.set(cacheKey, pPId);
                 resolve(pPId);
             }).catch((error) => { console.error(error); reject(error) });
@@ -75,7 +75,7 @@ export const getProfilePIdBySummonerId = (summId) => {
 // Get ProfileName from DynamoDb
 // hash=true if id is HId, hash=false if id id PId
 export const getProfileName = (id, hash=true) => {
-    let pPId = (hash) ? getProfilePId(id) : id;
+    let pPId = (hash) ? getProfilePIdFromHash(id) : id;
     const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -244,8 +244,7 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
 export const getSummonerIdBySummonerName = (summName) => {
     return new Promise(function(resolve, reject) {
         getRiotSummonerId(summName).then((data) => {
-            try { resolve(data['id']); }
-            catch { resolve(null); } // Not Found
+            resolve(data['id']);
         }).catch((err) => { reject(err); })
     });
 }

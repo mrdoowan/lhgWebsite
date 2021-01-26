@@ -7,9 +7,9 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 import { ChampById } from '../../client/src/static/ChampById';
 import {
     filterName,
-    getProfilePId,
+    getProfilePIdFromHash,
     getProfileHashId,
-    getTeamPId,
+    getTeamPIdFromHash,
     getTeamHashId,
     GLOBAL_CONSTS,
 } from './dependencies/global';
@@ -225,16 +225,16 @@ export const getTournamentPlayerStats = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
+                const profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
                 if (profileHIdList != null) {
                     let profileStatsList = [];
                     for (let i = 0; i < profileHIdList.length; ++i) {
-                        let pPId = getProfilePId(profileHIdList[i]);
-                        let profileStatsLog = await getProfileStatsByTourney(pPId, tournamentPId);
+                        const profilePId = getProfilePIdFromHash(profileHIdList[i]);
+                        const profileStatsLog = await getProfileStatsByTourney(profilePId, tournamentPId);
                         if (profileStatsLog != null) {
                             for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
-                                let role = Object.keys(profileStatsLog['RoleStats'])[j];
-                                let statsObj = profileStatsLog['RoleStats'][role];
+                                const role = Object.keys(profileStatsLog['RoleStats'])[j];
+                                const statsObj = profileStatsLog['RoleStats'][role];
                                 profileStatsList.push({
                                     'ProfileName': await getProfileName(profileHIdList[i]),
                                     'Role': role,
@@ -312,8 +312,8 @@ export const getTournamentTeamStats = (tournamentPId) => {
                 if (teamHIdList != null) {
                     let teamStatsList = [];
                     for (let i = 0; i < teamHIdList.length; ++i) {
-                        let teamId = getTeamPId(teamHIdList[i]);
-                        let teamStatsLog = await getTeamStatsByTourney(teamId, tournamentPId);
+                        let teamPId = getTeamPIdFromHash(teamHIdList[i]);
+                        let teamStatsLog = await getTeamStatsByTourney(teamPId, tournamentPId);
                         if (teamStatsLog != null) {
                             teamStatsList.push({
                                 'TeamName': await getTeamName(teamHIdList[i]),

@@ -55,7 +55,7 @@ export const GLOBAL_CONSTS = {
  * Turn Profile HId into PId string
  * @param {string} hashId 
  */
-export const getProfilePId = (hashId) => {
+export const getProfilePIdFromHash = (hashId) => {
     return strPadZeroes(profileHashIds.decode(hashId)[0], parseInt(process.env.LENGTH_PID));
 }
 
@@ -63,7 +63,7 @@ export const getProfilePId = (hashId) => {
  * Turn Team HId into PId string
  * @param {string} hashId 
  */
-export const getTeamPId = (hashId) => {
+export const getTeamPIdFromHash = (hashId) => {
     return strPadZeroes(teamHashIds.decode(hashId)[0], parseInt(process.env.LENGTH_PID));
 }
 
