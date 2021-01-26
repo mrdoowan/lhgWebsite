@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const authV1Routes = require('express').Router();
 //import {  } from './dependencies/handlers';
 
 /*  
@@ -14,7 +14,7 @@ const router = require('express').Router();
  * @desc    Login for Staff/Mods only
  * @access  Public
  */
-router.post('/login', (req, res) => {
+authV1Routes.post('/login', (req, res) => {
 
 });
 
@@ -23,10 +23,10 @@ router.post('/login', (req, res) => {
  * @desc    Login for Staff/Mods only
  * @access  Private - Only Staff/Mods who have authenticated
  */
-router.post('/logout', (req, res) => {
+authV1Routes.post('/logout', (req, res) => {
 
 });
 
 //#endregion
 
-module.exports = router;
+export const authV1Routes;

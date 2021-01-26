@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const teamV1Routes = require('express').Router();
 
 import {
     res200sOK,
@@ -30,7 +30,7 @@ import { getTournamentId } from '../../functions/apiV1/tournamentData';
  * @desc    Get Team Information
  * @access  Public
  */
-router.get('/information/name/:teamName', async (req, res) => {
+teamV1Routes.get('/information/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Information.`);
     getTeamPId(teamName).then((teamId) => {
@@ -46,7 +46,7 @@ router.get('/information/name/:teamName', async (req, res) => {
  * @desc    Get Team Scouting from specified Season
  * @access  Public
  */
-router.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
+teamV1Routes.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from Season '${seasonShortName}'.`);
     getTeamPId(teamName).then((teamId) => {
@@ -66,7 +66,7 @@ router.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
  * @desc    Get Team Game Log from specified Season
  * @access  Public
  */
-router.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
+teamV1Routes.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from Season '${seasonShortName}'.`);
     getTeamPId(teamName).then((teamId) => {
@@ -86,7 +86,7 @@ router.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
  * @desc    Get Team Stats Log from specified Tournament
  * @access  Public
  */
-router.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
+teamV1Routes.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
     const { teamName, tournamentName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats Log from Tournament '${tournamentName}'.`);
     getTeamPId(teamName).then((teamId) => {
@@ -106,7 +106,7 @@ router.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
  * @desc    Get Team Scouting from the latest Season
  * @access  Public
  */
-router.get('/scouting/latest/name/:teamName', async (req, res) => {
+teamV1Routes.get('/scouting/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from the latest Season.`);
     getTeamPId(req.params.teamName).then((teamId) => {
@@ -122,7 +122,7 @@ router.get('/scouting/latest/name/:teamName', async (req, res) => {
  * @desc    Get Team Game Log from the latest Season
  * @access  Public
  */
-router.get('/games/latest/name/:teamName', async (req, res) => {
+teamV1Routes.get('/games/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from the latest Season.`);
     getTeamPId(teamName).then((teamId) => {
@@ -138,7 +138,7 @@ router.get('/games/latest/name/:teamName', async (req, res) => {
  * @desc    Get Team Stats Log from the latest Tournament
  * @access  Public
  */
-router.get('/stats/latest/name/:teamName', async (req, res) => {
+teamV1Routes.get('/stats/latest/name/:teamName', async (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats from the latest Tournament.`);
     getTeamPId(teamName).then((teamId) => {
@@ -158,7 +158,7 @@ router.get('/stats/latest/name/:teamName', async (req, res) => {
  * @desc    Add new Team Name
  * @access  Private (to Admins)
  */
-router.post('/add/new', (req, res) => {
+teamV1Routes.post('/add/new', (req, res) => {
     const { teamName, shortName } = req.body;
     // Check if Team Name already exists
     getTeamPId(teamName).then((tPId) => {
@@ -175,4 +175,4 @@ router.post('/add/new', (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export const teamV1Routes;

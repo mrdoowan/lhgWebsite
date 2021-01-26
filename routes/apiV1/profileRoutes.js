@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const profileV1Routes = require('express').Router();
 
 import {
     res200sOK,
@@ -34,7 +34,7 @@ import { getTournamentId } from '../../functions/apiV1/tournamentData';
  * @desc    Get Profile Information
  * @access  Public
  */
-router.get('/information/name/:profileName', (req, res) => {
+profileV1Routes.get('/information/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`GET Request Profile '${profileName}' Information.`);
     getProfilePIdByName(profileName).then((pPId) => {
@@ -50,7 +50,7 @@ router.get('/information/name/:profileName', (req, res) => {
  * @desc    Get Profile Game Log
  * @access  Public
  */
-router.get('/games/name/:profileName/:seasonShortName', (req, res) => {
+profileV1Routes.get('/games/name/:profileName/:seasonShortName', (req, res) => {
     const { profileName, seasonShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Game Log from Season '${seasonShortName}'.`);
     getProfilePIdByName(profileName).then((pPId) => {
@@ -70,7 +70,7 @@ router.get('/games/name/:profileName/:seasonShortName', (req, res) => {
  * @desc    Get Profile Stats Log
  * @access  Public
  */
-router.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => {
+profileV1Routes.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => {
     const { profileName, tournamentShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Stats Log from Tournament '${tournamentShortName}'.`);
     getProfilePIdByName(profileName).then((pPId) => {
@@ -90,7 +90,7 @@ router.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => 
  * @desc    Get Profile Game Log from the latest season
  * @access  Public
  */
-router.get('/games/latest/name/:profileName', (req, res) => {
+profileV1Routes.get('/games/latest/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`"GET Request Profile '${profileName}' Game Log from the latest Season."`);
     getProfilePIdByName(profileName).then((pPId) => {
@@ -106,7 +106,7 @@ router.get('/games/latest/name/:profileName', (req, res) => {
  * @desc    Get Profile Stats Log from the latest tournament
  * @access  Public
  */
-router.get('/stats/latest/name/:profileName', (req, res) => {
+profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`"GET Request Profile '${profileName}' Game Log from the latest Tournament"`);
     getProfilePIdByName(profileName).then((pPId) => {
@@ -126,7 +126,7 @@ router.get('/stats/latest/name/:profileName', (req, res) => {
  * @desc    Add new Profile with primary summoner account
  * @access  Private (to Admins)
  */
-router.post('/add/new', (req, res) => {
+profileV1Routes.post('/add/new', (req, res) => {
     const { profileName, summonerName } = req.body;
     // Check if the IGN exists. 
     getSummonerIdBySummonerName(summonerName).then((summId) => {
@@ -164,7 +164,7 @@ router.post('/add/new', (req, res) => {
  * @desc    Add a Summoner account to the Profile
  * @access  Private (to Admins)
  */
-router.put('/add/account', (req, res) => {
+profileV1Routes.put('/add/account', (req, res) => {
     const { profileName, summonerName } = req.body;
     // Check if the IGN exists (Riot API call)
     getSummonerIdBySummonerName(summonerName).then((summId) => {
@@ -209,7 +209,7 @@ router.put('/add/account', (req, res) => {
 //     "profileName": "NAME",
 //     "summonerId": "SUMM_ID",
 // }
-router.put('/remove/account', (req, res) => {
+profileV1Routes.put('/remove/account', (req, res) => {
 
 })
 
@@ -218,7 +218,7 @@ router.put('/remove/account', (req, res) => {
  * @desc    Change profile Name
  * @access  Private (to Admins)
  */
-router.put('/update/name', (req, res) => {
+profileV1Routes.put('/update/name', (req, res) => {
     const { currentName, newName } = req.body;
     // Check if currentName and newName exist
     getProfilePIdByName(currentName).then((profileId) => {
@@ -240,4 +240,4 @@ router.put('/update/name', (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export const profileV1Routes;

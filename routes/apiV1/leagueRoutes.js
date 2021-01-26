@@ -1,5 +1,5 @@
 
-const router = require('express').Router();
+const leagueV1Routes = require('express').Router();
 
 import {
     res200sOK,
@@ -21,7 +21,7 @@ import { getLeagues } from '../../functions/apiV1/seasonData';
  * @desc    List all the Leagues in LHG
  * @access  Public
  */
-router.get('/', (req, res) => {
+leagueV1Routes.get('/', (req, res) => {
     console.log("GET Request Leagues.");
     getLeagues().then((data) => {
         return res200sOK(res, req, data);
@@ -30,4 +30,4 @@ router.get('/', (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export const leagueV1Routes;

@@ -1,5 +1,4 @@
-const Router = require('express');
-const router = Router();
+const tournamentV1Routes = require('express').Router();
 
 import {
     res200sOK,
@@ -42,7 +41,7 @@ import {
  * @desc    Get Tournament Information
  * @access  Public
  */
-router.get('/information/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/information/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Information.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -58,7 +57,7 @@ router.get('/information/name/:tournamentShortName', (req, res) => {
  * @desc    Get Tournament Stats (Basic)
  * @access  Public
  */
-router.get('/stats/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/stats/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Tournament Stats.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -74,7 +73,7 @@ router.get('/stats/name/:tournamentShortName', (req, res) => {
  * @desc    Get Tournament Leaderboard information
  * @access  Public
  */
-router.get('/leaderboards/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/leaderboards/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Leaderboards.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -90,7 +89,7 @@ router.get('/leaderboards/name/:tournamentShortName', (req, res) => {
  * @desc    Get Tournament Player Stats
  * @access  Public
  */
-router.get('/players/stats/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/players/stats/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Player Stats.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -106,7 +105,7 @@ router.get('/players/stats/name/:tournamentShortName', (req, res) => {
  * @desc    Get Tournament Team Stats
  * @access  Public
  */
-router.get('/teams/stats/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/teams/stats/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Team Stats.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -122,7 +121,7 @@ router.get('/teams/stats/name/:tournamentShortName', (req, res) => {
  * @desc    Get Tournament Pick Ban Data
  * @access  Public
  */
-router.get('/pickbans/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/pickbans/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Pick Bans.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -138,7 +137,7 @@ router.get('/pickbans/name/:tournamentShortName', (req, res) => {
  * @desc    Get Tournament List of Games Played
  * @access  Public
  */
-router.get('/games/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/games/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Game Log.`);
     getTournamentId(tournamentShortName).then((tPId) => {
@@ -154,7 +153,7 @@ router.get('/games/name/:tournamentShortName', (req, res) => {
  * @desc    Get List of unique Player IDs participating in the Tournament
  * @access  Public
  */
-router.get('/players/ids/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/players/ids/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Player IDs List.`);
     getTournamentId(tournamentShortName).then((tourneyPId) => {
@@ -170,7 +169,7 @@ router.get('/players/ids/name/:tournamentShortName', (req, res) => {
  * @desc    Get List of unique Team IDs participating in the Tournament
  * @access  Public
  */
-router.get('/teams/ids/name/:tournamentShortName', (req, res) => {
+tournamentV1Routes.get('/teams/ids/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Team IDs List.`);
     getTournamentId(tournamentShortName).then((tourneyPId) => {
@@ -186,7 +185,7 @@ router.get('/teams/ids/name/:tournamentShortName', (req, res) => {
  * @desc    Update Tournament overall stats
  * @access  Private (Admins only)
  */
-router.put('/update/overall', (req, res) => {
+tournamentV1Routes.put('/update/overall', (req, res) => {
     const { tournamentShortName } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Overall Stats.`);
     getTournamentId(tournamentShortName).then((tourneyPId) => {
@@ -206,7 +205,7 @@ router.put('/update/overall', (req, res) => {
  * @desc    Update a Player's stat for the Tournament
  * @access  Private (Admins only)
  */
-router.put('/update/player', (req, res) => {
+tournamentV1Routes.put('/update/player', (req, res) => {
     const { tournamentShortName, playerPId } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Player Stats of ID '${playerPId}'`);
     getTournamentId(tournamentShortName).then(async (tourneyPId) => {
@@ -228,7 +227,7 @@ router.put('/update/player', (req, res) => {
  * @desc    Update a Team's stat for the Tournament
  * @access  Private (Admins only)
  */
-router.put('/update/team', (req, res) => {
+tournamentV1Routes.put('/update/team', (req, res) => {
     const { tournamentShortName, teamPId } = req.body;
     console.log(`PUT Request Tournament ${tournamentShortName} Team Stats of ID '${teamPId}'`);
     getTournamentId(tournamentShortName).then(async (tourneyPId) => {
@@ -247,4 +246,4 @@ router.put('/update/team', (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export const tournamentV1Routes;

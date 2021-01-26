@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const staffV1Routes = require('express').Router();
 
 import { error500sServerError } from './dependencies/handlers';
 /*  Import helper Data function modules */
@@ -24,7 +24,7 @@ import { putNewStaff } from '../../functions/apiV1/staffData';
 //     "admin": true,
 //     "moderator": true
 // }
-router.put('/add', (req, res) => {
+staffV1Routes.put('/add', (req, res) => {
     putNewStaff(req.body).then((response) => {
         return res.status(200).json(response);
     }).catch((err) => error500sServerError(err, res, "PUT Profile Add Staff Error."));
@@ -35,7 +35,7 @@ router.put('/add', (req, res) => {
  * @desc    Add new staff/mod by altering Profile
  * @access  Private to that User who is a Mod/Staff only
  */
-router.put('/update', (req, res) => {
+staffV1Routes.put('/update', (req, res) => {
 
 });
 
@@ -49,10 +49,10 @@ router.put('/update', (req, res) => {
 // {
 //     "profile": "NAME",
 // }
-router.put('/remove', (req, res) => {
+staffV1Routes.put('/remove', (req, res) => {
 
 });
 
 //#endregion
 
-module.exports = router;
+export const staffV1Routes;

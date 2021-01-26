@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const seasonV1Routes = require('express').Router();
 
 import {
     res200sOK,
@@ -27,7 +27,7 @@ import {
  * @desc    List all the Leagues in LHG
  * @access  Public
  */
-router.get('/information/name/:seasonShortName', (req, res) => {
+seasonV1Routes.get('/information/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`GET Request Season '${seasonShortName}' Information.`);
     getSeasonId(seasonShortName).then((sPId) => {
@@ -43,7 +43,7 @@ router.get('/information/name/:seasonShortName', (req, res) => {
  * @desc    Get complete Roster list of the League's season
  * @access  Public
  */
-router.get('/roster/name/:seasonShortName', (req, res) => {
+seasonV1Routes.get('/roster/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`GET Request Season '${seasonShortName}' Roster.`);
     getSeasonId(seasonShortName).then((sPId) => {
@@ -59,7 +59,7 @@ router.get('/roster/name/:seasonShortName', (req, res) => {
  * @desc    Get regular season matches and schedule
  * @access  Public
  */
-router.get('/regular/name/:seasonShortName', (req, res) => {
+seasonV1Routes.get('/regular/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`"GET Request Season '${seasonShortName}' Regular."`);
     getSeasonId(seasonShortName).then((sPId) => {
@@ -75,7 +75,7 @@ router.get('/regular/name/:seasonShortName', (req, res) => {
  * @desc    Get playoff bracket, matches, and schedule
  * @access  Public
  */
-router.get('/playoffs/name/:seasonShortName', (req, res) => {
+seasonV1Routes.get('/playoffs/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
     console.log(`"GET Request Season '${seasonShortName}' Regular."`);
     getSeasonId(seasonShortName).then((sPId) => {
@@ -88,4 +88,4 @@ router.get('/playoffs/name/:seasonShortName', (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export const seasonV1Routes;

@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const matchV1Routes = require('express').Router();
 
 import {
     res200sOK,
@@ -26,7 +26,7 @@ import {
  * @desc    Get Match Data
  * @access  Public
  */
-router.get('/data/:matchId', (req, res) => {
+matchV1Routes.get('/data/:matchId', (req, res) => {
     const { matchId } = req.params;
 
     console.log(`GET Request Match '${matchId}' Data.`);
@@ -41,7 +41,7 @@ router.get('/data/:matchId', (req, res) => {
  * @desc    Get Match Setup
  * @access  Public
  */
-router.get('/setup/:matchId', (req, res) => {
+matchV1Routes.get('/setup/:matchId', (req, res) => {
     const { matchId } = req.params;
 
     console.log(`GET Request Match '${matchId}' Setup.`);
@@ -60,7 +60,7 @@ router.get('/setup/:matchId', (req, res) => {
  * @desc    Fix Player assignment to champions
  * @access  Private (to Admins)
  */
-router.put('/players/update', (req, res) => {
+matchV1Routes.put('/players/update', (req, res) => {
     const { playersToFix, matchId } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Players`);
@@ -75,7 +75,7 @@ router.put('/players/update', (req, res) => {
  * @desc    Create Match "Setup" Item by the ID of a previous played Match
  * @access  Private (to Admins)
  */
-router.post('/setup/new', (req, res) => {
+matchV1Routes.post('/setup/new', (req, res) => {
     const { riotMatchId, seasonId, tournamentId } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
@@ -110,7 +110,7 @@ router.post('/setup/new', (req, res) => {
  * @desc    Remove a match from Records
  * @access  Private (to Admins)
  */
-router.delete('/remove/:matchId', (req, res) => {
+matchV1Routes.delete('/remove/:matchId', (req, res) => {
     const { matchId } = req.params;
     
     console.log(`DELETE Request Match '${matchId}'.`);
@@ -122,4 +122,4 @@ router.delete('/remove/:matchId', (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export const matchV1Routes;
