@@ -17,7 +17,7 @@ import {
     postNewProfile,
     updateProfileInfo,
     updateProfileName,
-} from './profileData';
+} from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 
