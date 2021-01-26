@@ -1,7 +1,3 @@
-module.exports = {
-    newStaff: putNewStaff,
-}
-
 /*  Declaring npm modules */
 require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
@@ -17,7 +13,6 @@ import {
     getProfilePIdByName,
     getProfileInfo,
 } from './profileData';
-const Profile = require('./profileData');
 
 // Need to reset Cache with each new put/post
 
@@ -29,7 +24,7 @@ const Profile = require('./profileData');
 //     "admin": true,
 //     "moderator": true
 // }
-function putNewStaff(staff) {
+export const putNewStaff = (staff) => {
     return new Promise((resolve, reject) => {
         getProfilePIdByName(staff.profile).then((pPId) => {
             if (pPId == null) { resolve(null); return; } // Not Found

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const handler = require('./dependencies/handlers');
 
 /*  Import helper Data function modules */
-const Staff = require('../../functions/apiV1/staffData');
+import { putNewStaff } from '../../functions/apiV1/staffData';
 
 /*  
     ----------------------
@@ -25,7 +25,7 @@ const Staff = require('../../functions/apiV1/staffData');
 //     "moderator": true
 // }
 router.put('/add', (req, res) => {
-    Staff.newStaff(req.body).then((response) => {
+    putNewStaff(req.body).then((response) => {
         return res.status(200).json(response);
     }).catch((err) => handler.error500s(err, res, "PUT Profile Add Staff Error."));
 });
