@@ -1,12 +1,16 @@
 import React from "react";
 // Formik
-import { Formik, Form, useField } from 'formik';
+import { Formik, Form, Field } from 'formik';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import {
+    Paper,
+    Grid,
+    Button,
+} from '@material-ui/core';
+import {
+    TextField,
+} from 'formik-material-ui';
 // Components
 import ChampionSquare from '../ChampionSquare';
 
@@ -61,8 +65,6 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-
-
 /**
  * @param {Array} playerList    Object of Players from Match GET Request "Setup"
  * @param {string} color        Either "blue" or "red"
@@ -78,7 +80,7 @@ const playerTableFields = (playerList, color, classes) => {
                 <td>
                     <input
                         id={`${color}PlayerName${idx}`}
-                        name={`${color}Player${idx}`}
+                        name={`${color}PlayerName${idx}`}
                         type="text"
                         defaultValue={playerObj.Name}
                         className={classes.textField}
@@ -87,7 +89,7 @@ const playerTableFields = (playerList, color, classes) => {
                 <td>
                     <input
                         id={`${color}PlayerRole${idx}`}
-                        name={`${color}Player${idx}`}
+                        name={`${color}PlayerRole${idx}`}
                         type="text"
                         defaultValue={playerObj.Role}
                         className={classes.textField}
@@ -115,7 +117,30 @@ export default function MatchSetup({ setupData }) {
                         {setupData.RiotMatchId}
                     </h1>
                     <Formik
-
+                        initialValues={{
+                            blueTeamName: setupData?.Teams?.BlueTeam?.TeamName,
+                            redTeamName: setupData?.Teams?.RedTeam?.TeamName,
+                            bluePlayerName0: setupData?.Teams?.BlueTeam?.Players[0]?.SummonerName,
+                            bluePlayerName1: setupData?.Teams?.BlueTeam?.Players[1]?.SummonerName,
+                            bluePlayerName2: setupData?.Teams?.BlueTeam?.Players[2]?.SummonerName,
+                            bluePlayerName3: setupData?.Teams?.BlueTeam?.Players[3]?.SummonerName,
+                            bluePlayerName4: setupData?.Teams?.BlueTeam?.Players[4]?.SummonerName,
+                            bluePlayerRole0: setupData?.Teams?.BlueTeam?.Players[0]?.Role,
+                            bluePlayerRole1: setupData?.Teams?.BlueTeam?.Players[1]?.Role,
+                            bluePlayerRole2: setupData?.Teams?.BlueTeam?.Players[2]?.Role,
+                            bluePlayerRole3: setupData?.Teams?.BlueTeam?.Players[3]?.Role,
+                            bluePlayerRole4: setupData?.Teams?.BlueTeam?.Players[4]?.Role,
+                            redPlayerName0: setupData?.Teams?.RedTeam?.Players[0]?.SummonerName,
+                            redPlayerName1: setupData?.Teams?.RedTeam?.Players[1]?.SummonerName,
+                            redPlayerName2: setupData?.Teams?.RedTeam?.Players[2]?.SummonerName,
+                            redPlayerName3: setupData?.Teams?.RedTeam?.Players[3]?.SummonerName,
+                            redPlayerName4: setupData?.Teams?.RedTeam?.Players[4]?.SummonerName,
+                            redPlayerRole0: setupData?.Teams?.RedTeam?.Players[0]?.Role,
+                            redPlayerRole1: setupData?.Teams?.RedTeam?.Players[1]?.Role,
+                            redPlayerRole2: setupData?.Teams?.RedTeam?.Players[2]?.Role,
+                            redPlayerRole3: setupData?.Teams?.RedTeam?.Players[3]?.Role,
+                            redPlayerRole4: setupData?.Teams?.RedTeam?.Players[4]?.Role,
+                        }}
                     >
                         <Form>
                             <table>
@@ -123,22 +148,24 @@ export default function MatchSetup({ setupData }) {
                                     <tr className={classes.rowTeam}>
                                         <td className={classes.colBlueTeam}>
                                             <u>Blue Team Name</u> <br />
-                                            <input
-                                                id="blueTeamName"
+                                            <Field
+                                                component={TextField}
+                                                type="blueTeamName"
                                                 name="blueTeamName"
-                                                type="text"
-                                                defaultValue={setupData.Teams.BlueTeam.TeamName}
                                                 className={classes.textField}
+                                                variant="filled"
+                                                inputProps={{min: 0, style: { textAlign: 'center' }}}
                                             />
                                         </td>
                                         <td className={classes.colRedTeam}>
                                             <u>Red Team Name</u> <br />
-                                            <input
-                                                id="redTeamName"
+                                            <Field
+                                                component={TextField}
+                                                type="redTeamName"
                                                 name="redTeamName"
-                                                type="text"
-                                                defaultValue={setupData.Teams.RedTeam.TeamName}
                                                 className={classes.textField}
+                                                variant="filled"
+                                                inputProps={{min: 0, style: { textAlign: 'center' }}}
                                             />
                                         </td>
                                     </tr>
@@ -172,58 +199,6 @@ export default function MatchSetup({ setupData }) {
                             </form>
                         </Form>
                     </Formik>
-                    <table>
-                        <thead>
-                            <tr className={classes.rowTeam}>
-                                <td className={classes.colBlueTeam}>
-                                    <u>Blue Team Name</u> <br />
-                                    <input
-                                        id="blueTeamName"
-                                        name="blueTeamName"
-                                        type="text"
-                                        defaultValue={setupData.Teams.BlueTeam.TeamName}
-                                        className={classes.textField}
-                                    />
-                                </td>
-                                <td className={classes.colRedTeam}>
-                                    <u>Red Team Name</u> <br />
-                                    <input
-                                        id="redTeamName"
-                                        name="redTeamName"
-                                        type="text"
-                                        defaultValue={setupData.Teams.RedTeam.TeamName}
-                                        className={classes.textField}
-                                    />
-                                </td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className={classes.rowBody}>
-                                <td className={classes.colBody} id="bluePlayers">
-                                    {playerTableFields(setupData.Teams.BlueTeam.Players, 
-                                        "blue", 
-                                        classes)}
-                                </td>
-                                <td className={classes.colBody} id="redPlayers">
-                                    {playerTableFields(setupData.Teams.RedTeam.Players, 
-                                        "red", 
-                                        classes)}
-                                </td>
-                            </tr>
-                            <tr className={classes.rowBody}>
-                                <td className={classes.colBody}>
-                                    <b>Bans: </b>
-                                </td>
-                                <td className={classes.colBody}>
-                                    <b>Bans: </b>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    {/* https://stackoverflow.com/questions/37462047/how-to-create-several-submit-buttons-in-a-react-js-form */}
-                    <form onSubmit={handleSubmit} className={classes.button}>
-                        <Button type="submit" variant="contained" color="primary" >Submit</Button>
-                    </form>
                 </Paper>
             </Grid>
         </Grid>
