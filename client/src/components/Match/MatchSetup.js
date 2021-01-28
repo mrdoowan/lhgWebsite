@@ -7,6 +7,7 @@ import {
     Paper,
     Grid,
     Button,
+    MenuItem,
 } from '@material-ui/core';
 import {
     TextField,
@@ -21,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        alignItems: "center",
         color: theme.palette.text.primary,
         background: '#A9A9A9',
     },
@@ -71,29 +73,42 @@ const useStyles = makeStyles((theme) => ({
  * @param {object} classes      Material-UI css class
  */
 const playerTableFields = (playerList, color, classes) => {
+    const rolesList = ["Top", "Jungle", "Middle", "Bottom", "Support"];
+
     return (<table><tbody>
-        {playerList.map((playerObj, idx) => (
+        {playerList.map((player, idx) => (
             <tr key={`${color}Player${idx}`}>
                 <td>
-                    <ChampionSquare id={playerObj.ChampId} width="60" height="60" />
+                    <ChampionSquare id={player.ChampId} width="60" height="60" />
                 </td>
                 <td>
-                    <input
-                        id={`${color}PlayerName${idx}`}
+                    <Field
+                        component={TextField}
+                        type={`${color}PlayerName${idx}`}
                         name={`${color}PlayerName${idx}`}
-                        type="text"
-                        defaultValue={playerObj.Name}
                         className={classes.textField}
+                        variant="filled"
                     />
                 </td>
                 <td>
-                    <input
-                        id={`${color}PlayerRole${idx}`}
+                    <Field
+                        component={TextField}
+                        type={`${color}PlayerRole${idx}`}
                         name={`${color}PlayerRole${idx}`}
-                        type="text"
-                        defaultValue={playerObj.Role}
+                        select
+                        fullWidth
                         className={classes.textField}
-                    />
+                        variant="filled"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    >
+                        {rolesList.map((role) => (
+                            <MenuItem key={`role-${role}`} value={role}>
+                                {role}
+                            </MenuItem>
+                        ))}
+                    </Field>
                 </td>
             </tr>
         ))}
@@ -103,6 +118,8 @@ const playerTableFields = (playerList, color, classes) => {
 export default function MatchSetup({ setupData }) {
 
     const classes = useStyles();
+    const { Teams: { BlueTeam, RedTeam} } = setupData;
+
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log("Pog");
@@ -118,28 +135,28 @@ export default function MatchSetup({ setupData }) {
                     </h1>
                     <Formik
                         initialValues={{
-                            blueTeamName: setupData?.Teams?.BlueTeam?.TeamName,
-                            redTeamName: setupData?.Teams?.RedTeam?.TeamName,
-                            bluePlayerName0: setupData?.Teams?.BlueTeam?.Players[0]?.SummonerName,
-                            bluePlayerName1: setupData?.Teams?.BlueTeam?.Players[1]?.SummonerName,
-                            bluePlayerName2: setupData?.Teams?.BlueTeam?.Players[2]?.SummonerName,
-                            bluePlayerName3: setupData?.Teams?.BlueTeam?.Players[3]?.SummonerName,
-                            bluePlayerName4: setupData?.Teams?.BlueTeam?.Players[4]?.SummonerName,
-                            bluePlayerRole0: setupData?.Teams?.BlueTeam?.Players[0]?.Role,
-                            bluePlayerRole1: setupData?.Teams?.BlueTeam?.Players[1]?.Role,
-                            bluePlayerRole2: setupData?.Teams?.BlueTeam?.Players[2]?.Role,
-                            bluePlayerRole3: setupData?.Teams?.BlueTeam?.Players[3]?.Role,
-                            bluePlayerRole4: setupData?.Teams?.BlueTeam?.Players[4]?.Role,
-                            redPlayerName0: setupData?.Teams?.RedTeam?.Players[0]?.SummonerName,
-                            redPlayerName1: setupData?.Teams?.RedTeam?.Players[1]?.SummonerName,
-                            redPlayerName2: setupData?.Teams?.RedTeam?.Players[2]?.SummonerName,
-                            redPlayerName3: setupData?.Teams?.RedTeam?.Players[3]?.SummonerName,
-                            redPlayerName4: setupData?.Teams?.RedTeam?.Players[4]?.SummonerName,
-                            redPlayerRole0: setupData?.Teams?.RedTeam?.Players[0]?.Role,
-                            redPlayerRole1: setupData?.Teams?.RedTeam?.Players[1]?.Role,
-                            redPlayerRole2: setupData?.Teams?.RedTeam?.Players[2]?.Role,
-                            redPlayerRole3: setupData?.Teams?.RedTeam?.Players[3]?.Role,
-                            redPlayerRole4: setupData?.Teams?.RedTeam?.Players[4]?.Role,
+                            blueTeamName: BlueTeam?.TeamName,
+                            redTeamName: RedTeam?.TeamName,
+                            bluePlayerName0: BlueTeam?.Players[0]?.SummonerName,
+                            bluePlayerName1: BlueTeam?.Players[1]?.SummonerName,
+                            bluePlayerName2: BlueTeam?.Players[2]?.SummonerName,
+                            bluePlayerName3: BlueTeam?.Players[3]?.SummonerName,
+                            bluePlayerName4: BlueTeam?.Players[4]?.SummonerName,
+                            bluePlayerRole0: BlueTeam?.Players[0]?.Role,
+                            bluePlayerRole1: BlueTeam?.Players[1]?.Role,
+                            bluePlayerRole2: BlueTeam?.Players[2]?.Role,
+                            bluePlayerRole3: BlueTeam?.Players[3]?.Role,
+                            bluePlayerRole4: BlueTeam?.Players[4]?.Role,
+                            redPlayerName0: RedTeam?.Players[0]?.SummonerName,
+                            redPlayerName1: RedTeam?.Players[1]?.SummonerName,
+                            redPlayerName2: RedTeam?.Players[2]?.SummonerName,
+                            redPlayerName3: RedTeam?.Players[3]?.SummonerName,
+                            redPlayerName4: RedTeam?.Players[4]?.SummonerName,
+                            redPlayerRole0: RedTeam?.Players[0]?.Role,
+                            redPlayerRole1: RedTeam?.Players[1]?.Role,
+                            redPlayerRole2: RedTeam?.Players[2]?.Role,
+                            redPlayerRole3: RedTeam?.Players[3]?.Role,
+                            redPlayerRole4: RedTeam?.Players[4]?.Role,
                         }}
                     >
                         <Form>
@@ -173,30 +190,29 @@ export default function MatchSetup({ setupData }) {
                                 <tbody>
                                     <tr className={classes.rowBody}>
                                         <td className={classes.colBody} id="bluePlayers">
-                                            {playerTableFields(setupData.Teams.BlueTeam.Players, 
+                                            {playerTableFields(BlueTeam?.Players, 
                                                 "blue", 
                                                 classes)}
                                         </td>
                                         <td className={classes.colBody} id="redPlayers">
-                                            {playerTableFields(setupData.Teams.RedTeam.Players, 
+                                            {playerTableFields(RedTeam?.Players, 
                                                 "red", 
                                                 classes)}
                                         </td>
                                     </tr>
                                     <tr className={classes.rowBody}>
                                         <td className={classes.colBody}>
-                                            <b>Bans: </b>
+                                            <b><u>Bans</u></b>
                                         </td>
                                         <td className={classes.colBody}>
-                                            <b>Bans: </b>
+                                            <b><u>Bans</u></b>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                            <br />
                             {/* https://stackoverflow.com/questions/37462047/how-to-create-several-submit-buttons-in-a-react-js-form */}
-                            <form onSubmit={handleSubmit} className={classes.button}>
-                                <Button type="submit" variant="contained" color="primary" >Submit</Button>
-                            </form>
+                            <Button type="submit" variant="contained" color="primary" >Submit</Button>
                         </Form>
                     </Formik>
                 </Paper>
