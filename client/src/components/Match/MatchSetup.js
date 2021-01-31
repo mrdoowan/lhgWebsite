@@ -67,11 +67,64 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MatchSetup({ setupData }) {
+    const BLUE = "blue";
+    const RED = "red";
 
     const classes = useStyles();
+    const { Teams: { BlueTeam, RedTeam} } = setupData;
+
     const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
     const [saveButtonPressed, setSaveButtonPressed] = useState(false);
-    const { Teams: { BlueTeam, RedTeam} } = setupData;
+    /**
+     * Initializes the array and add 0s if length < 5
+     * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
+     */
+    const initBansList = (dataBansList) => {
+        const NUMBER_OF_BANS = 5;
+        for (let i = 0; i < NUMBER_OF_BANS - dataBansList.length; ++i) {
+            dataBansList.push(0);
+        }
+        return dataBansList;
+    }
+    const [blueBansList, setBlueBansList] = useState(initBansList(BlueTeam.Bans));
+    const [redBansList, setRedBansList] = useState(initBansList(RedTeam.Bans));
+
+    /**
+     * Formik's submit handler
+     */
+    const handleSubmit = (values, {setSubmitting}) => {
+        if (submitButtonPressed) {
+            console.log("Submit!");
+            console.log(values);
+            setSubmitButtonPressed(false);
+        }
+        else if (saveButtonPressed) {
+            console.log("Saved!");
+            console.log(values);
+            setSaveButtonPressed(false);
+        }
+        setSubmitting(false);
+    }
+
+    /**
+     * OnBlur handler to check if ban value was changed
+     * @param {number} newBan
+     * @param {string} color 
+     * @param {number} index 
+     */
+    const handleBanBlur = (color, index, newBanId) => {
+        const thisBansList = (color === BLUE) ? blueBansList : redBansList;
+        if (thisBansList[index] !== newBanId) {
+            let newBansList = [...thisBansList];
+            newBansList[index] = newBanId;
+            if (color === BLUE) {
+                setBlueBansList(newBansList);
+            }
+            else {
+                setRedBansList(newBansList);
+            }
+        }
+    }
 
     /**
      * @param {Array} playerList    Object of Players from Match GET Request "Setup"
@@ -133,15 +186,21 @@ export default function MatchSetup({ setupData }) {
      */
     const bansTableFields = (banList, color, classes) => {
         return (<table><tbody>
-            <tr key={`${color}TeamBans`}>
+            <tr key={`${color}TeamBanImages`}>
                 {banList.map((banId, idx) => (
-                    <td key={`${color}TeamBanTextField${idx}`}>
-                        <ChampionSquare 
+                    <td key={`${color}TeamBanImage${idx}`}>
+                        {banId !== 0 && <ChampionSquare 
                             id={banId}
                             width="45"
                             height="45"
-                        />
+                        />}
                         <br />
+                    </td>
+                ))}
+            </tr>
+            <tr key={`${color}TeamBanTextFields`}>
+                {banList.map((banId, idx) => (
+                    <td key={`${color}TeamBanTextField${idx}`}>
                         <Field
                             component={TextField}
                             type={`${color}TeamBanId${idx}`}
@@ -152,28 +211,14 @@ export default function MatchSetup({ setupData }) {
                                 min: 0, 
                                 style: { textAlign: 'center' }
                             }}
+                            onBlur={(event) => {
+                                handleBanBlur(color, idx, event.target.value);
+                            }}
                         />
                     </td>
                 ))}
             </tr>
         </tbody></table>);
-    }
-
-    /**
-     * Formik's submit handler
-     */
-    const handleSubmit = (values, {setSubmitting}) => {
-        if (submitButtonPressed) {
-            console.log("Submit!");
-            console.log(values);
-            setSubmitButtonPressed(false);
-        }
-        else if (saveButtonPressed) {
-            console.log("Saved!");
-            console.log(values);
-            setSaveButtonPressed(false);
-        }
-        setSubmitting(false);
     }
 
     return (<div>
@@ -253,30 +298,25 @@ export default function MatchSetup({ setupData }) {
                                 <tbody>
                                     <tr className={classes.rowBody}>
                                         <td className={classes.colBody} id="bluePlayers">
-                                            {playerTableFields(BlueTeam?.Players, 
-                                                "blue", 
-                                                classes)}
+                                            {playerTableFields(BlueTeam?.Players, BLUE, classes)}
                                         </td>
                                         <td className={classes.colBody} id="redPlayers">
-                                            {playerTableFields(RedTeam?.Players, 
-                                                "red", 
-                                                classes)}
+                                            {playerTableFields(RedTeam?.Players, RED, classes)}
                                         </td>
                                     </tr>
                                     <tr className={classes.rowBody}>
                                         <td className={classes.colBody}>
                                             <b><u>Bans</u></b>
-                                            {bansTableFields(BlueTeam?.Bans, "blue", classes)}
+                                            {bansTableFields(blueBansList, BLUE, classes)}
                                         </td>
                                         <td className={classes.colBody}>
                                             <b><u>Bans</u></b>
-                                            {bansTableFields(RedTeam?.Bans, "red", classes)}
+                                            {bansTableFields(redBansList, RED, classes)}
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <br />
-                            { /* https://stackoverflow.com/questions/37462047/how-to-create-several-submit-buttons-in-a-react-js-form */ }
                             { /* https://stackoverflow.com/questions/60349756/react-js-two-submit-buttons-in-one-form */ }
                             <Button 
                                 onClick={() => { 
