@@ -35,6 +35,8 @@ The following npm modules are used in the client:
 * devextreme
 * react-bootstrap
 * react-helmet
+* formik
+* formik-material-ui
 
 When you pull this repo, use "npm install" to download the packages in both the root AND under the "client" directory.
 - Windows 10 WSL, Ubuntu, and VS Code for development environment. [Video](https://www.youtube.com/watch?v=A0eqZujVfYU)

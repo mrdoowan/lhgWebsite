@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import axios from 'axios';
 // Components
 import Markup from '../components/Markup';
@@ -8,6 +8,7 @@ import MatchBaseSkeleton from '../util/Match/MatchBaseSkeleton';
 import MatchStatsSkeleton from '../util/Match/MatchStatsSkeleton';
 import MatchTimelineSkeleton from '../util/Match/MatchTimelineSkeleton';
 import MatchBuildsSkeleton from '../util/Match/MatchBuildsSkeleton';
+import MatchSetupSkeleton from '../util/Match/MatchSetupSkeleton';
 
 // {MAIN}/match/:matchPId
 export class matchBase extends Component {
@@ -140,3 +141,31 @@ export class matchBuilds extends Component {
         );
     }
 }
+
+export const MatchSetupPage = (props) => {
+    // Init State
+    const [matchSetupData, setMatchSetupData] = useState({});
+    const [statusCode, setStatusCode] = useState(null);
+
+    // Mount Component
+    useEffect(() => {
+        const { match: { params } } = props;
+
+        axios.get(`/api/match/v1/setup/${params.matchPId}`)
+        .then((res) => {
+            if (statusCode === 200 || statusCode === null) {
+                setStatusCode(res.status);
+            }
+            setMatchSetupData(res.data);
+        }).catch(() => {
+            setStatusCode(500);
+        });
+    }, []);
+
+    const matchComponent = <MatchSetupSkeleton setupData={matchSetupData} />
+
+    return ((statusCode !== null && statusCode !== 200) ? 
+        (<Error code={statusCode} page="Match" />) : 
+        (<Markup data={matchSetupData} dataComponent={matchComponent} code={statusCode} />)
+    );
+};
