@@ -16,18 +16,10 @@ export const getTimeString = (seconds) => {
 
 /**
  * Converts unix value into a Date (i.e. 01/01/2020)
- * @param {number} unix 
- * @param {string} timeZone
+ * @param {number} unix         time value in ms
+ * @param {string} format       Default is 'MM/DD/YYYY'
+ * @param {string} timeZone     Default is 'EST'
  */
-export const getDateString = (unix, timeZone='EST') => {
-    return _unix(unix).tz(timeZone).format('MM/DD/YYYY');
-}
-
-/**
- * Converts unix value into a Date and time (i.e. 01/01/2020)
- * @param {number} unix 
- * @param {string} timeZone
- */
-export const getDateTimeString = (unix, timeZone='EST') => {
-    return _unix(unix).tz(timeZone).format('MM/DD/YYYY - hh:mma');
+export const getDateString = (unix, format='MM/DD/YYYY', timeZone='EST') => {
+    return _unix(unix).tz(timeZone).format(format);
 }
