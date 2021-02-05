@@ -8,6 +8,7 @@ import profileV1Routes from './routes/apiV1/profileRoutes.js';
 import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
+import { AWS_RDS_STATUS } from './services/Constants';
 import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
 
 /*  Declaring npm modules */
@@ -46,7 +47,15 @@ if (process.env.NODE_ENV === 'production') {
 
 // Check if the MySQL Db is "Available" every hour. If so, stop the instance.
 schedule.scheduleJob('00 * * * *', function(){
-    console.log(`I'm working!`);
+    checkRdsStatus().then((status) => {
+        if (status === AWS_RDS_STATUS.AVAILABLE) {
+            stopRdsInstance().then(() => {
+                console.log(`Stopping AWS RDS instances`);
+            }).catch((err) => {
+                console.error(err, err.stack);
+            })
+        }
+    })
 });
 
 const port = process.env.PORT || 5000;

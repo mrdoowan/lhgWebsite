@@ -23,8 +23,7 @@ export const checkRdsStatus = () => {
         };
         rds.describeDBInstances(params, function(err, data) {
             if (err) {
-                console.error(err, err.stack);
-                reject(err.stack);
+                reject(err);
                 return;
             }
             else {
@@ -45,9 +44,8 @@ export const startRdsInstance = () => {
             DBInstanceIdentifier: rdsInstantName,
         };
         rds.startDBInstance(params, function(err, data) {
-            if (err) { 
-                console.error(err, err.stack);
-                reject(err.stack);
+            if (err) {
+                reject(err);
                 return;
             }
             else {
@@ -70,9 +68,8 @@ export const stopRdsInstance = () => {
             DBSnapshotIdentifier: `${rdsInstantName}-snapshot-${dateString}`
         };
         rds.stopDBInstance(params, function(err, data) {
-            if (err) { 
-                console.error(err, err.stack);
-                reject(err.stack);
+            if (err) {
+                reject(err);
                 return;
             }
             else {
