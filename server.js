@@ -53,7 +53,7 @@ schedule.scheduleJob('00 * * * *', function(){
                 console.log(`Stopping AWS RDS instances`);
             }).catch((err) => {
                 console.error(err, err.stack);
-            })
+            });
         }
     })
 });

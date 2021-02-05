@@ -13,10 +13,9 @@ import { getDateString } from '../../../client/src/util/StringHelper';
  */
 export const checkRdsStatus = () => {
     return new Promise((resolve, reject) => {
-        // const rdsInstantName = (process.env.TEST_DB === 'true') ? 
-        //     `${process.env.MYSQL_INSTANCE}-test` : 
-        //     process.env.MYSQL_INSTANCE;
-        const rdsInstantName = process.env.MYSQL_INSTANCE;
+        const rdsInstantName = (process.env.TEST_DB === 'true') ? 
+            `${process.env.MYSQL_INSTANCE}-test` : 
+            process.env.MYSQL_INSTANCE;
 
         const params = {
             DBInstanceIdentifier: rdsInstantName,
@@ -33,12 +32,14 @@ export const checkRdsStatus = () => {
     });
 }
 
+/**
+ * Start the RDS instance when 'Stopped'
+ */
 export const startRdsInstance = () => {
     return new Promise((resolve, reject) => {
-        // const rdsInstantName = (process.env.TEST_DB === 'true') ? 
-        //     `${process.env.MYSQL_INSTANCE}-test` : 
-        //     process.env.MYSQL_INSTANCE;
-        const rdsInstantName = process.env.MYSQL_INSTANCE;
+        const rdsInstantName = (process.env.TEST_DB === 'true') ? 
+            `${process.env.MYSQL_INSTANCE}-test` : 
+            process.env.MYSQL_INSTANCE;
 
         const params = {
             DBInstanceIdentifier: rdsInstantName,
@@ -55,12 +56,14 @@ export const startRdsInstance = () => {
     });
 }
 
+/**
+ * Stop the RDS instance when 'Available'
+ */
 export const stopRdsInstance = () => {
     return new Promise((resolve, reject) => {
-        // const rdsInstantName = (process.env.TEST_DB === 'true') ? 
-        //     `${process.env.MYSQL_INSTANCE}-test` : 
-        //     process.env.MYSQL_INSTANCE;
-        const rdsInstantName = process.env.MYSQL_INSTANCE;
+        const rdsInstantName = (process.env.TEST_DB === 'true') ? 
+            `${process.env.MYSQL_INSTANCE}-test` : 
+            process.env.MYSQL_INSTANCE;
         const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD');
 
         const params = {
