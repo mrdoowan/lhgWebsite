@@ -24,6 +24,7 @@
     "express-http-to-https": "^1.1.4",
     "hashids": "^2.2.8",
     "mysql": "^2.18.1",
+    "node-schedule": "^2.0.0",
     "random-js": "^2.1.0",
     "redis": "^3.0.2"
   },

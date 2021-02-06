@@ -1,4 +1,3 @@
-// Modularize the DynamoDB functions
 /*  Declaring AWS npm modules */
 const AWS = require('aws-sdk'); // Interfacing with DynamoDB
 /*  Configurations of npm modules */
