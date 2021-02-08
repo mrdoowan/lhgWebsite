@@ -5,12 +5,6 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-// Import Services
-import { AWS_RDS_STATUS } from '../../../../services/Constants';
-import { 
-    checkRdsStatus,
-    stopRdsInstance,
-} from '../../../../functions/apiV1/dependencies/awsRdsHelper';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -43,29 +37,15 @@ const TourneyUpdate = ({
     const classes = useStyles();
     const [rdsNotAvailableFlag, setRdsNotAvailableFlag] = useState(false);
     const [rdsStopSentFlag, setRdsStopSentFlag] = useState(false);
-
-    const handleSubmit = (event) => {
-        setRdsNotAvailableFlag(false);
-        setRdsStopSentFlag(false);
-        checkRdsStatus().then((status) => {
-            if (status === AWS_RDS_STATUS.AVAILABLE) {
-                handleUpdateTournament(event);
-            }
-            else {
-                setRdsNotAvailableFlag(true);
-            }
-        });
-    }
     
     // Call the stopRdsInstance after update is finished
     useEffect(() => {
         if (playerNumber && teamNumber && gameNumber) {
-            stopRdsInstance();
             setRdsStopSentFlag(true);
         }
     }, [playerNumber, teamNumber, gameNumber]);
 
-    const buttonComponents = (<form onSubmit={handleSubmit}>
+    const buttonComponents = (<form onSubmit={handleUpdateTournament}>
         <Button
             type="submit"
             variant="contained"
@@ -84,7 +64,7 @@ const TourneyUpdate = ({
         {(playerNumber) ? (<React.Fragment>{playerNumber} Players updated<br /></React.Fragment>) : '' }
         {(teamNumber) ? (<React.Fragment>{teamNumber} Teams updated<br /></React.Fragment>) : '' }
         {(gameNumber) ? (<React.Fragment>{gameNumber} Games updated<br /></React.Fragment>) : '' }
-        {(rdsStopSentFlag) ? (<React.Fragment>Finished! RDS Database Stop Command sent.<br /></React.Fragment>) : '' }
+        {(rdsStopSentFlag) ? (<React.Fragment>Finished! Remember to Stop the RDS Database.<br /></React.Fragment>) : '' }
     </div>);
 
     return (
