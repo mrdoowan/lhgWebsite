@@ -35,7 +35,8 @@ const TourneyUpdate = ({
     handleUpdateTournament = () => {},
 }) => {
     const classes = useStyles();
-    const [rdsNotAvailableFlag, setRdsNotAvailableFlag] = useState(false);
+    //const [rdsNotAvailableFlag, setRdsNotAvailableFlag] = useState(false);
+    const rdsNotAvailableFlag = false;
     const [rdsStopSentFlag, setRdsStopSentFlag] = useState(false);
     
     // Call the stopRdsInstance after update is finished
