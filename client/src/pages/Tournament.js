@@ -272,13 +272,12 @@ export const TournamentUpdatePage = (props) => {
         return (playerNumber && teamNumber && gameNumber);
     }
 
-    const handleSubmit = (event) => {
-        const { match: { params } } = this.props;
+    const handleTournamentUpdate = (event) => {
         event.preventDefault();
-        this.setState({
-            response: null,
-            loading: true,
-        });
+        setPlayerNumber(null);
+        setTeamNumber(null);
+        setGameNumber(null);
+        setLoading(true);
 
         // Do multiple PUT requests to update each Player
         axios.get(`/api/tournament/v1/players/ids/name/${params.tournamentShortName}`)
@@ -370,7 +369,7 @@ export const TournamentUpdatePage = (props) => {
         playerNumber={playerNumber}
         teamNumber={teamNumber}
         gameNumber={gameNumber}
-        handleSubmit={handleSubmit}
+        handleUpdateTournament={handleTournamentUpdate}
     />
     
     return (
