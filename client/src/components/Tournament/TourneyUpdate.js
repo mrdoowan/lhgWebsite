@@ -41,16 +41,18 @@ const TourneyUpdate = ({
     handleUpdateTournament = () => {},
 }) => {
     const classes = useStyles();
-    const [rdsNotAvailableMessage, setRdsNotAvailableMessage] = useState(false);
+    const [rdsNotAvailableFlag, setRdsNotAvailableFlag] = useState(false);
+    const [rdsStopSentFlag, setRdsStopSentFlag] = useState(false);
 
     const handleSubmit = (event) => {
-        setRdsNotAvailableMessage(false);
+        setRdsNotAvailableFlag(false);
+        setRdsStopSentFlag(false);
         checkRdsStatus().then((status) => {
             if (status === AWS_RDS_STATUS.AVAILABLE) {
                 handleUpdateTournament(event);
             }
             else {
-                setRdsNotAvailableMessage(true);
+                setRdsNotAvailableFlag(true);
             }
         });
     }
@@ -59,6 +61,7 @@ const TourneyUpdate = ({
     useEffect(() => {
         if (playerNumber && teamNumber && gameNumber) {
             stopRdsInstance();
+            setRdsStopSentFlag(true);
         }
     }, [playerNumber, teamNumber, gameNumber]);
 
@@ -67,7 +70,6 @@ const TourneyUpdate = ({
             type="submit"
             variant="contained"
             color="primary"
-            disabled={disableUpdateButton}
         >
             Update
         </Button>
@@ -78,10 +80,11 @@ const TourneyUpdate = ({
     </div>) : (<div></div>);
     
     const responseReceived = (<div className={classes.pad}>
-        {(rdsNotAvailableMessage) ? (<React.Fragment>RDS Database Not Available! Check AWS.<br /></React.Fragment>) : '' }
+        {(rdsNotAvailableFlag) ? (<React.Fragment>RDS Database Not Available! Check AWS.<br /></React.Fragment>) : '' }
         {(playerNumber) ? (<React.Fragment>{playerNumber} Players updated<br /></React.Fragment>) : '' }
         {(teamNumber) ? (<React.Fragment>{teamNumber} Teams updated<br /></React.Fragment>) : '' }
         {(gameNumber) ? (<React.Fragment>{gameNumber} Games updated<br /></React.Fragment>) : '' }
+        {(rdsStopSentFlag) ? (<React.Fragment>Finished! RDS Database Stop Command sent.<br /></React.Fragment>) : '' }
     </div>);
 
     return (
