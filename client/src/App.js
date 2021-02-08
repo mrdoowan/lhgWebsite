@@ -11,7 +11,7 @@ import { leagues } from "./pages/League";
 import schedule from "./pages/Schedule";
 import { error404 } from "./pages/Error";
 import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/Season';
-import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames, tournamentUpdate } from './pages/Tournament';
+import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames, TournamentUpdatePage } from './pages/Tournament';
 import { teamBase, teamGames, teamStats } from './pages/Team';
 import { profileBase, profileGames, profileStats } from './pages/Profile';
 import { matchBase, matchStats, matchTimeline, matchBuilds, MatchSetupPage } from './pages/Match';
@@ -57,7 +57,7 @@ class App extends Component {
                         <Route path="/tournament/:tournamentShortName/teams" component={tournamentTeams} exact/>
                         <Route path="/tournament/:tournamentShortName/pickbans" component={tournamentPickBans} exact/>
                         <Route path="/tournament/:tournamentShortName/games" component={tournamentGames} exact/>
-                        <Route path="/tournament/:tournamentShortName/update" component={tournamentUpdate} exact/>
+                        <Route path="/tournament/:tournamentShortName/update" component={TournamentUpdatePage} exact/>
 
                         { /* Team Links */ }
                         <Route path="/team/:teamName" component={teamBase} exact/>

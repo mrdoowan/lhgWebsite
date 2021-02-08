@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import axios from 'axios';
 // Components
 import Markup from '../components/Markup';
@@ -10,7 +10,7 @@ import TourneyPlayersSkeleton from '../util/Tournament/TourneyPlayersSkeleton';
 import TourneyChampsSkeleton from '../util/Tournament/TourneyChampsSkeleton';
 import TourneyGamesSkeleton from '../util/Tournament/TourneyGamesSkeleton';
 // Direct Component
-import TourneyUpdateTemporary from '../components/Tournament/TourneyUpdate';
+import TourneyUpdate from '../components/Tournament/TourneyUpdate';
 
 // {MAIN}/tournament/:tournamentShortName
 export class tournamentBase extends Component {
@@ -244,46 +244,40 @@ export class tournamentGames extends Component {
 }
 
 // {MAIN}/tournament/:tournamentShortName/games
-export class tournamentUpdate extends Component {
-    state = {
-        info: null,
-        statusCode: null,
-        playersNum: null,
-        teamsNum: null,
-        gamesNum: null,
-        loading: false,
-    }
-    
-    componentDidMount() {
-        const { match: { params } } = this.props;
+export const TournamentUpdatePage = (props) => {
+    // Init state
+    const [infoData, setInfoData] = useState({});
+    const [statusCode, setStatusCode] = useState(null);
+    const [playerNumber, setPlayerNumber] = useState(null);
+    const [teamNumber, setTeamNumber] = useState(null);
+    const [gameNumber, setGameNumber] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const { match: { params } } = props;
 
+    // Mount Component
+    useEffect(() => {
         axios.get(`/api/tournament/v1/information/name/${params.tournamentShortName}`)
         .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ info: res.data });
+            setStatusCode(res.status);
+            setInfoData(res.data);
         }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
+            setStatusCode(err.response.status);
+        })
+    }, [params]);
+
+    /**
+     * Check if all numbers have values
+     */
+    const isAllUpdated = () => {
+        return (playerNumber && teamNumber && gameNumber);
     }
 
-    allUpdated() {
-        const ret = (
-            (this.state.playersNum) &&
-            (this.state.teamsNum) &&
-            (this.state.gamesNum)
-        );
-        return (ret) ? true : false;
-    }
-
-    handleSubmit = (event) => {
-        const { match: { params } } = this.props;
+    const handleTournamentUpdate = (event) => {
         event.preventDefault();
-        this.setState({
-            response: null,
-            loading: true,
-        });
+        setPlayerNumber(null);
+        setTeamNumber(null);
+        setGameNumber(null);
+        setLoading(true);
 
         // Do multiple PUT requests to update each Player
         axios.get(`/api/tournament/v1/players/ids/name/${params.tournamentShortName}`)
@@ -301,29 +295,23 @@ export class tournamentUpdate extends Component {
                 // eslint-disable-next-line
                 .catch((err) => {
                     console.error(err);
-                    this.setState({
-                        statusCode: err.response.status,
-                        response: null,
-                        loading: false,
-                    });
+                    setStatusCode(err.response.status);
+                    setLoading(false);
+                    setPlayerNumber(null);
                     i = playerList.length; // Super jank
                     success = false;
                 });
             }
             if (success) {
-                this.setState({ 
-                    statusCode: res.status,
-                    playersNum: playerList.length,
-                });
-                this.setState({ loading: !(this.allUpdated()) });
+                setStatusCode(res.status);
+                setPlayerNumber(playerList.length);
+                setLoading(isAllUpdated());
             }
         }).catch((err) => {
             console.error(err);
-            this.setState({
-                statusCode: err.response.status,
-                response: null,
-                loading: false,
-            });
+            setStatusCode(err.response.status);
+            setPlayerNumber(null);
+            setLoading(false);
         });
 
         // Do multiple PUT requests to update each Team
@@ -341,71 +329,56 @@ export class tournamentUpdate extends Component {
                 // eslint-disable-next-line
                 .catch((err) => {
                     console.error(err);
-                    this.setState({
-                        statusCode: err.response.status,
-                        response: null,
-                        loading: false,
-                    });
+                    setStatusCode(err.response.status);
+                    setLoading(false);
+                    setTeamNumber(null);
                     i = teamList.length; // Super jank
                     success = false;
                 });
             }
             if (success) {
-                this.setState({
-                    statusCode: res.status,
-                    teamsNum: teamList.length,
-                });
-                this.setState({ loading: !(this.allUpdated()) })
+                setStatusCode(res.status);
+                setTeamNumber(teamList.length);
+                setLoading(isAllUpdated());
             }
         }).catch((err) => {
             console.error(err);
-            this.setState({
-                statusCode: err.response.status,
-                response: null,
-                loading: false,
-            });
+            setStatusCode(err.response.status);
+            setTeamNumber(null);
+            setLoading(false);
         });
 
         // PUT request to update all games
         axios.put('/api/tournament/v1/update/overall', {
             tournamentShortName: params.tournamentShortName,
-        })
-        .then((res) => {
-            this.setState({
-                statusCode: res.status,
-                gamesNum: res.data.gamesNum,
-            });
-            this.setState({ loading: !(this.allUpdated()) });
-        })
-        .catch((err) => { 
+        }).then((res) => {
+            setStatusCode(res.status);
+            setGameNumber(res.data.gamesNum);
+            setLoading(isAllUpdated());
+        }).catch((err) => { 
             console.error(err); 
-            this.setState({
-                statusCode: err.response.status,
-                response: null,
-                loading: false,
-            })
+            setStatusCode(err.response.status);
+            setGameNumber(null);
+            setLoading(false);
         });
     }
 
-    render() {
-        const { info, statusCode, loading, playersNum, teamsNum, gamesNum } = this.state;
-        
-        const response = (playersNum || teamsNum || gamesNum) ? ({
-            playersNum: playersNum,
-            teamsNum: teamsNum,
-            gamesNum: gamesNum,
-        }) : null;
-
-        let component = (<TourneyUpdateTemporary 
-            info={info} 
-            handleSubmit={this.handleSubmit}
-            loading={loading}
-            response={response}
-        />);
-
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Tournament" />) : 
-            (<Markup data={info} dataComponent={component} code={statusCode} />)
-        )
-    }
+    const tournamentUpdateComponent = <TourneyUpdate
+        infoData={infoData}
+        loading={loading}
+        playerNumber={playerNumber}
+        teamNumber={teamNumber}
+        gameNumber={gameNumber}
+        handleUpdateTournament={handleTournamentUpdate}
+    />
+    
+    return (
+        (statusCode !== 200 && !statusCode) ? 
+        (<Error code={statusCode} page="Tournament" />) : 
+        (<Markup 
+            data={infoData}
+            dataComponent={tournamentUpdateComponent} 
+            code={statusCode} 
+        />)
+    );
 }
