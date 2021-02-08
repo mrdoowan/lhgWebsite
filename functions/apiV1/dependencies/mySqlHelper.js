@@ -47,7 +47,7 @@ export function mySqlCallSProc(sProcName) {
             });
         }
         catch (error) {
-            console.error(`ERROR - sProcMySqlQuery '${sProcName}' Promise rejected.`);
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR - sProcMySqlQuery '${sProcName}' Promise rejected.`);
             reject(error);
         }
     });
@@ -85,7 +85,7 @@ export const mySqlInsertQuery = (queryObject, tableName) => {
             });
         }
         catch (error) {
-            console.error(`ERROR - insertMySQLQuery '${tableName}' Promise rejected.`);
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR - insertMySQLQuery '${tableName}' Promise rejected.`);
             reject(error);
         }
     });
@@ -109,7 +109,7 @@ export const mySqlMakeQuery = (queryString) => {
             })
         }
         catch (error) {
-            console.error("ERROR - makeQuery '" + queryString + "' Promise rejected.");
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR - makeQuery '" + queryString + "' Promise rejected.`);
         }
     })
 }
