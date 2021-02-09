@@ -7,6 +7,7 @@ import {
     dynamoDbGetItem,
     dynamoDbUpdateItem,
     dynamoDbDeleteItem,
+    dynamoDbPutItem,
 } from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { getRiotMatchData } from './dependencies/awsLambdaHelper';
@@ -200,7 +201,7 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
             setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList;
             setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList;
 
-            // Push into DynamoDb
+            // Push into 'Matches' DynamoDb
             await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
                 'SET #setup = :obj',
                 {
@@ -210,6 +211,11 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
                     ':obj': setupObject,
                 }
             );
+
+            // Push into 'Miscellaneous' DynamoDb
+            const setupIdList = (await dynamoDbGetItem('Miscellaneous', 'Key', 'MatchSetupIds'))['MatchSetupIdList'];
+            await dynamoDbPutItem('Miscellaneous', setupIdList.push(matchId), 'MatchSetupIds');
+
             resolve({
                 response: `New Setup for Match ID '${matchId}' successfully created.`,
                 objectCreated: setupObject,
