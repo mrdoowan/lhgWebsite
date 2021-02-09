@@ -9,7 +9,7 @@ import {
 import {
     getMatchData,
     getMatchSetup,
-    putMatchNewSetup,
+    postMatchNewSetup,
     putMatchPlayerFix,
     deleteMatchData,
     getMatchSetupList,
@@ -80,7 +80,7 @@ matchV1Routes.post('/setup/new/id', (req, res) => {
     const { riotMatchId, seasonId, tournamentId } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
-    putMatchNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
+    postMatchNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
         if (data == null) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
         return res200sOK(res, req, data);
     }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
