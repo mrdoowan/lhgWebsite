@@ -38,11 +38,11 @@ matchV1Routes.get('/data/:matchId', (req, res) => {
 });
 
 /**
- * @route   GET api/match/v1/setup/:matchId
+ * @route   GET api/match/v1/setup/data/:matchId
  * @desc    Get Match Setup
  * @access  Public
  */
-matchV1Routes.get('/setup/:matchId', (req, res) => {
+matchV1Routes.get('/setup/data/:matchId', (req, res) => {
     const { matchId } = req.params;
 
     console.log(`GET Request Match '${matchId}' Setup.`);
@@ -72,11 +72,11 @@ matchV1Routes.put('/players/update', (req, res) => {
 });
 
 /**
- * @route   POST api/match/v1/setup/new
+ * @route   POST api/match/v1/setup/new/id
  * @desc    Create Match "Setup" Item by the ID of a previous played Match
  * @access  Private (to Admins)
  */
-matchV1Routes.post('/setup/new', (req, res) => {
+matchV1Routes.post('/setup/new/id', (req, res) => {
     const { riotMatchId, seasonId, tournamentId } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
@@ -87,7 +87,7 @@ matchV1Routes.post('/setup/new', (req, res) => {
 });
 
 /**
- * @route   POST api/match/v1/setup/spectate
+ * @route   POST api/match/v1/setup/new/spectate
  * @desc    Create Match "Setup" Item by the ID of a CURRENT (through Spectate) match
  * @access  Private (to Admins)
  */

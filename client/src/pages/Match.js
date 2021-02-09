@@ -151,7 +151,7 @@ export const MatchSetupPage = (props) => {
 
     // Mount Component
     useEffect(() => {
-        axios.get(`/api/match/v1/setup/${params.matchPId}`)
+        axios.get(`/api/match/v1/setup/data/${params.matchPId}`)
         .then((res) => {
             setStatusCode(res.status);
             setMatchSetupData(res.data);
