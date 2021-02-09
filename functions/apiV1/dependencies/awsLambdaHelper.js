@@ -12,7 +12,8 @@ const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
  */
 export const getRiotSummonerId = (name) => {
     return new Promise((resolve, reject) => {
-        let params = {
+        console.log(`AWS Lambda: Getting Summoner Id of '${name}'`);
+        const params = {
             FunctionName: 'riotAPILambda',
             Payload: JSON.stringify({
                 'type': "SUMMONER_DATA",
@@ -34,7 +35,8 @@ export const getRiotSummonerId = (name) => {
  */
 export const getRiotMatchData = (matchId) => {
     return new Promise((resolve, reject) => {
-        let params = {
+        console.log(`AWS Lambda: Getting Match Data and Timeline of Id '${matchId}'`);
+        const params = {
             FunctionName: 'riotAPILambda',
             Payload: JSON.stringify({
                 'type': "MATCH_DATA",
@@ -56,7 +58,8 @@ export const getRiotMatchData = (matchId) => {
  */
 export const getRiotSpectateData = (summonerId) => {
     return new Promise((resolve, reject) => {
-        let params = {
+        console.log(`AWS Lambda: Getting Spectate Data from Summoner Id '${summonerId}'`);
+        const params = {
             FunctionName: 'riotAPILambda',
             Payload: JSON.stringify({
                 'type': "SPECTATE_DATA",
