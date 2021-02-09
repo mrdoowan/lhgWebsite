@@ -42,7 +42,7 @@ import {
  * Get the data of a specific Match from DynamoDb
  * @param {string} id       Match Id in string format
  */
-export const getMatchData = async (id) => {
+export const getMatchData = (id) => {
     return new Promise(function(resolve, reject) {
         const cacheKey = CACHE_KEYS.MATCH_PREFIX + id;
         cache.get(cacheKey, async (err, data) => {
@@ -96,28 +96,41 @@ export const getMatchData = async (id) => {
  * Get the 'Setup' object of a specific Match from DynamoDb
  * @param {string} id       Match Id in string format
  */
-export const getMatchSetup = async (id) => {
+export const getMatchSetup = (id) => {
     return new Promise(async function(resolve, reject) {
         try {
-            let matchJson = await dynamoDbGetItem('Matches', 'MatchPId', id);
+            const matchJson = await dynamoDbGetItem('Matches', 'MatchPId', id);
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
-            let matchSetupJson = matchJson['Setup'];
+            const matchSetupJson = matchJson['Setup'];
             matchSetupJson['SeasonName'] = await getSeasonName(matchSetupJson['SeasonPId']);
             matchSetupJson['TournamentName'] = await getTournamentName(matchSetupJson['TournamentPId']);
             
             // Edit names into the Json
-            let teamsObject = matchSetupJson['Teams'];
+            const teamsObject = matchSetupJson['Teams'];
             for (let teamIdx = 0; teamIdx < Object.values(teamsObject).length; ++teamIdx) {
-                let teamJson = Object.values(teamsObject)[teamIdx];
+                const teamJson = Object.values(teamsObject)[teamIdx];
                 if ('TeamHId' in teamJson) { teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']) }
-                let playersList = teamJson['Players'];
+                const playersList = teamJson['Players'];
                 for (let i = 0; i < playersList.length; ++i) {
-                    let playerJson = playersList[i];
+                    const playerJson = playersList[i];
                     if ('ProfileHId' in playerJson) { playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']); }
                 }
             }
 
             resolve(matchSetupJson);
+        }
+        catch (error) { console.error(error); reject(error); }
+    })
+}
+
+/**
+ * Get all the Match Ids with Setup from the Miscellaneous DynamoDb table
+ */
+export const getMatchSetupList = () => {
+    return new Promise(async function(resolve, reject) {
+        try {
+            const matchIdList = (await dynamoDbGetItem('Miscellaneous', 'Key', 'MatchSetupIds'))['MatchSetupIdList'];
+            resolve(matchIdList);
         }
         catch (error) { console.error(error); reject(error); }
     })
@@ -213,7 +226,7 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
             );
 
             // Push into 'Miscellaneous' DynamoDb
-            const setupIdList = (await dynamoDbGetItem('Miscellaneous', 'Key', 'MatchSetupIds'))['MatchSetupIdList'];
+            const setupIdList = await getMatchSetupList();
             await dynamoDbPutItem('Miscellaneous', setupIdList.push(matchId), 'MatchSetupIds');
 
             resolve({

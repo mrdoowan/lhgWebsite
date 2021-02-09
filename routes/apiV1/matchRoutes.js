@@ -12,6 +12,7 @@ import {
     putMatchNewSetup,
     putMatchPlayerFix,
     deleteMatchData,
+    getMatchSetupList,
 } from '../../functions/apiV1/matchData';
 
 /*  
@@ -93,6 +94,19 @@ matchV1Routes.post('/setup/new', (req, res) => {
 
 
 /**
+ * @route   GET api/match/v1/setup/list
+ * @desc    Get List of Match Ids that have a "Setup" Item
+ * @access  Private (to Admins)
+ */
+matchV1Routes.get('/setup/list', (req, res) => {
+    console.log(`GET Request Match Ids of Setup Key`);
+    getMatchSetupList().then((data) => {
+        if (data == null) { return res400sClientError(res, req, `Match Setup List GET Request Failed`); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "GET Match Setup List Error"));
+});
+
+/**
  * @route   PUT api/match/v1/setup/save
  * @desc    Saves text fields from /matchup/setup page into 'Setup' object
  * @access  Private (to Admins)
@@ -104,6 +118,7 @@ matchV1Routes.post('/setup/new', (req, res) => {
  * @desc    Submits the text fields and processes the Match Data into MySQL and DynamoDb
  * @access  Private (to Admins)
  */
+
 
 /**
  * @route   DELETE api/match/v1/remove/:matchId
