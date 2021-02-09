@@ -9,6 +9,7 @@ import MatchStatsSkeleton from '../util/Match/MatchStatsSkeleton';
 import MatchTimelineSkeleton from '../util/Match/MatchTimelineSkeleton';
 import MatchBuildsSkeleton from '../util/Match/MatchBuildsSkeleton';
 import MatchSetupSkeleton from '../util/Match/MatchSetupSkeleton';
+import MatchSetupListSkeleton from '../util/Match/MatchSetupListSkeleton';
 
 // {MAIN}/match/:matchPId
 export class matchBase extends Component {
@@ -150,7 +151,7 @@ export const MatchSetupPage = (props) => {
 
     // Mount Component
     useEffect(() => {
-        axios.get(`/api/match/v1/setup/${params.matchPId}`)
+        axios.get(`/api/match/v1/setup/data/${params.matchPId}`)
         .then((res) => {
             setStatusCode(res.status);
             setMatchSetupData(res.data);
@@ -159,10 +160,34 @@ export const MatchSetupPage = (props) => {
         });
     }, [params]);
 
-    const matchComponent = <MatchSetupSkeleton setupData={matchSetupData} />
+    const matchSetupComponent = <MatchSetupSkeleton setupData={matchSetupData} />
 
     return ((statusCode !== null && statusCode !== 200) ? 
         (<Error code={statusCode} page="Match" />) : 
-        (<Markup data={matchSetupData} dataComponent={matchComponent} code={statusCode} />)
+        (<Markup data={matchSetupData} dataComponent={matchSetupComponent} code={statusCode} />)
     );
 };
+
+export const MatchSetupListPage = () => {
+    // Init State
+    const [matchSetupListData, setMatchSetupListData] = useState({});
+    const [statusCode, setStatusCode] = useState(null);
+    
+    // Mount Component
+    useEffect(() => {
+        axios.get(`/api/match/v1/setup/list`)
+        .then((res) => {
+            setStatusCode(res.status);
+            setMatchSetupListData(res.data);
+        }).catch(() => {
+            setStatusCode(500);
+        })
+    }, []);
+
+    const matchSetupListComponent = <MatchSetupListSkeleton setupListData={matchSetupListData} />
+
+    return ((statusCode !== null && statusCode !== 200) ?
+        (<Error code={statusCode} page="Match" />) :
+        (<Markup data={matchSetupListData} dataComponent={matchSetupListComponent} code={statusCode} />)
+    );
+}
