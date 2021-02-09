@@ -247,6 +247,12 @@ export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
 }
 
 // BODY EXAMPLE:
+
+export const putMatchSaveSetup = () => {
+
+}
+
+// BODY EXAMPLE:
 // {
 //     "matchId": "3450759464",
 //     playersToFix: {
