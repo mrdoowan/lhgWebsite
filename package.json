@@ -14,7 +14,7 @@
   "author": "mrdoowan",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.831.0",
+    "aws-sdk": "^2.840.0",
     "babel-plugin-dotenv-import": "^2.1.0",
     "babel-preset-env": "^1.7.0",
     "bcrypt": "^5.0.0",
