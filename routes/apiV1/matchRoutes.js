@@ -111,7 +111,12 @@ matchV1Routes.get('/setup/list', (req, res) => {
  * @desc    Saves text fields from /matchup/setup page into 'Setup' object
  * @access  Private (to Admins)
  */
+matchV1Routes.put('/setup/save', (req, res) => {
+    const { matchId } = req.body;
 
+    console.log(`PUT Request Match '${matchId}' Save Setup`);
+    
+});
 
 /**
  * @route   PUT api/match/v1/setup/submit
