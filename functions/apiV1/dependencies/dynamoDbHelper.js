@@ -12,13 +12,13 @@ const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV
  * Gets an item from the Table based on keyValue. Returns 'undefined' if key item does NOT EXIST
  * @param {string} tableName        Table name of DynamoDb
  * @param {string} partitionName    Column name of the Partition Key
- * @param {*} keyValue              Specific item to look for
+ * @param {*} keyItem               Specific item to look for
  */
-export const dynamoDbGetItem = (tableName, partitionName, keyValue) => {
+export const dynamoDbGetItem = (tableName, partitionName, keyItem) => {
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: keyValue
+            [partitionName]: keyItem
         }
     };
     return new Promise(function(resolve, reject) {
@@ -28,13 +28,13 @@ export const dynamoDbGetItem = (tableName, partitionName, keyValue) => {
                     reject(err);
                 }
                 else {
-                    console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyValue}' from Table '${tableName}'`);
+                    console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyItem}' from Table '${tableName}'`);
                     resolve(data['Item']);
                 }
             });
         }
         catch (error) {
-            console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyValue}'.`)
+            console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyItem}'.`)
             reject(error);
         }
     });
@@ -44,9 +44,9 @@ export const dynamoDbGetItem = (tableName, partitionName, keyValue) => {
  * PUTs a DynamoDb Item into DynamoDb
  * @param {string} tableName    Table name of DynamoDb
  * @param {Object} items        The entire object being put into DynamoDb
- * @param {*} keyValue          Only used for debugging purposes
+ * @param {*} keyItem           Only used for debugging purposes
  */
-export const dynamoDbPutItem = (tableName, items, keyValue) => {
+export const dynamoDbPutItem = (tableName, items, keyItem) => {
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Item: items
@@ -58,7 +58,7 @@ export const dynamoDbPutItem = (tableName, items, keyValue) => {
                 reject(err);
             }
             else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyValue}' into '${tableName}' Table!"`);
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyItem}' into '${tableName}' Table!"`);
                 resolve(data);
             }
         });
@@ -141,14 +141,14 @@ export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=nul
  * Deletes an item from the specific Table
  * @param {string} tableName        DynamoDb Table Name
  * @param {string} partitionName    Column name of the Partition Key
- * @param {*} key                   Value of Partition Key to remove
+ * @param {*} keyItem               Value of Partition Key to remove
  * @param {boolean} testFlag        Deletes the item from test DB
  */
-export const dynamoDbDeleteItem = (tableName, partitionName, key) => {
+export const dynamoDbDeleteItem = (tableName, partitionName, keyItem) => {
     let params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: key,
+            [partitionName]: keyItem,
         }
     }
     return new Promise(async function(resolve, reject) {
@@ -158,7 +158,7 @@ export const dynamoDbDeleteItem = (tableName, partitionName, key) => {
                 reject(err); 
             }
             else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${key}' in Table '${tableName}'`);
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${keyItem}' in Table '${tableName}'`);
                 resolve(data);
             }
         })

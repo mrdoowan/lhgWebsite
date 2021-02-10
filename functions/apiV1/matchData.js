@@ -253,9 +253,54 @@ export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
 }
 
 // BODY EXAMPLE:
+// {
+//     "matchId": "3779688658",
+//     "payloadTeamsObject": // Setup Object
+// }
+export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
+    return new Promise(function(resolve, reject) {
+        const payloadBlueTeam = bodyTeamsObject.BlueTeam;
+        const payloadRedTeam = bodyTeamsObject.RedTeam;
+        const payloadBluePlayersList = payloadBlueTeam.Players;
+        const payloadRedPlayersList = payloadRedTeam.Players;
 
-export const putMatchSaveSetup = () => {
+        const transformTeamsObject = (color, editedTeamObject) => {
+            for (let i = 0; i < editedTeamObject[`${color}Team`]['Players'].length; ++i) {
+                const playerObject = editedTeamObject[`${color}Team`]['Players'][i];
+                const payloadColorPlayersList = (color === 'Blue') ? payloadBluePlayersList : payloadRedPlayersList;
+                playerObject['Role'] = payloadColorPlayersList[i]['Role'];
+                playerObject['SummonerName'] = payloadColorPlayersList[i]['SummonerName'];
+            }
+        }
 
+        dynamoDbGetItem('Matches', 'MatchPId', matchId).then(async (dbMatchObject) => {
+            if (!dbMatchObject || !('Setup' in dbMatchObject)) { resolve(null); return; } // Not Found
+            const newTeamsObject = dbMatchObject['Setup']['Teams'];
+            newTeamsObject['BlueTeam']['TeamName'] = payloadBlueTeam.TeamName;
+            newTeamsObject['RedTeam']['TeamName'] = payloadRedTeam.TeamName;
+            newTeamsObject['BlueTeam']['Bans'] = payloadBlueTeam.Bans;
+            newTeamsObject['RedTeam']['Bans'] = payloadRedTeam.Bans;
+            transformTeamsObject('Blue', newTeamsObject);
+            transformTeamsObject('Red', newTeamsObject);
+
+            // Update to DynamoDb
+            await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
+                'SET #setup.#teams = :obj',
+                {
+                    '#setup': 'Setup',
+                    '#teams': 'Teams',
+                },
+                {
+                    ':obj': newTeamsObject
+                }
+            );
+
+            resolve({
+                response: `Setup object successfully updated for Match ID '${matchId}'.`,
+                objectUpdated: newTeamsObject,
+            });
+        }).catch((error) => { console.error(error); reject(error); });
+    });
 }
 
 // BODY EXAMPLE:
@@ -271,7 +316,7 @@ export const putMatchSaveSetup = () => {
  * @param {string} playersToFix  JSON Object 
  * @param {string} matchId       Match Id in string format
  */
-export const putMatchPlayerFix = async (playersToFix, matchId) => {
+export const putMatchPlayerFix = (playersToFix, matchId) => {
     return new Promise(function(resolve, reject) {
         getMatchData(matchId).then(async (data) => {
             if (data == null) { resolve(null); return; } // Not found
@@ -359,7 +404,7 @@ export const putMatchPlayerFix = async (playersToFix, matchId) => {
  * Removes the specific Match item from from DynamoDb
  * @param {string} matchId      Match Id in string format
  */
-export const deleteMatchData = async (matchId) => {
+export const deleteMatchData = (matchId) => {
     return new Promise(async (resolve, reject) => {
         try {
             // 1) Remove and update Game Logs from EACH Profile Table
