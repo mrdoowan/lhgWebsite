@@ -137,28 +137,28 @@ export const getMatchSetupList = () => {
 }
 
 /**
- * Get the data of a specific Match from DynamoDb
+ * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
  * @param {string} seasonId     ID of Season (number)
  * @param {string} tournamentId ID of Tournament (number)
  */
-export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
+export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
     return new Promise(async function(resolve, reject) {
         try {
             // Check if matchId already exists
-            if (await dynamoDbGetItem('Matches', 'MatchPId', matchId) != null) {
+            if (await dynamoDbGetItem('Matches', 'MatchPId', matchId)) {
                 console.error(`Match ID ${matchId} already exists.`);
                 resolve(null); 
                 return; 
             }
             // Check if seasonId exists
-            if (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentId) == null) {
+            if (!(await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentId))) {
                 console.error(`Tournament ID ${tournamentId} doesn't exists.`);
                 resolve(null); 
                 return; 
             }
             // Check if tournamentId exists
-            if (await dynamoDbGetItem('Season', 'SeasonPId', seasonId) == null) {
+            if (!(await dynamoDbGetItem('Season', 'SeasonPId', seasonId))) {
                 console.error(`Season ID ${seasonId} doesn't exists.`);
                 resolve(null); 
                 return; 
@@ -167,13 +167,15 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
             // Get data from Riot API
             const matchDataRiotJson = (await getRiotMatchData(matchId))['Data'];
 
-            let setupObject = {}
+            const setupObject = {}
             setupObject['RiotMatchId'] = matchId;
             setupObject['SeasonPId'] = seasonId;
             setupObject['TournamentPId'] = tournamentId;
             setupObject['Teams'] = {}
             setupObject['Teams']['BlueTeam'] = {}
+            setupObject['Teams']['BlueTeam']['TeamName'] = '';
             setupObject['Teams']['RedTeam'] = {}
+            setupObject['Teams']['RedTeam']['TeamName'] = '';
             // Iterate through Riot's 'teams' Object:
             // 1) Make Bans List
             for (let teamIdx = 0; teamIdx < matchDataRiotJson['teams'].length; ++teamIdx) {
@@ -192,11 +194,12 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
             }
             // Iterate through Riot's 'participants' Object:
             // 1) Make Players List
-            let newBluePlayerList = [];
-            let newRedPlayerList = [];
+            const newBluePlayerList = [];
+            const newRedPlayerList = [];
             for (let playerIdx = 0; playerIdx < matchDataRiotJson['participants'].length; ++playerIdx) {
-                let newPlayerObject = {}
+                const newPlayerObject = {}
                 const playerRiotJson = matchDataRiotJson['participants'][playerIdx];
+                newPlayerObject['SummonerName'] = '';
                 newPlayerObject['ChampId'] = playerRiotJson['championId'];
                 newPlayerObject['Spell1Id'] = playerRiotJson['spell1Id'];
                 newPlayerObject['Spell2Id'] = playerRiotJson['spell2Id'];
@@ -227,7 +230,12 @@ export const putMatchNewSetup = (matchId, seasonId, tournamentId) => {
 
             // Push into 'Miscellaneous' DynamoDb
             const setupIdList = await getMatchSetupList();
-            await dynamoDbPutItem('Miscellaneous', setupIdList.push(matchId), 'MatchSetupIds');
+            setupIdList.push(matchId)
+            const newDbItem = {
+                Key: 'MatchSetupIds',
+                MatchSetupIdList: setupIdList
+            };
+            await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
 
             resolve({
                 response: `New Setup for Match ID '${matchId}' successfully created.`,
