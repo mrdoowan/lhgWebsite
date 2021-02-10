@@ -214,8 +214,14 @@ export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
                 if (playerRiotJson['teamId'] === 100) { newBluePlayerList.push(newPlayerObject); }
                 else if (playerRiotJson['teamId'] === 200) { newRedPlayerList.push(newPlayerObject); }
             }
-            setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList;
-            setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList;
+            
+            // https://stackoverflow.com/questions/13304543/javascript-sort-array-based-on-another-array
+            const roleSortList = ["Top", "Jungle", "Middle", "Bottom", "Support"];
+            const sortRoles = (a, b) => {
+                return roleSortList.indexOf(a.Role) - roleSortList.indexOf(b.Role);
+            }
+            setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList.sort(sortRoles);
+            setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
 
             // Push into 'Matches' DynamoDb
             await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
