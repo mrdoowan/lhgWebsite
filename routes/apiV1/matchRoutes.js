@@ -13,6 +13,7 @@ import {
     putMatchPlayerFix,
     deleteMatchData,
     getMatchSetupList,
+    putMatchSaveSetup,
 } from '../../functions/apiV1/matchData';
 
 /*  
@@ -111,7 +112,15 @@ matchV1Routes.get('/setup/list', (req, res) => {
  * @desc    Saves text fields from /matchup/setup page into 'Setup' object
  * @access  Private (to Admins)
  */
-
+matchV1Routes.put('/setup/save', (req, res) => {
+    const { matchId, teams } = req.body;
+    
+    console.log(`PUT Request Match '${matchId}' Save Setup`);
+    putMatchSaveSetup(matchId, teams).then((response) => {
+        if (!response) { return res400sClientError(res, req, `Match ID '${riotMatchId}' PUT Request Save Setup Failed`); }
+        return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "PUT Match Setup Save Error."));
+});
 
 /**
  * @route   PUT api/match/v1/setup/submit

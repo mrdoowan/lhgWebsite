@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from 'axios';
 // Formik
 import { Formik, Form, Field } from 'formik';
 // MUI
@@ -67,20 +68,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MatchSetup({ setupData }) {
-    const BLUE = "blue";
-    const RED = "red";
-
     const classes = useStyles();
     const { Teams: { BlueTeam, RedTeam} } = setupData;
+    const BLUE = "blue";
+    const RED = "red";
+    const NUMBER_OF_PLAYERS = 5;
+    const NUMBER_OF_BANS = 5;
 
     const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
     const [saveButtonPressed, setSaveButtonPressed] = useState(false);
+    const [messageList, setMessageList] = useState([]);
+    /**
+     * Add to message list that will be displayed at the bottom of page
+     * @param {string} message 
+     */
+    const appendMessage = (message) => {
+        setMessageList(messageList => [...messageList, message]);
+    }
     /**
      * Initializes the array and add 0s if length < 5
      * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
      */
     const initBansList = (dataBansList) => {
-        const NUMBER_OF_BANS = 5;
         for (let i = 0; i < NUMBER_OF_BANS - dataBansList.length; ++i) {
             dataBansList.push(0);
         }
@@ -90,20 +99,101 @@ export default function MatchSetup({ setupData }) {
     const [redBansList, setRedBansList] = useState(initBansList(RedTeam.Bans));
 
     /**
+     * Capitalizes the string s
+     * @param {string} s
+     */
+    const capitalize = (s) => {
+        if (typeof(s) !== 'string') return '';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    /**
+     * Transforming the formik values from MatchSetup into a body object
+     * for the Save Match Setup PUT API request
+     * @param {*} values 
+     */
+    const transformValueData = (values) => {
+        const transformedObject = {
+            matchId: setupData.RiotMatchId,
+            teams: {
+                BlueTeam: {
+                    Bans: [],
+                    Players: [],
+                    TeamName: values.blueTeamName,
+                },
+                RedTeam: {
+                    Bans: [],
+                    Players: [],
+                    TeamName: values.redTeamName,
+                },
+            }
+        };
+
+        /**
+         * @param {string} color    'blue', 'red'
+         */
+        const loadBansIntoObject = (color) => {
+            const bansList = [];
+            for (let i = 0; i < NUMBER_OF_BANS; ++i) {
+                const numberValue = parseInt(values[`${color}TeamBanId${i}`]);
+                bansList.push((numberValue) ? numberValue : 0);
+            }
+            const capitalColor = capitalize(color);
+            transformedObject.teams[`${capitalColor}Team`].Bans = bansList;
+        }
+
+        /**
+         * @param {string} color    'blue', 'red'
+         */
+        const loadPlayersIntoObject = (color) => {
+            const playersList = [];
+            for (let i = 0; i < NUMBER_OF_PLAYERS; ++i) {
+                playersList.push({
+                    Role: values[`${color}PlayerRole${i}`],
+                    SummonerName: values[`${color}PlayerName${i}`],
+                });
+            }
+            const capitalColor = capitalize(color);
+            transformedObject.teams[`${capitalColor}Team`].Players = playersList;
+        }
+
+        // BansList
+        loadBansIntoObject(BLUE);
+        loadBansIntoObject(RED);
+        // PlayersList
+        loadPlayersIntoObject(BLUE);
+        loadPlayersIntoObject(RED);
+     
+        return transformedObject;
+    }
+
+    /**
      * Formik's submit handler
      */
     const handleSubmit = (values, {setSubmitting}) => {
+        setMessageList([]);
         if (submitButtonPressed) {
             console.log("Submit!");
             console.log(values);
             setSubmitButtonPressed(false);
+            setSubmitting(false);
         }
         else if (saveButtonPressed) {
-            console.log("Saved!");
-            console.log(values);
-            setSaveButtonPressed(false);
+            axios.put('/api/match/v1/setup/save', 
+                transformValueData(values)
+            ).then(() => {
+                appendMessage(
+                    'Setup saved!'
+                );
+            }).catch(() => {
+                appendMessage(
+                    'Setup save failed...'
+                );
+            }).finally(() => {
+                setSaveButtonPressed(false);
+                setSubmitting(false);
+            });
         }
-        setSubmitting(false);
     }
 
     /**
@@ -318,17 +408,7 @@ export default function MatchSetup({ setupData }) {
                             </table>
                             <br />
                             { /* https://stackoverflow.com/questions/60349756/react-js-two-submit-buttons-in-one-form */ }
-                            <Button 
-                                onClick={() => { 
-                                    setSubmitButtonPressed(true); 
-                                }}
-                                type="submit" 
-                                variant="contained" 
-                                color="primary" 
-                            >
-                                Submit
-                            </Button>
-                            <Button 
+                            <Button
                                 onClick={() => { 
                                     setSaveButtonPressed(true); 
                                 }}
@@ -338,8 +418,23 @@ export default function MatchSetup({ setupData }) {
                             >
                                 Save
                             </Button>
+                            <Button
+                                onClick={() => { 
+                                    setSubmitButtonPressed(true); 
+                                }}
+                                type="submit" 
+                                variant="contained" 
+                                color="primary" 
+                            >
+                                Submit
+                            </Button>
                         </Form>
                     </Formik>
+                    <h2 className={classes.title}>
+                        {messageList.map((message) => (
+                            <React.Fragment>{message} <br /></React.Fragment>
+                        ))}
+                    </h2>
                 </Paper>
             </Grid>
         </Grid>
