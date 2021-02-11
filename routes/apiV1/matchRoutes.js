@@ -113,10 +113,10 @@ matchV1Routes.get('/setup/list', (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.put('/setup/save', (req, res) => {
-    const { matchId, payloadTeamsObject } = req.body;
+    const { matchId, teams } = req.body;
     
     console.log(`PUT Request Match '${matchId}' Save Setup`);
-    putMatchSaveSetup(matchId, payloadTeamsObject).then((response) => {
+    putMatchSaveSetup(matchId, teams).then((response) => {
         if (!response) { return res400sClientError(res, req, `Match ID '${riotMatchId}' PUT Request Save Setup Failed`); }
         return res200sOK(res, req, response);
     }).catch((err) => error500sServerError(err, res, "PUT Match Setup Save Error."));

@@ -255,7 +255,7 @@ export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
 // BODY EXAMPLE:
 // {
 //     "matchId": "3779688658",
-//     "payloadTeamsObject": // Setup Object
+//     "teams": // Setup Object
 // }
 export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
     return new Promise(function(resolve, reject) {

@@ -72,6 +72,8 @@ export default function MatchSetup({ setupData }) {
 
     const classes = useStyles();
     const { Teams: { BlueTeam, RedTeam} } = setupData;
+    const NUMBER_OF_PLAYERS = 5;
+    const NUMBER_OF_BANS = 5;
 
     const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
     const [saveButtonPressed, setSaveButtonPressed] = useState(false);
@@ -80,7 +82,6 @@ export default function MatchSetup({ setupData }) {
      * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
      */
     const initBansList = (dataBansList) => {
-        const NUMBER_OF_BANS = 5;
         for (let i = 0; i < NUMBER_OF_BANS - dataBansList.length; ++i) {
             dataBansList.push(0);
         }
@@ -88,6 +89,74 @@ export default function MatchSetup({ setupData }) {
     }
     const [blueBansList, setBlueBansList] = useState(initBansList(BlueTeam.Bans));
     const [redBansList, setRedBansList] = useState(initBansList(RedTeam.Bans));
+
+    /**
+     * Capitalizes the string s
+     * @param {string} s
+     */
+    const capitalize = (s) => {
+        if (typeof(s) !== 'string') return '';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    /**
+     * Transforming the formik values from MatchSetup into a body object
+     * for the Save Match Setup PUT API request
+     * @param {*} values 
+     */
+    const transformValueData = (values) => {
+        const transformedObject = {
+            matchId: setupData.RiotMatchId,
+            teams: {
+                BlueTeam: {
+                    Bans: [],
+                    Players: [],
+                    TeamName: values.blueTeamName,
+                },
+                RedTeam: {
+                    Bans: [],
+                    Players: [],
+                    TeamName: values.redTeamName,
+                },
+            }
+        };
+
+        /**
+         * @param {string} color    'blue', 'red'
+         */
+        const loadBansIntoObject = (color) => {
+            const bansList = [];
+            for (let i = 0; i < NUMBER_OF_BANS; ++i) {
+                bansList.push(values[`${color}TeamBanId${i}`]);
+            }
+            const capitalColor = capitalize(color);
+            transformedObject.teams[`${capitalColor}Team`].Bans = bansList;
+        }
+
+        /**
+         * @param {string} color    'blue', 'red'
+         */
+        const loadPlayersIntoObject = (color) => {
+            const playersList = [];
+            for (let i = 0; i < NUMBER_OF_PLAYERS; ++i) {
+                playersList.push({
+                    Role: values[`${color}PlayerRole${i}`],
+                    SummonerName: values[`${color}PlayerName${i}`],
+                });
+            }
+            const capitalColor = capitalize(color);
+            transformedObject.teams[`${capitalColor}Team`].Players = playersList;
+        }
+
+        // BansList
+        loadBansIntoObject(BLUE);
+        loadBansIntoObject(RED);
+        // PlayersList
+        loadPlayersIntoObject(BLUE);
+        loadPlayersIntoObject(RED);
+     
+        return transformedObject;
+    }
 
     /**
      * Formik's submit handler
@@ -100,7 +169,7 @@ export default function MatchSetup({ setupData }) {
         }
         else if (saveButtonPressed) {
             console.log("Saved!");
-            console.log(values);
+            console.log(transformValueData(values));
             setSaveButtonPressed(false);
         }
         setSubmitting(false);
@@ -318,17 +387,7 @@ export default function MatchSetup({ setupData }) {
                             </table>
                             <br />
                             { /* https://stackoverflow.com/questions/60349756/react-js-two-submit-buttons-in-one-form */ }
-                            <Button 
-                                onClick={() => { 
-                                    setSubmitButtonPressed(true); 
-                                }}
-                                type="submit" 
-                                variant="contained" 
-                                color="primary" 
-                            >
-                                Submit
-                            </Button>
-                            <Button 
+                            <Button
                                 onClick={() => { 
                                     setSaveButtonPressed(true); 
                                 }}
@@ -337,6 +396,16 @@ export default function MatchSetup({ setupData }) {
                                 color="secondary" 
                             >
                                 Save
+                            </Button>
+                            <Button
+                                onClick={() => { 
+                                    setSubmitButtonPressed(true); 
+                                }}
+                                type="submit" 
+                                variant="contained" 
+                                color="primary" 
+                            >
+                                Submit
                             </Button>
                         </Form>
                     </Formik>
