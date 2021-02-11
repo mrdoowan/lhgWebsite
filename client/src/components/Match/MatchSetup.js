@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from 'axios';
 // Formik
 import { Formik, Form, Field } from 'formik';
 // MUI
@@ -67,16 +68,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MatchSetup({ setupData }) {
-    const BLUE = "blue";
-    const RED = "red";
-
     const classes = useStyles();
     const { Teams: { BlueTeam, RedTeam} } = setupData;
+    const BLUE = "blue";
+    const RED = "red";
     const NUMBER_OF_PLAYERS = 5;
     const NUMBER_OF_BANS = 5;
 
     const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
     const [saveButtonPressed, setSaveButtonPressed] = useState(false);
+    const [messageList, setMessageList] = useState([]);
+    /**
+     * Add to message list that will be displayed at the bottom of page
+     * @param {string} message 
+     */
+    const appendMessage = (message) => {
+        setMessageList(messageList => [...messageList, message]);
+    }
     /**
      * Initializes the array and add 0s if length < 5
      * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
@@ -127,7 +135,8 @@ export default function MatchSetup({ setupData }) {
         const loadBansIntoObject = (color) => {
             const bansList = [];
             for (let i = 0; i < NUMBER_OF_BANS; ++i) {
-                bansList.push(values[`${color}TeamBanId${i}`]);
+                const numberValue = parseInt(values[`${color}TeamBanId${i}`]);
+                bansList.push((numberValue) ? numberValue : 0);
             }
             const capitalColor = capitalize(color);
             transformedObject.teams[`${capitalColor}Team`].Bans = bansList;
@@ -162,17 +171,29 @@ export default function MatchSetup({ setupData }) {
      * Formik's submit handler
      */
     const handleSubmit = (values, {setSubmitting}) => {
+        setMessageList([]);
         if (submitButtonPressed) {
             console.log("Submit!");
             console.log(values);
             setSubmitButtonPressed(false);
+            setSubmitting(false);
         }
         else if (saveButtonPressed) {
-            console.log("Saved!");
-            console.log(transformValueData(values));
-            setSaveButtonPressed(false);
+            axios.put('/api/match/v1/setup/save', 
+                transformValueData(values)
+            ).then(() => {
+                appendMessage(
+                    'Setup saved!'
+                );
+            }).catch(() => {
+                appendMessage(
+                    'Setup save failed...'
+                );
+            }).finally(() => {
+                setSaveButtonPressed(false);
+                setSubmitting(false);
+            });
         }
-        setSubmitting(false);
     }
 
     /**
@@ -409,6 +430,11 @@ export default function MatchSetup({ setupData }) {
                             </Button>
                         </Form>
                     </Formik>
+                    <h2 className={classes.title}>
+                        {messageList.map((message) => (
+                            <React.Fragment>{message} <br /></React.Fragment>
+                        ))}
+                    </h2>
                 </Paper>
             </Grid>
         </Grid>
