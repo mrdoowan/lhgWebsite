@@ -15,6 +15,7 @@ import {
     getMatchSetupList,
     putMatchSaveSetup,
 } from '../../functions/apiV1/matchData';
+import { submitMatchSetup } from '../../functions/apiV1/matchSubmit';
 
 /*  
     ----------------------
@@ -127,7 +128,15 @@ matchV1Routes.put('/setup/save', (req, res) => {
  * @desc    Submits the text fields and processes the Match Data into MySQL and DynamoDb
  * @access  Private (to Admins)
  */
+matchV1Routes.put('/setup/submit', (req, res) => {
+    const { matchId } = req.body;
 
+    console.log(`PUT Request Match '${matchId}' Save Submit. Huge request`);
+    submitMatchSetup(matchId).then((response) => {
+        if (!response) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
+        return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
+})
 
 /**
  * @route   DELETE api/match/v1/remove/:matchId
