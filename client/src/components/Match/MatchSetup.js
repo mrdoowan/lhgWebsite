@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MatchSetup({ setupData }) {
     const classes = useStyles();
-    const { Teams: { BlueTeam, RedTeam} } = setupData;
+    const { Teams: { BlueTeam: blueTeamDb, RedTeam: redTeamDb} } = setupData;
     const BLUE = "blue";
     const RED = "red";
     const NUMBER_OF_PLAYERS = 5;
@@ -95,8 +95,8 @@ export default function MatchSetup({ setupData }) {
         }
         return dataBansList;
     }
-    const [blueBansList, setBlueBansList] = useState(initBansList(BlueTeam.Bans));
-    const [redBansList, setRedBansList] = useState(initBansList(RedTeam.Bans));
+    const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamDb.Bans));
+    const [redBansList, setRedBansList] = useState(initBansList(redTeamDb.Bans));
 
     /**
      * Capitalizes the string s
@@ -150,7 +150,7 @@ export default function MatchSetup({ setupData }) {
             for (let i = 0; i < NUMBER_OF_PLAYERS; ++i) {
                 playersList.push({
                     Role: values[`${color}PlayerRole${i}`],
-                    SummonerName: values[`${color}PlayerName${i}`],
+                    ProfileName: values[`${color}PlayerName${i}`],
                 });
             }
             const capitalColor = capitalize(color);
@@ -321,38 +321,38 @@ export default function MatchSetup({ setupData }) {
                     </h1>
                     <Formik
                         initialValues={{
-                            blueTeamName: BlueTeam?.TeamName || '',
-                            redTeamName: RedTeam?.TeamName || '',
-                            bluePlayerName0: BlueTeam?.Players[0]?.SummonerName || '',
-                            bluePlayerName1: BlueTeam?.Players[1]?.SummonerName || '',
-                            bluePlayerName2: BlueTeam?.Players[2]?.SummonerName || '',
-                            bluePlayerName3: BlueTeam?.Players[3]?.SummonerName || '',
-                            bluePlayerName4: BlueTeam?.Players[4]?.SummonerName || '',
-                            bluePlayerRole0: BlueTeam?.Players[0]?.Role || '',
-                            bluePlayerRole1: BlueTeam?.Players[1]?.Role || '',
-                            bluePlayerRole2: BlueTeam?.Players[2]?.Role || '',
-                            bluePlayerRole3: BlueTeam?.Players[3]?.Role || '',
-                            bluePlayerRole4: BlueTeam?.Players[4]?.Role || '',
-                            redPlayerName0: RedTeam?.Players[0]?.SummonerName || '',
-                            redPlayerName1: RedTeam?.Players[1]?.SummonerName || '',
-                            redPlayerName2: RedTeam?.Players[2]?.SummonerName || '',
-                            redPlayerName3: RedTeam?.Players[3]?.SummonerName || '',
-                            redPlayerName4: RedTeam?.Players[4]?.SummonerName || '',
-                            redPlayerRole0: RedTeam?.Players[0]?.Role || '',
-                            redPlayerRole1: RedTeam?.Players[1]?.Role || '',
-                            redPlayerRole2: RedTeam?.Players[2]?.Role || '',
-                            redPlayerRole3: RedTeam?.Players[3]?.Role || '',
-                            redPlayerRole4: RedTeam?.Players[4]?.Role || '',
-                            blueTeamBanId0: BlueTeam?.Bans[0] || '',
-                            blueTeamBanId1: BlueTeam?.Bans[1] || '',
-                            blueTeamBanId2: BlueTeam?.Bans[2] || '',
-                            blueTeamBanId3: BlueTeam?.Bans[3] || '',
-                            blueTeamBanId4: BlueTeam?.Bans[4] || '',
-                            redTeamBanId0: RedTeam?.Bans[0] || '',
-                            redTeamBanId1: RedTeam?.Bans[1] || '',
-                            redTeamBanId2: RedTeam?.Bans[2] || '',
-                            redTeamBanId3: RedTeam?.Bans[3] || '',
-                            redTeamBanId4: RedTeam?.Bans[4] || '',
+                            blueTeamName: blueTeamDb?.TeamName || '',
+                            redTeamName: redTeamDb?.TeamName || '',
+                            bluePlayerName0: blueTeamDb?.Players[0]?.ProfileName || '',
+                            bluePlayerName1: blueTeamDb?.Players[1]?.ProfileName || '',
+                            bluePlayerName2: blueTeamDb?.Players[2]?.ProfileName || '',
+                            bluePlayerName3: blueTeamDb?.Players[3]?.ProfileName || '',
+                            bluePlayerName4: blueTeamDb?.Players[4]?.ProfileName || '',
+                            bluePlayerRole0: blueTeamDb?.Players[0]?.Role || '',
+                            bluePlayerRole1: blueTeamDb?.Players[1]?.Role || '',
+                            bluePlayerRole2: blueTeamDb?.Players[2]?.Role || '',
+                            bluePlayerRole3: blueTeamDb?.Players[3]?.Role || '',
+                            bluePlayerRole4: blueTeamDb?.Players[4]?.Role || '',
+                            redPlayerName0: redTeamDb?.Players[0]?.ProfileName || '',
+                            redPlayerName1: redTeamDb?.Players[1]?.ProfileName || '',
+                            redPlayerName2: redTeamDb?.Players[2]?.ProfileName || '',
+                            redPlayerName3: redTeamDb?.Players[3]?.ProfileName || '',
+                            redPlayerName4: redTeamDb?.Players[4]?.ProfileName || '',
+                            redPlayerRole0: redTeamDb?.Players[0]?.Role || '',
+                            redPlayerRole1: redTeamDb?.Players[1]?.Role || '',
+                            redPlayerRole2: redTeamDb?.Players[2]?.Role || '',
+                            redPlayerRole3: redTeamDb?.Players[3]?.Role || '',
+                            redPlayerRole4: redTeamDb?.Players[4]?.Role || '',
+                            blueTeamBanId0: blueTeamDb?.Bans[0] || '',
+                            blueTeamBanId1: blueTeamDb?.Bans[1] || '',
+                            blueTeamBanId2: blueTeamDb?.Bans[2] || '',
+                            blueTeamBanId3: blueTeamDb?.Bans[3] || '',
+                            blueTeamBanId4: blueTeamDb?.Bans[4] || '',
+                            redTeamBanId0: redTeamDb?.Bans[0] || '',
+                            redTeamBanId1: redTeamDb?.Bans[1] || '',
+                            redTeamBanId2: redTeamDb?.Bans[2] || '',
+                            redTeamBanId3: redTeamDb?.Bans[3] || '',
+                            redTeamBanId4: redTeamDb?.Bans[4] || '',
                         }}
                         validate={() => {}}
                         onSubmit={handleSubmit}
@@ -388,10 +388,10 @@ export default function MatchSetup({ setupData }) {
                                 <tbody>
                                     <tr className={classes.rowBody}>
                                         <td className={classes.colBody} id="bluePlayers">
-                                            {playerTableFields(BlueTeam?.Players, BLUE, classes)}
+                                            {playerTableFields(blueTeamDb?.Players, BLUE, classes)}
                                         </td>
                                         <td className={classes.colBody} id="redPlayers">
-                                            {playerTableFields(RedTeam?.Players, RED, classes)}
+                                            {playerTableFields(redTeamDb?.Players, RED, classes)}
                                         </td>
                                     </tr>
                                     <tr className={classes.rowBody}>

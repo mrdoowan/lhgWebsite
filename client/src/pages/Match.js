@@ -145,7 +145,7 @@ export class matchBuilds extends Component {
 
 export const MatchSetupPage = (props) => {
     // Init State
-    const [matchSetupData, setMatchSetupData] = useState({});
+    const [matchSetupData, setMatchSetupData] = useState(null);
     const [statusCode, setStatusCode] = useState(null);
     const { match: { params } } = props;
 
@@ -170,7 +170,7 @@ export const MatchSetupPage = (props) => {
 
 export const MatchSetupListPage = () => {
     // Init State
-    const [matchSetupListData, setMatchSetupListData] = useState({});
+    const [matchSetupListData, setMatchSetupListData] = useState(null);
     const [statusCode, setStatusCode] = useState(null);
     
     // Mount Component

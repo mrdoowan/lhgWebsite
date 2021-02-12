@@ -199,7 +199,8 @@ export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
             for (let playerIdx = 0; playerIdx < matchDataRiotJson['participants'].length; ++playerIdx) {
                 const newPlayerObject = {}
                 const playerRiotJson = matchDataRiotJson['participants'][playerIdx];
-                newPlayerObject['SummonerName'] = '';
+                // TODO: Add a feature where if there are summoner Ids, translate them into ProfileName if valid
+                newPlayerObject['ProfileName'] = '';
                 newPlayerObject['ChampId'] = playerRiotJson['championId'];
                 newPlayerObject['Spell1Id'] = playerRiotJson['spell1Id'];
                 newPlayerObject['Spell2Id'] = playerRiotJson['spell2Id'];
@@ -269,7 +270,7 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
                 const playerObject = editedTeamObject[`${color}Team`]['Players'][i];
                 const payloadColorPlayersList = (color === 'Blue') ? payloadBluePlayersList : payloadRedPlayersList;
                 playerObject['Role'] = payloadColorPlayersList[i]['Role'];
-                playerObject['SummonerName'] = payloadColorPlayersList[i]['SummonerName'];
+                playerObject['ProfileName'] = payloadColorPlayersList[i]['ProfileName'];
             }
         }
 
