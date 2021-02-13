@@ -1,5 +1,5 @@
+require('dotenv').config()
 // Import Routes
-import dotenv from 'dotenv';
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
 import seasonV1Routes from './routes/apiV1/seasonRoutes.js';
@@ -12,7 +12,6 @@ import { AWS_RDS_STATUS } from './services/Constants';
 import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
 
 /*  Declaring npm modules */
-dotenv.config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');

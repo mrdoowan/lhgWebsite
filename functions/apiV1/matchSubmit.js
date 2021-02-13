@@ -1,12 +1,13 @@
 // This function needs its own file because it is massive.
 
 /*  Import dependency modules */
+import { createDbMatchObject } from './matchSubmit/createMatchObject';
 import { ChampById } from '../../client/src/static/ChampById';
-import { checkRdsStatus } from './dependencies/awsRdsHelper';
 import { getProfilePIdByName } from './profileData';
 import { getTeamPIdByName } from './teamData';
-import { AWS_RDS_STATUS } from '../../services/Constants';
+import { checkRdsStatus } from './dependencies/awsRdsHelper';
 import { dynamoDbGetItem } from './dependencies/dynamoDbHelper';
+import { AWS_RDS_STATUS } from '../../services/Constants';
 const BLUE = 'Blue';
 const RED = 'Red';
 
@@ -34,7 +35,7 @@ export const submitMatchSetup = (id) => {
 
             // Check validateList and resolve with validation errors
             const validateList = await validateSetupFormFields(matchDbObject.Setup.Teams);
-            if (validateList.length > 0) {
+            if (validateList.length < 0) {
                 resolve({
                     error: 'Form fields from Match Setup are not valid.',
                     validateMessages: validateList,
@@ -43,7 +44,8 @@ export const submitMatchSetup = (id) => {
             }
             
             // Process object into databases
-            resolve(0);
+            //console.log(createDbMatchObject(id, matchDbObject.Setup));
+            resolve(matchDbObject.Setup);
         }
         catch (error) {
             console.error(error); reject(error);
