@@ -1,4 +1,5 @@
-require('dotenv').config()
+// Preload environmental variables in ES6
+import _ from './env';
 // Import Routes
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
@@ -10,6 +11,7 @@ import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
 import { AWS_RDS_STATUS } from './services/Constants';
 import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
+//console.log(_.OLD_PROFILE_HID_SALT);
 
 /*  Declaring npm modules */
 const express = require('express');
