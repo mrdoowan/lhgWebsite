@@ -6,9 +6,14 @@ import { checkRdsStatus } from './dependencies/awsRdsHelper';
 import { getProfilePIdByName } from './profileData';
 import { getTeamPIdByName } from './teamData';
 import { AWS_RDS_STATUS } from '../../services/Constants';
+import { dynamoDbGetItem } from './dependencies/dynamoDbHelper';
 const BLUE = 'Blue';
 const RED = 'Red';
 
+/**
+ * Takes the Setup of matchId 
+ * @param {string} id   matchId
+ */
 export const submitMatchSetup = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -38,7 +43,7 @@ export const submitMatchSetup = (id) => {
             }
             
             // Process object into databases
-
+            resolve(0);
         }
         catch (error) {
             console.error(error); reject(error);
@@ -46,24 +51,28 @@ export const submitMatchSetup = (id) => {
     });
 }
 
+/**
+ * 
+ * @param {object} setupTeamsDbObject 
+ */
 function validateSetupFormFields(setupTeamsDbObject) {
     return new Promise(async (resolve, reject) => {
         try {
             const validateList = [];
 
             // Check all the bans that they are actual champIds
-            const checkBans = (color, banList) => {
+            const checkBans = async (color, banList) => {
                 for (let i = 0; i < banList.length; ++i) {
                     const banId = banList[i];
                     if (!(banId in ChampById)) {
                         validateList.push(
-                            `${color} Team Bans of Id '${banId}' at index ${idx} is invalid.`
+                            `${color} Team Bans of Id '${banId}' at index ${i} is invalid.`
                         );
                     }
                 }
             }
-            checkBans(BLUE, setupTeamsDbObject.BlueTeam.Bans);
-            checkBans(RED, setupTeamsDbObject.RedTeam.Bans);
+            await checkBans(BLUE, setupTeamsDbObject.BlueTeam.Bans);
+            await checkBans(RED, setupTeamsDbObject.RedTeam.Bans);
             // Check if all profileNames exist in DynamoDb
             const checkProfiles = async (color, playerList) => {
                 for (let i = 0; i < playerList.length; ++i) {
@@ -71,16 +80,16 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     const profilePId = await getProfilePIdByName(playerObject.ProfileName);
                     if (!profilePId) {
                         validateList.push(
-                            `${color} Team Profile '${player.ProfileName}' Name does not exist in database.`
+                            `${color} Team Profile '${playerObject.ProfileName}' Name does not exist in database.`
                         );
                     }
                     else {
-                        setupTeamsDbObject[`${color}Team`].Players[idx].ProfilePId = profilePId;
+                        setupTeamsDbObject[`${color}Team`].Players[i].ProfilePId = profilePId;
                     }
                 }
             }
-            checkProfiles(BLUE, setupTeamsDbObject.BlueTeam.Players);
-            checkProfiles(RED, setupTeamsDbObject.RedTeam.Players);
+            await checkProfiles(BLUE, setupTeamsDbObject.BlueTeam.Players);
+            await checkProfiles(RED, setupTeamsDbObject.RedTeam.Players);
             // Check if both teamNames exist in DynamoDb
             const checkTeamName = async (color, teamName) => {
                 const teamPId = await getTeamPIdByName(teamName);
@@ -93,13 +102,11 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     setupTeamsDbObject[`${color}Team`].TeamPId = teamPId;
                 }
             }
-            checkTeamName(BLUE, setupTeamsDbObject.BlueTeam.TeamName);
-            checkTeamName(RED, setupTeamsDbObject.RedTeam.TeamName);
+            await checkTeamName(BLUE, setupTeamsDbObject.BlueTeam.TeamName);
+            await checkTeamName(RED, setupTeamsDbObject.RedTeam.TeamName);
             // Check if the MySQL Db is available
             if ((await checkRdsStatus()) !== AWS_RDS_STATUS.AVAILABLE) {
-                validateList.push(`
-                    MySQL Database is inactive. Start it.
-                `);
+                validateList.push(`MySQL Database is inactive. Start it first.`);
             }
 
             resolve(validateList);
@@ -107,5 +114,6 @@ function validateSetupFormFields(setupTeamsDbObject) {
         catch (err) {
             reject(err);
         }
-    });
+    })
+    
 }
