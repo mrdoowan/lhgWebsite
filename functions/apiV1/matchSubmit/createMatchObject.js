@@ -18,13 +18,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         try {
             // Call Riot API
             console.log(`Processing new match ID: ${matchSetupObject['RiotMatchId']}`);
+            const matchTeamsSetupObject = matchSetupObject['Teams'];
             const riotMatchObject = await getRiotMatchData(matchId);
             const matchDataRiotJson = riotMatchObject['Data'];
             const matchTimelineRiotJson = riotMatchObject['Timeline'];
 
             // ----- 1) Add onto matchObj of profileHId
             const profileObjByChampId = {}
-            const bluePlayerArr = matchSetupObject['BlueTeam']['Players']; // Array
+            const bluePlayerArr = matchTeamsSetupObject['BlueTeam']['Players']; // Array
             for (let i = 0; i < bluePlayerArr.length; i++) {
                 const playerSetupObject = bluePlayerArr[i];
                 profileObjByChampId[playerSetupObject['ChampId']] = {
@@ -32,7 +33,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                     'Role': playerSetupObject.Role,
                 };
             }
-            const redPlayerArr = matchSetupObject['RedTeam']['Players']; // Array
+            const redPlayerArr = matchTeamsSetupObject['RedTeam']['Players']; // Array
             for (let i = 0; i < redPlayerArr.length; i++) {
                 const playerSetupObject = redPlayerArr[i];
                 profileObjByChampId[playerSetupObject['ChampId']] = {
@@ -64,10 +65,10 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 const teamId = teamRiotObject.teamId; // 100 === BLUE, 200 === RED
                 partIdByTeamIdAndRole[teamId] = {};
                 if (teamId == TEAM_ID.BLUE) {
-                    teamData['TeamHId'] = getTeamHashId(matchSetupObject['BlueTeam']['TeamPId']);
+                    teamData['TeamHId'] = getTeamHashId(matchTeamsSetupObject['BlueTeam']['TeamPId']);
                 }
                 else if (teamId == TEAM_ID.RED) {
-                    teamData['TeamHId'] = getTeamHashId(matchSetupObject['RedTeam']['TeamPId']);
+                    teamData['TeamHId'] = getTeamHashId(matchTeamsSetupObject['RedTeam']['TeamPId']);
                 }
                 if (teamRiotObject.win === 'Win') {
                     teamData['Win'] = true;
