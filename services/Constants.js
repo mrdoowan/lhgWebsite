@@ -23,7 +23,7 @@ export const MINUTE = {
 }
 
 export const BARON_DURATION = {
-    PATCH_CHANGE = '9.23',
-    CURRENT = 180, // in seconds
-    OLD = 210, // in seconds
+    PATCH_CHANGE: '9.23',
+    CURRENT: 180, // in seconds
+    OLD: 210, // in seconds
 }
