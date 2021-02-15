@@ -19,10 +19,11 @@ export const error500sServerError = (err, res, errorMessage) => {
  * @param {*} req 
  * @param {string} errorMessage 
  */
-export const res400sClientError = (res, req, errorMessage) => {
+export const res400sClientError = (res, req, errorMessage, data=null) => {
     const code = (req.method === 'POST' || req.method === 'PUT') ? 422 : 404;
     return res.status(code).json({
         error: errorMessage,
+        data: data,
     });
 }
 

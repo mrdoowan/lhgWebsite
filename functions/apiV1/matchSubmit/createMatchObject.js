@@ -3,6 +3,7 @@ import { Versions } from '../../../client/src/static/Versions';
 import {
     TEAM_ID,
     MINUTE,
+    BARON_DURATION,
 } from '../../../services/Constants';
 import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
 import { getProfileHashId, getTeamHashId } from '../dependencies/global';
@@ -62,10 +63,10 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 const teamData = {};
                 const teamId = teamRiotObject.teamId; // 100 === BLUE, 200 === RED
                 partIdByTeamIdAndRole[teamId] = {};
-                if (teamId === TEAM_ID.BLUE) {
+                if (teamId == TEAM_ID.BLUE) {
                     teamData['TeamHId'] = getTeamHashId(matchSetupObject['BlueTeam']['TeamPId']);
                 }
-                else if (teamId === TEAM_ID.RED) {
+                else if (teamId == TEAM_ID.RED) {
                     teamData['TeamHId'] = getTeamHashId(matchSetupObject['RedTeam']['TeamPId']);
                 }
                 if (teamRiotObject.win === 'Win') {
@@ -243,10 +244,10 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 for (const partId in frameRiotObject.participantFrames) {
                     const thisTeamId = teamIdByPartId[partId];
                     const partFrameRiotObject = frameRiotObject.participantFrames[partId];
-                    if (thisTeamId === TEAM_ID.BLUE) {
+                    if (thisTeamId == TEAM_ID.BLUE) {
                         blueTeamGold += partFrameRiotObject['totalGold'];
                     }
-                    else if (thisTeamId === TEAM_ID.RED) {
+                    else if (thisTeamId == TEAM_ID.RED) {
                         redTeamGold += partFrameRiotObject['totalGold'];
                     }
                     // playerData: EARLY_MINUTE and MID_MINUTE
@@ -304,7 +305,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                         }
                     }
                     else if (riotEventObject.type === 'BUILDING_KILL') {
-                        eventItem['TeamId'] = (riotEventObject.teamId === TEAM_ID.BLUE) 
+                        eventItem['TeamId'] = (riotEventObject.teamId == TEAM_ID.BLUE) 
                             ? parseInt(TEAM_ID.RED) : parseInt(TEAM_ID.BLUE);   
                         // FROM RIOT API, THE ABOVE IS TEAM_ID OF TOWER DESTROYED. NOT KILLED (which is what we intend)
                         eventItem['Timestamp'] = riotEventObject.timestamp;
@@ -363,12 +364,12 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                         }
                         // teamData: EARLY_MINUTE and MID_MINUTE Kills
                         if (minute < MINUTE.EARLY) {
-                            if (teamId === TEAM_ID.BLUE) { blueKillsAtEarly++; }
-                            else if (teamId === TEAM_ID.RED) { redKillsAtEarly++; }
+                            if (teamId == TEAM_ID.BLUE) { blueKillsAtEarly++; }
+                            else if (teamId == TEAM_ID.RED) { redKillsAtEarly++; }
                         }
                         if (minute < MINUTE.MID) {
-                            if (teamId === TEAM_ID.BLUE) { blueKillsAtMid++; }
-                            else if (teamId === TEAM_ID.RED) { redKillsAtMid++; }
+                            if (teamId == TEAM_ID.BLUE) { blueKillsAtMid++; }
+                            else if (teamId == TEAM_ID.RED) { redKillsAtMid++; }
                         }
                     }
                     else if (riotEventObject.type === 'ITEM_PURCHASED') {
@@ -540,4 +541,86 @@ async function getDDragonVersion(patch) {
         }
     }
     return Versions[0]; // Return latest as default
+}
+
+/**
+ * Ever since Patch 9.23, baron duration is 3 minutes. Before then, it used to be 3.5 minutes.
+ * @param {string} thisPatch    patch in string format (i.e. "10.20")
+ */
+function updateBaronDuration(thisPatch) {
+    return (isPatch1LaterThanPatch2(thisPatch, BARON_DURATION.PATCH_CHANGE)) ? 
+        BARON_DURATION.CURRENT : BARON_DURATION.OLD;
+}
+
+/**
+ * Compares the two patch strings and returns "true" if patch1 is later than patch2.
+ * Assumption: patch1 and patch2 are formatted in "##.##"
+ * @param {string} patch1 
+ * @param {string} patch2 
+ */
+// Assumption: patch1 and patch2 are formatted in "##.##"
+function isPatch1LaterThanPatch2(patch1, patch2) {
+    const patch1Arr = patch1.split('.');
+    const patch2Arr = patch2.split('.');
+    const season1 = parseInt(patch1Arr[0]);
+    const season2 = parseInt(patch2Arr[0]);
+    const version1 = parseInt(patch1Arr[1]);
+    const version2 = parseInt(patch2Arr[1]);
+
+    if (season1 < season2) { return false; }
+    else if (season1 > season2) { return true; }
+    return (version1 >= version2) ? true : false;
+}
+
+/**
+ * returns the Team Gold at the given timestamp. Does a linear approximation in between seconds
+ * @param {number} timestamp        Expressed in seconds
+ * @param {Array} timelineList      List of events from the Riot Timeline API Request
+ * @param {string} teamId           "100" == Blue, "200" == Red
+ */
+function teamGoldAtTimeStamp(timestamp, timelineList, teamId) {
+    const timeStampMinute = Math.floor(timestamp / 60);
+    const timeStampSeconds = timestamp % 60;
+    if ((timeStampMinute + 1) >= timelineList.length) { return null; }
+
+    // Take team gold at marked minute, and from minute + 1. Average them.
+    const teamGoldAtMinute = (teamId == TEAM_ID.BLUE) ? timelineList[timeStampMinute]['BlueTeamGold'] : timelineList[timeStampMinute]['RedTeamGold'];
+    const teamGoldAtMinutePlus1 = (teamId == TEAM_ID.BLUE) ? timelineList[timeStampMinute+1]['BlueTeamGold'] : timelineList[timeStampMinute+1]['RedTeamGold'];
+    const goldPerSecond = (teamGoldAtMinutePlus1 - teamGoldAtMinute) / 60;
+    return (teamGoldAtMinute + Math.floor((goldPerSecond * timeStampSeconds)));
+}
+
+/**
+ * Modifies the timelineList to compute the Power Play of each Baron event
+ * Returns nothing.
+ * @param {Array} baronObjectiveMinuteIndices   A list of indices where a Baron was taken in the Timeline
+ * @param {Array} timelineList                  List of events from the Riot Timeline API Request
+ * @param {string} patch                        Patch of what the event took place in
+ */
+function computeBaronPowerPlay(baronObjectiveMinuteIndices, timelineList, patch) {
+    return new Promise(function(resolve, reject) {
+        try {
+            const baronDuration = updateBaronDuration(patch); // in seconds
+            Object.keys(baronObjectiveMinuteIndices).forEach(function(minute) {
+                const eventIndex = baronObjectiveMinuteIndices[minute];
+                const baronEventObject = timelineList[minute]['Events'][eventIndex]; // Make shallow copy and change that
+                const thisTeamId = baronEventObject.TeamId;
+                const oppTeamId = (thisTeamId == TEAM_ID.BLUE) ? TEAM_ID.RED : TEAM_ID.BLUE;
+                const timeStampAtKill = baronEventObject.Timestamp / 1000; // Convert ms -> seconds
+                const teamGoldAtKill = teamGoldAtTimeStamp(timeStampAtKill, timelineList, thisTeamId);
+                const oppGoldAtKill = teamGoldAtTimeStamp(timeStampAtKill, timelineList, oppTeamId);
+                if (teamGoldAtKill == null || oppGoldAtKill == null) { return; }
+                const timeStampAtExpire = timeStampAtKill + baronDuration;
+                const teamGoldAtExpire = teamGoldAtTimeStamp(timeStampAtExpire, timelineList, thisTeamId);
+                const oppGoldAtExpire = teamGoldAtTimeStamp(timeStampAtExpire, timelineList, oppTeamId);
+                if (teamGoldAtExpire == null || oppGoldAtExpire == null) { return; }
+                baronEventObject['BaronPowerPlay'] = (teamGoldAtExpire - teamGoldAtKill) - (oppGoldAtExpire - oppGoldAtKill);
+            });
+            resolve(0);
+        }
+        catch (err) {
+            console.error("computeBaronPowerPlay Promise Rejected.");
+            reject(err);
+        }
+    });
 }

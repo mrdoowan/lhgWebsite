@@ -7,9 +7,10 @@ import { getProfilePIdByName } from './profileData';
 import { getTeamPIdByName } from './teamData';
 import { checkRdsStatus } from './dependencies/awsRdsHelper';
 import { dynamoDbGetItem } from './dependencies/dynamoDbHelper';
-import { AWS_RDS_STATUS } from '../../services/Constants';
-const BLUE = 'Blue';
-const RED = 'Red';
+import { 
+    AWS_RDS_STATUS,
+    TEAM_STRING,
+} from '../../services/Constants';
 
 /**
  * Takes the Setup of matchId 
@@ -38,14 +39,14 @@ export const submitMatchSetup = (id) => {
             if (validateList.length < 0) {
                 resolve({
                     error: 'Form fields from Match Setup are not valid.',
+                    setupObject: matchDbObject.Setup,
                     validateMessages: validateList,
                 });
                 return;
             }
             
-            // Process object into databases
-            //console.log(createDbMatchObject(id, matchDbObject.Setup));
-            resolve(matchDbObject.Setup);
+            // Create Db object for databases
+            resolve(await createDbMatchObject(id, matchDbObject.Setup));
         }
         catch (error) {
             console.error(error); reject(error);
@@ -73,8 +74,8 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     }
                 }
             }
-            await checkBans(BLUE, setupTeamsDbObject.BlueTeam.Bans);
-            await checkBans(RED, setupTeamsDbObject.RedTeam.Bans);
+            await checkBans(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.Bans);
+            await checkBans(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Bans);
             // Check if all profileNames exist in DynamoDb
             const checkProfiles = async (color, playerList) => {
                 for (let i = 0; i < playerList.length; ++i) {
@@ -90,8 +91,8 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     }
                 }
             }
-            await checkProfiles(BLUE, setupTeamsDbObject.BlueTeam.Players);
-            await checkProfiles(RED, setupTeamsDbObject.RedTeam.Players);
+            await checkProfiles(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.Players);
+            await checkProfiles(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Players);
             // Check if both teamNames exist in DynamoDb
             const checkTeamName = async (color, teamName) => {
                 const teamPId = await getTeamPIdByName(teamName);
@@ -104,8 +105,8 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     setupTeamsDbObject[`${color}Team`].TeamPId = teamPId;
                 }
             }
-            await checkTeamName(BLUE, setupTeamsDbObject.BlueTeam.TeamName);
-            await checkTeamName(RED, setupTeamsDbObject.RedTeam.TeamName);
+            await checkTeamName(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.TeamName);
+            await checkTeamName(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.TeamName);
             // Check if the MySQL Db is available
             if ((await checkRdsStatus()) !== AWS_RDS_STATUS.AVAILABLE) {
                 validateList.push(`MySQL Database is inactive. Start it first.`);

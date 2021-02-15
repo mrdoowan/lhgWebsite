@@ -12,7 +12,18 @@ export const TEAM_ID = {
     RED: "200",
 }
 
+export const TEAM_STRING = {
+    BLUE: 'Blue',
+    RED: 'Red',
+}
+
 export const MINUTE = {
     EARLY: 15,
     MID: 25,
+}
+
+export const BARON_DURATION = {
+    PATCH_CHANGE = '9.23',
+    CURRENT = 180, // in seconds
+    OLD = 210, // in seconds
 }

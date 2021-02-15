@@ -134,7 +134,11 @@ matchV1Routes.put('/setup/submit', (req, res) => {
     console.log(`PUT Request Match '${matchId}' Save Submit. Huge request`);
     submitMatchSetup(matchId).then((response) => {
         if (!response) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
-        else if ('validateMessages' in response) { return res400sClientError(res, req, `Match ID '${matchId}' PUT Request Submit has invalid inputs.`); }
+        else if ('validateMessages' in response) { 
+            return res400sClientError(
+                res, req, `Match ID '${matchId}' PUT Request Submit has invalid inputs.`, response
+            ); 
+        }
         return res200sOK(res, req, response);
     }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
 })
