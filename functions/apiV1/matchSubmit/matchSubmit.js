@@ -1,16 +1,16 @@
 // This function needs its own file because it is massive.
 
 /*  Import dependency modules */
-import { createDbMatchObject } from './matchSubmit/createMatchObject';
-import { ChampById } from '../../client/src/static/ChampById';
-import { getProfilePIdByName } from './profileData';
-import { getTeamPIdByName } from './teamData';
-import { checkRdsStatus } from './dependencies/awsRdsHelper';
-import { dynamoDbGetItem } from './dependencies/dynamoDbHelper';
+import { createDbMatchObject } from './createMatchObject';
+import { ChampById } from '../../../client/src/static/ChampById';
+import { getProfilePIdByName } from '../profileData';
+import { getTeamPIdByName } from '../teamData';
+import { checkRdsStatus } from '../dependencies/awsRdsHelper';
+import { dynamoDbGetItem } from '../dependencies/dynamoDbHelper';
 import { 
     AWS_RDS_STATUS,
     TEAM_STRING,
-} from '../../services/Constants';
+} from '../../../services/Constants';
 
 /**
  * Takes the Setup of matchId 

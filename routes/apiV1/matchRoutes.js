@@ -15,7 +15,7 @@ import {
     getMatchSetupList,
     putMatchSaveSetup,
 } from '../../functions/apiV1/matchData';
-import { submitMatchSetup } from '../../functions/apiV1/matchSubmit';
+import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 
 /*  
     ----------------------
