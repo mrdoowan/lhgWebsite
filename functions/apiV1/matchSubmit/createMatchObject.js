@@ -610,11 +610,11 @@ function computeBaronPowerPlay(baronObjectiveMinuteIndices, timelineList, patch)
                 const timeStampAtKill = baronEventObject.Timestamp / 1000; // Convert ms -> seconds
                 const teamGoldAtKill = teamGoldAtTimeStamp(timeStampAtKill, timelineList, thisTeamId);
                 const oppGoldAtKill = teamGoldAtTimeStamp(timeStampAtKill, timelineList, oppTeamId);
-                if (teamGoldAtKill == null || oppGoldAtKill == null) { return; }
+                if (!teamGoldAtKill || !oppGoldAtKill) { return; }
                 const timeStampAtExpire = timeStampAtKill + baronDuration;
                 const teamGoldAtExpire = teamGoldAtTimeStamp(timeStampAtExpire, timelineList, thisTeamId);
                 const oppGoldAtExpire = teamGoldAtTimeStamp(timeStampAtExpire, timelineList, oppTeamId);
-                if (teamGoldAtExpire == null || oppGoldAtExpire == null) { return; }
+                if (!teamGoldAtExpire || !oppGoldAtExpire) { return; }
                 baronEventObject['BaronPowerPlay'] = (teamGoldAtExpire - teamGoldAtKill) - (oppGoldAtExpire - oppGoldAtKill);
             });
             resolve(0);
