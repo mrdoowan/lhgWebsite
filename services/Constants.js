@@ -15,6 +15,10 @@ export const TEAM_ID = {
 export const TEAM_STRING = {
     BLUE: 'Blue',
     RED: 'Red',
+    SIDE: {
+        '100': 'Blue', 
+        '200': 'Red', 
+    }
 }
 
 export const MINUTE = {

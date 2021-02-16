@@ -6,11 +6,12 @@ import { ChampById } from '../../../client/src/static/ChampById';
 import { getProfilePIdByName } from '../profileData';
 import { getTeamPIdByName } from '../teamData';
 import { checkRdsStatus } from '../dependencies/awsRdsHelper';
-import { dynamoDbGetItem } from '../dependencies/dynamoDbHelper';
+import { dynamoDbGetItem, dynamoDbPutItem } from '../dependencies/dynamoDbHelper';
 import { 
     AWS_RDS_STATUS,
     TEAM_STRING,
 } from '../../../services/Constants';
+import mySqlInsertMatch from './mySqlInsertMatch';
 
 /**
  * Takes the Setup of matchId 
@@ -36,7 +37,7 @@ export const submitMatchSetup = (id) => {
 
             // Check validateList and resolve with validation errors
             const validateList = await validateSetupFormFields(matchDbObject.Setup.Teams);
-            if (validateList.length < 0) {
+            if (validateList.length > 0) {
                 resolve({
                     error: 'Form fields from Match Setup are not valid.',
                     setupObject: matchDbObject.Setup,
@@ -45,8 +46,10 @@ export const submitMatchSetup = (id) => {
                 return;
             }
             
-            // Create Db object for databases
-            resolve(await createDbMatchObject(id, matchDbObject.Setup));
+            // Create Db object for databases and push into MySQL and DynamoDb
+            const newMatchDbObject = await createDbMatchObject(id, matchDbObject.Setup);
+            await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);
+            await dynamoDbPutItem('Matches', newMatchDbObject, id);
         }
         catch (error) {
             console.error(error); reject(error);
