@@ -12,6 +12,7 @@ import {
     TEAM_STRING,
 } from '../../../services/Constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
+import { getMatchSetupList } from '../matchData';
 
 /**
  * Takes the Setup of matchId 
@@ -50,6 +51,16 @@ export const submitMatchSetup = (id) => {
             const newMatchDbObject = await createDbMatchObject(id, matchDbObject.Setup);
             await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);
             await dynamoDbPutItem('Matches', newMatchDbObject, id);
+
+            // Delete from MatchSetup list in the 'Miscellaneous' DynamoDb table.
+            const setupIdList = await getMatchSetupList();
+            const newSetupIdList = setupIdList.filter(e => e !== id);
+            const newDbItem = {
+                Key: 'MatchSetupIds',
+                MatchSetupIdList: newSetupIdList
+            };
+            await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+
             resolve(newMatchDbObject);
         }
         catch (error) {
