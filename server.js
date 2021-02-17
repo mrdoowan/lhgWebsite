@@ -9,7 +9,7 @@ import profileV1Routes from './routes/apiV1/profileRoutes.js';
 import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
-import { AWS_RDS_STATUS } from './services/Constants';
+import { AWS_RDS_STATUS, RDS_TYPE } from './services/Constants';
 import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
 
 /*  Declaring npm modules */
@@ -47,15 +47,27 @@ if (process.env.NODE_ENV === 'production') {
 
 // Check if the MySQL Db is "Available" every hour. If so, stop the instance.
 schedule.scheduleJob('00 * * * *', function(){
-    checkRdsStatus().then((status) => {
+    checkRdsStatus(RDS_TYPE.PROD).then((status) => {
+        console.log(`Current AWS RDS Production status: '${status}'`);
         if (status === AWS_RDS_STATUS.AVAILABLE) {
-            stopRdsInstance().then(() => {
-                console.log(`Stopping AWS RDS instances`);
+            stopRdsInstance(RDS_TYPE.PROD).then(() => {
+                console.log(`Stopping AWS RDS Production instance`);
             }).catch((err) => {
                 console.error(err, err.stack);
             });
         }
-    })
+    });
+
+    checkRdsStatus(RDS_TYPE.TEST).then((status) => {
+        console.log(`Current AWS RDS Test status: '${status}'`);
+        if (status === AWS_RDS_STATUS.AVAILABLE) {
+            stopRdsInstance(RDS_TYPE.TEST).then(() => {
+                console.log(`Stopping AWS RDS Test instance`);
+            }).catch((err) => {
+                console.error(err, err.stack);
+            });
+        }
+    });
 });
 
 const port = process.env.PORT || 5000;

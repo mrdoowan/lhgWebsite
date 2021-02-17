@@ -6,16 +6,30 @@ const rds = new AWS.RDS({apiVersion: '2014-10-31'});
 
 // Import
 import { getDateString } from '../../../client/src/util/StringHelper';
+import { RDS_TYPE } from '../../../services/Constants';
+
+/**
+ * 
+ * @param {*} rdsType   'Production', 'Test'. If neither, default to based on environment
+ */
+const getRdsInstantName = (rdsType) => {
+    return (rdsType === RDS_TYPE.TEST) ? // Test
+        `${process.env.MYSQL_INSTANCE}-test` : 
+        (rdsType === RDS_TYPE.PROD) ? // Production
+        process.env.MYSQL_INSTANCE :
+        (process.env.TEST_DB === 'true') ? // Default
+        `${process.env.MYSQL_INSTANCE}-test` : 
+        process.env.MYSQL_INSTANCE;
+}
 
 /**
  * Returns 'stopped', 'stopping', 'available', 'starting'
  * https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Status.html
+ * @param {*} rdsType   'Production', 'Test'. If neither, default to based on environment
  */
-export const checkRdsStatus = () => {
+export const checkRdsStatus = (rdsType = null) => {
     return new Promise((resolve, reject) => {
-        const rdsInstantName = (process.env.TEST_DB === 'true') ? 
-            `${process.env.MYSQL_INSTANCE}-test` : 
-            process.env.MYSQL_INSTANCE;
+        const rdsInstantName = getRdsInstantName(rdsType);
 
         const params = {
             DBInstanceIdentifier: rdsInstantName,
@@ -34,12 +48,11 @@ export const checkRdsStatus = () => {
 
 /**
  * Start the RDS instance when 'Stopped'
+ * @param {*} rdsType   'Production', 'Test'. If neither, default to based on environment
  */
-export const startRdsInstance = () => {
+export const startRdsInstance = (rdsType = null) => {
     return new Promise((resolve, reject) => {
-        const rdsInstantName = (process.env.TEST_DB === 'true') ? 
-            `${process.env.MYSQL_INSTANCE}-test` : 
-            process.env.MYSQL_INSTANCE;
+        const rdsInstantName = getRdsInstantName(rdsType);
 
         const params = {
             DBInstanceIdentifier: rdsInstantName,
@@ -58,13 +71,12 @@ export const startRdsInstance = () => {
 
 /**
  * Stop the RDS instance when 'Available'
+ * @param {*} rdsType   'Production', 'Test'. If neither, default to based on environment
  */
-export const stopRdsInstance = () => {
+export const stopRdsInstance = (rdsType = null) => {
     return new Promise((resolve, reject) => {
-        const rdsInstantName = (process.env.TEST_DB === 'true') ? 
-            `${process.env.MYSQL_INSTANCE}-test` : 
-            process.env.MYSQL_INSTANCE;
-        const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD');
+        const rdsInstantName = getRdsInstantName(rdsType);
+        const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD-HH-MM');
 
         const params = {
             DBInstanceIdentifier: rdsInstantName,
@@ -72,8 +84,7 @@ export const stopRdsInstance = () => {
         };
         rds.stopDBInstance(params, function(err, data) {
             if (err) {
-                reject(err);
-                return;
+                reject(err); return;
             }
             else {
                 resolve(data);
