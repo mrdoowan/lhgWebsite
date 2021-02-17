@@ -38,7 +38,7 @@ import { getProfileName } from './profileData';
  */
 // Get TeamPId from TeamName
 export const getTeamPIdByName = (name) => {
-    let simpleName = filterName(name);
+    const simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {

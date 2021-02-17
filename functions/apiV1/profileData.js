@@ -34,18 +34,21 @@ import {
 } from './tournamentData';
 import { getTeamName } from './teamData';
 
-// Get ProfilePId from ProfileName
+/**
+ * Returns ProfilePId 'string' from ProfileName
+ * @param {string} name 
+ */
 export const getProfilePIdByName = (name) => {
-    let simpleName = filterName(name);
+    const simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
-            else if (data != null) { resolve(data); return; }
+            else if (data) { resolve(data); return; }
             dynamoDbGetItem('ProfileNameMap', 'ProfileName', simpleName)
             .then((obj) => {
-                if (obj == null) { resolve(null); return; } // Not Found 
-                let pPId = getProfilePIdFromHash(obj['ProfileHId']);
+                if (!obj) { resolve(null); return; } // Not Found 
+                const pPId = getProfilePIdFromHash(obj['ProfileHId']);
                 cache.set(cacheKey, pPId);
                 resolve(pPId);
             }).catch((error) => { console.error(error); reject(error) });

@@ -199,7 +199,6 @@ export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
             for (let playerIdx = 0; playerIdx < matchDataRiotJson['participants'].length; ++playerIdx) {
                 const newPlayerObject = {}
                 const playerRiotJson = matchDataRiotJson['participants'][playerIdx];
-                // TODO: Add a feature where if there are summoner Ids, translate them into ProfileName if valid
                 newPlayerObject['ProfileName'] = '';
                 newPlayerObject['ChampId'] = playerRiotJson['championId'];
                 newPlayerObject['Spell1Id'] = playerRiotJson['spell1Id'];
