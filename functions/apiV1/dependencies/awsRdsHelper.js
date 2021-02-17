@@ -64,7 +64,7 @@ export const stopRdsInstance = () => {
         const rdsInstantName = (process.env.TEST_DB === 'true') ? 
             `${process.env.MYSQL_INSTANCE}-test` : 
             process.env.MYSQL_INSTANCE;
-        const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD');
+        const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD_HH:MM');
 
         const params = {
             DBInstanceIdentifier: rdsInstantName,
