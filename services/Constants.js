@@ -31,3 +31,8 @@ export const BARON_DURATION = {
     CURRENT: 180, // in seconds
     OLD: 210, // in seconds
 }
+
+export const RDS_TYPE = {
+    PROD: 'Production',
+    TEST: 'Test',
+}
