@@ -131,7 +131,7 @@ matchV1Routes.put('/setup/save', (req, res) => {
 matchV1Routes.put('/setup/submit', (req, res) => {
     const { matchId } = req.body;
 
-    console.log(`PUT Request Match '${matchId}' Save Submit. Huge request`);
+    console.log(`PUT Request Match '${matchId}' Setup Submit.`);
     submitMatchSetup(matchId).then((response) => {
         if (!response) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
         else if ('validateMessages' in response) { 

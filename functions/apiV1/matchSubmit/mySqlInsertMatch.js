@@ -1,6 +1,7 @@
 /*  Import dependency modules */
 
 import {
+    TEAM_ID,
     TEAM_STRING,
     MINUTE,
 } from '../../../services/Constants';
@@ -16,11 +17,11 @@ import { mySqlInsertQuery } from '../dependencies/mySqlHelper';
  * @param {object} matchDbObject 
  * @param {object} matchSubmitObject 
  */
-export default mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
+export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
     try {
         // 1) MatchStats
-        const blueTeamPId = getTeamPIdFromHash(newMatchDbObject['Teams'][TEAM_STRING.BLUE]['TeamHId']);
-        const redTeamPId = getTeamPIdFromHash(newMatchDbObject['Teams'][TEAM_STRING.RED]['TeamHId']);
+        const blueTeamPId = getTeamPIdFromHash(newMatchDbObject['Teams'][TEAM_ID.BLUE]['TeamHId']);
+        const redTeamPId = getTeamPIdFromHash(newMatchDbObject['Teams'][TEAM_ID.RED]['TeamHId']);
         const insertMatchStatsColumn = {
             'riotMatchId': matchSetupObject['RiotMatchId'],
             'seasonPId': matchSetupObject['SeasonPId'],
@@ -40,8 +41,8 @@ export default mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => 
             const teamSide = Object.keys(newMatchDbObject['Teams'])[i]; // "100" or "200"
             const teamObject = newMatchDbObject['Teams'][teamSide];
             const durationByMinute = newMatchDbObject.GameDuration / 60;
-            const thisTeamPId = (teamSide == TEAM_STRING.BLUE) ? blueTeamPId : redTeamPId;
-            const enemyTeamPId = (teamSide == TEAM_STRING.BLUE) ? redTeamPId : blueTeamPId;
+            const thisTeamPId = (teamSide == TEAM_ID.BLUE) ? blueTeamPId : redTeamPId;
+            const enemyTeamPId = (teamSide == TEAM_ID.BLUE) ? redTeamPId : blueTeamPId;
             const insertTeamStatsColumn = {
                 'riotMatchId': matchSetupObject['RiotMatchId'],
                 'teamPId': thisTeamPId,
@@ -168,7 +169,7 @@ export default mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => 
                     if (['Tower','Inhibitor','Dragon','Baron','Herald'].includes(eventObject.EventType)) {
                         const insertObjectivesColumn = {
                             'riotMatchId': matchSetupObject['RiotMatchId'],
-                            'teamPId': (eventObject.TeamId == TEAM_STRING.BLUE) ? blueTeamPId : redTeamPId,
+                            'teamPId': (eventObject.TeamId == TEAM_ID.BLUE) ? blueTeamPId : redTeamPId,
                             'objectiveEvent': eventObject.EventType,
                             'timestamp': eventObject.Timestamp
                         };

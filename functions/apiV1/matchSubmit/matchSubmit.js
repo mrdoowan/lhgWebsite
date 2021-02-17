@@ -11,7 +11,7 @@ import {
     AWS_RDS_STATUS,
     TEAM_STRING,
 } from '../../../services/Constants';
-import mySqlInsertMatch from './mySqlInsertMatch';
+import { mySqlInsertMatch } from './mySqlInsertMatch';
 
 /**
  * Takes the Setup of matchId 
@@ -50,6 +50,7 @@ export const submitMatchSetup = (id) => {
             const newMatchDbObject = await createDbMatchObject(id, matchDbObject.Setup);
             await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);
             await dynamoDbPutItem('Matches', newMatchDbObject, id);
+            resolve(newMatchDbObject);
         }
         catch (error) {
             console.error(error); reject(error);
