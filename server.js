@@ -46,7 +46,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Check if the MySQL Db is "Available" every hour. If so, stop the instance.
-schedule.scheduleJob('25 * * * *', function(){
+schedule.scheduleJob('00 * * * *', function(){
     checkRdsStatus(RDS_TYPE.PROD).then((status) => {
         console.log(`Current AWS RDS Production status: '${status}'`);
         if (status === AWS_RDS_STATUS.AVAILABLE) {
