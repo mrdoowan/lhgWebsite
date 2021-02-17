@@ -98,7 +98,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     const profilePId = await getProfilePIdByName(playerObject.ProfileName);
                     if (!profilePId) {
                         validateList.push(
-                            `${color} Team Profile '${playerObject.ProfileName}' Name does not exist in database.`
+                            `${color} Team Profile Name '${playerObject.ProfileName}' does not exist in database.`
                         );
                     }
                     else {
@@ -113,7 +113,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
                 const teamPId = await getTeamPIdByName(teamName);
                 if (!teamPId) {
                     validateList.push(
-                        `${color} Team '${teamName}' Name does not exist in database.`
+                        `${color} Team Name '${teamName}' does not exist in database.`
                     );
                 }
                 else {

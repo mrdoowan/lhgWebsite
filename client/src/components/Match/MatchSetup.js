@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import axios from 'axios';
 // Formik
 import { Formik, Form, Field } from 'formik';
@@ -74,6 +75,7 @@ export default function MatchSetup({ setupData }) {
     const RED = "red";
     const NUMBER_OF_PLAYERS = 5;
     const NUMBER_OF_BANS = 5;
+    const history = useHistory();
 
     const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
     const [saveButtonPressed, setSaveButtonPressed] = useState(false);
@@ -83,7 +85,12 @@ export default function MatchSetup({ setupData }) {
      * @param {string} message 
      */
     const appendMessage = (message) => {
-        setMessageList(messageList => [...messageList, message]);
+        if (Array.isArray(message)) {
+            setMessageList(oldMessageList => [...oldMessageList, ...message]);
+        }
+        else {
+            setMessageList(oldMessageList => [...oldMessageList, message]);
+        }
     }
     /**
      * Initializes the array and add 0s if length < 5
@@ -170,15 +177,31 @@ export default function MatchSetup({ setupData }) {
     /**
      * Formik's submit handler
      */
-    const handleSubmit = (values, {setSubmitting}) => {
-        setMessageList([]);
-        if (submitButtonPressed) {
-            console.log("Submit!");
-            console.log(values);
-            setSubmitButtonPressed(false);
-            setSubmitting(false);
-        }
-        else if (saveButtonPressed) {
+    const handleSubmit = async (values, {setSubmitting}) => {
+        const callMatchSetupSubmit = async () => {
+            axios.put('/api/match/v1/setup/submit',
+                { matchId: setupData.RiotMatchId }
+            ).then(() => {
+                // Redirect link to new match link
+                history.push(`/match/${setupData.RiotMatchId}`);
+            }).catch((err) => {
+                if (err.response.status === 500) {
+                    appendMessage(
+                        'Setup Submit PUT request failed...'
+                    );
+                }
+                else {
+                    const { data: { data } } = err.response;
+                    appendMessage(
+                        data.validateMessages
+                    );
+                }
+            }).finally(() => {
+                setSaveButtonPressed(false);
+                setSubmitting(false);
+            });
+        };
+        const callMatchSetupSave = async () => {
             axios.put('/api/match/v1/setup/save', 
                 transformValueData(values)
             ).then(() => {
@@ -187,12 +210,21 @@ export default function MatchSetup({ setupData }) {
                 );
             }).catch(() => {
                 appendMessage(
-                    'Setup save failed...'
+                    'Setup Save PUT request failed...'
                 );
             }).finally(() => {
                 setSaveButtonPressed(false);
                 setSubmitting(false);
             });
+        }
+
+        setMessageList([]);
+        if (submitButtonPressed) {
+            await callMatchSetupSave();
+            await callMatchSetupSubmit();
+        }
+        else if (saveButtonPressed) {
+            callMatchSetupSave();
         }
     }
 
@@ -431,8 +463,12 @@ export default function MatchSetup({ setupData }) {
                         </Form>
                     </Formik>
                     <h2 className={classes.title}>
-                        {messageList.map((message) => (
-                            <React.Fragment>{message} <br /></React.Fragment>
+                        {messageList.map((message, idx) => (
+                            <React.Fragment key={idx}>
+                                <div className="error-message">
+                                    {message}<br />
+                                </div>
+                            </React.Fragment>
                         ))}
                     </h2>
                 </Paper>
