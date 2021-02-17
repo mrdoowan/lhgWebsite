@@ -80,7 +80,7 @@ class App extends Component {
                         <Route path="/match/:matchPId/timeline" component={matchTimeline} exact/>
                         <Route path="/match/:matchPId/builds" component={matchBuilds} exact/>
                         <Route path="/match/:matchPId/setup" component={MatchSetupPage} exact/>
-                        <Route path="/matchSetup/list" component={MatchSetupListPage} exact/>
+                        <Route path="/matchsetup/list" component={MatchSetupListPage} exact/>
 
                         { /* ERROR 404: Path does not exist */ }
                         <Route component={error404} />
