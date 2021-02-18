@@ -267,6 +267,7 @@ export const TournamentUpdatePage = (props) => {
 
     /**
      * Check if all numbers have values
+     * @returns {boolean}
      */
     const isAllUpdated = () => {
         return (playerNumber && teamNumber && gameNumber);
@@ -305,7 +306,7 @@ export const TournamentUpdatePage = (props) => {
             if (success) {
                 setStatusCode(res.status);
                 setPlayerNumber(playerList.length);
-                setLoading(isAllUpdated());
+                setLoading(!isAllUpdated());
             }
         }).catch((err) => {
             console.error(err);
@@ -339,7 +340,7 @@ export const TournamentUpdatePage = (props) => {
             if (success) {
                 setStatusCode(res.status);
                 setTeamNumber(teamList.length);
-                setLoading(isAllUpdated());
+                setLoading(!isAllUpdated());
             }
         }).catch((err) => {
             console.error(err);
@@ -354,7 +355,7 @@ export const TournamentUpdatePage = (props) => {
         }).then((res) => {
             setStatusCode(res.status);
             setGameNumber(res.data.gamesNum);
-            setLoading(isAllUpdated());
+            setLoading(!isAllUpdated());
         }).catch((err) => { 
             console.error(err); 
             setStatusCode(err.response.status);

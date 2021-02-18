@@ -16,6 +16,8 @@ import {
     putMatchSaveSetup,
 } from '../../functions/apiV1/matchData';
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
+import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
+import { AWS_RDS_STATUS } from '../../services/Constants';
 
 /*  
     ----------------------
@@ -59,6 +61,7 @@ matchV1Routes.get('/setup/data/:matchId', (req, res) => {
 //#region POST / PUT / DELETE Requests - Match
 
 /**
+ * Uses MySQL
  * @route   PUT api/match/v1/players/update
  * @desc    Fix Player assignment to champions
  * @access  Private (to Admins)
@@ -67,10 +70,15 @@ matchV1Routes.put('/players/update', (req, res) => {
     const { playersToFix, matchId } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Players`);
-    putMatchPlayerFix(playersToFix, matchId).then((data) => {
-        if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
-        return res200sOK(res, req, data);
-    }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
+    checkRdsStatus().then((status) => {
+        if (status !== AWS_RDS_STATUS.AVAILABLE) {
+            return res400sClientError(res, req, `AWS Rds Instance not available.`);
+        }
+        putMatchPlayerFix(playersToFix, matchId).then((data) => {
+            if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
+    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
 });
 
 /**
@@ -147,18 +155,24 @@ matchV1Routes.put('/setup/submit', (req, res) => {
 })
 
 /**
+ * Uses MySQL
  * @route   DELETE api/match/v1/remove/:matchId
  * @desc    Remove a match from Records
  * @access  Private (to Admins)
  */
 matchV1Routes.delete('/remove/:matchId', (req, res) => {
     const { matchId } = req.params;
-    
+
     console.log(`DELETE Request Match '${matchId}'.`);
-    deleteMatchData(matchId).then((message) => {
-        if (message == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
-        return res200sOK(res, req, message);
-    }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
+    checkRdsStatus().then((status) => {
+        if (status !== AWS_RDS_STATUS.AVAILABLE) {
+            return res400sClientError(res, req, `AWS Rds Instance not available.`);
+        }
+        deleteMatchData(matchId).then((message) => {
+            if (message == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
+            return res200sOK(res, req, message);
+        }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
+    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
 });
 
 //#endregion
