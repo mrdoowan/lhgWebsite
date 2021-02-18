@@ -1,12 +1,39 @@
-module.exports = {
-    filterName: filterName,
-    getProfilePId: getProfilePIdString,
-    getProfileHId: getProfileHIdString,
-    getTeamPId: getTeamPIdString,
-    getTeamHId: getTeamHIdString,
-    getSeasonItems: getSeasonItems,
-    getTourneyItems: getTourneyItems,
-    generateNewPId: generateNewPId,
+/*  Declaring npm modules */
+const { Random } = require('random-js');
+const Hashids = require('hashids/cjs'); // For hashing and unhashing
+
+/*  Import data functions*/
+import {
+    getSeasonTabName,
+    getSeasonShortName,
+} from '../seasonData';
+import {
+    getTournamentShortName,
+    getTournamentTabName,
+} from '../tournamentData';
+import { dynamoDbGetItem } from './dynamoDbHelper';
+
+const oldEnv = true; // 'true' for old salt name, 'false' for new salt name
+const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
+const teamHidSalt = (oldEnv) ? process.env.OLD_TEAM_HID_SALT : process.env.SALT_TEAM_HID;
+const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.LENGTH_HID);
+const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
+const teamHashIds = new Hashids(teamHidSalt, hIdLength);
+const randomNumber = new Random();
+
+/**
+ * Helper Function:
+ * Turn number into string
+ * @param {number} num 
+ * @param {number} size 
+ */
+function strPadZeroes(num, size) {
+    let s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
+export const GLOBAL_CONSTS = {
     TTL_DURATION: 60 * 60 * 12,  // 12 Hours
     MINUTE_AT_EARLY: 15,
     MINUTE_AT_MID: 25,
@@ -23,55 +50,51 @@ module.exports = {
     LEADERBOARD_NUM: 5
 }
 
-/*  Declaring npm modules */
-require('dotenv').config({ path: '../../.env' });
-const { Random } = require('random-js');
-const Hashids = require('hashids/cjs'); // For hashing and unhashing
-
-const oldEnv = true; // 'true' for Dynamodb, 'false' for MongoDb
-const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
-const teamHidSalt = (oldEnv) ? process.env.OLD_TEAM_HID_SALT : process.env.SALT_TEAM_HID;
-const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.LENGTH_HID);
-const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
-const teamHashIds = new Hashids(teamHidSalt, hIdLength);
-const randomNumber = new Random();
-const dynamoDb = require('./dynamoDbHelper');
-const Season = require('../seasonData');
-const Tournament = require('../tournamentData');
-
-// Turn number into string
-function strPadZeroes(num, size) {
-    let s = num+"";
-    while (s.length < size) s = "0" + s;
-    return s;
+/**
+ * Turn Profile HId into PId string
+ * @param {string} hashId 
+ */
+export const getProfilePIdFromHash = (hashId) => {
+    return strPadZeroes(profileHashIds.decode(hashId)[0], parseInt(process.env.LENGTH_PID));
 }
 
-// Turn Profile HId into PId string
-function getProfilePIdString(hId) {
-    return strPadZeroes(profileHashIds.decode(hId)[0], parseInt(process.env.LENGTH_PID));
+/**
+ * Turn Team HId into PId string
+ * @param {string} hashId 
+ */
+export const getTeamPIdFromHash = (hashId) => {
+    return strPadZeroes(teamHashIds.decode(hashId)[0], parseInt(process.env.LENGTH_PID));
 }
 
-// Turn Team HId into PId string
-function getTeamPIdString(hId) {
-    return strPadZeroes(teamHashIds.decode(hId)[0], parseInt(process.env.LENGTH_PID));
-}
-
-// Lowercases the name and removes all whitespaces
-function filterName(name) {
+/**
+ * Lowercases the name and removes all whitespaces
+ * @param {string} name 
+ */
+export const filterName = (name) => {
     return name.toLowerCase().replace(/ /g, '');
 }
 
-// Encode Profile PId into HId
-function getProfileHIdString(pPId) {
-    return profileHashIds.encode(pPId);
+/**
+ * Encode Profile PId into HId
+ * @param {*} profilePId 
+ */
+export const getProfileHashId = (profilePId) => {
+    return profileHashIds.encode(profilePId);
 }
 
-// Encode Team PId into HId
-function getTeamHIdString(tPId) {
-    return teamHashIds.encode(tPId);
+/**
+ * Encode Team PId into HId
+ * @param {*} teamPId 
+ */
+export const getTeamHashId = (teamPId) => {
+    return teamHashIds.encode(teamPId);
 }
 
-function getSeasonItems(idList) {
+/**
+ * 
+ * @param {Array} idList 
+ */
+export const getSeasonItems = (idList) => {
     return new Promise(async function(resolve, reject) {
         try {
             let seasonList = [];
@@ -79,8 +102,8 @@ function getSeasonItems(idList) {
                 let seasonId = parseInt(idList[i]);
                 seasonList.push({
                     'PId': seasonId,
-                    'ItemName': await Season.getTabName(seasonId),
-                    'ShortName': await Season.getShortName(seasonId),
+                    'ItemName': await getSeasonTabName(seasonId),
+                    'ShortName': await getSeasonShortName(seasonId),
                 });
             }
             resolve(seasonList);
@@ -89,7 +112,11 @@ function getSeasonItems(idList) {
     });
 }
 
-function getTourneyItems(idList) {
+/**
+ * 
+ * @param {Array} idList 
+ */
+export const getTourneyItems = (idList) => {
     return new Promise(async function(resolve, reject) {
         try {
             let tourneyList = [];
@@ -97,8 +124,8 @@ function getTourneyItems(idList) {
                 let tnId = parseInt(idList[i]);
                 tourneyList.push({
                     'PId': tnId,
-                    'ItemName': await Tournament.getTabName(tnId),
-                    'ShortName': await Tournament.getShortName(tnId),
+                    'ItemName': await getTournamentTabName(tnId),
+                    'ShortName': await getTournamentShortName(tnId),
                 });
             }
             resolve(tourneyList);
@@ -107,19 +134,23 @@ function getTourneyItems(idList) {
     });
 }
 
-function generateNewPId(type) {
+/**
+ * Generates a new PId dependent on type
+ * @param {string} type     'Profile', 'Team' 
+ */
+export const generateNewPId = (type) => {
     return new Promise(async function(resolve, reject) {
         let duplicate = true;
         while (duplicate) {
             let newPId = strPadZeroes(randomNumber.integer(1, 99999999), 8); // 8 digit number
             if (type.toLowerCase() === "profile") {
-                if (!(await dynamoDb.getItem('Profile', 'ProfilePId', newPId))) {
+                if (!(await dynamoDbGetItem('Profile', 'ProfilePId', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }
             }
             else if (type.toLowerCase() === "team") {
-                if (!(await dynamoDb.getItem('Team', 'TeamPId', newPId))) {
+                if (!(await dynamoDbGetItem('Team', 'TeamPId', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }
@@ -129,5 +160,4 @@ function generateNewPId(type) {
             }
         }
     })
-    
-} 
+}

@@ -26,34 +26,46 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TourneyUpdateTemporary({ info, loading, handleSubmit, response }) {
+const TourneyUpdate = ({ 
+    infoData,
+    loading,
+    playerNumber,
+    teamNumber,
+    gameNumber,
+    handleUpdateTournament = () => {},
+}) => {
     const classes = useStyles();
-
-    const buttonComponent = (<form onSubmit={handleSubmit}>
-        {(loading) ? (
-            <React.Fragment><Button type="submit" variant="contained" color="primary" disabled={true}>Update</Button></React.Fragment>
-        ) : (
-            <React.Fragment><Button type="submit" variant="contained" color="primary">Update</Button></React.Fragment>
-        )}
+    
+    const buttonComponents = (<form onSubmit={handleUpdateTournament}>
+        <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+        >
+            Update
+        </Button>
     </form>);
 
     const loadingComponent = (loading) ? (<div className={classes.pad}>
         <CircularProgress color="secondary" />
     </div>) : (<div></div>);
     
-    const responseReceived = (response) ? (<div className={classes.pad}>
-        {(response.playersNum) ? (<React.Fragment>{response.playersNum} Players updated<br /></React.Fragment>) : '' }
-        {(response.teamsNum) ? (<React.Fragment>{response.teamsNum} Teams updated<br /></React.Fragment>) : '' }
-        {(response.gamesNum) ? (<React.Fragment>{response.gamesNum} Games updated<br /></React.Fragment>) : '' }
-    </div>) : (<div></div>);
+    const responseReceived = (<div className={classes.pad}>
+        {(playerNumber) ? (<React.Fragment>{playerNumber} Players updated<br /></React.Fragment>) : '' }
+        {(teamNumber) ? (<React.Fragment>{teamNumber} Teams updated<br /></React.Fragment>) : '' }
+        {(gameNumber) ? (<React.Fragment>{gameNumber} Games updated<br /></React.Fragment>) : '' }
+        {(playerNumber && teamNumber && gameNumber) ? 
+            (<React.Fragment>Finished! Remember to Stop the RDS Database.<br /></React.Fragment>) : '' }
+    </div>);
 
     return (
         <div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Paper className={classes.paper}>
-                        <div className={classes.title}>The Forbidden page to update "{info.TournamentName}" overall stats</div>
-                        {buttonComponent}
+                        <div className={classes.title}>The Forbidden page to update "{infoData.TournamentName}" overall stats</div>
+                        {buttonComponents}
                         {loadingComponent}
                         {responseReceived}
                     </Paper>
@@ -62,3 +74,5 @@ export default function TourneyUpdateTemporary({ info, loading, handleSubmit, re
         </div>
     );
 }
+
+export default TourneyUpdate;

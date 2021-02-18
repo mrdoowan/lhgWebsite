@@ -6,7 +6,10 @@ import Paper from '@material-ui/core/Paper';
 // Components
 import ChampionSquare from '../ChampionSquare';
 // Util
-const lhgString = require('../../util/StringHelper');
+import {
+    getTimeString,
+    getDateString
+} from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -150,9 +153,9 @@ export default function TeamGameLog({ games }) {
 
                     return (<tr key={matchId} className={(match.Win) ? classes.rowWin : classes.rowLose}>
                         <td className={classes.colDate}>
-                            <Link to={`/match/${matchId}`} className={classes.link}>{lhgString.date(match.DatePlayed / 1000)}</Link><br />
+                            <Link to={`/match/${matchId}`} className={classes.link}>{getDateString(match.DatePlayed / 1000)}</Link><br />
                             {match.TournamentType} [{sideString(match.Side, classes)}]<br />
-                            ({lhgString.time(match.GameDuration)})
+                            ({getTimeString(match.GameDuration)})
                         </td>
                         <td className={classes.colEnemy}>
                             vs. <a href={`/team/${match.EnemyTeamName}/games/${games.SeasonShortName}`} className={classes.link}>{match.EnemyTeamName}</a>

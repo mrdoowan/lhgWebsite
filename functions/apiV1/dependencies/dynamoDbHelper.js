@@ -1,34 +1,24 @@
-// Modularize the DynamoDB functions
-module.exports = {
-    getItem: getItemInDynamoDB,
-    updateItem: updateItemInDynamoDB,
-    putItem: putItemInDynamoDB,
-    scanTable: scanTableLoopInDynamoDB,
-    deleteItem: deleteItemInDynamoDB,
-}
-
 /*  Declaring AWS npm modules */
-var AWS = require('aws-sdk'); // Interfacing with DynamoDB
-require('dotenv').config({ path: '../../.env' });
+const AWS = require('aws-sdk'); // Interfacing with DynamoDB
 /*  Configurations of npm modules */
 AWS.config.update({ region: 'us-east-2' });
-var dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const dynamoDB = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-/*  'false' to test without affecting the databases. */
-/*  'true' to add to production. */
-const CHANGE_DYNAMO = (process.env.CHANGE_DB === 'true') || (process.env.NODE_ENV === 'production');
+/*  'false' to add to test DB. */	
+/*  'true' to add to production DB. */	
+const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV === 'production');
 
 /**
  * Gets an item from the Table based on keyValue. Returns 'undefined' if key item does NOT EXIST
  * @param {string} tableName        Table name of DynamoDb
  * @param {string} partitionName    Column name of the Partition Key
- * @param {*} keyValue              Specific item to look for
+ * @param {*} keyItem               Specific item to look for
  */
-function getItemInDynamoDB(tableName, partitionName, keyValue) {
-    var params = {
-        TableName: tableName,
+export const dynamoDbGetItem = (tableName, partitionName, keyItem) => {
+    const params = {
+        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: keyValue
+            [partitionName]: keyItem
         }
     };
     return new Promise(function(resolve, reject) {
@@ -38,13 +28,13 @@ function getItemInDynamoDB(tableName, partitionName, keyValue) {
                     reject(err);
                 }
                 else {
-                    console.log(`Dynamo DB: Get Item '${keyValue}' from Table '${tableName}'`);
+                    console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyItem}' from Table '${tableName}'`);
                     resolve(data['Item']);
                 }
             });
         }
         catch (error) {
-            console.error(`ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyValue}'.`)
+            console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyItem}'.`)
             reject(error);
         }
     });
@@ -54,47 +44,25 @@ function getItemInDynamoDB(tableName, partitionName, keyValue) {
  * PUTs a DynamoDb Item into DynamoDb
  * @param {string} tableName    Table name of DynamoDb
  * @param {Object} items        The entire object being put into DynamoDb
- * @param {string} keyValue     Only used for debugging purposes
+ * @param {*} keyItem           Only used for debugging purposes
  */
-function putItemInDynamoDB(tableName, items, keyValue) {
-    if (CHANGE_DYNAMO) {
-        let params = {
-            TableName: tableName,
-            Item: items
-        };
-        return new Promise(function(resolve, reject) {
-            dynamoDB.put(params, function(err, data) {
-                if (err) {
-                    console.error(`ERROR - putItemInDynamoDB '${tableName}' Promise rejected.`);
-                    reject(err);
-                }
-                else {
-                    console.log(`Dynamo DB: Put Item '${keyValue}' into '${tableName}' Table!"`);
-                    resolve(data);
-                }
-            });
+export const dynamoDbPutItem = (tableName, items, keyItem) => {
+    const params = {
+        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+        Item: items
+    };
+    return new Promise(function(resolve, reject) {
+        dynamoDB.put(params, function(err, data) {
+            if (err) {
+                console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - putItemInDynamoDB '${tableName}' Promise rejected.`);
+                reject(err);
+            }
+            else {
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyItem}' into '${tableName}' Table!"`);
+                resolve(data);
+            }
         });
-    }
-    else {
-        // Puts into Test DB instead
-        let params = {
-            TableName: 'Test',
-            Item: items
-        };
-        params['Item']['TestId'] = `${tableName}-PUT-${keyValue.toString()}`;
-        return new Promise(function(resolve, reject) {
-            dynamoDB.put(params, function(err, data) {
-                if (err) {
-                    console.error("ERROR - putTestInDynamoDB Promise rejected.");
-                    reject(err);
-                }
-                else {
-                    console.log(`[TEST - PUT] Dynamo DB: Item '${keyValue}' into '${tableName}' Table`);
-                    resolve(data);
-                }
-            });
-        });
-    }
+    });
 }
 
 /**
@@ -106,9 +74,9 @@ function putItemInDynamoDB(tableName, items, keyValue) {
  * @param {Object} keyObject        Map of Keys (i.e. { '#glog': 'GameLog' })
  * @param {Object} valueObject      Map of Values (i.e. { ':data': (DATA) })
  */
-function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyObject, valueObject) {
-    let params = {
-        TableName: tableName,
+export const dynamoDbUpdateItem = (tableName, partitionName, key, updateExp, keyObject, valueObject) => {
+    const params = {
+        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
             [partitionName]: key
         },
@@ -116,42 +84,18 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyObjec
         ExpressionAttributeNames: keyObject,
         ExpressionAttributeValues: valueObject
     };
-    if (CHANGE_DYNAMO) {
-        return new Promise(function(resolve, reject) {
-            dynamoDB.update(params, function(err, data) {
-                if (err) {
-                    console.error(`ERROR - updateItemInDynamoDB '${tableName}' Promise rejected.`)
-                    reject(err); 
-                }
-                else {
-                    console.log(`Dynamo DB: Update Item '${key}' in Table '${tableName}'`);
-                    resolve(data);
-                }
-            });
+    return new Promise(function(resolve, reject) {
+        dynamoDB.update(params, function(err, data) {
+            if (err) {
+                console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - updateItemInDynamoDB '${tableName}' Promise rejected.`)
+                reject(err); 
+            }
+            else {
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Update Item '${key}' in Table '${tableName}'`);
+                resolve(data);
+            }
         });
-    }
-    else {
-        // Puts into Test DB instead
-        let params = {
-            TableName: 'Test',
-            Item: {
-                'TestId': `${tableName}-UPDATE-${key.toString()}-${updateExp}`,
-                'Value': valueObject,
-            },
-        };
-        return new Promise(function(resolve, reject) {
-            dynamoDB.put(params, function(err, data) {
-                if (err) {
-                    console.error("ERROR - updateTestInDynamoDB Promise rejected.")
-                    reject(err); 
-                }
-                else {
-                    console.log(`[TEST - UPDATE] Dynamo DB TEST: Item '${key}' in Table '${tableName}'`);
-                    resolve(data);
-                }
-            });
-        });
-    }
+    });
 }
 
 /**
@@ -164,9 +108,9 @@ function updateItemInDynamoDB(tableName, partitionName, key, updateExp, keyObjec
  * @param {string} attributeName    Criteria Column Name (to refine search/condition)
  * @param {string} attributeValue   Root value for attributeName
  */ 
-function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null, attributeValue=null) {
-    const params = {
-        TableName: tableName
+export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=null, attributeValue=null) => {
+    let params = {
+        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
     };
     if (getAttributes.length > 0) {
         params['ProjectionExpression'] = getAttributes.join();
@@ -183,7 +127,7 @@ function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null
                 data = await dynamoDB.scan(params).promise();
                 data.Items.forEach((item) => scanResults.push(item));
                 params.ExclusiveStartKey  = data.LastEvaluatedKey;
-                console.log(`Dynamo DB: Scan operation on Table '${tableName}' LastEvaluatedKey: '${data.LastEvaluatedKey}'`);
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Scan operation on Table '${tableName}' LastEvaluatedKey: '${data.LastEvaluatedKey}'`);
             }while(typeof data.LastEvaluatedKey != "undefined");
             resolve(scanResults);
         }
@@ -197,30 +141,26 @@ function scanTableLoopInDynamoDB(tableName, getAttributes=[], attributeName=null
  * Deletes an item from the specific Table
  * @param {string} tableName        DynamoDb Table Name
  * @param {string} partitionName    Column name of the Partition Key
- * @param {*} key                   Value of Partition Key to remove
+ * @param {*} keyItem               Value of Partition Key to remove
+ * @param {boolean} testFlag        Deletes the item from test DB
  */
-function deleteItemInDynamoDB(tableName, partitionName, key) {
+export const dynamoDbDeleteItem = (tableName, partitionName, keyItem) => {
     let params = {
-        TableName: tableName,
+        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: key,
+            [partitionName]: keyItem,
         }
     }
-    if (CHANGE_DYNAMO) {
-        return new Promise(async function(resolve, reject) {
-            dynamoDB.delete(params, function(err, data) {
-                if (err) {
-                    console.error("ERROR - deleteItemInDynamoDB Promise rejected.")
-                    reject(err); 
-                }
-                else {
-                    console.log(`Dynamo DB: Deleted Item '${key}' in Table '${tableName}'`);
-                    resolve(data);
-                }
-            })
+    return new Promise(async function(resolve, reject) {
+        dynamoDB.delete(params, function(err, data) {
+            if (err) {
+                console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - deleteItemInDynamoDB Promise rejected.`)
+                reject(err); 
+            }
+            else {
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${keyItem}' in Table '${tableName}'`);
+                resolve(data);
+            }
         })
-    }
-    else {
-        console.log(`[TEST - DELETE] Dynamo DB TEST: Item '${key}' in Table '${tableName}'`);
-    }
+    });
 }

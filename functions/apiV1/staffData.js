@@ -1,19 +1,19 @@
-module.exports = {
-    newStaff: putNewStaff,
-}
-
 /*  Declaring npm modules */
-require('dotenv').config({ path: '../../.env' });
 const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 const bcrypt = require('bcrypt');
 
 /*  Import dependency modules */
-const dynamoDb = require('./dependencies/dynamoDbHelper');
-const keyBank = require('./dependencies/cacheKeys');
-const GLOBAL = require('./dependencies/global');
-// Data Functions
-const Profile = require('./profileData');
+import { dynamoDbUpdateItem } from './dependencies/dynamoDbHelper';
+import { CACHE_KEYS } from './dependencies/cacheKeys'
+import {
+    GLOBAL_CONSTS,
+} from './dependencies/global';
+/*  Import data functions */
+import {
+    getProfilePIdByName,
+    getProfileInfo,
+} from './profileData';
 
 // Need to reset Cache with each new put/post
 
@@ -25,13 +25,13 @@ const Profile = require('./profileData');
 //     "admin": true,
 //     "moderator": true
 // }
-function putNewStaff(staff) {
+export const putNewStaff = (staff) => {
     return new Promise((resolve, reject) => {
-        Profile.getIdByName(staff.profile).then((pPId) => {
+        getProfilePIdByName(staff.profile).then((pPId) => {
             if (pPId == null) { resolve(null); return; } // Not Found
             bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
                 if (err) { console.error(err); reject(err); return; }
-                dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
+                dynamoDbUpdateItem('Profile', 'ProfilePId', pPId,
                     'SET #pw = :data',
                     {
                         '#pw': 'Password',
@@ -40,10 +40,10 @@ function putNewStaff(staff) {
                         ':data': hash,
                     }
                 );
-                Profile.getInfo(pPId).then((profileInfo) => {
+                getProfileInfo(pPId).then((profileInfo) => {
                     profileInfo['Admin'] = staff.admin;
                     profileInfo['Moderator'] = staff.moderator;
-                    dynamoDb.updateItem('Profile', 'ProfilePId', pPId,
+                    dynamoDbUpdateItem('Profile', 'ProfilePId', pPId,
                         'SET #info = :data',
                         {
                             '#info': 'Information',
@@ -53,8 +53,8 @@ function putNewStaff(staff) {
                         }
                     );
                     // Update Cache
-                    const cacheKey = keyBank.PROFILE_INFO_PREFIX + pPId;
-                    cache.set(cacheKey, JSON.stringify(profileInfo, null, 2), 'EX', GLOBAL.TTL_DURATION);
+                    const cacheKey = CACHE_KEYS.PROFILE_INFO_PREFIX + pPId;
+                    cache.set(cacheKey, JSON.stringify(profileInfo, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     profileInfo['Password'] = hash;
                     resolve(profileInfo);
                 }).catch((err) => { console.error(err); reject(err); });
