@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -35,22 +35,13 @@ const TourneyUpdate = ({
     handleUpdateTournament = () => {},
 }) => {
     const classes = useStyles();
-    //const [rdsNotAvailableFlag, setRdsNotAvailableFlag] = useState(false);
-    const rdsNotAvailableFlag = false;
-    const [rdsStopSentFlag, setRdsStopSentFlag] = useState(false);
     
-    // Call the stopRdsInstance after update is finished
-    useEffect(() => {
-        if (playerNumber && teamNumber && gameNumber) {
-            setRdsStopSentFlag(true);
-        }
-    }, [playerNumber, teamNumber, gameNumber]);
-
     const buttonComponents = (<form onSubmit={handleUpdateTournament}>
         <Button
             type="submit"
             variant="contained"
             color="primary"
+            disabled={loading}
         >
             Update
         </Button>
@@ -61,11 +52,11 @@ const TourneyUpdate = ({
     </div>) : (<div></div>);
     
     const responseReceived = (<div className={classes.pad}>
-        {(rdsNotAvailableFlag) ? (<React.Fragment>RDS Database Not Available! Check AWS.<br /></React.Fragment>) : '' }
         {(playerNumber) ? (<React.Fragment>{playerNumber} Players updated<br /></React.Fragment>) : '' }
         {(teamNumber) ? (<React.Fragment>{teamNumber} Teams updated<br /></React.Fragment>) : '' }
         {(gameNumber) ? (<React.Fragment>{gameNumber} Games updated<br /></React.Fragment>) : '' }
-        {(rdsStopSentFlag) ? (<React.Fragment>Finished! Remember to Stop the RDS Database.<br /></React.Fragment>) : '' }
+        {(playerNumber && teamNumber && gameNumber) ? 
+            (<React.Fragment>Finished! Remember to Stop the RDS Database.<br /></React.Fragment>) : '' }
     </div>);
 
     return (
