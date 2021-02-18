@@ -178,9 +178,9 @@ export default function MatchSetup({ setupData }) {
      * Formik's submit handler
      */
     const handleSubmit = async (values, {setSubmitting}) => {
-        const callMatchSetupSubmit = async () => {
+        const callMatchSetupSubmit = () => {
             axios.put('/api/match/v1/setup/submit',
-                { matchId: setupData.RiotMatchId }
+                transformValueData(values)
             ).then(() => {
                 // Redirect link to new match link
                 history.push(`/match/${setupData.RiotMatchId}`);
@@ -201,7 +201,7 @@ export default function MatchSetup({ setupData }) {
                 setSubmitting(false);
             });
         };
-        const callMatchSetupSave = async () => {
+        const callMatchSetupSave = () => {
             axios.put('/api/match/v1/setup/save', 
                 transformValueData(values)
             ).then(() => {
@@ -220,8 +220,7 @@ export default function MatchSetup({ setupData }) {
 
         setMessageList([]);
         if (submitButtonPressed) {
-            await callMatchSetupSave();
-            await callMatchSetupSubmit();
+            callMatchSetupSubmit();
         }
         else if (saveButtonPressed) {
             callMatchSetupSave();
