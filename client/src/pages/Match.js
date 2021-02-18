@@ -155,8 +155,8 @@ export const MatchSetupPage = (props) => {
         .then((res) => {
             setStatusCode(res.status);
             setMatchSetupData(res.data);
-        }).catch(() => {
-            setStatusCode(500);
+        }).catch((err) => {
+            setStatusCode(err.response.status);
         });
     }, [params]);
 
@@ -179,8 +179,8 @@ export const MatchSetupListPage = () => {
         .then((res) => {
             setStatusCode(res.status);
             setMatchSetupListData(res.data);
-        }).catch(() => {
-            setStatusCode(500);
+        }).catch((err) => {
+            setStatusCode(err.response.status);
         })
     }, []);
 

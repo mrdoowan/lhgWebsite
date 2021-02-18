@@ -125,22 +125,25 @@ matchV1Routes.put('/setup/save', (req, res) => {
 
 /**
  * @route   PUT api/match/v1/setup/submit
- * @desc    Submits the text fields and processes the Match Data into MySQL and DynamoDb
+ * @desc    Saves the text fields and submits the Match Data into MySQL and DynamoDb
  * @access  Private (to Admins)
  */
 matchV1Routes.put('/setup/submit', (req, res) => {
-    const { matchId } = req.body;
+    const { matchId, teams } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Setup Submit.`);
-    submitMatchSetup(matchId).then((response) => {
-        if (!response) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
-        else if ('validateMessages' in response) { 
-            return res400sClientError(
-                res, req, `Match ID '${matchId}' PUT Request Submit has invalid inputs.`, response
-            ); 
-        }
-        return res200sOK(res, req, response);
-    }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
+    putMatchSaveSetup(matchId, teams).then((saveResponse) => {
+        if (!saveResponse) { return res400sClientError(res, req, `Match ID '${riotMatchId}' Save Setup Failed`); }
+        submitMatchSetup(matchId).then((submitResponse) => {
+            if (!submitResponse) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
+            else if ('validateMessages' in submitResponse) { 
+                return res400sClientError(
+                    res, req, `Match ID '${matchId}' PUT Request Submit has invalid inputs.`, submitResponse
+                );
+            }
+            return res200sOK(res, req, submitResponse);
+        }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
+    }).catch((err) => error500sServerError(err, res, "PUT Match Setup Save Error."));
 })
 
 /**
