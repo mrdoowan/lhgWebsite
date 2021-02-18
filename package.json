@@ -4,16 +4,20 @@
   "description": "Prototype for LHG website",
   "main": "server.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
-    "server": "nodemon --exec babel-node server.js --require dotenv/config",
+    "server": "nodemon --exec babel-node ./server/server.js --require dotenv/config",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "clean": "rm -rf build && mkdir build",
+    "build-server": "babel -d ./build ./server -s",
+    "build": "npm run clean && npm run build-server",
+    "start": "node ./build/server.js",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "author": "mrdoowan",
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.843.0",
+    "axios": "^0.21.1",
     "babel-preset-env": "^1.7.0",
     "bcrypt": "^5.0.0",
     "concurrently": "^5.3.0",
