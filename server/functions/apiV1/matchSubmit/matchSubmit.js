@@ -2,7 +2,6 @@
 
 /*  Import dependency modules */
 import { createDbMatchObject } from './createMatchObject';
-import { ChampById } from '../../../client/src/static/ChampById';
 import { getProfilePIdByName } from '../profileData';
 import { getTeamPIdByName } from '../teamData';
 import { checkRdsStatus } from '../dependencies/awsRdsHelper';
@@ -13,6 +12,7 @@ import {
 } from '../../../services/constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
 import { getMatchSetupList } from '../matchData';
+import { createChampObject } from '../../../services/ddragonChampion';
 
 /**
  * Takes the Setup of matchId 
@@ -77,12 +77,13 @@ function validateSetupFormFields(setupTeamsDbObject) {
     return new Promise(async (resolve, reject) => {
         try {
             const validateList = [];
+            const champObject = await createChampObject();
 
             // Check all the bans that they are actual champIds
             const checkBans = async (color, banList) => {
                 for (let i = 0; i < banList.length; ++i) {
                     const banId = banList[i];
-                    if (!(banId in ChampById)) {
+                    if (!(banId in champObject)) {
                         validateList.push(
                             `${color} Team Bans of Id '${banId}' at index ${i} is invalid.`
                         );

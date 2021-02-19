@@ -3,7 +3,6 @@ const redis = require('redis');
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
-import { ChampById } from '../../client/src/static/ChampById';
 import {
     filterName,
     getProfilePIdFromHash,
@@ -33,6 +32,7 @@ import {
     getTeamShortName,
     getTeamStatsByTourney,
 } from './teamData';
+import { createChampObject } from '../../services/ddragonChampion';
 
 /**
  * Get TournamentPId from DynamoDb
@@ -484,7 +484,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 'MountainDrakes': 0,
                 'ElderDrakes': 0,
             }
-            let pickBansObject = initPickBansObject();
+            let pickBansObject = await initPickBansObject();
             let profileHIdSet = new Set();
             let teamHIdSet = new Set();
             let gameLogTourneyItem = {};
@@ -784,18 +784,24 @@ export const updateTournamentOverallStats = (tournamentPId) => {
  * Returns an initialized pickBansObject
  */
 function initPickBansObject() {
-    let newPickBansObject = {};
-    for (let i = 0; i < Object.keys(ChampById).length; ++i) {
-        const champId = Object.keys(ChampById)[i];
-        newPickBansObject[champId] = {
-            'BluePicks': 0,
-            'RedPicks': 0,
-            'NumWins': 0,
-            'BlueBans': 0,
-            'RedBans': 0,
-        }
-    }
-    return newPickBansObject;
+    return new Promise((resolve, reject) => {
+        createChampObject().then((champObject) => {
+            let newPickBansObject = {};
+            for (let i = 0; i < Object.keys(champObject).length; ++i) {
+                const champId = Object.keys(champObject)[i];
+                newPickBansObject[champId] = {
+                    'BluePicks': 0,
+                    'RedPicks': 0,
+                    'NumWins': 0,
+                    'BlueBans': 0,
+                    'RedBans': 0,
+                }
+            }
+            resolve(newPickBansObject);
+        }).catch((err) => {
+            reject(err);
+        })
+    })
 }
 
 /**
