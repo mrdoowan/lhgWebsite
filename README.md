@@ -25,6 +25,7 @@ The following npm modules are used in the server:
 * babel-preset-env
 * babel-cli (-g)
 * axios
+* moment-timezone
 
 The following npm modules are used in the client:
 * react
@@ -35,6 +36,7 @@ The following npm modules are used in the client:
 * devextreme
 * react-bootstrap
 * react-helmet
+* moment-timezone
 * formik
 * formik-material-ui
 
