@@ -26,6 +26,8 @@ The following npm modules are used in the server:
 * babel-cli (-g)
 * axios
 * moment-timezone
+* core-js
+* regenerator-runtime
 
 The following npm modules are used in the client:
 * react

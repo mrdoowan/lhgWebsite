@@ -1,5 +1,8 @@
 // Preload environmental variables in ES6
 import _ from '../env';
+// Import for deployment
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 // Import Routes
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
