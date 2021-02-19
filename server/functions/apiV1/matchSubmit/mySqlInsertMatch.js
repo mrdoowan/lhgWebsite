@@ -4,7 +4,7 @@ import {
     TEAM_ID,
     TEAM_STRING,
     MINUTE,
-} from '../../../services/Constants';
+} from '../../../services/constants';
 import { dynamoDbGetItem } from '../dependencies/dynamoDbHelper';
 import { 
     getProfilePIdFromHash,

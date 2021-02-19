@@ -1,12 +1,13 @@
+
+// Import
+import { RDS_TYPE } from '../../../services/constants';
+import { unix as _unix } from 'moment-timezone';
+
 /*  Declaring AWS npm modules */
 const AWS = require('aws-sdk'); // Interfacing with DynamoDB
 /*  Configurations of npm modules */
 AWS.config.update({ region: 'us-east-2' });
 const rds = new AWS.RDS({apiVersion: '2014-10-31'});
-
-// Import
-import { getDateString } from '../../../client/src/util/StringHelper';
-import { RDS_TYPE } from '../../../services/Constants';
 
 /**
  * 
@@ -20,6 +21,16 @@ const getRdsInstantName = (rdsType) => {
         (process.env.TEST_DB === 'true') ? // Default
         `${process.env.MYSQL_INSTANCE}-test` : 
         process.env.MYSQL_INSTANCE;
+}
+
+/**
+ * Converts unix value into a Date (i.e. 01/01/2020)
+ * @param {number} unix         time value in ms
+ * @param {string} format       Default is 'MM/DD/YYYY'
+ * @param {string} timeZone     Default is 'EST'
+ */
+export const getDateString = (unix, format='MM/DD/YYYY', timeZone='EST') => {
+    return _unix(unix).tz(timeZone).format(format);
 }
 
 /**

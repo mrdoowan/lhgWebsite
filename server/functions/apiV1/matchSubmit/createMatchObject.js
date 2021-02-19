@@ -1,10 +1,10 @@
 /*  Import dependency modules */
-import { Versions } from '../../../client/src/static/Versions';
 import {
     TEAM_ID,
     MINUTE,
     BARON_DURATION,
-} from '../../../services/Constants';
+} from '../../../services/constants';
+import { getDDragonVersion } from '../../../services/ddragonVersion';
 import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
 import { getProfileHashId, getTeamHashId } from '../dependencies/global';
 
@@ -525,23 +525,16 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
  * Takes riotMatchObject's game version (i.e. "10.20.337.6704") and only looks at the Major.Minor (returns "10.20")
  * @param {string} patchStr 
  */
-async function getPatch(patchStr) {
-    const patchArr = patchStr.split('.');
-    return `${patchArr[0]}.${patchArr[1]}`;
-}
-
-/**
- * Gets the DDragon version of the LoL patch based on: https://ddragon.leagueoflegends.com/api/versions.json
- * @param {string} patch    Specified League of Legends patch (i.e. "10.23")
- */
-async function getDDragonVersion(patch) {
-    for (let i = 0; i < Versions.length; ++i) {
-        const DDragonVersion = Versions[i];
-        if (DDragonVersion.includes(patch)) {
-            return DDragonVersion; 
+function getPatch(patchStr) {
+    return new Promise((resolve, reject) => {
+        try {
+            const patchArr = patchStr.split('.');
+            resolve(`${patchArr[0]}.${patchArr[1]}`);   
         }
-    }
-    return Versions[0]; // Return latest as default
+        catch (err) {
+            reject(err);
+        }
+    });   
 }
 
 /**
