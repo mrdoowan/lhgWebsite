@@ -30,7 +30,7 @@ import { getTournamentId } from '../../functions/apiV1/tournamentData';
  * @desc    Get Team Information
  * @access  Public
  */
-teamV1Routes.get('/information/name/:teamName', async (req, res) => {
+teamV1Routes.get('/information/name/:teamName', (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Information.`);
     getTeamPIdByName(teamName).then((teamId) => {
@@ -46,7 +46,7 @@ teamV1Routes.get('/information/name/:teamName', async (req, res) => {
  * @desc    Get Team Scouting from specified Season
  * @access  Public
  */
-teamV1Routes.get('/scouting/name/:teamName/:seasonShortName', async (req, res) => {
+teamV1Routes.get('/scouting/name/:teamName/:seasonShortName', (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from Season '${seasonShortName}'.`);
     getTeamPIdByName(teamName).then((teamId) => {
@@ -66,7 +66,7 @@ teamV1Routes.get('/scouting/name/:teamName/:seasonShortName', async (req, res) =
  * @desc    Get Team Game Log from specified Season
  * @access  Public
  */
-teamV1Routes.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
+teamV1Routes.get('/games/name/:teamName/:seasonShortName', (req, res) => {
     const { teamName, seasonShortName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from Season '${seasonShortName}'.`);
     getTeamPIdByName(teamName).then((teamId) => {
@@ -86,7 +86,7 @@ teamV1Routes.get('/games/name/:teamName/:seasonShortName', async (req, res) => {
  * @desc    Get Team Stats Log from specified Tournament
  * @access  Public
  */
-teamV1Routes.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
+teamV1Routes.get('/stats/name/:teamName/:tournamentName', (req, res) => {
     const { teamName, tournamentName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats Log from Tournament '${tournamentName}'.`);
     getTeamPIdByName(teamName).then((teamId) => {
@@ -106,7 +106,7 @@ teamV1Routes.get('/stats/name/:teamName/:tournamentName', async (req, res) => {
  * @desc    Get Team Scouting from the latest Season
  * @access  Public
  */
-teamV1Routes.get('/scouting/latest/name/:teamName', async (req, res) => {
+teamV1Routes.get('/scouting/latest/name/:teamName', (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Scouting from the latest Season.`);
     getTeamPIdByName(req.params.teamName).then((teamId) => {
@@ -122,7 +122,7 @@ teamV1Routes.get('/scouting/latest/name/:teamName', async (req, res) => {
  * @desc    Get Team Game Log from the latest Season
  * @access  Public
  */
-teamV1Routes.get('/games/latest/name/:teamName', async (req, res) => {
+teamV1Routes.get('/games/latest/name/:teamName', (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Game Log from the latest Season.`);
     getTeamPIdByName(teamName).then((teamId) => {
@@ -138,7 +138,7 @@ teamV1Routes.get('/games/latest/name/:teamName', async (req, res) => {
  * @desc    Get Team Stats Log from the latest Tournament
  * @access  Public
  */
-teamV1Routes.get('/stats/latest/name/:teamName', async (req, res) => {
+teamV1Routes.get('/stats/latest/name/:teamName', (req, res) => {
     const { teamName } = req.params;
     console.log(`GET Request Team '${teamName}' Stats from the latest Tournament.`);
     getTeamPIdByName(teamName).then((teamId) => {

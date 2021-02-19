@@ -1,5 +1,8 @@
 // Preload environmental variables in ES6
-import _ from './env';
+import _ from '../env';
+// Import for deployment
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 // Import Routes
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
@@ -9,7 +12,7 @@ import profileV1Routes from './routes/apiV1/profileRoutes.js';
 import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
-import { AWS_RDS_STATUS, RDS_TYPE } from './services/Constants';
+import { AWS_RDS_STATUS, RDS_TYPE } from './services/constants';
 import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
 
 /*  Declaring npm modules */
