@@ -13,7 +13,7 @@ import DataGrid, {
     Paging
 } from 'devextreme-react/data-grid';
 // Util
-const lhgString = require('../../util/StringHelper');
+import { getTimeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -106,7 +106,7 @@ function fixedPercent() {
 
 function formatTime() {
     return {
-        formatter: lhgString.time,
+        formatter: getTimeString,
     }
 }
 

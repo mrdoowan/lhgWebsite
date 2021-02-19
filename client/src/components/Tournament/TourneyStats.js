@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 // Components
 import PieGraph from '../PieGraph';
 // Util
-const lhgString = require('../../util/StringHelper');
+import { getTimeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -81,7 +81,7 @@ export default function TourneyStats({ stats }) {
                         </div>
                         <div className={classes.row}>
                             <div className={classes.columnInfo}>Average Game Duration:</div>
-                            <div className={classes.columnData}>{lhgString.time(stats.TotalGameDuration / stats.NumberGames)}</div>
+                            <div className={classes.columnData}>{getTimeString(stats.TotalGameDuration / stats.NumberGames)}</div>
                         </div>
                         <div className={classes.row}>
                             <PieGraph dataSource={sideData} palette={sidePalette} title="Blue/Red Side Win Rate" />

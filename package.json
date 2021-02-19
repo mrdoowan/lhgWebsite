@@ -1,31 +1,44 @@
 {
   "name": "lhg_server",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "Prototype for LHG website",
   "main": "server.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
-    "start": "node server.js",
-    "server": "nodemon server.js",
+    "server": "nodemon --exec babel-node ./server/server.js --require dotenv/config",
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+    "clean": "rm -rf build && mkdir build",
+    "build-server": "babel -d ./build ./server -s",
+    "build": "npm run clean && npm run build-server",
+    "start": "node build/server.js",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm run build && npm install --prefix client && npm run build --prefix client"
   },
   "author": "mrdoowan",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.739.0",
+    "aws-sdk": "^2.843.0",
+    "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "concurrently": "^5.3.0",
+    "core-js": "^3.9.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-http-to-https": "^1.1.4",
-    "hashids": "^2.2.1",
+    "hashids": "^2.2.8",
+    "moment-timezone": "^0.5.33",
     "mysql": "^2.18.1",
+    "node-schedule": "^2.0.0",
     "random-js": "^2.1.0",
-    "redis": "^3.0.2"
+    "redis": "^3.0.2",
+    "regenerator-runtime": "^0.11.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "@babel/cli": "^7.12.17",
+    "@babel/core": "^7.12.17",
+    "@babel/node": "^7.12.17",
+    "@babel/preset-env": "^7.12.17",
+    "@babel/runtime-corejs3": "^7.12.18",
+    "babel-core": "^7.0.0-bridge.0",
+    "nodemon": "^2.0.7"
   }
 }
