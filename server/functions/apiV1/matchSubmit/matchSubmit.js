@@ -10,7 +10,7 @@ import { dynamoDbGetItem, dynamoDbPutItem } from '../dependencies/dynamoDbHelper
 import { 
     AWS_RDS_STATUS,
     TEAM_STRING,
-} from '../../../services/Constants';
+} from '../../../services/constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
 import { getMatchSetupList } from '../matchData';
 

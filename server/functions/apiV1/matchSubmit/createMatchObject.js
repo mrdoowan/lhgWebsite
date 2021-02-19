@@ -4,7 +4,7 @@ import {
     TEAM_ID,
     MINUTE,
     BARON_DURATION,
-} from '../../../services/Constants';
+} from '../../../services/constants';
 import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
 import { getProfileHashId, getTeamHashId } from '../dependencies/global';
 

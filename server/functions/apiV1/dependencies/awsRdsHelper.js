@@ -6,7 +6,7 @@ const rds = new AWS.RDS({apiVersion: '2014-10-31'});
 
 // Import
 import { getDateString } from '../../../client/src/util/StringHelper';
-import { RDS_TYPE } from '../../../services/Constants';
+import { RDS_TYPE } from '../../../services/constants';
 
 /**
  * 

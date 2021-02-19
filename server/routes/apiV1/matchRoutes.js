@@ -17,7 +17,7 @@ import {
 } from '../../functions/apiV1/matchData';
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
-import { AWS_RDS_STATUS } from '../../services/Constants';
+import { AWS_RDS_STATUS } from '../../services/constants';
 
 /*  
     ----------------------
