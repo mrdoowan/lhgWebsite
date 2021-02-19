@@ -1,5 +1,5 @@
 // Preload environmental variables in ES6
-import _ from './env';
+import _ from '../env';
 // Import Routes
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
