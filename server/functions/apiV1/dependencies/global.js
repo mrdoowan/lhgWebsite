@@ -20,7 +20,6 @@ const hIdLength = parseInt((oldEnv) ? process.env.OLD_HID_LENGTH : process.env.L
 const profileHashIds = new Hashids(profileHIdSalt, hIdLength);
 const teamHashIds = new Hashids(teamHidSalt, hIdLength);
 const randomNumber = new Random();
-console.log(process.env.OLD_PROFILE_HID_SALT);
 
 /**
  * Helper Function:

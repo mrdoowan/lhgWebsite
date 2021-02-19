@@ -8,9 +8,9 @@
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "clean": "rm -rf build && mkdir build",
-    "build-server": "babel -d ./build ./server -s",
+    "build-server": "babel -d ./build ./server",
     "build": "npm run clean && npm run build-server",
-    "start": "node ./build/server.js",
+    "start": "node build/server.js",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "author": "mrdoowan",

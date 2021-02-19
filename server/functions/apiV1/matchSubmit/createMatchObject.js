@@ -525,9 +525,16 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
  * Takes riotMatchObject's game version (i.e. "10.20.337.6704") and only looks at the Major.Minor (returns "10.20")
  * @param {string} patchStr 
  */
-async function getPatch(patchStr) {
-    const patchArr = patchStr.split('.');
-    return `${patchArr[0]}.${patchArr[1]}`;
+function getPatch(patchStr) {
+    return new Promise((resolve, reject) => {
+        try {
+            const patchArr = patchStr.split('.');
+            resolve(`${patchArr[0]}.${patchArr[1]}`);   
+        }
+        catch (err) {
+            reject(err);
+        }
+    });   
 }
 
 /**

@@ -70,7 +70,7 @@ profileV1Routes.get('/games/name/:profileName/:seasonShortName', (req, res) => {
  * @desc    Get Profile Stats Log
  * @access  Public
  */
-profileV1Routes.get('/stats/name/:profileName/:tournamentShortName', async (req, res) => {
+profileV1Routes.get('/stats/name/:profileName/:tournamentShortName', (req, res) => {
     const { profileName, tournamentShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Stats Log from Tournament '${tournamentShortName}'.`);
     getProfilePIdByName(profileName).then((pPId) => {
