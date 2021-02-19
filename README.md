@@ -22,11 +22,14 @@ The following npm modules are used in the server:
 * bcrypt
 * random-js
 * express-http-to-https
-* babel-preset-env
-* babel-cli (-g)
 * axios
 * moment-timezone
-* core-js
+* @babel/cli
+* @babel/core
+* @babel/node
+* @babel/preset-env
+* @babel/runtime-corejs3
+* core-js@3
 * regenerator-runtime
 
 The following npm modules are used in the client:

@@ -1,6 +1,6 @@
 {
   "name": "lhg_server",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Prototype for LHG website",
   "main": "server.js",
   "scripts": {
