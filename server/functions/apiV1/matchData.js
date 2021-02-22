@@ -70,6 +70,8 @@ export const getMatchData = (id) => {
                         playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']);
                         playerJson['Kda'] = (playerJson['Deaths'] > 0) ? (((playerJson['Kills'] + playerJson['Assists']) / playerJson['Deaths']).toFixed(2)).toString() : "Perfect";
                         playerJson['KillPct'] = (teamJson['TeamKills'] == 0) ? 0 : ((playerJson['Kills'] + playerJson['Assists']) / teamJson['TeamKills']).toFixed(4);
+                        playerJson['KillPctAtEarly'] = ((playerJson['KillsAtEarly'] + playerJson['AssistsAtEarly']) / teamJson['KillsAtEarly']).toFixed(4);
+                        playerJson['KillPctAtMid'] = ((playerJson['KillsAtMid'] + playerJson['AssistsAtMid']) / teamJson['KillsAtMid']).toFixed(4);
                         playerJson['DeathPct'] = (teamJson['TeamDeaths'] == 0) ? 0 : (playerJson['Deaths'] / teamJson['TeamDeaths']).toFixed(4);
                         playerJson['GoldPct'] = (playerJson['Gold'] / teamJson['TeamGold']).toFixed(4);
                         playerJson['GoldPerMinute'] = (playerJson['Gold'] / gameDurationMinute).toFixed(2);
