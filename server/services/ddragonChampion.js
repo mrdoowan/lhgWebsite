@@ -1,5 +1,6 @@
 import axios from "axios"
 import { CACHE_KEYS } from "../functions/apiV1/dependencies/cacheKeys"
+import { GLOBAL_CONSTS } from "../functions/apiV1/dependencies/global";
 import { getDDragonVersion } from "./ddragonVersion"
 
 const redis = require('redis');
@@ -55,7 +56,7 @@ export const createChampObject = () => {
         const cacheKey = CACHE_KEYS.CHAMP_OBJECT;
         cache.get(cacheKey, async (err, data) => {
             if (err) { console.error(err); reject(err); return; }
-            else if (data) { resolve(data); return; }
+            else if (data) { resolve(JSON.parse(data)); return; }
 
             const latestDdragonPatch = await getDDragonVersion();
             axios.get(`http://ddragon.leagueoflegends.com/cdn/${latestDdragonPatch}/data/en_US/champion.json`)
@@ -68,7 +69,7 @@ export const createChampObject = () => {
                         name: value.name,
                     }
                 }
-                cache.set(cacheKey, champByKey, 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                cache.set(cacheKey, JSON.stringify(champByKey), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(champByKey);
             }).catch((err) => {
                 reject(err);
