@@ -25,8 +25,8 @@ export const getDDragonVersion = (patch=null) => {
             const cacheKey = CACHE_KEYS.LATEST_PATCH;
             cache.get(cacheKey, (err, data) => {
                 if (err) { console.error(err); reject(err); return; }
-                else if (data) { resolve(data); return; }
-                cache.set(cacheKey, versionList[0], 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                else if (data) { resolve(JSON.parse(data)); return; }
+                cache.set(cacheKey, JSON.stringify(versionList[0]), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(versionList[0]);    // Return latest as default
             });
         }).catch((err) => {
