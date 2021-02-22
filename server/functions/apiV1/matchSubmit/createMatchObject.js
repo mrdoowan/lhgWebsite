@@ -233,6 +233,11 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             let firstBloodFound = false;
             // We want to get the entire list of items being built. Key is the 'participantId'
             const allItemBuilds = {'1': [], '2': [], '3': [], '4': [], '5': [], '6': [], '7': [], '8': [], '9': [], '10': []};
+            // We want to keep track of number of kills/assists at Early and at Mid for each Player. Key is the 'participantId'
+            const playerKillsAtEarly = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0 };
+            const playerAssistsAtEarly = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0 };
+            const playerKillsAtMid = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0 };
+            const playerAssistsAtMid = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0 };
             // Since we want to calculate baron power play AFTER the total team gold is calculated,
             // we want to store which indices in the timelineList of each minute and what index in the eventsList
             const baronObjectiveMinuteIndex = {};
@@ -344,6 +349,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                         eventItem['Timestamp'] = riotEventObject.timestamp;
                         const killerId = riotEventObject.killerId;
                         eventItem['KillerId'] = killerId;
+                        eventItem['PositionX'] = riotEventObject.position.x;
+                        eventItem['PositionY'] = riotEventObject.position.y;
                         const victimId = riotEventObject.victimId;
                         eventItem['VictimId'] = victimId;
                         eventItem['EventType'] = 'Kill';
@@ -362,6 +369,19 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                             });
                             playerItems[victimId]['FirstBloodVictim'] = true;
                             firstBloodFound = true;
+                        }
+                        // playerData: KillsAtEarly/KillsAtMid
+                        if (minute < MINUTE.EARLY) {
+                            playerKillsAtEarly[killerId]++;
+                            for (const assistId in riotEventObject.assistingParticipantIds) {
+                                playerAssistsAtEarly[assistId]++;
+                            }
+                        }
+                        if (minute < MINUTE.MID) {
+                            playerKillsAtMid[killerId]++;
+                            for (const assistId in riotEventObject.assistingParticipantIds) {
+                                playerAssistsAtMid[assistId]++;
+                            }
                         }
                         // teamData: EARLY_MINUTE and MID_MINUTE Kills
                         if (minute < MINUTE.EARLY) {
@@ -416,6 +436,13 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             await computeBaronPowerPlay(baronObjectiveMinuteIndex, timelineList, matchObject['GamePatchVersion']);
             // Timeline completed
             matchObject['Timeline'] = timelineList;
+
+            for (const participantId in Object.keys(teamIdByPartId)) {
+                playerItems[participantId]['KillsAtEarly'] = playerKillsAtEarly[participantId];
+                playerItems[participantId]['AssistsAtEarly'] = playerAssistsAtEarly[participantId];
+                playerItems[participantId]['KillsAtMid'] = playerKillsAtMid[participantId];
+                playerItems[participantId]['AssistsAtMid'] = playerAssistsAtMid[participantId];
+            }
             // Calculate Diff@Early and Mid for Teams
             if (matchDataRiotJson.gameDuration >= MINUTE.EARLY * 60) {
                 teamItems[TEAM_ID.BLUE]['KillsAtEarly'] = blueKillsAtEarly;
