@@ -439,7 +439,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             matchObject['Timeline'] = timelineList;
 
             // Assign Kills and Assists at Early/Mid
-            for (const participantId in Object.keys(teamIdByPartId)) {
+            for (const participantId in teamIdByPartId) {
                 if (matchDataRiotJson.gameDuration >= MINUTE.EARLY * 60) {
                     playerItems[participantId]['KillsAtEarly'] = playerKillsAtEarly[participantId];
                     playerItems[participantId]['AssistsAtEarly'] = playerAssistsAtEarly[participantId];
@@ -532,7 +532,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                     playerItems[bluePartId]['JungleCsDiffMid'] = bluePlayerJgCsDiffMid;
                     playerItems[redPartId]['JungleCsDiffMid'] = (bluePlayerJgCsDiffMid === 0) ? 0 : (bluePlayerJgCsDiffMid * -1);
                 }
-                const damagePerMinuteDiff = playerItems[bluePartId].DamagePerMinute - playerItems[redPartId].DamagePerMinute;
+                const damagePerMinuteDiff = parseFloat((playerItems[bluePartId].DamagePerMinute - playerItems[redPartId].DamagePerMinute).toFixed(2));
                 playerItems[bluePartId]['DamagePerMinuteDiff'] = damagePerMinuteDiff;
                 playerItems[redPartId]['DamagePerMinuteDiff'] = (damagePerMinuteDiff === 0) ? 0 : (damagePerMinuteDiff * -1);
             }

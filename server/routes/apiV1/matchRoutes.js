@@ -152,7 +152,26 @@ matchV1Routes.put('/setup/submit', (req, res) => {
             return res200sOK(res, req, submitResponse);
         }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
     }).catch((err) => error500sServerError(err, res, "PUT Match Setup Save Error."));
-})
+});
+
+/**
+ * @route   PUT api/match/v1/test/setup/submit
+ * @desc    Tests submission of Match Data into MySQL and DynamoDb without saving
+ * @access  None (Developers only)
+ */
+matchV1Routes.put('/test/setup/submit', (req, res) => {
+    const { matchId } = req.body;
+
+    submitMatchSetup(matchId).then((submitResponse) => {
+        if (!submitResponse) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
+        else if ('validateMessages' in submitResponse) { 
+            return res400sClientError(
+                res, req, `Match ID '${matchId}' PUT Request Submit has invalid inputs.`, submitResponse
+            );
+        }
+        return res200sOK(res, req, submitResponse);
+    }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
+});
 
 /**
  * Uses MySQL
