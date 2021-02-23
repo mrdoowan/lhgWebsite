@@ -374,7 +374,7 @@ export const getTournamentPickBans = (tournamentPId) => {
                 let tourneyJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId));
                 let pickBansJson = {}
                 if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
-                    pbList = [];
+                    const pbList = [];
                     const numberGames = tourneyJson['TourneyStats']['NumberGames'];
                     pickBansJson['NumberGames'] = numberGames;
                     let numberChampsWithPresence = 0;
