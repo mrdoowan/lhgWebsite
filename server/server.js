@@ -78,3 +78,4 @@ schedule.scheduleJob(rule, function(){
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
+console.log((process.env.TEST_DB) ? "Connected to DB Test endpoints." : "Connected to DB Production endpoints");
