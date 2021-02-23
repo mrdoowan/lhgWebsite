@@ -48,8 +48,10 @@ export const submitMatchSetup = (id) => {
                 return;
             }
             
-            // Create Db object for databases and push into MySQL and DynamoDb
+            // Create Db object for databases
             const newMatchDbObject = await createDbMatchObject(id, matchDbObject.Setup);
+
+            // Push into MySQL and DynamoDb
             await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);
             await dynamoDbPutItem('Matches', newMatchDbObject, id);
 
