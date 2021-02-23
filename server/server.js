@@ -48,8 +48,11 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Check if the MySQL Db is "Available" every hour. If so, stop the instance.
-schedule.scheduleJob('00 * * * *', function(){
+// Check if the MySQL Db is "Available" every 24 hours. If so, stop the instance.
+const rule = new schedule.RecurrenceRule();
+rule.hour = 9;
+rule.tz = 'America/New_York';
+schedule.scheduleJob(rule, function(){
     checkRdsStatus(RDS_TYPE.PROD).then((status) => {
         console.log(`Current AWS RDS Production status: '${status}'`);
         if (status === AWS_RDS_STATUS.AVAILABLE) {
