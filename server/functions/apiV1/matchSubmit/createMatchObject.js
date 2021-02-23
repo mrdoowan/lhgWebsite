@@ -127,7 +127,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                         teamAssists += pStatsRiotObject.assists;
                         playerData['Gold'] = pStatsRiotObject.goldEarned;
                         teamGold += pStatsRiotObject.goldEarned;
-                        playerData['GoldPerMinute'] = parseFloat((pStatsRiotObject.goldEarned / (matchDataRiotJson.gameDuration / 60)).toFixed(2));
                         playerData['TotalDamageDealt'] = pStatsRiotObject.totalDamageDealtToChampions;
                         teamDamageDealt += pStatsRiotObject.totalDamageDealtToChampions;
                         playerData['DamagePerMinute'] = parseFloat((pStatsRiotObject.totalDamageDealtToChampions / (matchDataRiotJson.gameDuration / 60)).toFixed(2));
@@ -533,9 +532,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                     playerItems[bluePartId]['JungleCsDiffMid'] = bluePlayerJgCsDiffMid;
                     playerItems[redPartId]['JungleCsDiffMid'] = (bluePlayerJgCsDiffMid === 0) ? 0 : (bluePlayerJgCsDiffMid * -1);
                 }
-                const goldPerMinuteDiff = playerItems[bluePartId].GoldPerMinute - playerItems[redPartId].GoldPerMinute;
-                playerItems[bluePartId]['GoldPerMinuteDiff'] = goldPerMinuteDiff;
-                playerItems[redPartId]['GoldPerMinuteDiff'] = (goldPerMinuteDiff === 0) ? 0 : (goldPerMinuteDiff * -1);
                 const damagePerMinuteDiff = playerItems[bluePartId].DamagePerMinute - playerItems[redPartId].DamagePerMinute;
                 playerItems[bluePartId]['DamagePerMinuteDiff'] = damagePerMinuteDiff;
                 playerItems[redPartId]['DamagePerMinuteDiff'] = (damagePerMinuteDiff === 0) ? 0 : (damagePerMinuteDiff * -1);
