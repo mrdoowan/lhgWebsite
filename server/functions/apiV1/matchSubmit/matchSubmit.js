@@ -13,6 +13,7 @@ import {
 import { mySqlInsertMatch } from './mySqlInsertMatch';
 import { getMatchSetupList } from '../matchData';
 import { createChampObject } from '../../../services/ddragonChampion';
+import { mySqlEndConnections } from '../dependencies/mySqlHelper';
 
 /**
  * Takes the Setup of matchId 
@@ -60,6 +61,9 @@ export const submitMatchSetup = (id) => {
                 MatchSetupIdList: newSetupIdList
             };
             await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+
+            // Close MySql
+            mySqlEndConnections();
 
             resolve(newMatchDbObject);
         }

@@ -88,7 +88,12 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 for (let banIdx = 0; banIdx < teamBansList.length; banIdx++) {
                     banArray.push(teamBansList[banIdx].championId);
                 }
-                teamData['Bans'] = banArray;
+                if (teamId == TEAM_ID.BLUE) {
+                    teamData['Bans'] = matchTeamsSetupObject['BlueTeam']['Bans'];
+                }
+                else if (teamId == TEAM_ID.RED) {
+                    teamData['Bans'] = matchTeamsSetupObject['RedTeam']['Bans'];
+                }
                 // ----------
                 teamData['FirstTower'] = teamRiotObject.firstTower;
                 teamData['FirstBlood'] = teamRiotObject.firstBlood;
