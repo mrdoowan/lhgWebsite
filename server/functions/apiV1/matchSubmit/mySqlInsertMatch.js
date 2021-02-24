@@ -163,9 +163,9 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
         }
 
         // 3.3) Objectives
-        for (const minuteObject in newMatchDynamoDbItem['Timeline']) {
+        for (const minuteObject of newMatchDynamoDbItem['Timeline']) {
             if ('Events' in minuteObject) {
-                for (const eventObject in minuteObject['Events']) {
+                for (const eventObject of minuteObject['Events']) {
                     if (['Tower','Inhibitor','Dragon','Baron','Herald'].includes(eventObject.EventType)) {
                         const insertObjectivesColumn = {
                             'riotMatchId': matchSetupObject['RiotMatchId'],

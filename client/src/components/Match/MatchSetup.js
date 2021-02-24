@@ -312,11 +312,11 @@ export default function MatchSetup({ setupData }) {
             <tr key={`${color}TeamBanImages`}>
                 {banList.map((banId, idx) => (
                     <td key={`${color}TeamBanImage${idx}`}>
-                        {banId && banId > 0 && <ChampionSquare
+                        {(banId && banId > 0) ? <ChampionSquare
                             id={banId}
                             width="45"
                             height="45"
-                        />}
+                        /> : <div></div>}
                         <br />
                     </td>
                 ))}
