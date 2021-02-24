@@ -82,7 +82,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 teamData['Dragons'] = []; // Will be built upon in Timeline
                 teamData['Heralds'] = teamRiotObject.riftHeraldKills;
                 // Bans
-                // NOTE: Riot API's "pickTurn" is completely bugged and useless
+                // TODO: Take the matchSetupObject's Ban List instead of Riot's Match endpoint 
                 const banArray = [];
                 const teamBansList = teamRiotObject.bans;
                 for (let banIdx = 0; banIdx < teamBansList.length; banIdx++) {
