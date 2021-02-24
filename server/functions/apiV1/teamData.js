@@ -139,11 +139,14 @@ export const getTeamInfo = (teamPId) => {
     });
 }
 
-// Returns Object
+/**
+ * 
+ * @param {string} teamPId      Team Id (Assume this is valid)
+ * @param {number} sPId         Season Id number
+ */
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
-        try {
-            const teamObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then(async (teamObject) => {
             if (teamObject && 'Scouting' in teamObject) {
                 const scoutingJson = teamObject['Scouting'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
@@ -179,16 +182,20 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
                 if (!sPId) { resolve({}) }   // If 'Scouting' does not exist
                 else { resolve(null); }      // Not Found
             }
-        }
-        catch (ex) { console.error(ex); reject(ex); }
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
-// Returns Object
+/**
+ * 
+ * @param {string} teamPId      Team Id (Assume this is valid)
+ * @param {number} sPId         Season Id number
+ */
 export const getTeamGamesBySeason = (teamPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
-        try {
-            const teamObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'GameLog' in teamObject) {
                 const gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
@@ -219,16 +226,20 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
                 if (!sPId) { resolve({}); }  // If 'GameLog' does not exist
                 else { resolve(null); }             // Not Found
             }
-        }
-        catch (ex) { console.error(ex); reject(ex); }
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
-// Returns Object
+/**
+ * 
+ * @param {string} teamPId      Team Id (Assume this is valid)
+ * @param {number} tPId         Tournament Id number
+ */
 export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     return new Promise(async function(resolve, reject) {
-        try {
-            const teamObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'StatsLog' in teamObject) {
                 const statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
@@ -282,8 +293,9 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                 if (!tPId) { resolve({}); }  // If 'StatsLog' does not exist
                 else { resolve(null); } // Not Found
             }
-        }
-        catch (ex) { console.error(ex); reject(ex); }
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 

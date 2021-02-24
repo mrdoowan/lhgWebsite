@@ -131,10 +131,14 @@ export const getProfileInfo = (pPId) => {
     });
 }
 
+/**
+ * 
+ * @param {string} pPId     Profile Id (Assume this is valid)
+ * @param {number} sPId     Season Id number
+ */
 export const getProfileGamesBySeason = (pPId, sPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        try {
-            const profileObject = await dynamoDbGetItem('Profile', 'ProfilePId', pPId);
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then(async (profileObject) => {
             if (profileObject && 'GameLog' in profileObject) {
                 const gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
@@ -171,15 +175,20 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
                 if (!sPId) { resolve({}); }  // 'GameLog' does not exist while trying to find Latest
                 else { resolve(null); return; } // Not Found
             }
-        }
-        catch (error) { console.error(error); reject(error); }
+        }).catch((err) => {
+            console.error(err); reject(err); 
+        });
     });
 }
 
+/**
+ * 
+ * @param {string} pPId     Profile Id (Assume this is valid)
+ * @param {number} tPId     Tournament Id number
+ */
 export const getProfileStatsByTourney = (pPId, tPId=null) => {
     return new Promise(async function(resolve, reject) {
-        try {
-            const profileObject = await dynamoDbGetItem('Profile', 'ProfilePId', pPId);
+        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then(async (profileObject) => {
             if (profileObject && 'StatsLog' in profileObject) {
                 const statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
@@ -235,9 +244,9 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                 if (!tPId) { resolve({}); }  // If 'StatsLog' does not exist
                 else { resolve(null); return; }     // Not Found
             }
-        }
-        catch (error) { console.error(error); reject(error); }
-        
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
