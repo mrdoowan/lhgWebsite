@@ -145,12 +145,13 @@ export const getTeamInfo = (teamPId) => {
  * @param {number} sPId         Season Id number
  */
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then(async (teamObject) => {
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'Scouting' in teamObject) {
                 const scoutingJson = teamObject['Scouting'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -194,12 +195,13 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
  * @param {number} sPId         Season Id number
  */
 export const getTeamGamesBySeason = (teamPId, sPId=null) => {
-    return new Promise(async function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
         dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'GameLog' in teamObject) {
                 const gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data) { resolve(JSON.parse(data)); return; }
@@ -238,12 +240,13 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
  * @param {number} tPId         Tournament Id number
  */
 export const getTeamStatsByTourney = (teamPId, tPId=null) => {
-    return new Promise(async function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
         dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'StatsLog' in teamObject) {
                 const statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data) { resolve(JSON.parse(data)); return; }

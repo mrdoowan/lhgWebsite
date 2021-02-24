@@ -138,11 +138,12 @@ export const getProfileInfo = (pPId) => {
  */
 export const getProfileGamesBySeason = (pPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
-        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then(async (profileObject) => {
+        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
             if (profileObject && 'GameLog' in profileObject) {
                 const gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data) { resolve(JSON.parse(data)); return; }
@@ -187,12 +188,13 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
  * @param {number} tPId     Tournament Id number
  */
 export const getProfileStatsByTourney = (pPId, tPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then(async (profileObject) => {
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
             if (profileObject && 'StatsLog' in profileObject) {
                 const statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
+                
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data) { resolve(JSON.parse(data)); return; }
