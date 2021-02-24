@@ -13,6 +13,7 @@ import {
 import { mySqlInsertMatch } from './mySqlInsertMatch';
 import { getMatchSetupList } from '../matchData';
 import { createChampObject } from '../../../services/ddragonChampion';
+import { mySqlEndConnections } from '../dependencies/mySqlHelper';
 
 /**
  * Takes the Setup of matchId 
@@ -61,6 +62,9 @@ export const submitMatchSetup = (id) => {
             };
             await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
 
+            // Close MySql
+            mySqlEndConnections();
+
             resolve(newMatchDbObject);
         }
         catch (error) {
@@ -94,6 +98,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
             await checkBans(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Bans);
             // Check if all profileNames exist in DynamoDb
             const checkProfiles = async (color, playerList) => {
+                const roleList = [];
                 for (let i = 0; i < playerList.length; ++i) {
                     const playerObject = playerList[i];
                     const profilePId = await getProfilePIdByName(playerObject.ProfileName);
@@ -104,6 +109,20 @@ function validateSetupFormFields(setupTeamsDbObject) {
                     }
                     else {
                         setupTeamsDbObject[`${color}Team`].Players[i].ProfilePId = profilePId;
+                    }
+
+                    if (!playerObject.Role) {
+                        validateList.push(
+                            `${color} Team has an empty textfield for its Role.`
+                        )
+                    }
+                    else if (roleList.includes(playerObject.Role)) {
+                        validateList.push(
+                            `${color} Team duplicate Role '${playerObject.Role}'.`
+                        );
+                    }
+                    else {
+                        roleList.push(playerObject.Role);
                     }
                 }
             }
