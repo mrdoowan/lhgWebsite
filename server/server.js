@@ -51,6 +51,7 @@ if (process.env.NODE_ENV === 'production') {
 // Check if the MySQL Db is "Available" every 24 hours. If so, stop the instance.
 const rule = new schedule.RecurrenceRule();
 rule.hour = 9;
+rule.minute = 0;
 rule.tz = 'America/New_York';
 schedule.scheduleJob(rule, function(){
     checkRdsStatus(RDS_TYPE.PROD).then((status) => {
@@ -78,4 +79,4 @@ schedule.scheduleJob(rule, function(){
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
-console.log((process.env.TEST_DB) ? "Connected to DB Test endpoints." : "Connected to DB Production endpoints");
+console.log((process.env.TEST_DB === 'true') ? "Connected to DB Test endpoints." : "Connected to DB Production endpoints!");
