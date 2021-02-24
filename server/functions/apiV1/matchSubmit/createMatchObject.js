@@ -82,12 +82,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 teamData['Dragons'] = []; // Will be built upon in Timeline
                 teamData['Heralds'] = teamRiotObject.riftHeraldKills;
                 // Bans
-                // TODO: Take the matchSetupObject's Ban List instead of Riot's Match endpoint 
-                const banArray = [];
-                const teamBansList = teamRiotObject.bans;
-                for (let banIdx = 0; banIdx < teamBansList.length; banIdx++) {
-                    banArray.push(teamBansList[banIdx].championId);
-                }
                 if (teamId == TEAM_ID.BLUE) {
                     teamData['Bans'] = matchTeamsSetupObject['BlueTeam']['Bans'];
                 }
