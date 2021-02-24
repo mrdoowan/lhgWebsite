@@ -143,14 +143,15 @@ export const getTeamInfo = (teamPId) => {
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
     return new Promise(async function(resolve, reject) {
         try {
-            let scoutingJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['Scouting'];
-            if (scoutingJson != null) {
+            const teamObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+            if (teamObject && 'Scouting' in teamObject) {
+                const scoutingJson = teamObject['Scouting'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
-                    let teamScoutingSeasonJson = scoutingJson[seasonId];
+                    const teamScoutingSeasonJson = scoutingJson[seasonId];
                     if (teamScoutingSeasonJson == null) { resolve(null); return; } // Not Found
 
                     // Process Data
@@ -158,10 +159,10 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
                     teamScoutingSeasonJson['SeasonName'] = await getSeasonName(seasonId);
                     teamScoutingSeasonJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(teamScoutingSeasonJson['PlayerLog']).length; ++i) {
-                        let roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
+                        const roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
                         for (let j = 0; j < Object.keys(roleMap).length; ++j) {
-                            let profileHId = Object.keys(roleMap)[j];
-                            let statsJson = roleMap[profileHId];
+                            const profileHId = Object.keys(roleMap)[j];
+                            const statsJson = roleMap[profileHId];
                             statsJson['ProfileName'] = await getProfileName(profileHId);
                             statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
                             statsJson['KillPctPlayer'] = (statsJson['TotalKillsTeam'] == 0) ? 0 : ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalKillsTeam']).toFixed(4);
@@ -175,8 +176,8 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
                 });
             }
             else {
-                if (sPId == null) { resolve({}) }   // If 'Scouting' does not exist
-                else { resolve(null); }             // Not Found
+                if (!sPId) { resolve({}) }   // If 'Scouting' does not exist
+                else { resolve(null); }      // Not Found
             }
         }
         catch (ex) { console.error(ex); reject(ex); }
