@@ -131,25 +131,30 @@ export const getProfileInfo = (pPId) => {
     });
 }
 
+/**
+ * 
+ * @param {string} pPId     Profile Id (Assume this is valid)
+ * @param {number} sPId     Season Id number
+ */
 export const getProfileGamesBySeason = (pPId, sPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        try {
-            let profileObject = await dynamoDbGetItem('Profile', 'ProfilePId', pPId);
-            if (profileObject != null) {
-                let gameLogJson = profileObject['GameLog'];
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
+            if (profileObject && 'GameLog' in profileObject) {
+                const gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
-                    else if (data != null) { resolve(JSON.parse(data)); return; }
-                    let profileGamesJson = gameLogJson[seasonId];
-                    if (profileGamesJson == null) { resolve(null); return; } // Not Found
+                    else if (data) { resolve(JSON.parse(data)); return; }
+                    const profileGamesJson = gameLogJson[seasonId];
+                    if (!profileGamesJson) { resolve(null); return; } // Not Found
                     // Process Data
                     profileGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
                     profileGamesJson['SeasonName'] = await getSeasonName(seasonId);
                     profileGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
-                        let matchJson = Object.values(profileGamesJson['Matches'])[i];
+                        const matchJson = Object.values(profileGamesJson['Matches'])[i];
                         matchJson['TeamName'] = await getTeamName(matchJson['TeamHId']);
                         matchJson['EnemyTeamName'] = await getTeamName(matchJson['EnemyTeamHId']);
                         matchJson['Kda'] = (matchJson['Deaths'] > 0) ? ((matchJson['Kills'] + matchJson['Assists']) / matchJson['Deaths']).toFixed(2) : "Perfect";
@@ -157,7 +162,7 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
                         matchJson['DamagePct'] = (matchJson['DamageDealt'] / matchJson['TeamDamage']).toFixed(4);
                         matchJson['GoldPct'] = (matchJson['Gold'] / matchJson['TeamGold']).toFixed(4);
                         matchJson['VisionScorePct'] = (matchJson['VisionScore'] / matchJson['TeamVS']).toFixed(4);
-                        let gameDurationMinute = matchJson['GameDuration'] / 60;
+                        const gameDurationMinute = matchJson['GameDuration'] / 60;
                         matchJson['CreepScorePerMinute'] = (matchJson['CreepScore'] / gameDurationMinute).toFixed(2);
                         matchJson['DamagePerMinute'] = (matchJson['DamageDealt'] / gameDurationMinute).toFixed(2);
                         matchJson['GoldPerMinute'] = (matchJson['Gold'] / gameDurationMinute).toFixed(2);
@@ -168,34 +173,40 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
                 })
             }
             else {
-                if (sPId == null) { resolve({}); }  // 'GameLog' does not exist while trying to find Latest
+                if (!sPId) { resolve({}); }  // 'GameLog' does not exist while trying to find Latest
                 else { resolve(null); return; } // Not Found
             }
-        }
-        catch (error) { console.error(error); reject(error); }
+        }).catch((err) => {
+            console.error(err); reject(err); 
+        });
     });
 }
 
+/**
+ * 
+ * @param {string} pPId     Profile Id (Assume this is valid)
+ * @param {number} tPId     Tournament Id number
+ */
 export const getProfileStatsByTourney = (pPId, tPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        try {
-            let profileObject = await dynamoDbGetItem('Profile', 'ProfilePId', pPId);
-            if (profileObject != null) {
-                let statsLogJson = profileObject['StatsLog'];
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
+            if (profileObject && 'StatsLog' in profileObject) {
+                const statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
+                
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
-                    else if (data != null) { resolve(JSON.parse(data)); return; }
+                    else if (data) { resolve(JSON.parse(data)); return; }
                     // Process Data
-                    let profileStatsJson = statsLogJson[tourneyId];
-                    if (profileStatsJson == null) { resolve(null); return; }    // Not Found
+                    const profileStatsJson = statsLogJson[tourneyId];
+                    if (!profileStatsJson) { resolve(null); return; }    // Not Found
                     profileStatsJson['TournamentName'] = await getTournamentName(tourneyId);
                     profileStatsJson['TournamentShortName'] = await getTournamentShortName(tourneyId);
                     for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
-                        let role = Object.keys(profileStatsJson['RoleStats'])[i];
-                        let statsJson = profileStatsJson['RoleStats'][role];
-                        let gameDurationMinute = statsJson['TotalGameDuration'] / 60;
+                        const role = Object.keys(profileStatsJson['RoleStats'])[i];
+                        const statsJson = profileStatsJson['RoleStats'][role];
+                        const gameDurationMinute = statsJson['TotalGameDuration'] / 60;
                         statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
                         statsJson['AverageKills'] = (statsJson['TotalKills'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['AverageDeaths'] = (statsJson['TotalDeaths'] / statsJson['GamesPlayed']).toFixed(1);
@@ -232,12 +243,12 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                 });
             }
             else {
-                if (tPId == null) { resolve({}); }  // If 'StatsLog' does not exist
+                if (!tPId) { resolve({}); }  // If 'StatsLog' does not exist
                 else { resolve(null); return; }     // Not Found
             }
-        }
-        catch (error) { console.error(error); reject(error); }
-        
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
