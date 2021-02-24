@@ -139,18 +139,23 @@ export const getTeamInfo = (teamPId) => {
     });
 }
 
-// Returns Object
+/**
+ * 
+ * @param {string} teamPId      Team Id (Assume this is valid)
+ * @param {number} sPId         Season Id number
+ */
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        try {
-            let scoutingJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['Scouting'];
-            if (scoutingJson != null) {
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+            if (teamObject && 'Scouting' in teamObject) {
+                const scoutingJson = teamObject['Scouting'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
                     else if (data != null) { resolve(JSON.parse(data)); return; }
-                    let teamScoutingSeasonJson = scoutingJson[seasonId];
+                    const teamScoutingSeasonJson = scoutingJson[seasonId];
                     if (teamScoutingSeasonJson == null) { resolve(null); return; } // Not Found
 
                     // Process Data
@@ -158,10 +163,10 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
                     teamScoutingSeasonJson['SeasonName'] = await getSeasonName(seasonId);
                     teamScoutingSeasonJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(teamScoutingSeasonJson['PlayerLog']).length; ++i) {
-                        let roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
+                        const roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
                         for (let j = 0; j < Object.keys(roleMap).length; ++j) {
-                            let profileHId = Object.keys(roleMap)[j];
-                            let statsJson = roleMap[profileHId];
+                            const profileHId = Object.keys(roleMap)[j];
+                            const statsJson = roleMap[profileHId];
                             statsJson['ProfileName'] = await getProfileName(profileHId);
                             statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
                             statsJson['KillPctPlayer'] = (statsJson['TotalKillsTeam'] == 0) ? 0 : ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalKillsTeam']).toFixed(4);
@@ -175,37 +180,42 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
                 });
             }
             else {
-                if (sPId == null) { resolve({}) }   // If 'Scouting' does not exist
-                else { resolve(null); }             // Not Found
+                if (!sPId) { resolve({}) }   // If 'Scouting' does not exist
+                else { resolve(null); }      // Not Found
             }
-        }
-        catch (ex) { console.error(ex); reject(ex); }
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
-// Returns Object
+/**
+ * 
+ * @param {string} teamPId      Team Id (Assume this is valid)
+ * @param {number} sPId         Season Id number
+ */
 export const getTeamGamesBySeason = (teamPId, sPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        try {
-            let teamObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
-            if (teamObject != null) {
-                let gameLogJson = teamObject['GameLog'];
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+            if (teamObject && 'GameLog' in teamObject) {
+                const gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
-                    else if (data != null) { resolve(JSON.parse(data)); return; }
-                    let teamSeasonGamesJson = gameLogJson[seasonId];
-                    if (teamSeasonGamesJson == null) { resolve(null); return; } // Not Found
+                    else if (data) { resolve(JSON.parse(data)); return; }
+                    const teamSeasonGamesJson = gameLogJson[seasonId];
+                    if (!teamSeasonGamesJson) { resolve(null); return; } // Not Found
 
                     // Process Data
                     teamSeasonGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
                     teamSeasonGamesJson['SeasonName'] = await getSeasonName(seasonId);
                     teamSeasonGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
                     for (let i = 0; i < Object.values(teamSeasonGamesJson['Matches']).length; ++i) {
-                        let matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
+                        const matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
                         for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
-                            let champObject = Object.values(matchObject['ChampPicks'])[j];
+                            const champObject = Object.values(matchObject['ChampPicks'])[j];
                             champObject['ProfileName'] = await getProfileName(champObject['ProfileHId']);
                         }
                         matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);
@@ -215,33 +225,38 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
                 });
             }
             else {
-                if (sPId == null) { resolve({}); }  // If 'GameLog' does not exist
+                if (!sPId) { resolve({}); }  // If 'GameLog' does not exist
                 else { resolve(null); }             // Not Found
             }
-        }
-        catch (ex) { console.error(ex); reject(ex); }
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
-// Returns Object
+/**
+ * 
+ * @param {string} teamPId      Team Id (Assume this is valid)
+ * @param {number} tPId         Tournament Id number
+ */
 export const getTeamStatsByTourney = (teamPId, tPId=null) => {
-    return new Promise(async function(resolve, reject) {
-        try {
-            let teamObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
-            if (teamObject != null) {
-                let statsLogJson = teamObject['StatsLog'];
+    return new Promise(function(resolve, reject) {
+        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+            if (teamObject && 'StatsLog' in teamObject) {
+                const statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
                 const cacheKey = CACHE_KEYS.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
+
                 cache.get(cacheKey, async (err, data) => {
                     if (err) { console(err); reject(err); return; }
-                    else if (data != null) { resolve(JSON.parse(data)); return; }
-                    let tourneyStatsJson = statsLogJson[tourneyId];
-                    if (tourneyStatsJson == null) { resolve(null); return; } // Not Found
+                    else if (data) { resolve(JSON.parse(data)); return; }
+                    const tourneyStatsJson = statsLogJson[tourneyId];
+                    if (!tourneyStatsJson) { resolve(null); return; } // Not Found
 
                     // Process Data
                     tourneyStatsJson['TournamentName'] = await getTournamentName(tourneyId);
                     tourneyStatsJson['TournamentShortName'] = await getTournamentShortName(tourneyId);
-                    let totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
+                    const totalGameDurationMinute = tourneyStatsJson['TotalGameDuration'] / 60;
                     tourneyStatsJson['GamesPlayedOnRed'] = tourneyStatsJson['GamesPlayed'] - tourneyStatsJson['GamesPlayedOnBlue'];
                     tourneyStatsJson['RedWins'] = tourneyStatsJson['GamesWon'] - tourneyStatsJson['BlueWins'];
                     tourneyStatsJson['AverageGameDuration'] = (tourneyStatsJson['TotalGameDuration'] / tourneyStatsJson['GamesPlayed']).toFixed(2);
@@ -278,12 +293,12 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                 });
             }
             else {
-                if (tPId == null) { resolve({}); }  // If 'StatsLog' does not exist
-                //else { console.error("This team does not have any Games logged."); reject(404); }
+                if (!tPId) { resolve({}); }  // If 'StatsLog' does not exist
                 else { resolve(null); } // Not Found
             }
-        }
-        catch (ex) { console.error(ex); reject(ex); }
+        }).catch((err) => {
+            console.error(err); reject(err);
+        });
     });
 }
 
