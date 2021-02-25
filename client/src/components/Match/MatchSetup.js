@@ -143,7 +143,9 @@ export default function MatchSetup({ setupData }) {
             const bansList = [];
             for (let i = 0; i < NUMBER_OF_BANS; ++i) {
                 const numberValue = parseInt(values[`${color}TeamBanId${i}`]);
-                bansList.push((numberValue) ? numberValue : 0);
+                if (numberValue && numberValue > 0) { // Did not ban / ban loss
+                    bansList.push(numberValue);
+                }
             }
             const capitalColor = capitalize(color);
             transformedObject.teams[`${capitalColor}Team`].Bans = bansList;
@@ -310,11 +312,11 @@ export default function MatchSetup({ setupData }) {
             <tr key={`${color}TeamBanImages`}>
                 {banList.map((banId, idx) => (
                     <td key={`${color}TeamBanImage${idx}`}>
-                        {banId !== 0 && <ChampionSquare 
+                        {(banId && banId > 0) ? <ChampionSquare
                             id={banId}
                             width="45"
                             height="45"
-                        />}
+                        /> : <div></div>}
                         <br />
                     </td>
                 ))}

@@ -17,11 +17,11 @@ import { mySqlInsertQuery } from '../dependencies/mySqlHelper';
  * @param {object} matchDbObject 
  * @param {object} matchSubmitObject 
  */
-export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
+export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) => {
     try {
         // 1) MatchStats
-        const blueTeamPId = getTeamPIdFromHash(newMatchDbObject['Teams'][TEAM_ID.BLUE]['TeamHId']);
-        const redTeamPId = getTeamPIdFromHash(newMatchDbObject['Teams'][TEAM_ID.RED]['TeamHId']);
+        const blueTeamPId = getTeamPIdFromHash(newMatchDynamoDbItem['Teams'][TEAM_ID.BLUE]['TeamHId']);
+        const redTeamPId = getTeamPIdFromHash(newMatchDynamoDbItem['Teams'][TEAM_ID.RED]['TeamHId']);
         const insertMatchStatsColumn = {
             'riotMatchId': matchSetupObject['RiotMatchId'],
             'seasonPId': matchSetupObject['SeasonPId'],
@@ -29,18 +29,18 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
             'tournamentType': (await dynamoDbGetItem('Tournament', 'TournamentPId', matchSetupObject['TournamentPId']))['Information']['TournamentType'],
             'blueTeamPId': blueTeamPId,
             'redTeamPId': redTeamPId,
-            'duration': newMatchDbObject.GameDuration,
-            'patch': newMatchDbObject.GamePatchVersion,
-            'datePlayed': newMatchDbObject.DatePlayed
+            'duration': newMatchDynamoDbItem.GameDuration,
+            'patch': newMatchDynamoDbItem.GamePatchVersion,
+            'datePlayed': newMatchDynamoDbItem.DatePlayed
         };
         await mySqlInsertQuery(insertMatchStatsColumn, 'MatchStats');
 
         // 2) TeamStats + PlayerStats + BannedChamps
         // 2.1) TeamStats
-        for (let i = 0; i < Object.keys(newMatchDbObject['Teams']).length; ++i) {
-            const teamSide = Object.keys(newMatchDbObject['Teams'])[i]; // "100" or "200"
-            const teamObject = newMatchDbObject['Teams'][teamSide];
-            const durationByMinute = newMatchDbObject.GameDuration / 60;
+        for (let i = 0; i < Object.keys(newMatchDynamoDbItem['Teams']).length; ++i) {
+            const teamSide = Object.keys(newMatchDynamoDbItem['Teams'])[i]; // "100" or "200"
+            const teamObject = newMatchDynamoDbItem['Teams'][teamSide];
+            const durationByMinute = newMatchDynamoDbItem.GameDuration / 60;
             const thisTeamPId = (teamSide == TEAM_ID.BLUE) ? blueTeamPId : redTeamPId;
             const enemyTeamPId = (teamSide == TEAM_ID.BLUE) ? redTeamPId : blueTeamPId;
             const insertTeamStatsColumn = {
@@ -69,7 +69,7 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                 'totalControlWardsBought': teamObject.TeamControlWardsBought,
                 'totalWardsCleared': teamObject.TeamWardsCleared
             };
-            if (newMatchDbObject.GameDuration >= MINUTE.EARLY * 60) {
+            if (newMatchDynamoDbItem.GameDuration >= MINUTE.EARLY * 60) {
                 insertTeamStatsColumn['goldAtEarly'] = teamObject.GoldAtEarly;
                 insertTeamStatsColumn['goldDiffEarly'] = teamObject.GoldDiffEarly;
                 insertTeamStatsColumn['csAtEarly'] = teamObject.CsAtEarly;
@@ -79,7 +79,7 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                 insertTeamStatsColumn['killsAtEarly'] = teamObject.KillsAtEarly;
                 insertTeamStatsColumn['killsDiffEarly'] = teamObject.KillsDiffEarly;
             }
-            if (newMatchDbObject.GameDuration >= MINUTE.MID * 60) {
+            if (newMatchDynamoDbItem.GameDuration >= MINUTE.MID * 60) {
                 insertTeamStatsColumn['goldAtMid'] = teamObject.GoldAtMid;
                 insertTeamStatsColumn['goldDiffMid'] = teamObject.GoldDiffMid;
                 insertTeamStatsColumn['csAtMid'] = teamObject.CsAtMid;
@@ -89,7 +89,7 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                 insertTeamStatsColumn['killsAtMid'] = teamObject.KillsAtMid;
                 insertTeamStatsColumn['killsDiffMid'] = teamObject.KillsDiffMid;
             }
-            mySqlInsertQuery(insertTeamStatsColumn, 'TeamStats');
+            await mySqlInsertQuery(insertTeamStatsColumn, 'TeamStats');
 
             // 2.2) BannedChamps
             const insertBannedChampsColumn = {
@@ -101,7 +101,7 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
             for (let j = 0; j < teamObject.Bans.length; ++j) {
                 const champId = teamObject.Bans[j]
                 insertBannedChampsColumn['champId'] = champId;
-                mySqlInsertQuery(insertBannedChampsColumn, 'BannedChamps');
+                await mySqlInsertQuery(insertBannedChampsColumn, 'BannedChamps');
             }
 
             // 2.3) PlayerStats
@@ -138,7 +138,7 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                     'quadraKills': playerObject.QuadraKills,
                     'pentaKills': playerObject.PentaKills
                 };
-                if (newMatchDbObject.GameDuration >= MINUTE.EARLY * 60) {
+                if (newMatchDynamoDbItem.GameDuration >= MINUTE.EARLY * 60) {
                     insertPlayerStatsColumn['goldAtEarly'] = playerObject.GoldAtEarly;
                     insertPlayerStatsColumn['goldDiffEarly'] = playerObject.GoldDiffEarly;
                     insertPlayerStatsColumn['csAtEarly'] = playerObject.CsAtEarly;
@@ -148,7 +148,7 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                     insertPlayerStatsColumn['jungleCsAtEarly'] = playerObject.JungleCsAtEarly;
                     insertPlayerStatsColumn['jungleCsDiffEarly'] = playerObject.JungleCsDiffEarly;
                 }
-                if (newMatchDbObject.GameDuration >= MINUTE.MID * 60) {
+                if (newMatchDynamoDbItem.GameDuration >= MINUTE.MID * 60) {
                     insertPlayerStatsColumn['goldAtMid'] = playerObject.GoldAtMid;
                     insertPlayerStatsColumn['goldDiffMid'] = playerObject.GoldDiffMid;
                     insertPlayerStatsColumn['csAtMid'] = playerObject.CsAtMid;
@@ -158,14 +158,14 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                     insertPlayerStatsColumn['jungleCsAtMid'] = playerObject.JungleCsAtMid;
                     insertPlayerStatsColumn['jungleCsDiffMid'] = playerObject.JungleCsDiffMid;
                 }
-                mySqlInsertQuery(insertPlayerStatsColumn, 'PlayerStats');
+                await mySqlInsertQuery(insertPlayerStatsColumn, 'PlayerStats');
             }
         }
 
         // 3.3) Objectives
-        newMatchDbObject['Timeline'].forEach(function(minuteObject) {
+        for (const minuteObject of newMatchDynamoDbItem['Timeline']) {
             if ('Events' in minuteObject) {
-                minuteObject['Events'].forEach(function(eventObject) {
+                for (const eventObject of minuteObject['Events']) {
                     if (['Tower','Inhibitor','Dragon','Baron','Herald'].includes(eventObject.EventType)) {
                         const insertObjectivesColumn = {
                             'riotMatchId': matchSetupObject['RiotMatchId'],
@@ -182,14 +182,14 @@ export const mySqlInsertMatch = async (newMatchDbObject, matchSetupObject) => {
                         if ('BaronPowerPlay' in eventObject) {
                             insertObjectivesColumn['baronPowerPlay'] = eventObject.BaronPowerPlay;
                         }
-                        mySqlInsertQuery(insertObjectivesColumn, 'Objectives');
+                        await mySqlInsertQuery(insertObjectivesColumn, 'Objectives');
                     }
-                });
+                }
             }
-        });
+        }
 
         // Confirm
-        console.log(`MySQL: All data from '${newMatchDbObject.MatchPId}' inserted.`);
+        console.log(`MySQL: All data from '${newMatchDynamoDbItem.MatchPId}' inserted.`);
     }
     catch (error) {
         throw error;
