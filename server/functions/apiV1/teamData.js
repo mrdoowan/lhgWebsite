@@ -38,9 +38,10 @@ import { getProfileName } from './profileData';
  */
 // Get TeamPId from TeamName
 export const getTeamPIdByName = (name) => {
-    const simpleName = filterName(name);
-    const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
+        if (!name) { resolve(null); return; }
+        const simpleName = filterName(name);
+        const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
@@ -61,9 +62,10 @@ export const getTeamPIdByName = (name) => {
  */
 // Get TeamName from DynamoDb
 export const getTeamName = (teamHId) => {
-    const teamPId = getTeamPIdFromHash(teamHId);
-    const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
+        if (!teamHId) { resolve(null); return; }
+        const teamPId = getTeamPIdFromHash(teamHId);
+        const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + teamPId;
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
@@ -84,13 +86,14 @@ export const getTeamName = (teamHId) => {
  */
 // Get Shortname from DynamoDb
 export const getTeamShortName = (teamHId) => {
-    let tPId = getTeamPIdFromHash(teamHId);
-    const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + tPId;
     return new Promise(function(resolve, reject) {
+        if (!teamHId) { resolve(null); return; }
+        const teamPId = getTeamPIdFromHash(teamHId);
+        const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + teamPId;
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Team', 'TeamPId', tPId)
+            dynamoDbGetItem('Team', 'TeamPId', teamPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const shortName = obj['Information']['TeamShortName'];
@@ -102,8 +105,9 @@ export const getTeamShortName = (teamHId) => {
 }
 
 export const getTeamInfo = (teamPId) => {
-    const cacheKey = CACHE_KEYS.TEAM_INFO_PREFIX + teamPId;
     return new Promise(function(resolve, reject) {
+        if (!teamPId) { resolve(null); return; }
+        const cacheKey = CACHE_KEYS.TEAM_INFO_PREFIX + teamPId;
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
@@ -146,6 +150,7 @@ export const getTeamInfo = (teamPId) => {
  */
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
+        if (!teamPId) { resolve(null); return; }
         dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'Scouting' in teamObject) {
                 const scoutingJson = teamObject['Scouting'];
@@ -196,6 +201,7 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
  */
 export const getTeamGamesBySeason = (teamPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
+        if (!teamPId) { resolve(null); return; }
         dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'GameLog' in teamObject) {
                 const gameLogJson = teamObject['GameLog'];
@@ -241,6 +247,7 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
  */
 export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     return new Promise(function(resolve, reject) {
+        if (!teamPId) { resolve(null); return; }
         dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
             if (teamObject && 'StatsLog' in teamObject) {
                 const statsLogJson = teamObject['StatsLog'];
