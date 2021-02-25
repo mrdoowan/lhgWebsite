@@ -62,9 +62,6 @@ export const submitMatchSetup = (id) => {
             };
             await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
 
-            // Close MySql
-            mySqlEndConnections();
-
             resolve(newMatchDbObject);
         }
         catch (error) {
