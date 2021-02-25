@@ -35,20 +35,16 @@ export function mySqlCallSProc(sProcName) {
             }
             queryStr += ");";
 
-            sqlPool.getConnection(function(err, connection) {
-                if (err) { reject(err); }
-                connection.query(queryStr, function(error, results, fields) {
-                    connection.release();
-                    if (error) { reject(error); }
-                    console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Called SProc '${sProcName}' with params '${Array.from(argArray).slice(1)}'`);
-                    if (results == null) { resolve({}); }
-                    else { resolve(results[0]); } // Returns an Array of 'RowDataPacket'
-                });
+            sqlPool.query(queryStr, (error, results, fields) => {
+                if (error) { throw error; }
+                console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Called SProc '${sProcName}' with params '${Array.from(argArray).slice(1)}'`);
+                if (results == null) { resolve({}); }
+                else { resolve(results[0]); } // Returns an Array of 'RowDataPacket'
             });
         }
-        catch (error) {
-            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR - sProcMySqlQuery '${sProcName}' Promise rejected.`);
-            reject(error);
+        catch (err) {
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR MySQL - sProcMySqlQuery '${sProcName}' Promise rejected.`);
+            reject(err);
         }
     });
 }
@@ -74,19 +70,15 @@ export const mySqlInsertQuery = (queryObject, tableName) => {
             queryStr = queryStr.slice(0, -1); // trimEnd of character
             queryStr += ');';
 
-            sqlPool.getConnection(function(err, connection) {
-                if (err) { reject(err); }
-                connection.query(queryStr, function(error, results, fields) {
-                    connection.release();
-                    if (error) { throw error; }
-                    console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Insert Row into Table '${tableName}' with QUERY '${queryStr}' - Affected ${results.affectedRows} row(s).`);
-                    resolve(results); 
-                });
+            sqlPool.query(queryStr, (error, results, fields) => {
+                if (error) { throw error; }
+                console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Insert Row into Table '${tableName}' with QUERY '${queryStr}' - Affected ${results.affectedRows} row(s).`);
+                resolve(results); 
             });
         }
-        catch (error) {
-            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR - insertMySQLQuery '${tableName}' Promise rejected.`);
-            reject(error);
+        catch (err) {
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR MySQL - insertMySQLQuery '${tableName}' Promise rejected.`);
+            reject(err);
         }
     });
 }
@@ -98,18 +90,29 @@ export const mySqlInsertQuery = (queryObject, tableName) => {
 export const mySqlMakeQuery = (queryString) => {
     return new Promise(function(resolve, reject) {
         try {
-            sqlPool.getConnection(function(err, connection) {
-                if (err) { reject(err); }
-                connection.query(queryString, function(error, results, fields) {
-                    connection.release();
-                    if (error) { reject(error); }
-                    console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Called query command '${queryStr}'`);
-                    resolve(results[0]);
-                })
-            })
+            sqlPool.query(queryString, (error, results, fields) => {
+                if (error) { throw error; }
+                console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Called query command '${queryString}'`);
+                resolve(results[0]);
+            });
         }
-        catch (error) {
-            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR - makeQuery '" + queryString + "' Promise rejected.`);
+        catch (err) {
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR MySQL - makeQuery '" + queryString + "' Promise rejected.`);
+            reject(err);
+        }
+    })
+}
+
+/**
+ * 
+ */
+export const mySqlEndConnections = () => {
+    sqlPool.end((err) => {
+        if (err) {
+            console.error(`${(!PROD_MYSQL) ? '[TEST] ' : ''}ERROR MySQL - Could not close connections.`);
+        }
+        else {
+            console.log(`${(!PROD_MYSQL) ? '[TEST] ' : ''}MySQL: Connections closed successfully.`);
         }
     })
 }

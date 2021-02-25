@@ -39,9 +39,10 @@ import { getTeamName } from './teamData';
  * @param {string} name 
  */
 export const getProfilePIdByName = (name) => {
-    const simpleName = filterName(name);
-    const cacheKey = CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
+        if (!name) { resolve(null); return; }
+        const simpleName = filterName(name);
+        const cacheKey = CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + simpleName;
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data) { resolve(data); return; }
@@ -60,6 +61,7 @@ export const getProfilePIdByName = (name) => {
 export const getProfilePIdBySummonerId = (summId) => {
     const cacheKey = CACHE_KEYS.PROFILE_PID_BYSUMM_PREFIX + summId;
     return new Promise(function(resolve, reject) {
+        if (!summId) { resolve(null); return; }
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
@@ -74,16 +76,20 @@ export const getProfilePIdBySummonerId = (summId) => {
     });
 }
 
-// Get ProfileName from DynamoDb
-// hash=true if id is HId, hash=false if id id PId
+/**
+ * Get ProfileName from DynamoDb
+ * @param {string} id       Profile PId or HId
+ * @param {boolean} hash    hash=true if id is HId, hash=false if id is PId
+ */
 export const getProfileName = (id, hash=true) => {
-    let pPId = (hash) ? getProfilePIdFromHash(id) : id;
-    const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + pPId;
     return new Promise(function(resolve, reject) {
+        if (!id) { resolve(null); return; }
+        const profilePId = (hash) ? getProfilePIdFromHash(id) : id;
+        const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId;
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Profile', 'ProfilePId', pPId)
+            dynamoDbGetItem('Profile', 'ProfilePId', profilePId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 cache.set(cacheKey, obj['ProfileName']);
@@ -93,14 +99,19 @@ export const getProfileName = (id, hash=true) => {
     });
 }
 
-export const getProfileInfo = (pPId) => {
-    const cacheKey = CACHE_KEYS.PROFILE_INFO_PREFIX + pPId;
+/**
+ * 
+ * @param {string} profilePId   
+ */
+export const getProfileInfo = (profilePId) => {
+    const cacheKey = CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId;
     return new Promise(function(resolve, reject) {
+        if (!profilePId) { resolve(null); return; }
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileInfoJson = (await dynamoDbGetItem('Profile', 'ProfilePId', pPId))['Information'];
+                let profileInfoJson = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['Information'];
                 if (profileInfoJson != null) { 
                     if ('ActiveSeasonPId' in profileInfoJson) {
                         profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
@@ -110,12 +121,12 @@ export const getProfileInfo = (pPId) => {
                         profileInfoJson['ActiveTeamName'] = await getTeamName(profileInfoJson['ActiveTeamHId']);
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', pPId))['GameLog'];
+                    let gameLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'];
                     if (gameLogJson != null) {
                         profileInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', pPId))['StatsLog'];
+                    let statsLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['StatsLog'];
                     if (statsLogJson != null) {
                         profileInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -138,6 +149,7 @@ export const getProfileInfo = (pPId) => {
  */
 export const getProfileGamesBySeason = (pPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
+        if (!pPId) { resolve(null); return; }
         dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
             if (profileObject && 'GameLog' in profileObject) {
                 const gameLogJson = profileObject['GameLog'];
@@ -189,6 +201,7 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
  */
 export const getProfileStatsByTourney = (pPId, tPId=null) => {
     return new Promise(function(resolve, reject) {
+        if (!pPId) { resolve(null); return; }
         dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
             if (profileObject && 'StatsLog' in profileObject) {
                 const statsLogJson = profileObject['StatsLog'];

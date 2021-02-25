@@ -82,13 +82,12 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 teamData['Dragons'] = []; // Will be built upon in Timeline
                 teamData['Heralds'] = teamRiotObject.riftHeraldKills;
                 // Bans
-                // NOTE: Riot API's "pickTurn" is completely bugged and useless
-                const banArray = [];
-                const teamBansList = teamRiotObject.bans;
-                for (let banIdx = 0; banIdx < teamBansList.length; banIdx++) {
-                    banArray.push(teamBansList[banIdx].championId);
+                if (teamId == TEAM_ID.BLUE) {
+                    teamData['Bans'] = matchTeamsSetupObject['BlueTeam']['Bans'];
                 }
-                teamData['Bans'] = banArray;
+                else if (teamId == TEAM_ID.RED) {
+                    teamData['Bans'] = matchTeamsSetupObject['RedTeam']['Bans'];
+                }
                 // ----------
                 teamData['FirstTower'] = teamRiotObject.firstTower;
                 teamData['FirstBlood'] = teamRiotObject.firstBlood;
