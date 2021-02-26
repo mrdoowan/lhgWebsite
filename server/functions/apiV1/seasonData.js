@@ -191,22 +191,22 @@ export const getSeasonInformation = (sPId) => {
 }
 
 export const getSeasonRoster = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_ROSTER_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
+        const cacheKey = CACHE_KEYS.SEASON_ROSTER_PREFIX + sPId;
+        cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let seasonRosterJson = (await dynamoDbGetItem('Season', 'SeasonPId', sPId))['Roster'];
-                if (seasonRosterJson != null) {
+
+            dynamoDbGetItem('Season', 'SeasonPId', sPId).then(async (seasonJson) => {
+                if (!seasonJson) { resolve(null); return; }
+                const seasonRosterJson = seasonJson['Roster'];
+                if (seasonRosterJson) {
                     if ('Teams' in seasonRosterJson) {
-                        for (let i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
-                            let teamHId = Object.keys(seasonRosterJson['Teams'])[i];
-                            let teamJson = seasonRosterJson['Teams'][teamHId];
+                        for (const teamHId in seasonRosterJson['Teams']) {
+                            const teamJson = seasonRosterJson['Teams'][teamHId];
                             teamJson['TeamName'] = await getTeamName(teamHId);
-                            for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                                let profileHId = Object.keys(teamJson['Players'])[j];
-                                let playerJson = teamJson['Players'][profileHId];
+                            for (const profileHId in teamJson['Players']) {
+                                const playerJson = teamJson['Players'][profileHId];
                                 playerJson['ProfileName'] = await getProfileName(profileHId);
                             }
                         }
@@ -217,8 +217,7 @@ export const getSeasonRoster = (sPId) => {
                 else {
                     resolve({});    // If 'Roster' does not exist
                 }
-            }
-            catch (error) { console.error(error); reject(error); }
+            }).catch((error) => { console.error(error); reject(error); });
         });
     });
 }
