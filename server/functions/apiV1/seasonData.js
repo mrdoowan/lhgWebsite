@@ -9,6 +9,7 @@ import {
 } from './dependencies/global';
 import {
     dynamoDbGetItem,
+    dynamoDbPutItem,
     dynamoDbScanTable,
 } from './dependencies/dynamoDbHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -153,7 +154,7 @@ export const getLeagues = () => {
                     resolve(returnObject);
                 }
                 else {
-                    resolve({});   // Return empty if does not exist
+                    resolve(null);   // Return empty if does not exist
                 }     
             }
             catch (ex) { console.error(ex); reject(ex); }
@@ -196,7 +197,7 @@ export const getSeasonInformation = (seasonId) => {
                     resolve(seasonInfoJson);
                 }
                 else {
-                    resolve({});    // If 'Information' does not exist
+                    resolve(null);    // If 'Information' does not exist
                 }
             }
             catch (error) { console.error(error); reject(error); }
@@ -225,11 +226,10 @@ export const getSeasonRoster = (seasonId) => {
                         }
                     }
                 }
-                cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(seasonRosterJson);
             }
             else {
-                resolve({});    // If 'Roster' does not exist
+                resolve(null);    // If 'Roster' does not exist
             }
         }).catch((error) => { console.error(error); reject(error); });
     });
@@ -266,7 +266,7 @@ export const getSeasonRegular = (seasonId) => {
                     resolve(seasonRegularJson);
                 }
                 else {
-                    resolve({});    // If 'Season' does not exist
+                    resolve(null);    // If 'Season' does not exist
                 }
             }
             catch (error) { console.error(error); reject(error); }
@@ -307,7 +307,7 @@ export const getSeasonPlayoffs = (seasonId) => {
                     resolve(playoffJson);
                 }
                 else {
-                    resolve({});    // If 'Playoffs' does not exist
+                    resolve(null);    // If 'Playoffs' does not exist
                 }
             }
             catch (error) { console.error(error); reject(error); }
@@ -315,3 +315,39 @@ export const getSeasonPlayoffs = (seasonId) => {
     });
 }
 
+/**
+ * Adds new team into Season Roster. Initializes a new object if null
+ * @param {number} seasonId     Assume seasonId is valid
+ * @param {string} teamPId      Assume teamHId is valid and unique
+ */
+export const putSeasonTeam = (seasonId, teamHId) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+            // Check if Roster property exists. If not, init new one
+            if (!('Roster' in seasonRosterObject)) {
+                seasonObject.Roster = {
+                    Teams: {}
+                };
+            }
+            const seasonRosterObject = seasonObject.Roster;
+            seasonRosterObject.Teams[teamHId] = {
+                Players: {}
+            };
+            await dynamoDbPutItem('Season', seasonObject, seasonId);
+            resolve({
+                'SeasonId': seasonId,
+                'SeasonRoster': seasonRosterObject,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
+    });
+}
+
+/**
+ * Adds new Profile into a team in the Season Roster.
+ * @param {number} seasonId 
+ * @param {string} teamPId 
+ * @param {string} profilePId 
+ */
+export const putSeasonProfileInTeam = (seasonId, teamPId, profilePId) => {
+
+}
