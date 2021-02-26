@@ -114,7 +114,9 @@ export const getSeasonTabName = (sPId) => {
     });
 }
 
-// For leagues page
+/**
+ * For leagues page
+ */
 export const getLeagues = () => {
     return new Promise(function(resolve, reject) {
         cache.get(CACHE_KEYS.LEAGUE_KEY, async (err, data) => {
@@ -209,19 +211,6 @@ export const getSeasonRoster = (sPId) => {
                             }
                         }
                     }
-                    if ('FreeAgents' in seasonRosterJson) {
-                        for (let i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
-                            let profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
-                            let playerJson = seasonRosterJson['FreeAgents'][profileHId];
-                            playerJson['ProfileName'] = await getProfileName(profileHId);
-                        }
-                    }
-                    if ('ESubs' in seasonRosterJson) {
-                        for (let i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
-                            let profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
-                            playerJson['ProfileName'] = await getProfileName(profileHId);
-                        }
-                    }
                     cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(seasonRosterJson);
                 }
@@ -234,7 +223,7 @@ export const getSeasonRoster = (sPId) => {
     });
 }
 
-export const getRegularSeason = (sPId) => {
+export const getSeasonRegular = (sPId) => {
     const cacheKey = CACHE_KEYS.SEASON_REGULAR_PREFIX + sPId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {

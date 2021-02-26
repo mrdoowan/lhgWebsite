@@ -10,9 +10,11 @@ import {
     getSeasonId,
     getSeasonInformation,
     getSeasonRoster,
-    getRegularSeason,
+    getSeasonRegular,
     getSeasonPlayoffs,
 } from '../../functions/apiV1/seasonData';
+import { getTeamPIdByName } from '../../functions/apiV1/teamData';
+import { getTeamHashId } from '../../functions/apiV1/dependencies/global';
 
 /*  
     ----------------------
@@ -29,10 +31,11 @@ import {
  */
 seasonV1Routes.get('/information/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
+
     console.log(`GET Request Season '${seasonShortName}' Information.`);
-    getSeasonId(seasonShortName).then((sPId) => {
-        if (sPId == null) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        getSeasonInformation(sPId).then((data) => {
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getSeasonInformation(seasonId).then((data) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "GET Season Information Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
@@ -45,10 +48,11 @@ seasonV1Routes.get('/information/name/:seasonShortName', (req, res) => {
  */
 seasonV1Routes.get('/roster/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
+
     console.log(`GET Request Season '${seasonShortName}' Roster.`);
-    getSeasonId(seasonShortName).then((sPId) => {
-        if (sPId == null) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        getSeasonRoster(sPId).then((data) => {
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getSeasonRoster(seasonId).then((data) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "GET Season Information Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
@@ -61,10 +65,11 @@ seasonV1Routes.get('/roster/name/:seasonShortName', (req, res) => {
  */
 seasonV1Routes.get('/regular/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
+
     console.log(`"GET Request Season '${seasonShortName}' Regular."`);
-    getSeasonId(seasonShortName).then((sPId) => {
-        if (sPId == null) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        getRegularSeason(sPId).then((data) => {
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getSeasonRegular(seasonId).then((data) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "GET Season Information Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
@@ -77,12 +82,56 @@ seasonV1Routes.get('/regular/name/:seasonShortName', (req, res) => {
  */
 seasonV1Routes.get('/playoffs/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
-    console.log(`"GET Request Season '${seasonShortName}' Regular."`);
-    getSeasonId(seasonShortName).then((sPId) => {
-        if (sPId == null) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        getSeasonPlayoffs(sPId).then((data) => {
+    console.log(`"GET Request Season '${seasonShortName}' Playoffs."`);
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getSeasonPlayoffs(seasonId).then((data) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "GET Season Information Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
+});
+
+//#endregion
+
+//#region PUT Requests - Season
+
+/**
+ * @route   PUT api/season/v1/roster/team/add
+ * @desc    Adds a Team into the Season's roster
+ * @access  Private
+ */
+seasonV1Routes.put('/roster/team/add', (req, res) => {
+    const { teamName, seasonShortName } = req.body;
+
+    console.log(`"PUT Request Adding Team '${teamName}' in Season '${seasonShortName}'."`);
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getTeamPIdByName(teamName).then((teamPId) => {
+            if (!teamPId) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
+            // Check for duplicate in teamPId
+        }).catch((err) => error500sServerError(err, res, "GET Team PId Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
+});
+
+/**
+ * @route   PUT api/season/v1/roster/profile/add
+ * @desc    Adds a Profile into a specified Team in the Season
+ * @access  Private
+ */
+seasonV1Routes.put('/roster/profile/add', (req, res) => {
+    const { profileName, teamName, seasonShortName } = req.body;
+
+    console.log(`"PUT Request Adding Profile '${profileName}' to Team '${teamName}' in Season '${seasonShortName}'."`);
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getTeamPIdByName(teamName).then((teamPId) => {
+            if (!teamPId) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
+            getSeasonRoster(seasonId).then((seasonRoster) => {
+                // Check if team exists in Season Roster first
+                const teamHId = getTeamHashId(teamPId);
+                
+            }).catch((err) => error500sServerError(err, res, "GET Season Roster Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Team PId Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
 });
 
