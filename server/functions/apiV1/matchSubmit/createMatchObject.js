@@ -373,13 +373,13 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                         // playerData: KillsAtEarly/KillsAtMid
                         if (minute < MINUTE.EARLY) {
                             playerKillsAtEarly[killerId]++;
-                            for (const assistId in riotEventObject.assistingParticipantIds) {
+                            for (const assistId of riotEventObject.assistingParticipantIds) {
                                 playerAssistsAtEarly[assistId]++;
                             }
                         }
                         if (minute < MINUTE.MID) {
                             playerKillsAtMid[killerId]++;
-                            for (const assistId in riotEventObject.assistingParticipantIds) {
+                            for (const assistId of riotEventObject.assistingParticipantIds) {
                                 playerAssistsAtMid[assistId]++;
                             }
                         }
