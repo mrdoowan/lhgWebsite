@@ -21,15 +21,15 @@ export const CACHE_KEYS = {
     TN_PICKBANS_PREFIX: 'TnPB-',                // Key: TourneyId, TTL: Yes
     TN_GAMES_PREFIX: 'TnGames-',                // Key: TourneyId, TTL: Yes
     TN_TAB_PREFIX: 'TnTab-',                    // Key: TourneyId, TTL: Never
-    PROFILE_NAME_PREFIX: 'PName-',              // Key: ProfileId, TTL: Never
-    PROFILE_PID_BYNAME_PREFIX: 'PPId-',         // Key: ProfileName, TTL: Never
+    PROFILE_NAME_PREFIX: 'PName-',              // Key: ProfileId, TTL: Yes
+    PROFILE_PID_BYNAME_PREFIX: 'PPId-',         // Key: ProfileName, TTL: Yes
     PROFILE_INFO_PREFIX: 'PInfo-',              // Key: ProfileId, TTL: Yes
     PROFILE_GAMES_PREFIX: 'PGames-',            // Key: ProfileId-SeasonId, TTL: Yes
     PROFILE_STATS_PREFIX: 'PStats-',            // Key: ProfileId-TourneyId, TTL: Yes
     PROFILE_PID_BYSUMM_PREFIX: 'PSumm-',        // Key: SummonerId, TTL: Never
-    TEAM_NAME_PREFIX: 'TName-',                 // Key: TeamId, TTL: Never
-    TEAM_SHORTNAME_PREFIX: 'TShortName-',       // Key: TeamId, TTL: Never
-    TEAM_PID_PREFIX: 'TPId-',                   // Key: TeamName, TTL: Never
+    TEAM_NAME_PREFIX: 'TName-',                 // Key: TeamId, TTL: Yes
+    TEAM_SHORTNAME_PREFIX: 'TShortName-',       // Key: TeamId, TTL: Yes
+    TEAM_PID_PREFIX: 'TPId-',                   // Key: TeamName, TTL: Yes
     TEAM_INFO_PREFIX: 'TInfo-',                 // Key: TeamId, TTL: Yes
     TEAM_SCOUT_PREFIX: 'TScout-',               // Key: TeamId-SeasonId, TTL: Yes
     TEAM_GAMES_PREFIX: 'TGames-',               // Key: TeamId-SeasonId, TTL: Yes

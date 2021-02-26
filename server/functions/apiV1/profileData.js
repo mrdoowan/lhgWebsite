@@ -50,7 +50,7 @@ export const getProfilePIdByName = (name) => {
             .then((obj) => {
                 if (!obj) { resolve(null); return; } // Not Found 
                 const pPId = getProfilePIdFromHash(obj['ProfileHId']);
-                cache.set(cacheKey, pPId);
+                cache.set(cacheKey, pPId, 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(pPId);
             }).catch((error) => { console.error(error); reject(error) });
         });
@@ -92,7 +92,7 @@ export const getProfileName = (id, hash=true) => {
             dynamoDbGetItem('Profile', 'ProfilePId', profilePId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
-                cache.set(cacheKey, obj['ProfileName']);
+                cache.set(cacheKey, obj['ProfileName'], 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(obj['ProfileName']);
             }).catch((error) => { console.error(error); reject(error) });
         });
