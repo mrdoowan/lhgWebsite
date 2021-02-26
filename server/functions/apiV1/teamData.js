@@ -49,7 +49,7 @@ export const getTeamPIdByName = (name) => {
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const teamPId = getTeamPIdFromHash(obj['TeamHId']);
-                cache.set(cacheKey, teamPId);
+                cache.set(cacheKey, teamPId, 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(teamPId);
             }).catch((ex) => { console.error(ex); reject(ex) });
         });
@@ -73,7 +73,7 @@ export const getTeamName = (teamHId) => {
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const name = obj['TeamName'];
-                cache.set(cacheKey, name);
+                cache.set(cacheKey, name, 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(name);
             }).catch((ex) => { console.error(ex); reject(ex); });
         });
@@ -97,7 +97,7 @@ export const getTeamShortName = (teamHId) => {
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const shortName = obj['Information']['TeamShortName'];
-                cache.set(cacheKey, shortName);
+                cache.set(cacheKey, shortName, 'EX', GLOBAL_CONSTS.TTL_DURATION);
                 resolve(shortName);
             }).catch((ex) => { console.error(ex); reject(ex); });
         });
