@@ -134,6 +134,7 @@ seasonV1Routes.put('/roster/profile/add', (req, res) => {
         getTeamPIdByName(teamName).then((teamPId) => {
             if (!teamPId) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
             getProfilePIdByName(profileName).then((profilePId) => {
+                if (!profilePId) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
                 putSeasonProfileInTeam(seasonId, teamPId, profilePId).then((data) => {
                     if ('Error' in data) { 
                         return res400sClientError(res, req, `Error in adding Profile '${profileName}' into Team '${teamName}'`, data); 
