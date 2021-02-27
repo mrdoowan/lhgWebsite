@@ -5,6 +5,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 import {
     filterName,
+    getTeamHashId,
     GLOBAL_CONSTS,
 } from './dependencies/global';
 import {
@@ -318,18 +319,26 @@ export const getSeasonPlayoffs = (seasonId) => {
 /**
  * Adds new team into Season Roster. Initializes a new object if null
  * @param {number} seasonId     Assume seasonId is valid
- * @param {string} teamPId      Assume teamHId is valid and unique
+ * @param {string} teamPId      Assume teamHId is valid
  */
-export const putSeasonTeam = (seasonId, teamHId) => {
+export const putSeasonTeam = (seasonId, teamPId) => {
     return new Promise((resolve, reject) => {
         dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
             // Check if Roster property exists. If not, init new one
-            if (!('Roster' in seasonRosterObject)) {
+            if (!('Roster' in seasonObject)) {
                 seasonObject.Roster = {
                     Teams: {}
                 };
             }
             const seasonRosterObject = seasonObject.Roster;
+            // Check if there is a duplicate
+            const teamHId = getTeamHashId(teamPId);
+            if (teamHId in seasonRosterObject.Teams) {
+                resolve({
+                    'SeasonId': seasonId,
+                    'Error': `Team is already in the season.`
+                });
+            }
             seasonRosterObject.Teams[teamHId] = {
                 Players: {}
             };

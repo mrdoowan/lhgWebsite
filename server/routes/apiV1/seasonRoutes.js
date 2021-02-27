@@ -12,6 +12,7 @@ import {
     getSeasonRoster,
     getSeasonRegular,
     getSeasonPlayoffs,
+    putSeasonTeam,
 } from '../../functions/apiV1/seasonData';
 import { getTeamPIdByName } from '../../functions/apiV1/teamData';
 import { getProfileHashId, getTeamHashId } from '../../functions/apiV1/dependencies/global';
@@ -108,15 +109,11 @@ seasonV1Routes.put('/roster/team/add', (req, res) => {
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season '${seasonShortName}' Not Found`); }
         getTeamPIdByName(teamName).then((teamPId) => {
-            if (!teamPId) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
-            getSeasonRoster(seasonId).then((seasonRosterObject) => {
-                // Check for duplicate Teams
-                const teamHId = getTeamHashId(teamPId);
-                if ('Teams' in seasonRosterObject && teamHId in seasonRosterObject.Teams) {
-                    return res400sClientError(res, req, `Team '${teamName}' already in Season '${seasonShortName}'.`);
-                }
-                //putFunction()
-            }).catch((err) => error500sServerError(err, res, "GET Season Roster Error."));
+            if (!teamPId) { return res400sClientError(res, req, `Team '${teamName}' Not Found`); }
+            putSeasonTeam(seasonId, teamPId).then((data) => {
+                if ('Error' in data) {  return res400sClientError(res, req, data); }
+                return res200sOK(res, req, data);
+            }).catch((err) => error500sServerError(err, res, "PUT Season Roster in Team Error."));
         }).catch((err) => error500sServerError(err, res, "GET Team PId Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
 });
