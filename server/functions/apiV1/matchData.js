@@ -103,6 +103,7 @@ export const getMatchSetup = (id) => {
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
             const matchSetupJson = matchJson['Setup'];
             matchSetupJson['SeasonName'] = await getSeasonName(matchSetupJson['SeasonPId']);
+            matchSetupJson['SeasonShortName'] = await getSeasonShortName(matchSetupJson['SeasonPId']);
             matchSetupJson['TournamentName'] = await getTournamentName(matchSetupJson['TournamentPId']);
             
             // Edit names into the Json
@@ -145,22 +146,35 @@ export const getMatchSetupList = () => {
 export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
     return new Promise(async function(resolve, reject) {
         try {
+            // Make sure matchId is a valid value
+            if (!(/^\d+$/.test(matchId))) {
+                resolve({
+                    'MatchId': matchId,
+                    'Error': `Match ID ${matchId} is not a valid string.`,
+                })
+            }
             // Check if matchId already exists
             if (await dynamoDbGetItem('Matches', 'MatchPId', matchId)) {
-                console.error(`Match ID ${matchId} already exists.`);
-                resolve(null); 
+                resolve({
+                    'MatchId': matchId,
+                    'Error': `Match ID ${matchId} already exists.`,
+                });
                 return; 
             }
             // Check if seasonId exists
             if (!(await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentId))) {
-                console.error(`Tournament ID ${tournamentId} doesn't exists.`);
-                resolve(null); 
+                resolve({
+                    'MatchId': matchId,
+                    'Error': `Tournament ID ${tournamentId} doesn't exists.`,
+                });
                 return; 
             }
             // Check if tournamentId exists
             if (!(await dynamoDbGetItem('Season', 'SeasonPId', seasonId))) {
-                console.error(`Season ID ${seasonId} doesn't exists.`);
-                resolve(null); 
+                resolve({
+                    'MatchId': matchId,
+                    'Error': `Season ID ${seasonId} doesn't exists.`,
+                });
                 return; 
             }
 

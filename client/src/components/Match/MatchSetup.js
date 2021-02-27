@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import axios from 'axios';
 // Formik
@@ -77,9 +77,22 @@ export default function MatchSetup({ setupData }) {
     const NUMBER_OF_BANS = 5;
     const history = useHistory();
 
+    const [rosterData, setRosterData] = useState(null);
     const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
     const [saveButtonPressed, setSaveButtonPressed] = useState(false);
     const [messageList, setMessageList] = useState([]);
+
+    useEffect(() => {
+        axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
+        .then((res) => {
+            setRosterData(res.data);
+            console.log(res.data);
+        }).catch((err) => {
+            console.error(err);
+            setRosterData({});
+        });
+    }, [setupData]);
+
     /**
      * Add to message list that will be displayed at the bottom of page
      * @param {string} message 
@@ -92,6 +105,7 @@ export default function MatchSetup({ setupData }) {
             setMessageList(oldMessageList => [...oldMessageList, message]);
         }
     }
+
     /**
      * Initializes the array and add 0s if length < 5
      * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
