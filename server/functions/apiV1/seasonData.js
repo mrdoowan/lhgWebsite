@@ -5,6 +5,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 import {
     filterName,
+    getProfileHashId,
     getTeamHashId,
     GLOBAL_CONSTS,
 } from './dependencies/global';
@@ -364,7 +365,7 @@ export const putSeasonProfileInTeam = (seasonId, teamPId, profilePId) => {
             if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
                 resolve({
                     'SeasonId': seasonId,
-                    'Error': `Season object does not have Roster`
+                    'Error': `Season Object does not have Roster`
                 });
             }
             const rosterTeamObject = seasonObject.Roster.Teams;
@@ -372,13 +373,13 @@ export const putSeasonProfileInTeam = (seasonId, teamPId, profilePId) => {
             if (!(teamHId in rosterTeamObject)) {
                 resolve({
                     'SeasonId': seasonId,
-                    'Error': `Team is not in Season.`
+                    'Error': `Team is not in the Season Rosters.`
                 });
             }
             // Check for duplicate in ProfilePId
-            const rosterPlayersObject = rosterTeamObject.Players;
+            const rosterPlayersObject = rosterTeamObject[teamHId].Players;
             const profileHId = getProfileHashId(profilePId);
-            if (profileHId in rosterPlayersObject) {
+            if (rosterPlayersObject && profileHId in rosterPlayersObject) {
                 resolve({
                     'SeasonId': seasonId,
                     'Error': `Profile is already in the Team.`

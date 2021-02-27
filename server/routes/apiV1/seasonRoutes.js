@@ -16,7 +16,6 @@ import {
     putSeasonProfileInTeam,
 } from '../../functions/apiV1/seasonData';
 import { getTeamPIdByName } from '../../functions/apiV1/teamData';
-import { getProfileHashId, getTeamHashId } from '../../functions/apiV1/dependencies/global';
 import { getProfilePIdByName } from '../../functions/apiV1/profileData';
 
 /*  
