@@ -269,6 +269,12 @@ export default function MatchSetup({ setupData }) {
             });
         }
 
+        if (apiRequestSent) {
+            appendMessage(
+                `API request in process.`
+            );
+            return;
+        }
         setMessageList([]);
         if (submitButtonPressed) {
             callMatchSetupSubmit();
@@ -578,7 +584,6 @@ export default function MatchSetup({ setupData }) {
                             <br />
                             { /* https://stackoverflow.com/questions/60349756/react-js-two-submit-buttons-in-one-form */ }
                             <Button
-                                disabled={apiRequestSent}
                                 onClick={() => { 
                                     setSaveButtonPressed(true);
                                 }}
@@ -589,7 +594,6 @@ export default function MatchSetup({ setupData }) {
                                 Save
                             </Button>
                             <Button
-                                disabled={apiRequestSent}
                                 onClick={() => { 
                                     setSubmitButtonPressed(true);
                                 }}
