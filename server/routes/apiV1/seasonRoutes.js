@@ -9,11 +9,12 @@ import {
 import {
     getSeasonId,
     getSeasonInformation,
-    getSeasonRoster,
+    getSeasonRosterById,
     getSeasonRegular,
     getSeasonPlayoffs,
     putSeasonTeam,
     putSeasonProfileInTeam,
+    getSeasonRosterByName,
 } from '../../functions/apiV1/seasonData';
 import { getTeamPIdByName } from '../../functions/apiV1/teamData';
 import { getProfilePIdByName } from '../../functions/apiV1/profileData';
@@ -44,6 +45,23 @@ seasonV1Routes.get('/information/name/:seasonShortName', (req, res) => {
 });
 
 /**
+ * @route   GET api/season/v1/roster/id/:seasonShortName
+ * @desc    Get complete Roster list of the League's season
+ * @access  Public
+ */
+seasonV1Routes.get('/roster/id/:seasonShortName', (req, res) => {
+    const { seasonShortName } = req.params;
+
+    console.log(`GET Request Season '${seasonShortName}' Roster by IDs.`);
+    getSeasonId(seasonShortName).then((seasonId) => {
+        if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+        getSeasonRosterById(seasonId).then((data) => {
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "GET Season Rosters by IDs Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
+});
+
+/**
  * @route   GET api/season/v1/roster/name/:seasonShortName
  * @desc    Get complete Roster list of the League's season
  * @access  Public
@@ -51,12 +69,12 @@ seasonV1Routes.get('/information/name/:seasonShortName', (req, res) => {
 seasonV1Routes.get('/roster/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
 
-    console.log(`GET Request Season '${seasonShortName}' Roster.`);
+    console.log(`GET Request Season '${seasonShortName}' Roster by Names.`);
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
-        getSeasonRoster(seasonId).then((data) => {
+        getSeasonRosterByName(seasonId).then((data) => {
             return res200sOK(res, req, data);
-        }).catch((err) => error500sServerError(err, res, "GET Season Information Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Season Rosters by Names Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
 });
 

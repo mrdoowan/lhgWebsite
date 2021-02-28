@@ -208,10 +208,10 @@ export const getSeasonInformation = (seasonId) => {
 }
 
 /**
- * Get 'Roster' property from Season
+ * Get 'Roster' property from Season and properties by HashId
  * @param {number} seasonId 
  */
-export const getSeasonRoster = (seasonId) => {
+export const getSeasonRosterById = (seasonId) => {
     return new Promise(function(resolve, reject) {
         // Gonna avoid caching for this one
         dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonJson) => {
@@ -222,9 +222,11 @@ export const getSeasonRoster = (seasonId) => {
                     for (const teamHId in seasonRosterJson['Teams']) {
                         const teamJson = seasonRosterJson['Teams'][teamHId];
                         teamJson['TeamName'] = await getTeamName(teamHId);
+                        teamJson['TeamHId'] = teamHId;
                         for (const profileHId in teamJson['Players']) {
                             const playerJson = teamJson['Players'][profileHId];
                             playerJson['ProfileName'] = await getProfileName(profileHId);
+                            playerJson['ProfileHId'] = profileHId;
                         }
                     }
                 }
@@ -233,6 +235,33 @@ export const getSeasonRoster = (seasonId) => {
             else {
                 resolve(null);    // If 'Roster' does not exist
             }
+        }).catch((error) => { console.error(error); reject(error); });
+    });
+}
+
+/**
+ * Get 'Roster' property from Season and properties are the Team Names / Profile Names
+ * @param {number} seasonId 
+ */
+export const getSeasonRosterByName = (seasonId) => {
+    return new Promise((resolve, reject) => {
+        getSeasonRosterById(seasonId).then((seasonRosterObject) => {
+            // https://stackoverflow.com/questions/8483425/change-property-name
+            const teamsRosterObject = seasonRosterObject.Teams;
+            for (const teamHId in teamsRosterObject) {
+                const teamObject = teamsRosterObject[teamHId]
+                const playersRosterObject = teamsRosterObject[teamHId].Players;
+                for (const profileHId in playersRosterObject) {
+                    const profileObject = playersRosterObject[profileHId];
+                    const profileName = profileObject.ProfileName;
+                    playersRosterObject[profileName] = profileObject;
+                    delete playersRosterObject[profileHId];
+                }
+                const teamName = teamObject.TeamName;
+                teamsRosterObject[teamName] = teamObject;
+                delete teamsRosterObject[teamHId];
+            }
+            resolve(seasonRosterObject);
         }).catch((error) => { console.error(error); reject(error); });
     });
 }
