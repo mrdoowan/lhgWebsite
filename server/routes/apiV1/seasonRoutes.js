@@ -56,6 +56,7 @@ seasonV1Routes.get('/roster/id/:seasonShortName', (req, res) => {
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
         getSeasonRosterById(seasonId).then((data) => {
+            if (!data) { return res400sClientError(res, req, `Season '${seasonShortName}' Roster does not exist.`); }
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "GET Season Rosters by IDs Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
@@ -73,6 +74,7 @@ seasonV1Routes.get('/roster/name/:seasonShortName', (req, res) => {
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
         getSeasonRosterByName(seasonId).then((data) => {
+            if (!data) { return res400sClientError(res, req, `Season '${seasonShortName}' Roster does not exist.`); }
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "GET Season Rosters by Names Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));

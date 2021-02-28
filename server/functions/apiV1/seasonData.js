@@ -246,6 +246,7 @@ export const getSeasonRosterById = (seasonId) => {
 export const getSeasonRosterByName = (seasonId) => {
     return new Promise((resolve, reject) => {
         getSeasonRosterById(seasonId).then((seasonRosterObject) => {
+            if (!seasonRosterObject) { resolve(null); return; }
             // https://stackoverflow.com/questions/8483425/change-property-name
             const teamsRosterObject = seasonRosterObject.Teams;
             for (const teamHId in teamsRosterObject) {

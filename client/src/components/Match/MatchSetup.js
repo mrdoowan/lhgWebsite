@@ -77,33 +77,7 @@ export default function MatchSetup({ setupData }) {
     const NUMBER_OF_BANS = 5;
     const history = useHistory();
 
-    const [rosterData, setRosterData] = useState(null);
-    const [teamList, setTeamList] = useState([]);
-    const [bluePlayerNameList, setBluePlayerNameList] = useState([]);
-    const [redPlayerNameList, setRedPlayerNameList] = useState([]);
-    const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
-    const [saveButtonPressed, setSaveButtonPressed] = useState(false);
-    const [messageList, setMessageList] = useState([]);
-
-    useEffect(() => {
-        axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
-        .then((res) => {
-            setRosterData(res.data);
-        }).catch((err) => {
-            console.error(err);
-            setRosterData({});
-        });
-    }, [setupData]);
-
-    useEffect(() => {
-        if (rosterData) {
-            const newTeamList = Object.keys(rosterData.Teams).sort();
-            setTeamList(newTeamList);
-            if (blueTeamSetupObject.TeamName) { setBluePlayerNameList(getPlayerList(blueTeamSetupObject.TeamName)); }
-            if (redTeamSetupObject.TeamName) { setRedPlayerNameList(getPlayerList(redTeamSetupObject.TeamName)); }
-        }
-    }, [rosterData]);
-
+    //#region Helper Functions
     /**
      * Add to message list that will be displayed at the bottom of page
      * @param {string} message 
@@ -127,8 +101,6 @@ export default function MatchSetup({ setupData }) {
         }
         return dataBansList;
     }
-    const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamSetupObject.Bans));
-    const [redBansList, setRedBansList] = useState(initBansList(redTeamSetupObject.Bans));
 
     /**
      * Capitalizes the string s
@@ -200,12 +172,61 @@ export default function MatchSetup({ setupData }) {
      
         return transformedObject;
     }
+    
+    /**
+     * 
+     * @param {string} teamName 
+     * @return {array}
+     */
+    const getPlayerList = (teamName) => {
+        const profileNamesList = Object.keys(rosterData.Teams[teamName].Players);
+        profileNamesList.push('');
+        return profileNamesList.sort();
+    }
+    //#endregion
 
+    // API data
+    const [rosterData, setRosterData] = useState(null);
+    // Form fields
+    const [teamList, setTeamList] = useState([]);
+    const [bluePlayerNameList, setBluePlayerNameList] = useState([]);
+    const [redPlayerNameList, setRedPlayerNameList] = useState([]);
+    const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamSetupObject.Bans));
+    const [redBansList, setRedBansList] = useState(initBansList(redTeamSetupObject.Bans));
+    // Button states
+    const [apiRequestSent, setApiRequestSent] = useState(false);
+    const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
+    const [saveButtonPressed, setSaveButtonPressed] = useState(false);
+    // Validation list
+    const [messageList, setMessageList] = useState([]);
+
+    useEffect(() => {
+        axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
+        .then((res) => {
+            setRosterData(res.data);
+        }).catch((err) => {
+            console.error(err);
+            setRosterData({}); // Set to empty object
+        });
+    }, [setupData]);
+
+    useEffect(() => {
+        if (rosterData && Object.keys(rosterData).length > 0) {
+            const newTeamList = Object.keys(rosterData.Teams).sort();
+            setTeamList(newTeamList);
+            if (blueTeamSetupObject.TeamName) { setBluePlayerNameList(getPlayerList(blueTeamSetupObject.TeamName)); }
+            if (redTeamSetupObject.TeamName) { setRedPlayerNameList(getPlayerList(redTeamSetupObject.TeamName)); }
+        }
+        // eslint-disable-next-line
+    }, [rosterData]);
+
+    //#region Handlers
     /**
      * Formik's submit handler
      */
     const handleSubmit = async (values, {setSubmitting}) => {
         const callMatchSetupSubmit = () => {
+            setApiRequestSent(true);
             axios.put('/api/match/v1/setup/submit',
                 transformValueData(values)
             ).then(() => {
@@ -224,11 +245,13 @@ export default function MatchSetup({ setupData }) {
                     );
                 }
             }).finally(() => {
+                setApiRequestSent(false);
                 setSaveButtonPressed(false);
                 setSubmitting(false);
             });
         };
         const callMatchSetupSave = () => {
+            setApiRequestSent(true);
             axios.put('/api/match/v1/setup/save', 
                 transformValueData(values)
             ).then(() => {
@@ -240,6 +263,7 @@ export default function MatchSetup({ setupData }) {
                     'Setup Save PUT request failed...'
                 );
             }).finally(() => {
+                setApiRequestSent(false);
                 setSaveButtonPressed(false);
                 setSubmitting(false);
             });
@@ -274,16 +298,6 @@ export default function MatchSetup({ setupData }) {
         }
     }
 
-    /**
-     * 
-     * @param {string} teamName 
-     * @return {array}
-     */
-    const getPlayerList = (teamName) => {
-        const profileNamesList = Object.keys(rosterData.Teams[teamName].Players);
-        profileNamesList.push('');
-        return profileNamesList.sort();
-    }
 
     /**
      * onChange handler to update the players list
@@ -309,7 +323,9 @@ export default function MatchSetup({ setupData }) {
             setRedPlayerNameList(getPlayerList(teamName));
         }
     }
+    //#endregion
 
+    //#region JSX functions
     /**
      * @param {Array} playerList    Object of Players from Match GET Request "Setup"
      * @param {string} color        Either "blue" or "red"
@@ -422,6 +438,7 @@ export default function MatchSetup({ setupData }) {
             </tr>
         </tbody></table>);
     }
+    //#endregion
 
     return (<div>
         <Grid container spacing={3}>
@@ -434,8 +451,7 @@ export default function MatchSetup({ setupData }) {
                     {!rosterData && <div>
                         <b>Loading Roster Data...</b> <br />
                     </div>}
-                    {teamList.length > 0 && 
-                    // Change condition below from 'blueTeamDb?.TeamName' to 'Are there profileNames'
+                    {(!(blueTeamSetupObject?.TeamName) || !(redTeamSetupObject?.TeamName) || teamList.length > 0) && 
                         (!(blueTeamSetupObject?.TeamName) || bluePlayerNameList.length > 0 || (blueTeamSetupObject?.TeamName && bluePlayerNameList.length === 0)) && 
                         (!(redTeamSetupObject?.TeamName) || redPlayerNameList.length > 0 || (redTeamSetupObject?.TeamName && redPlayerNameList.length === 0)) && (<Formik
                         initialValues={{
@@ -562,9 +578,9 @@ export default function MatchSetup({ setupData }) {
                             <br />
                             { /* https://stackoverflow.com/questions/60349756/react-js-two-submit-buttons-in-one-form */ }
                             <Button
-                                disabled={saveButtonPressed || submitButtonPressed}
+                                disabled={apiRequestSent}
                                 onClick={() => { 
-                                    setSaveButtonPressed(true); 
+                                    setSaveButtonPressed(true);
                                 }}
                                 type="submit" 
                                 variant="contained" 
@@ -573,9 +589,9 @@ export default function MatchSetup({ setupData }) {
                                 Save
                             </Button>
                             <Button
-                                disabled={saveButtonPressed || submitButtonPressed}
+                                disabled={apiRequestSent}
                                 onClick={() => { 
-                                    setSubmitButtonPressed(true); 
+                                    setSubmitButtonPressed(true);
                                 }}
                                 type="submit" 
                                 variant="contained" 

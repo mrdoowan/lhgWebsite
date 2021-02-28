@@ -82,12 +82,21 @@ function validateSetupFormFields(setupTeamsDbObject) {
 
             // Check all the bans that they are actual champIds
             const checkBans = async (color, banList) => {
+                const checkDuplicateBanList = [];
                 for (let i = 0; i < banList.length; ++i) {
                     const banId = banList[i];
                     if (!(banId in champObject)) {
                         validateList.push(
                             `${color} Team Bans of Id '${banId}' at index ${i} is invalid.`
                         );
+                    }
+                    else if (checkDuplicateBanList.includes(banId)){ 
+                        validateList.push(
+                            `${color} Team Bans of Id '${banId}' is a duplicate in Textfields.`
+                        );
+                    }
+                    else {
+                        checkDuplicateBanList.push(banId);
                     }
                 }
             }
@@ -97,6 +106,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
             // Check if all profileNames exist in DynamoDb
             const checkProfiles = async (color, playerList) => {
                 const roleList = [];
+                const checkDuplicateProfileList = [];
                 for (let i = 0; i < playerList.length; ++i) {
                     const playerObject = playerList[i];
                     const profilePId = await getProfilePIdByName(playerObject.ProfileName);
@@ -105,7 +115,13 @@ function validateSetupFormFields(setupTeamsDbObject) {
                             `${color} Team Profile Name '${playerObject.ProfileName}' does not exist in database.`
                         );
                     }
+                    else if (checkDuplicateProfileList.includes(profilePId)) {
+                        validateList.push(
+                            `${color} Team Profile Name '${playerObject.ProfileName}' duplicate in Textfields.`
+                        );
+                    }
                     else {
+                        checkDuplicateProfileList.push(profilePId);
                         setupTeamsDbObject[`${color}Team`].Players[i].ProfilePId = profilePId;
                     }
 
