@@ -93,6 +93,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
             }
             await checkBans(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.Bans);
             await checkBans(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Bans);
+
             // Check if all profileNames exist in DynamoDb
             const checkProfiles = async (color, playerList) => {
                 const roleList = [];
@@ -125,6 +126,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
             }
             await checkProfiles(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.Players);
             await checkProfiles(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Players);
+
             // Check if both teamNames exist in DynamoDb
             const checkTeamName = async (color, teamName) => {
                 const teamPId = await getTeamPIdByName(teamName);
@@ -139,6 +141,12 @@ function validateSetupFormFields(setupTeamsDbObject) {
             }
             await checkTeamName(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.TeamName);
             await checkTeamName(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.TeamName);
+
+            // Check if team names are the same
+            if (setupTeamsDbObject.BlueTeam.TeamName === setupTeamsDbObject.RedTeam.TeamName) {
+                validateList.push(`Team Names are the same.`);
+            }
+
             // Check if the MySQL Db is available
             if ((await checkRdsStatus()) !== AWS_RDS_STATUS.AVAILABLE) {
                 validateList.push(`MySQL Database is inactive. Start it first.`);
