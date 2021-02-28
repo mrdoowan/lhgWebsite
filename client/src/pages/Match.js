@@ -181,7 +181,7 @@ export const MatchSetupListPage = () => {
             setMatchSetupListData(res.data);
         }).catch((err) => {
             setStatusCode(err.response.status);
-        })
+        });
     }, []);
 
     const matchSetupListComponent = <MatchSetupListSkeleton setupListData={matchSetupListData} />

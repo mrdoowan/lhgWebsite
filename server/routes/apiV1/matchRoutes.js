@@ -91,7 +91,7 @@ matchV1Routes.post('/setup/new/id', (req, res) => {
 
     console.log(`POST Request Match '${riotMatchId}' New Setup`);
     postMatchNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
-        if (data == null) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
+        if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
         return res200sOK(res, req, data);
     }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
 });

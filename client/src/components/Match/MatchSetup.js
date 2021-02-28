@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import axios from 'axios';
 // Formik
@@ -70,16 +70,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MatchSetup({ setupData }) {
     const classes = useStyles();
-    const { Teams: { BlueTeam: blueTeamDb, RedTeam: redTeamDb} } = setupData;
+    const { Teams: { BlueTeam: blueTeamSetupObject, RedTeam: redTeamSetupObject} } = setupData;
     const BLUE = "blue";
     const RED = "red";
     const NUMBER_OF_PLAYERS = 5;
     const NUMBER_OF_BANS = 5;
     const history = useHistory();
 
-    const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
-    const [saveButtonPressed, setSaveButtonPressed] = useState(false);
-    const [messageList, setMessageList] = useState([]);
+    //#region Helper Functions
     /**
      * Add to message list that will be displayed at the bottom of page
      * @param {string} message 
@@ -92,6 +90,7 @@ export default function MatchSetup({ setupData }) {
             setMessageList(oldMessageList => [...oldMessageList, message]);
         }
     }
+
     /**
      * Initializes the array and add 0s if length < 5
      * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
@@ -102,8 +101,6 @@ export default function MatchSetup({ setupData }) {
         }
         return dataBansList;
     }
-    const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamDb.Bans));
-    const [redBansList, setRedBansList] = useState(initBansList(redTeamDb.Bans));
 
     /**
      * Capitalizes the string s
@@ -175,12 +172,61 @@ export default function MatchSetup({ setupData }) {
      
         return transformedObject;
     }
+    
+    /**
+     * 
+     * @param {string} teamName 
+     * @return {array}
+     */
+    const getPlayerList = (teamName) => {
+        const profileNamesList = Object.keys(rosterData.Teams[teamName].Players);
+        profileNamesList.push('');
+        return profileNamesList.sort();
+    }
+    //#endregion
 
+    // API data
+    const [rosterData, setRosterData] = useState(null);
+    // Form fields
+    const [teamList, setTeamList] = useState([]);
+    const [bluePlayerNameList, setBluePlayerNameList] = useState([]);
+    const [redPlayerNameList, setRedPlayerNameList] = useState([]);
+    const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamSetupObject.Bans));
+    const [redBansList, setRedBansList] = useState(initBansList(redTeamSetupObject.Bans));
+    // Button states
+    const [apiRequestSent, setApiRequestSent] = useState(false);
+    const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
+    const [saveButtonPressed, setSaveButtonPressed] = useState(false);
+    // Validation list
+    const [messageList, setMessageList] = useState([]);
+
+    useEffect(() => {
+        axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
+        .then((res) => {
+            setRosterData(res.data);
+        }).catch((err) => {
+            console.error(err);
+            setRosterData({}); // Set to empty object
+        });
+    }, [setupData]);
+
+    useEffect(() => {
+        if (rosterData && Object.keys(rosterData).length > 0) {
+            const newTeamList = Object.keys(rosterData.Teams).sort();
+            setTeamList(newTeamList);
+            if (blueTeamSetupObject.TeamName) { setBluePlayerNameList(getPlayerList(blueTeamSetupObject.TeamName)); }
+            if (redTeamSetupObject.TeamName) { setRedPlayerNameList(getPlayerList(redTeamSetupObject.TeamName)); }
+        }
+        // eslint-disable-next-line
+    }, [rosterData]);
+
+    //#region Handlers
     /**
      * Formik's submit handler
      */
     const handleSubmit = async (values, {setSubmitting}) => {
         const callMatchSetupSubmit = () => {
+            setApiRequestSent(true);
             axios.put('/api/match/v1/setup/submit',
                 transformValueData(values)
             ).then(() => {
@@ -199,11 +245,13 @@ export default function MatchSetup({ setupData }) {
                     );
                 }
             }).finally(() => {
-                setSaveButtonPressed(false);
+                setApiRequestSent(false);
+                setSubmitButtonPressed(false);
                 setSubmitting(false);
             });
         };
         const callMatchSetupSave = () => {
+            setApiRequestSent(true);
             axios.put('/api/match/v1/setup/save', 
                 transformValueData(values)
             ).then(() => {
@@ -215,6 +263,7 @@ export default function MatchSetup({ setupData }) {
                     'Setup Save PUT request failed...'
                 );
             }).finally(() => {
+                setApiRequestSent(false);
                 setSaveButtonPressed(false);
                 setSubmitting(false);
             });
@@ -249,6 +298,34 @@ export default function MatchSetup({ setupData }) {
         }
     }
 
+
+    /**
+     * onChange handler to update the players list
+     * @param {string} color 
+     * @param {string} teamName 
+     * @param {function} setFieldValue
+     */
+    const handleTeamChange = (color, teamName, setFieldValue) => {
+        if (color === BLUE) {
+            setFieldValue('blueTeamName', teamName);
+            // Clear Fields for Players
+            for (let i = 0; i < NUMBER_OF_PLAYERS; ++i) {
+                setFieldValue(`bluePlayerName${i}`, '');
+            }
+            setBluePlayerNameList(getPlayerList(teamName));
+        }
+        else if (color === RED) {
+            setFieldValue('redTeamName', teamName);
+            // Clear Fields for Players
+            for (let i = 0; i < NUMBER_OF_PLAYERS; ++i) {
+                setFieldValue(`redPlayerName${i}`, '');
+            }
+            setRedPlayerNameList(getPlayerList(teamName));
+        }
+    }
+    //#endregion
+
+    //#region JSX functions
     /**
      * @param {Array} playerList    Object of Players from Match GET Request "Setup"
      * @param {string} color        Either "blue" or "red"
@@ -256,6 +333,9 @@ export default function MatchSetup({ setupData }) {
      */
     const playerTableFields = (playerList, color, classes) => {
         const rolesList = ["Top", "Jungle", "Middle", "Bottom", "Support"];
+        const playersList = (color === BLUE) ? bluePlayerNameList :
+            (color === RED) ? redPlayerNameList : 
+            [];
 
         return (<table><tbody>
             {playerList.map((player, idx) => (
@@ -273,8 +353,21 @@ export default function MatchSetup({ setupData }) {
                             type={`${color}PlayerName${idx}`}
                             name={`${color}PlayerName${idx}`}
                             className={classes.textField}
+                            select
                             variant="filled"
-                        />
+                            style={{
+                                minWidth: 350,
+                            }}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        >
+                            {playersList.map((name, idx) => (
+                                <MenuItem key={`${color}PlayerNameItem-${idx}`} value={name}>
+                                    {name}
+                                </MenuItem>
+                            ))}
+                        </Field>
                     </td>
                     <td>
                         <Field
@@ -282,7 +375,9 @@ export default function MatchSetup({ setupData }) {
                             type={`${color}PlayerRole${idx}`}
                             name={`${color}PlayerRole${idx}`}
                             select
-                            fullWidth
+                            style={{
+                                minWidth: 100,
+                            }}
                             className={classes.textField}
                             variant="filled"
                             InputLabelProps={{
@@ -343,6 +438,7 @@ export default function MatchSetup({ setupData }) {
             </tr>
         </tbody></table>);
     }
+    //#endregion
 
     return (<div>
         <Grid container spacing={3}>
@@ -352,45 +448,50 @@ export default function MatchSetup({ setupData }) {
                         {setupData.TournamentName} <br />
                         {setupData.RiotMatchId}
                     </h1>
-                    <Formik
+                    {!rosterData && <div>
+                        <b>Loading Roster Data...</b> <br />
+                    </div>}
+                    {(!(blueTeamSetupObject?.TeamName) || !(redTeamSetupObject?.TeamName) || teamList.length > 0) && 
+                        (!(blueTeamSetupObject?.TeamName) || bluePlayerNameList.length > 0 || (blueTeamSetupObject?.TeamName && bluePlayerNameList.length === 0)) && 
+                        (!(redTeamSetupObject?.TeamName) || redPlayerNameList.length > 0 || (redTeamSetupObject?.TeamName && redPlayerNameList.length === 0)) && (<Formik
                         initialValues={{
-                            blueTeamName: blueTeamDb?.TeamName || '',
-                            redTeamName: redTeamDb?.TeamName || '',
-                            bluePlayerName0: blueTeamDb?.Players[0]?.ProfileName || '',
-                            bluePlayerName1: blueTeamDb?.Players[1]?.ProfileName || '',
-                            bluePlayerName2: blueTeamDb?.Players[2]?.ProfileName || '',
-                            bluePlayerName3: blueTeamDb?.Players[3]?.ProfileName || '',
-                            bluePlayerName4: blueTeamDb?.Players[4]?.ProfileName || '',
-                            bluePlayerRole0: blueTeamDb?.Players[0]?.Role || '',
-                            bluePlayerRole1: blueTeamDb?.Players[1]?.Role || '',
-                            bluePlayerRole2: blueTeamDb?.Players[2]?.Role || '',
-                            bluePlayerRole3: blueTeamDb?.Players[3]?.Role || '',
-                            bluePlayerRole4: blueTeamDb?.Players[4]?.Role || '',
-                            redPlayerName0: redTeamDb?.Players[0]?.ProfileName || '',
-                            redPlayerName1: redTeamDb?.Players[1]?.ProfileName || '',
-                            redPlayerName2: redTeamDb?.Players[2]?.ProfileName || '',
-                            redPlayerName3: redTeamDb?.Players[3]?.ProfileName || '',
-                            redPlayerName4: redTeamDb?.Players[4]?.ProfileName || '',
-                            redPlayerRole0: redTeamDb?.Players[0]?.Role || '',
-                            redPlayerRole1: redTeamDb?.Players[1]?.Role || '',
-                            redPlayerRole2: redTeamDb?.Players[2]?.Role || '',
-                            redPlayerRole3: redTeamDb?.Players[3]?.Role || '',
-                            redPlayerRole4: redTeamDb?.Players[4]?.Role || '',
-                            blueTeamBanId0: blueTeamDb?.Bans[0] || '',
-                            blueTeamBanId1: blueTeamDb?.Bans[1] || '',
-                            blueTeamBanId2: blueTeamDb?.Bans[2] || '',
-                            blueTeamBanId3: blueTeamDb?.Bans[3] || '',
-                            blueTeamBanId4: blueTeamDb?.Bans[4] || '',
-                            redTeamBanId0: redTeamDb?.Bans[0] || '',
-                            redTeamBanId1: redTeamDb?.Bans[1] || '',
-                            redTeamBanId2: redTeamDb?.Bans[2] || '',
-                            redTeamBanId3: redTeamDb?.Bans[3] || '',
-                            redTeamBanId4: redTeamDb?.Bans[4] || '',
+                            blueTeamName:  blueTeamSetupObject?.TeamName || '',
+                            redTeamName: redTeamSetupObject?.TeamName || '',
+                            bluePlayerName0: blueTeamSetupObject?.Players[0]?.ProfileName || '',
+                            bluePlayerName1: blueTeamSetupObject?.Players[1]?.ProfileName || '',
+                            bluePlayerName2: blueTeamSetupObject?.Players[2]?.ProfileName || '',
+                            bluePlayerName3: blueTeamSetupObject?.Players[3]?.ProfileName || '',
+                            bluePlayerName4: blueTeamSetupObject?.Players[4]?.ProfileName || '',
+                            bluePlayerRole0: blueTeamSetupObject?.Players[0]?.Role || '',
+                            bluePlayerRole1: blueTeamSetupObject?.Players[1]?.Role || '',
+                            bluePlayerRole2: blueTeamSetupObject?.Players[2]?.Role || '',
+                            bluePlayerRole3: blueTeamSetupObject?.Players[3]?.Role || '',
+                            bluePlayerRole4: blueTeamSetupObject?.Players[4]?.Role || '',
+                            redPlayerName0: redTeamSetupObject?.Players[0]?.ProfileName || '',
+                            redPlayerName1: redTeamSetupObject?.Players[1]?.ProfileName || '',
+                            redPlayerName2: redTeamSetupObject?.Players[2]?.ProfileName || '',
+                            redPlayerName3: redTeamSetupObject?.Players[3]?.ProfileName || '',
+                            redPlayerName4: redTeamSetupObject?.Players[4]?.ProfileName || '',
+                            redPlayerRole0: redTeamSetupObject?.Players[0]?.Role || '',
+                            redPlayerRole1: redTeamSetupObject?.Players[1]?.Role || '',
+                            redPlayerRole2: redTeamSetupObject?.Players[2]?.Role || '',
+                            redPlayerRole3: redTeamSetupObject?.Players[3]?.Role || '',
+                            redPlayerRole4: redTeamSetupObject?.Players[4]?.Role || '',
+                            blueTeamBanId0: blueTeamSetupObject?.Bans[0] || '',
+                            blueTeamBanId1: blueTeamSetupObject?.Bans[1] || '',
+                            blueTeamBanId2: blueTeamSetupObject?.Bans[2] || '',
+                            blueTeamBanId3: blueTeamSetupObject?.Bans[3] || '',
+                            blueTeamBanId4: blueTeamSetupObject?.Bans[4] || '',
+                            redTeamBanId0: redTeamSetupObject?.Bans[0] || '',
+                            redTeamBanId1: redTeamSetupObject?.Bans[1] || '',
+                            redTeamBanId2: redTeamSetupObject?.Bans[2] || '',
+                            redTeamBanId3: redTeamSetupObject?.Bans[3] || '',
+                            redTeamBanId4: redTeamSetupObject?.Bans[4] || '',
                         }}
                         validate={() => {}}
                         onSubmit={handleSubmit}
                     >
-                        <Form>
+                        {({ setFieldValue }) => (<Form>
                             <table>
                                 <thead>
                                     <tr className={classes.rowTeam}>
@@ -400,10 +501,27 @@ export default function MatchSetup({ setupData }) {
                                                 component={TextField}
                                                 type="blueTeamName"
                                                 name="blueTeamName"
+                                                select
                                                 className={classes.textField}
                                                 variant="filled"
-                                                inputProps={{min: 0, style: { textAlign: 'center' }}}
-                                            />
+                                                style={{
+                                                    minWidth: 350,
+                                                    textAlign: 'center',
+                                                }}
+                                                inputProps={{min: 0}}
+                                                onChange={(event) => {
+                                                    handleTeamChange(BLUE, event.target.value, setFieldValue);
+                                                }}
+                                            >
+                                                {teamList.map((teamName, idx) => (
+                                                    <MenuItem 
+                                                        key={`blueTeamNameItem-${idx}`} 
+                                                        value={teamName}
+                                                    >
+                                                        {teamName}
+                                                    </MenuItem>
+                                                ))}
+                                            </Field>
                                         </td>
                                         <td className={classes.colRedTeam}>
                                             <u>Red Team Name</u> <br />
@@ -411,20 +529,38 @@ export default function MatchSetup({ setupData }) {
                                                 component={TextField}
                                                 type="redTeamName"
                                                 name="redTeamName"
+                                                select
                                                 className={classes.textField}
                                                 variant="filled"
-                                                inputProps={{min: 0, style: { textAlign: 'center' }}}
-                                            />
+                                                style={{
+                                                    minWidth: 350,
+                                                    textAlign: 'center',
+                                                }}
+                                                inputProps={{min: 0}}
+                                                onChange={(event) => {
+                                                    handleTeamChange(RED, event.target.value, setFieldValue);
+                                                }}
+                                            >
+                                                {teamList.map((teamName, idx) => (
+                                                    <MenuItem 
+                                                        key={`redTeamNameItem-${idx}`} 
+                                                        value={teamName}
+                                                        width={350}
+                                                    >
+                                                        {teamName}
+                                                    </MenuItem>
+                                                ))}
+                                            </Field>
                                         </td>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr className={classes.rowBody}>
                                         <td className={classes.colBody} id="bluePlayers">
-                                            {playerTableFields(blueTeamDb?.Players, BLUE, classes)}
+                                            {playerTableFields(blueTeamSetupObject?.Players, BLUE, classes)}
                                         </td>
                                         <td className={classes.colBody} id="redPlayers">
-                                            {playerTableFields(redTeamDb?.Players, RED, classes)}
+                                            {playerTableFields(redTeamSetupObject?.Players, RED, classes)}
                                         </td>
                                     </tr>
                                     <tr className={classes.rowBody}>
@@ -442,8 +578,9 @@ export default function MatchSetup({ setupData }) {
                             <br />
                             { /* https://stackoverflow.com/questions/60349756/react-js-two-submit-buttons-in-one-form */ }
                             <Button
+                                disabled={apiRequestSent}
                                 onClick={() => { 
-                                    setSaveButtonPressed(true); 
+                                    setSaveButtonPressed(true);
                                 }}
                                 type="submit" 
                                 variant="contained" 
@@ -452,17 +589,18 @@ export default function MatchSetup({ setupData }) {
                                 Save
                             </Button>
                             <Button
+                                disabled={apiRequestSent}
                                 onClick={() => { 
-                                    setSubmitButtonPressed(true); 
+                                    setSubmitButtonPressed(true);
                                 }}
                                 type="submit" 
                                 variant="contained" 
-                                color="primary" 
+                                color="primary"
                             >
                                 Submit
                             </Button>
-                        </Form>
-                    </Formik>
+                        </Form>)}
+                    </Formik>)}
                     <h2 className={classes.title}>
                         {messageList.map((message, idx) => (
                             <React.Fragment key={idx}>

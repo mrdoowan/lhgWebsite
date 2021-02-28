@@ -5,10 +5,13 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /*  Import dependency modules */
 import {
     filterName,
+    getProfileHashId,
+    getTeamHashId,
     GLOBAL_CONSTS,
 } from './dependencies/global';
 import {
     dynamoDbGetItem,
+    dynamoDbPutItem,
     dynamoDbScanTable,
 } from './dependencies/dynamoDbHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -18,7 +21,10 @@ import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
 import { getTeamName } from './teamData';
 
-// Get SeasonPId from DynamoDb
+/**
+ * Get SeasonPId from DynamoDb
+ * @param {string} shortName    Season shortName (i.e. 'w2020pl')
+ */
 export const getSeasonId = (shortName) => {
     let simpleName = filterName(shortName);
     const cacheKey = CACHE_KEYS.SEASON_ID_PREFIX + simpleName;
@@ -39,15 +45,15 @@ export const getSeasonId = (shortName) => {
 
 /**
  * Get ShortName of a Season Id from DynamoDb. Returns a string (i.e. "f2019pl")
- * @param {number} sPId      Season Id in number format
+ * @param {number} seasonId      Season Id in number format
  */
-export const getSeasonShortName = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_CODE_PREFIX + sPId;
+export const getSeasonShortName = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_CODE_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', sPId)
+            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
             .then((obj) => {
                 let shortName = obj['SeasonShortName'];
                 if (shortName == null) { resolve(null); return; } // Not Found
@@ -60,15 +66,15 @@ export const getSeasonShortName = (sPId) => {
 
 /**
  * Get SeasonName of a Season Id from DynamoDb. Returns a string (i.e. "Fall 2019 Premier League")
- * @param {number} sPId      Season Id in number format
+ * @param {number} seasonId      Season Id in number format
  */
-export const getSeasonName = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_NAME_PREFIX + sPId;
+export const getSeasonName = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_NAME_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', sPId)
+            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['SeasonName'];
@@ -79,14 +85,17 @@ export const getSeasonName = (sPId) => {
     });
 }
 
-// Returns a Season Time (i.e. Winter 2020)
-export const getSeasonTime = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_TIME_PREFIX + sPId;
+/**
+ * Returns a Season Time (i.e. Winter 2020)
+ * @param {number} seasonId 
+ */
+export const getSeasonTime = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_TIME_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', sPId)
+            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let time = obj['Information']['SeasonTime'];
@@ -97,13 +106,17 @@ export const getSeasonTime = (sPId) => {
     });
 }
 
-export const getSeasonTabName = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_TAB_PREFIX + sPId;
+/**
+ * Returns a Tab Label based on Season Time
+ * @param {number} seasonId 
+ */
+export const getSeasonTabName = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_TAB_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', sPId)
+            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let time = obj['Information']['SeasonTabName'];
@@ -114,7 +127,9 @@ export const getSeasonTabName = (sPId) => {
     });
 }
 
-// For leagues page
+/**
+ * For leagues page
+ */
 export const getLeagues = () => {
     return new Promise(function(resolve, reject) {
         cache.get(CACHE_KEYS.LEAGUE_KEY, async (err, data) => {
@@ -141,7 +156,7 @@ export const getLeagues = () => {
                     resolve(returnObject);
                 }
                 else {
-                    resolve({});   // Return empty if does not exist
+                    resolve(null);   // Return empty if does not exist
                 }     
             }
             catch (ex) { console.error(ex); reject(ex); }
@@ -149,14 +164,18 @@ export const getLeagues = () => {
     })
 }
 
-export const getSeasonInformation = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_INFO_PREFIX + sPId;
+/**
+ * Get 'Information' property from Season
+ * @param {number} seasonId 
+ */
+export const getSeasonInformation = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_INFO_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonInfoJson = (await dynamoDbGetItem('Season', 'SeasonPId', sPId))['Information'];
+                let seasonInfoJson = (await dynamoDbGetItem('Season', 'SeasonPId', seasonId))['Information'];
                 if (seasonInfoJson != null) {
                     seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
                     seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
@@ -180,7 +199,7 @@ export const getSeasonInformation = (sPId) => {
                     resolve(seasonInfoJson);
                 }
                 else {
-                    resolve({});    // If 'Information' does not exist
+                    resolve(null);    // If 'Information' does not exist
                 }
             }
             catch (error) { console.error(error); reject(error); }
@@ -188,60 +207,78 @@ export const getSeasonInformation = (sPId) => {
     });
 }
 
-export const getSeasonRoster = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_ROSTER_PREFIX + sPId;
+/**
+ * Get 'Roster' property from Season and properties by HashId
+ * @param {number} seasonId 
+ */
+export const getSeasonRosterById = (seasonId) => {
     return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
-            if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let seasonRosterJson = (await dynamoDbGetItem('Season', 'SeasonPId', sPId))['Roster'];
-                if (seasonRosterJson != null) {
-                    if ('Teams' in seasonRosterJson) {
-                        for (let i = 0; i < Object.keys(seasonRosterJson['Teams']).length; ++i) {
-                            let teamHId = Object.keys(seasonRosterJson['Teams'])[i];
-                            let teamJson = seasonRosterJson['Teams'][teamHId];
-                            teamJson['TeamName'] = await getTeamName(teamHId);
-                            for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                                let profileHId = Object.keys(teamJson['Players'])[j];
-                                let playerJson = teamJson['Players'][profileHId];
-                                playerJson['ProfileName'] = await getProfileName(profileHId);
-                            }
-                        }
-                    }
-                    if ('FreeAgents' in seasonRosterJson) {
-                        for (let i = 0; i < Object.keys(seasonRosterJson['FreeAgents']).length; ++i) {
-                            let profileHId = Object.keys(seasonRosterJson['FreeAgents'])[i];
-                            let playerJson = seasonRosterJson['FreeAgents'][profileHId];
+        // Gonna avoid caching for this one
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonJson) => {
+            if (!seasonJson) { resolve(null); return; }
+            const seasonRosterJson = seasonJson['Roster'];
+            if (seasonRosterJson) {
+                if ('Teams' in seasonRosterJson) {
+                    for (const teamHId in seasonRosterJson['Teams']) {
+                        const teamJson = seasonRosterJson['Teams'][teamHId];
+                        teamJson['TeamName'] = await getTeamName(teamHId);
+                        teamJson['TeamHId'] = teamHId;
+                        for (const profileHId in teamJson['Players']) {
+                            const playerJson = teamJson['Players'][profileHId];
                             playerJson['ProfileName'] = await getProfileName(profileHId);
+                            playerJson['ProfileHId'] = profileHId;
                         }
                     }
-                    if ('ESubs' in seasonRosterJson) {
-                        for (let i = 0; i < Object.keys(seasonRosterJson['ESubs']).length; ++i) {
-                            let profileHId = Object.keys(seasonRosterJson['ESubs'])[i];
-                            playerJson['ProfileName'] = await getProfileName(profileHId);
-                        }
-                    }
-                    cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                    resolve(seasonRosterJson);
                 }
-                else {
-                    resolve({});    // If 'Roster' does not exist
-                }
+                resolve(seasonRosterJson);
             }
-            catch (error) { console.error(error); reject(error); }
-        });
+            else {
+                resolve(null);    // If 'Roster' does not exist
+            }
+        }).catch((error) => { console.error(error); reject(error); });
     });
 }
 
-export const getRegularSeason = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_REGULAR_PREFIX + sPId;
+/**
+ * Get 'Roster' property from Season and properties are the Team Names / Profile Names
+ * @param {number} seasonId 
+ */
+export const getSeasonRosterByName = (seasonId) => {
+    return new Promise((resolve, reject) => {
+        getSeasonRosterById(seasonId).then((seasonRosterObject) => {
+            if (!seasonRosterObject) { resolve(null); return; }
+            // https://stackoverflow.com/questions/8483425/change-property-name
+            const teamsRosterObject = seasonRosterObject.Teams;
+            for (const teamHId in teamsRosterObject) {
+                const teamObject = teamsRosterObject[teamHId]
+                const playersRosterObject = teamsRosterObject[teamHId].Players;
+                for (const profileHId in playersRosterObject) {
+                    const profileObject = playersRosterObject[profileHId];
+                    const profileName = profileObject.ProfileName;
+                    playersRosterObject[profileName] = profileObject;
+                    delete playersRosterObject[profileHId];
+                }
+                const teamName = teamObject.TeamName;
+                teamsRosterObject[teamName] = teamObject;
+                delete teamsRosterObject[teamHId];
+            }
+            resolve(seasonRosterObject);
+        }).catch((error) => { console.error(error); reject(error); });
+    });
+}
+
+/**
+ * Get 'Regular' property from Season for the Regular Season
+ * @param {number} seasonId 
+ */
+export const getSeasonRegular = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_REGULAR_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonRegularJson = (await dynamoDbGetItem('Season', 'SeasonPId', sPId))['Regular'];
+                let seasonRegularJson = (await dynamoDbGetItem('Season', 'SeasonPId', seasonId))['Regular'];
                 if (seasonRegularJson != null) {
                     for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
                         let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
@@ -261,7 +298,7 @@ export const getRegularSeason = (sPId) => {
                     resolve(seasonRegularJson);
                 }
                 else {
-                    resolve({});    // If 'Season' does not exist
+                    resolve(null);    // If 'Season' does not exist
                 }
             }
             catch (error) { console.error(error); reject(error); }
@@ -269,14 +306,18 @@ export const getRegularSeason = (sPId) => {
     });
 }
 
-export const getSeasonPlayoffs = (sPId) => {
-    const cacheKey = CACHE_KEYS.SEASON_PLAYOFF_PREFIX + sPId;
+/**
+ * Get 'Playoffs' property from Season for Playoffs
+ * @param {number} seasonId 
+ */
+export const getSeasonPlayoffs = (seasonId) => {
+    const cacheKey = CACHE_KEYS.SEASON_PLAYOFF_PREFIX + seasonId;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return }
             else if (data != null) { resolve(JSON.parse(data)); return }
             try {
-                let playoffJson = (await dynamoDbGetItem('Season', 'SeasonPId', sPId))['Playoffs'];
+                let playoffJson = (await dynamoDbGetItem('Season', 'SeasonPId', seasonId))['Playoffs'];
                 if (playoffJson != null) {
                     for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
                         let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
@@ -298,10 +339,88 @@ export const getSeasonPlayoffs = (sPId) => {
                     resolve(playoffJson);
                 }
                 else {
-                    resolve({});    // If 'Playoffs' does not exist
+                    resolve(null);    // If 'Playoffs' does not exist
                 }
             }
             catch (error) { console.error(error); reject(error); }
         });
+    });
+}
+
+/**
+ * Adds new team into Season Roster. Initializes a new object if null
+ * @param {number} seasonId     Assume valid
+ * @param {string} teamPId      Assume valid
+ */
+export const putSeasonTeam = (seasonId, teamPId) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+            // Check if Roster property exists. If not, init new one
+            if (!('Roster' in seasonObject)) {
+                seasonObject.Roster = {
+                    Teams: {}
+                };
+            }
+            const seasonRosterObject = seasonObject.Roster;
+            // Check if there is a duplicate
+            const teamHId = getTeamHashId(teamPId);
+            if (teamHId in seasonRosterObject.Teams) {
+                resolve({
+                    'SeasonId': seasonId,
+                    'Error': `Team is already in the season.`
+                });
+            }
+            seasonRosterObject.Teams[teamHId] = {
+                Players: {}
+            };
+            await dynamoDbPutItem('Season', seasonObject, seasonId);
+            resolve({
+                'SeasonId': seasonId,
+                'SeasonRoster': seasonRosterObject,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
+    });
+}
+
+/**
+ * Adds new Profile into a team in the Season Roster.
+ * @param {number} seasonId     Assume valid 
+ * @param {string} teamPId      Assume valid
+ * @param {string} profilePId   Assume valid
+ */
+export const putSeasonProfileInTeam = (seasonId, teamPId, profilePId) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+            // Check if Roster or Team property exists. If not, init new one
+            if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
+                resolve({
+                    'SeasonId': seasonId,
+                    'Error': `Season Object does not have Roster`
+                });
+            }
+            const rosterTeamObject = seasonObject.Roster.Teams;
+            const teamHId = getTeamHashId(teamPId);
+            if (!(teamHId in rosterTeamObject)) {
+                resolve({
+                    'SeasonId': seasonId,
+                    'Error': `Team is not in the Season Rosters.`
+                });
+            }
+            // Check for duplicate in ProfilePId
+            const rosterPlayersObject = rosterTeamObject[teamHId].Players;
+            const profileHId = getProfileHashId(profilePId);
+            if (rosterPlayersObject && profileHId in rosterPlayersObject) {
+                resolve({
+                    'SeasonId': seasonId,
+                    'Error': `Profile is already in the Team.`
+                });
+            }
+            rosterPlayersObject[profileHId] = {};
+            await dynamoDbPutItem('Season', seasonObject, seasonId);
+            resolve({
+                'SeasonId': seasonId,
+                'SeasonRoster': seasonObject.Roster,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
     });
 }

@@ -82,6 +82,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
 
             // Check all the bans that they are actual champIds
             const checkBans = async (color, banList) => {
+                const checkDuplicateBanList = [];
                 for (let i = 0; i < banList.length; ++i) {
                     const banId = banList[i];
                     if (!(banId in champObject)) {
@@ -89,13 +90,23 @@ function validateSetupFormFields(setupTeamsDbObject) {
                             `${color} Team Bans of Id '${banId}' at index ${i} is invalid.`
                         );
                     }
+                    else if (checkDuplicateBanList.includes(banId)){ 
+                        validateList.push(
+                            `${color} Team Bans of Id '${banId}' is a duplicate in Textfields.`
+                        );
+                    }
+                    else {
+                        checkDuplicateBanList.push(banId);
+                    }
                 }
             }
             await checkBans(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.Bans);
             await checkBans(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Bans);
+
             // Check if all profileNames exist in DynamoDb
             const checkProfiles = async (color, playerList) => {
                 const roleList = [];
+                const checkDuplicateProfileList = [];
                 for (let i = 0; i < playerList.length; ++i) {
                     const playerObject = playerList[i];
                     const profilePId = await getProfilePIdByName(playerObject.ProfileName);
@@ -104,7 +115,13 @@ function validateSetupFormFields(setupTeamsDbObject) {
                             `${color} Team Profile Name '${playerObject.ProfileName}' does not exist in database.`
                         );
                     }
+                    else if (checkDuplicateProfileList.includes(profilePId)) {
+                        validateList.push(
+                            `${color} Team Profile Name '${playerObject.ProfileName}' duplicate in Textfields.`
+                        );
+                    }
                     else {
+                        checkDuplicateProfileList.push(profilePId);
                         setupTeamsDbObject[`${color}Team`].Players[i].ProfilePId = profilePId;
                     }
 
@@ -125,6 +142,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
             }
             await checkProfiles(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.Players);
             await checkProfiles(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.Players);
+
             // Check if both teamNames exist in DynamoDb
             const checkTeamName = async (color, teamName) => {
                 const teamPId = await getTeamPIdByName(teamName);
@@ -139,6 +157,12 @@ function validateSetupFormFields(setupTeamsDbObject) {
             }
             await checkTeamName(TEAM_STRING.BLUE, setupTeamsDbObject.BlueTeam.TeamName);
             await checkTeamName(TEAM_STRING.RED, setupTeamsDbObject.RedTeam.TeamName);
+
+            // Check if team names are the same
+            if (setupTeamsDbObject.BlueTeam.TeamName === setupTeamsDbObject.RedTeam.TeamName) {
+                validateList.push(`Team Names are the same.`);
+            }
+
             // Check if the MySQL Db is available
             if ((await checkRdsStatus()) !== AWS_RDS_STATUS.AVAILABLE) {
                 validateList.push(`MySQL Database is inactive. Start it first.`);
