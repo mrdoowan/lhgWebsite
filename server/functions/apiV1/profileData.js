@@ -345,46 +345,50 @@ export const getSummonerIdsFromList = (summonerNameList) => {
 /**
  * Add new profiles and its summoner accounts. First Summoner listed will automatically be flagged as 'main'.
  * @param {string} profileName 
- * @param {string} summId 
+ * @param {array} summIdList
  */
-export const postNewProfile = (profileName, summId) => {
+export const postNewProfile = (profileName, summIdList) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Generate a new Profile ID
-            let newPId = await generateNewPId('Profile');
-            let newProfileItem = {
-                'Information': {
-                    'LeagueAccounts': {
-                        [summId]: {
-                            'MainAccount': true,
-                        }
-                    },
-                    'ProfileName': profileName,
+            const newPId = await generateNewPId('Profile');
+
+            // Create LeagueAccounts object
+            const newLeagueAccountsObject = {};
+            for (const [idx, summId] of summIdList.entries()) {
+                newLeagueAccountsObject[summId] = {
+                    MainAccount: (idx === 0) ? true : false,
+                }
+            }
+
+            const newProfileItem = {
+                Information: {
+                    LeagueAccounts: newLeagueAccountsObject,
+                    ProfileName: profileName,
                 },
-                'ProfileName': profileName,
-                'ProfilePId': newPId,
+                ProfileName: profileName,
+                ProfilePId: newPId,
             };
+
             // Add to 'Profile' Table
             await dynamoDbPutItem('Profile', newProfileItem, newPId);
             // Add to 'ProfileNameMap' Table
-            let simpleProfileName = filterName(newProfileItem['ProfileName']);
-            let newProfileMap = {
+            const simpleProfileName = filterName(newProfileItem['ProfileName']);
+            const newProfileMap = {
                 'ProfileName': simpleProfileName,
                 'ProfileHId': getProfileHashId(newPId),
             }
             await dynamoDbPutItem('ProfileNameMap', newProfileMap, simpleProfileName);
             // Add to 'SummonerIdMap' Table
-            let newSummonerMap = {
-                'SummonerId': summId,
-                'ProfileHId': getProfileHashId(newPId),
-            };
-            await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
+            for (const summId of summIdList) {
+                const newSummonerMap = {
+                    'SummonerId': summId,
+                    'ProfileHId': getProfileHashId(newPId),
+                };
+                await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
+            }
             
-            resolve({
-                'SummonerId': summId,
-                'ProfileName': newProfileItem['ProfileName'],
-                'ProfilePId': newPId,
-            });
+            resolve(newProfileItem);
         }
         catch (err) { console.error(err); reject(err); }
     });

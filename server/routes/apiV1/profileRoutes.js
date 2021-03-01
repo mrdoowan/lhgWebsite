@@ -130,59 +130,22 @@ profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
 
 /**
  * @route   POST api/profile/v1/add/new
- * @desc    Add new Profile with primary summoner account
+ * @desc    Add new Profile with a list of summoners. Main account is the first index
  * @access  Private (to Admins)
  */
 profileV1Routes.post('/add/new', (req, res) => {
-    const { profileName, summonerName } = req.body;
-    // Check if the IGN exists. 
-    getSummonerIdBySummonerName(summonerName).then((summId) => {
-        if (summId == null) {
-            // Summoner Id does not exist
-            return res400sClientError(res, req, `Summoner Name '${summonerName}' does not exist.`);
-        }
-        // Check if summoner Name has its ID already registered. 
-        getProfilePIdBySummonerId(summId).then((pPId) => {
-            if (pPId != null) {
-                // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                getProfileName(pPId, false).then((pName) => {
-                    return res400sClientError(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'`);
-                }).catch((err) => error500sServerError(err, res, "GET Profile Name Error."));
-                return;
-            }
-            // New Summoner Id found.
-            // Check if Profile name already exists.
-            getProfilePIdByName(profileName).then((pPId) => {
-                if (pPId != null) {
-                    // Id Found in DB. That means Profile name exists. Reject.
-                    return res400sClientError(res, req, `Profile '${profileName}' already exists under Profile ID '${pPId}'`);
-                }
-                // Make new Profile
-                postNewProfile(profileName, summId).then((data) => {
-                    return res200sOK(res, req, data);
-                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 1."));
-            }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 3."));
-        }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 4."));
-    });
-});
-
-/**
- * @route   PUT api/profile/v1/add/account
- * @desc    Add Summoner accounts to the Profile
- * @access  Private (to Admins)
- */
-profileV1Routes.put('/add/account', (req, res) => {
     const { profileName, summonerNameList } = req.body;
-    console.log(`PUT Request Profile ${profileName} Add Summoners`);
-    
+    console.log(`POST Request Profile '${profileName}' - Add New Profile`);
+
+    // Check if the IGNs exist. 
     getSummonerIdsFromList(summonerNameList).then((summIdListData) => {
-        // Get summoner Ids
         if (summIdListData.errorList) {
             return res400sClientError(res, req, `Error in getting Summoner Ids from list`, summIdListData.errorList);
         }
         const summIdList = summIdListData.data;
+
+        // Check if any of the summoner Names has its ID already registered.
         getProfilePIdsFromSummIdList(summIdList).then(async (profilePIdList) => {
-            // Check if profilePIds are attached
             const profilePIdErrorList = [];
             for (const [idx, thisProfilePId] of profilePIdList.entries()) {
                 if (thisProfilePId) {
@@ -193,11 +156,58 @@ profileV1Routes.put('/add/account', (req, res) => {
             if (profilePIdErrorList.length > 0) {
                 return res400sClientError(res, req, `Summoner Name(s) already assigned to a Profile`, profilePIdErrorList);
             }
+
+            // Check if Profile name already exists in Db.
+            getProfilePIdByName(profileName).then((profilePId) => {
+                if (profilePId) {
+                    // Id Found in DB. That means Profile name exists. Reject.
+                    return res400sClientError(res, req, `Profile '${profileName}' already exists under Profile ID '${profilePId}'`);
+                }
+
+                // Make new Profile
+                postNewProfile(profileName, summIdList).then((data) => {
+                    return res200sOK(res, req, data);
+                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Update Db."));
+            }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get ProfilePId by Name."));
+        }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get ProfilePIds From List."));
+    }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get Summoner Ids From List."));
+});
+
+/**
+ * @route   PUT api/profile/v1/add/account
+ * @desc    Add Summoner accounts to the Profile
+ * @access  Private (to Admins)
+ */
+profileV1Routes.put('/add/account', (req, res) => {
+    const { profileName, summonerNameList } = req.body;
+    console.log(`PUT Request Profile '${profileName}' - Add Summoners`);
+
+    // Check if the IGNs exist. 
+    getSummonerIdsFromList(summonerNameList).then((summIdListData) => {
+        if (summIdListData.errorList) {
+            return res400sClientError(res, req, `Error in getting Summoner Ids from list`, summIdListData.errorList);
+        }
+        const summIdList = summIdListData.data;
+
+        // Check if any of the summoner Names has its ID already registered.
+        getProfilePIdsFromSummIdList(summIdList).then(async (profilePIdList) => {
+            const profilePIdErrorList = [];
+            for (const [idx, thisProfilePId] of profilePIdList.entries()) {
+                if (thisProfilePId) {
+                    const thisProfileName = await getProfileName(thisProfilePId, false);
+                    profilePIdErrorList.push(`Summoner name '${summonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
+                }
+            }
+            if (profilePIdErrorList.length > 0) {
+                return res400sClientError(res, req, `Summoner Name(s) already assigned to a Profile`, profilePIdErrorList);
+            }
+
+            // Check if Profile name exists.
             getProfilePIdByName(profileName).then((profilePId) => {
                 if (!profilePId) {
-                    // Profile does not exist
                     return res400sClientError(res, req, `Profile '${profileName}' does not exist.`);
                 }
+
                 // Get Profile Information
                 getProfileInfo(profilePId).then((infoData) => {
                     for (const summId of summIdList) {
