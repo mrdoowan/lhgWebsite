@@ -307,29 +307,35 @@ export const getSummonerIdBySummonerName = (summonerName) => {
  */
 export const getSummonerIdsFromList = (summonerNameList) => {
     return new Promise(async (resolve, reject) => {
-        const errorList = [];
-        const summonerIdList = [];
-        for (const summonerName of summonerNameList) {
-            try {
-                const summId = await getSummonerIdBySummonerName(summonerName);
-                if (!summId) {
-                    errorList.push(`${summonerName} - Summoner name does not exist.`);
-                }
-                else {
-                    summonerIdList.push(summId);
-                }
-            }          
-            catch (err) { 
-                errorList.push(`${summonerName} - Riot API call failed.`); 
-            };
-        }
+        try {
+            const errorList = [];
+            const summonerIdList = [];
+            for (const summonerName of summonerNameList) {
+                try {
+                    const summId = await getSummonerIdBySummonerName(summonerName);
+                    if (!summId) {
+                        errorList.push(`${summonerName} - Summoner name does not exist.`);
+                    }
+                    else if (summonerIdList.includes(summId)) {
+                        errorList.push(`${summonerName} - Duplicate names.`);
+                    }
+                    else {
+                        summonerIdList.push(summId);
+                    }
+                }          
+                catch (err) { 
+                    errorList.push(`${summonerName} - Riot API call failed.`); 
+                };
+            }
 
-        if (errorList.length > 0) {
-            resolve({ errorList: errorList });
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                resolve({ data: summonerIdList });
+            }
         }
-        else {
-            resolve({ data: summonerIdList });
-        }
+        catch (err) { reject(err); }
     });
 }
 

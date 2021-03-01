@@ -350,11 +350,13 @@ export const getSeasonPlayoffs = (seasonId) => {
 /**
  * Adds new team into Season Roster. Initializes a new object if null
  * @param {number} seasonId     Assume valid
- * @param {string} teamPId      Assume valid
+ * @param {array} teamPIdList   Assume valid
  */
-export const putSeasonTeam = (seasonId, teamPId) => {
+export const putSeasonTeam = (seasonId, teamPIdList) => {
     return new Promise((resolve, reject) => {
         dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+            const errorList = [];
+
             // Check if Roster property exists. If not, init new one
             if (!('Roster' in seasonObject)) {
                 seasonObject.Roster = {
@@ -362,22 +364,31 @@ export const putSeasonTeam = (seasonId, teamPId) => {
                 };
             }
             const seasonRosterObject = seasonObject.Roster;
+
             // Check if there is a duplicate
-            const teamHId = getTeamHashId(teamPId);
-            if (teamHId in seasonRosterObject.Teams) {
+            for (const teamPId of teamPIdList) {
+                const teamHId = getTeamHashId(teamPId);
+                if (teamHId in seasonRosterObject.Teams) {
+                    const teamName = await getTeamName(teamHId);
+                    errorList.push(`${teamName} - Team already in the season Roster.`);
+                }
+                else {
+                    seasonRosterObject.Teams[teamHId] = {
+                        Players: {}
+                    };
+                }
+            }
+            
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                await dynamoDbPutItem('Season', seasonObject, seasonId);
                 resolve({
                     'SeasonId': seasonId,
-                    'Error': `Team is already in the season.`
+                    'SeasonRoster': seasonRosterObject,
                 });
             }
-            seasonRosterObject.Teams[teamHId] = {
-                Players: {}
-            };
-            await dynamoDbPutItem('Season', seasonObject, seasonId);
-            resolve({
-                'SeasonId': seasonId,
-                'SeasonRoster': seasonRosterObject,
-            });
         }).catch((err) => { console.error(err); reject(err); });
     });
 }
