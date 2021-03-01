@@ -451,7 +451,7 @@ export default function MatchSetup({ setupData }) {
                     {!rosterData && <div>
                         <b>Loading Roster Data...</b> <br />
                     </div>}
-                    {(!(blueTeamSetupObject?.TeamName) || !(redTeamSetupObject?.TeamName) || teamList.length > 0) && 
+                    {teamList.length > 0 && 
                         (!(blueTeamSetupObject?.TeamName) || bluePlayerNameList.length > 0 || (blueTeamSetupObject?.TeamName && bluePlayerNameList.length === 0)) && 
                         (!(redTeamSetupObject?.TeamName) || redPlayerNameList.length > 0 || (redTeamSetupObject?.TeamName && redPlayerNameList.length === 0)) && (<Formik
                         initialValues={{
