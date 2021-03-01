@@ -58,6 +58,39 @@ export const getProfilePIdByName = (name) => {
 }
 
 /**
+ * 
+ * @param {array} profileNameList 
+ */
+export const getProfilePIdsFromList = (profileNameList) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const errorList = [];
+            const profilePIdList = [];
+            for (const profileName of profileNameList) {
+                const profilePId = await getProfilePIdByName(profileName);
+                if (!profilePId) {
+                    errorList.push(`${profileName} - Profile name does not exist.`);
+                }
+                else if (profilePIdList.includes(profilePId)) {
+                    errorList.push(`${profileName} - Duplicate names.`);
+                }
+                else {
+                    profilePIdList.push(profilePId);
+                }
+            }
+
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                resolve({ data: profilePIdList });
+            }
+        }
+        catch (err) { reject(err); }
+    });
+}
+
+/**
  * Get ProfilePId from Riot Summoner Id
  * @param {string} summId
  */

@@ -68,7 +68,7 @@ export const getTeamPIdListFromNames = (teamNameList) => {
             for (const teamName of teamNameList) {
                 const teamPId = await getTeamPIdByName(teamName);
                 if (!teamPId) {
-                    errorList.push(`${teamName} - Summoner name does not exist.`);
+                    errorList.push(`${teamName} - Team name does not exist.`);
                 }
                 else if (teamPIdList.includes(teamPId)) {
                     errorList.push(`${teamName} - Duplicate names.`);
