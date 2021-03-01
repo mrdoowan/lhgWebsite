@@ -130,9 +130,11 @@ seasonV1Routes.put('/roster/team/add', (req, res) => {
     const { teamNameList, seasonShortName } = req.body;
 
     console.log(`PUT Request Adding Teams in Season '${seasonShortName}'.`);
+    // Filter out empty strings
+    const filteredTeamNameList = teamNameList.filter(name => name !== '');
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season '${seasonShortName}' Not Found`); }
-        getTeamPIdListFromNames(teamNameList).then((teamPIdListResponse) => {
+        getTeamPIdListFromNames(filteredTeamNameList).then((teamPIdListResponse) => {
             if (teamPIdListResponse.errorList) {
                 return res400sClientError(res, req, `Error in getting TeamPIds from list`, teamPIdListResponse.errorList);
             }
@@ -156,11 +158,13 @@ seasonV1Routes.put('/roster/profile/add', (req, res) => {
     const { profileNameList, teamName, seasonShortName } = req.body;
 
     console.log(`PUT Request Adding Profiles to Team '${teamName}' in Season '${seasonShortName}'.`);
+    // Filter out empty strings
+    const filteredProfileNameList = profileNameList.filter(name => name !== '');
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
         getTeamPIdByName(teamName).then((teamPId) => {
             if (!teamPId) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
-            getProfilePIdsFromList(profileNameList).then((profilePIdsResponse) => {
+            getProfilePIdsFromList(filteredProfileNameList).then((profilePIdsResponse) => {
                 if (profilePIdsResponse.errorList) {
                     return res400sClientError(res, req, `Error in getting ProfilePIds from list`, profilePIdsResponse.errorList);
                 }
