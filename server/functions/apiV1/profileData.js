@@ -265,24 +265,65 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
     });
 }
 
-// Get Summoner Id from Summoner Name
-// Won't need to cache this. Just call directly from Riot API
-export const getSummonerIdBySummonerName = (summName) => {
+/**
+ * Returns Summoner Id from Summoner Name
+ * @param {string} summonerName  
+ * @return {string}
+ */
+export const getSummonerIdBySummonerName = (summonerName) => {
+    // Won't need to cache this. Just call directly from Riot API
     return new Promise(function(resolve, reject) {
-        getRiotSummonerId(summName).then((data) => {
+        getRiotSummonerId(summonerName).then((data) => {
             resolve(data['id']);
         }).catch((err) => { reject(err); })
     });
 }
 
-// Add new profiles and its summoner accounts. 
-// First Summoner listed will automatically be flagged as 'main'
+/**
+ * Return an array of summoner Ids 
+ * @param {array} summonerNameList 
+ */
+export const getSummonerIdsFromList = (summonerNameList) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const errorList = [];
+            const summonerIdList = [];
+            for (const summonerName of summonerNameList) {
+                getSummonerIdBySummonerName(summonerName).then((id) => {
+                    if (!id) {
+                        errorList.push(`${summonerName} - Summoner name does not exist.`);
+                    }
+                    else {
+                        summonerIdList.push(id);
+                    }
+                }).catch(() => { errorList.push(`${summonerName} - Riot API call failed.`); });
+            }
+
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                resolve({ data: summonerIdList });
+            }
+        }
+        catch (err) { reject(err); }
+    });
+}
+
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
-//     "summonerName": "SUMM_NAME",
+//     "summonerNames": [
+//          "summName1",
+//          "summName2",
+//     ]
 // }
 // Add to "Profile", "ProfileNameMap", "SummonerIdMap" Table
+/**
+ * Add new profiles and its summoner accounts. First Summoner listed will automatically be flagged as 'main'.
+ * @param {string} profileName 
+ * @param {string} summId 
+ */
 export const postNewProfile = (profileName, summId) => {
     return new Promise(async (resolve, reject) => {
         try {
