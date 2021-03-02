@@ -137,8 +137,10 @@ profileV1Routes.post('/add/new', (req, res) => {
     const { profileName, summonerNameList } = req.body;
     console.log(`POST Request Profile '${profileName}' - Add New Profile`);
 
+    // Filter out empty strings
+    const filteredSummonerNameList = summonerNameList.filter(name => name !== '');
     // Check if the IGNs exist. 
-    getSummonerIdsFromList(summonerNameList).then((summIdListData) => {
+    getSummonerIdsFromList(filteredSummonerNameList).then((summIdListData) => {
         if (summIdListData.errorList) {
             return res400sClientError(res, req, `Error in getting Summoner Ids from list`, summIdListData.errorList);
         }
@@ -150,7 +152,7 @@ profileV1Routes.post('/add/new', (req, res) => {
             for (const [idx, thisProfilePId] of profilePIdList.entries()) {
                 if (thisProfilePId) {
                     const thisProfileName = await getProfileName(thisProfilePId, false);
-                    profilePIdErrorList.push(`Summoner name '${summonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
+                    profilePIdErrorList.push(`Summoner name '${filteredSummonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
                 }
             }
             if (profilePIdErrorList.length > 0) {
@@ -167,7 +169,7 @@ profileV1Routes.post('/add/new', (req, res) => {
                 // Make new Profile
                 postNewProfile(profileName, summIdList).then((data) => {
                     return res200sOK(res, req, data);
-                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Update Db."));
+                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Update Database."));
             }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get ProfilePId by Name."));
         }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get ProfilePIds From List."));
     }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get Summoner Ids From List."));
@@ -182,8 +184,10 @@ profileV1Routes.put('/add/account', (req, res) => {
     const { profileName, summonerNameList } = req.body;
     console.log(`PUT Request Profile '${profileName}' - Add Summoners`);
 
+    // Filter out empty strings
+    const filteredSummonerNameList = summonerNameList.filter(name => name !== '');
     // Check if the IGNs exist. 
-    getSummonerIdsFromList(summonerNameList).then((summIdListData) => {
+    getSummonerIdsFromList(filteredSummonerNameList).then((summIdListData) => {
         if (summIdListData.errorList) {
             return res400sClientError(res, req, `Error in getting Summoner Ids from list`, summIdListData.errorList);
         }
@@ -195,7 +199,7 @@ profileV1Routes.put('/add/account', (req, res) => {
             for (const [idx, thisProfilePId] of profilePIdList.entries()) {
                 if (thisProfilePId) {
                     const thisProfileName = await getProfileName(thisProfilePId, false);
-                    profilePIdErrorList.push(`Summoner name '${summonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
+                    profilePIdErrorList.push(`Summoner name '${filteredSummonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
                 }
             }
             if (profilePIdErrorList.length > 0) {
