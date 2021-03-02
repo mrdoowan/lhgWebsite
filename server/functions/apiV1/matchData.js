@@ -18,6 +18,7 @@ import {
     getSeasonShortName,
 } from './seasonData';
 import {
+    getTournamentInfo,
     getTournamentName,
     getTournamentShortName,
     getTournamentTabName,
@@ -140,18 +141,20 @@ export const getMatchSetupList = () => {
 /**
  * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
- * @param {string} seasonId     ID of Season (number)
  * @param {string} tournamentId ID of Tournament (number)
  */
-export const postMatchNewSetup = (matchId, seasonId, tournamentId) => {
+export const postMatchNewSetup = (matchId, tournamentId) => {
     return new Promise(async function(resolve, reject) {
         try {
+            const tournamentInfoObject = await getTournamentInfo(tournamentId);
+            const seasonId = tournamentInfoObject.SeasonPId;
+            
             // Make sure matchId is a valid value
             if (!(/^\d+$/.test(matchId))) {
                 resolve({
                     'MatchId': matchId,
                     'Error': `Match ID ${matchId} is not a valid string.`,
-                })
+                });
             }
             // Check if matchId already exists
             if (await dynamoDbGetItem('Matches', 'MatchPId', matchId)) {
