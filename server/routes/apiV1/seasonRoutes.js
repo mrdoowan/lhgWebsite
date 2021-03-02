@@ -12,12 +12,15 @@ import {
     getSeasonRosterById,
     getSeasonRegular,
     getSeasonPlayoffs,
-    putSeasonTeam,
-    putSeasonProfileInTeam,
+    putSeasonRosterTeams,
+    putSeasonRosterProfiles,
     getSeasonRosterByName,
 } from '../../functions/apiV1/seasonData';
-import { getTeamPIdByName } from '../../functions/apiV1/teamData';
-import { getProfilePIdByName } from '../../functions/apiV1/profileData';
+import { 
+    getTeamPIdByName, 
+    getTeamPIdListFromNames
+} from '../../functions/apiV1/teamData';
+import { getProfilePIdByName, getProfilePIdsFromList } from '../../functions/apiV1/profileData';
 
 /*  
     ----------------------
@@ -88,7 +91,7 @@ seasonV1Routes.get('/roster/name/:seasonShortName', (req, res) => {
 seasonV1Routes.get('/regular/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
 
-    console.log(`"GET Request Season '${seasonShortName}' Regular."`);
+    console.log(`GET Request Season '${seasonShortName}' Regular.`);
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
         getSeasonRegular(seasonId).then((data) => {
@@ -104,7 +107,8 @@ seasonV1Routes.get('/regular/name/:seasonShortName', (req, res) => {
  */
 seasonV1Routes.get('/playoffs/name/:seasonShortName', (req, res) => {
     const { seasonShortName } = req.params;
-    console.log(`"GET Request Season '${seasonShortName}' Playoffs."`);
+    console.log(`GET Request Season '${seasonShortName}' Playoffs.`);
+
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
         getSeasonPlayoffs(seasonId).then((data) => {
@@ -123,20 +127,25 @@ seasonV1Routes.get('/playoffs/name/:seasonShortName', (req, res) => {
  * @access  Private
  */
 seasonV1Routes.put('/roster/team/add', (req, res) => {
-    const { teamName, seasonShortName } = req.body;
+    const { teamNameList, seasonShortName } = req.body;
 
-    console.log(`"PUT Request Adding Team '${teamName}' in Season '${seasonShortName}'."`);
+    console.log(`PUT Request Adding Teams in Season '${seasonShortName}'.`);
+    // Filter out empty strings
+    const filteredTeamNameList = teamNameList.filter(name => name !== '');
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season '${seasonShortName}' Not Found`); }
-        getTeamPIdByName(teamName).then((teamPId) => {
-            if (!teamPId) { return res400sClientError(res, req, `Team '${teamName}' Not Found`); }
-            putSeasonTeam(seasonId, teamPId).then((data) => {
-                if ('Error' in data) { 
-                    return res400sClientError(res, req, `Error in adding Team '${teamName}'`, data); 
+        getTeamPIdListFromNames(filteredTeamNameList).then((teamPIdListResponse) => {
+            if (teamPIdListResponse.errorList) {
+                return res400sClientError(res, req, `Error in getting TeamPIds from list`, teamPIdListResponse.errorList);
+            }
+            const teamPIdList = teamPIdListResponse.data;
+            putSeasonRosterTeams(seasonId, teamPIdList).then((data) => {
+                if (data.errorList) { 
+                    return res400sClientError(res, req, `Error in adding Teams into the database`, data.errorList);
                 }
                 return res200sOK(res, req, data);
-            }).catch((err) => error500sServerError(err, res, "PUT Team in Season Roster Error."));
-        }).catch((err) => error500sServerError(err, res, "GET Team PId Error."));
+            }).catch((err) => error500sServerError(err, res, "PUT Teams in Season Roster Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Team PId from List Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
 });
 
@@ -146,18 +155,23 @@ seasonV1Routes.put('/roster/team/add', (req, res) => {
  * @access  Private
  */
 seasonV1Routes.put('/roster/profile/add', (req, res) => {
-    const { profileName, teamName, seasonShortName } = req.body;
+    const { profileNameList, teamName, seasonShortName } = req.body;
 
-    console.log(`"PUT Request Adding Profile '${profileName}' to Team '${teamName}' in Season '${seasonShortName}'."`);
+    console.log(`PUT Request Adding Profiles to Team '${teamName}' in Season '${seasonShortName}'.`);
+    // Filter out empty strings
+    const filteredProfileNameList = profileNameList.filter(name => name !== '');
     getSeasonId(seasonShortName).then((seasonId) => {
         if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
         getTeamPIdByName(teamName).then((teamPId) => {
             if (!teamPId) { return res400sClientError(res, req, `Team Name '${teamName}' Not Found`); }
-            getProfilePIdByName(profileName).then((profilePId) => {
-                if (!profilePId) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
-                putSeasonProfileInTeam(seasonId, teamPId, profilePId).then((data) => {
-                    if ('Error' in data) { 
-                        return res400sClientError(res, req, `Error in adding Profile '${profileName}' into Team '${teamName}'`, data); 
+            getProfilePIdsFromList(filteredProfileNameList).then((profilePIdsResponse) => {
+                if (profilePIdsResponse.errorList) {
+                    return res400sClientError(res, req, `Error in getting ProfilePIds from list`, profilePIdsResponse.errorList);
+                }
+                const profilePIdList = profilePIdsResponse.data;
+                putSeasonRosterProfiles(seasonId, teamPId, profilePIdList).then((data) => {
+                    if (data.errorList) {
+                        return res400sClientError(res, req, `Error in adding Profiles into the database`, data.errorList);
                     }
                     return res200sOK(res, req, data);
                 }).catch((err) => error500sServerError(err, res, "PUT Profile in Season Roster Error."));
