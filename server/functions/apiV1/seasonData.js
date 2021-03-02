@@ -404,9 +404,10 @@ export const putSeasonProfilesInTeam = (seasonId, teamPId, profilePIdList) => {
         dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
             const errorList = [];
 
-            // Check if Roster or Team property exists. If not, init new one
+            // Check if Roster or Team property exists.
             if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
-                errorList.push(`Season Object does not have Roster`);
+                resolve({ errorList: `Season Object does not have Roster` });
+                return;
             }
             const rosterTeamObject = seasonObject.Roster.Teams;
             const teamHId = getTeamHashId(teamPId);
