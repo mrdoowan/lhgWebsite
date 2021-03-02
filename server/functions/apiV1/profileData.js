@@ -469,7 +469,10 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
             // Cache set Key: PROFILE_INFO_PREFIX
             cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
-            resolve(item.LeagueAccounts);
+            resolve({ 
+                profilePId: profilePId,
+                leagueAccounts: item.LeagueAccounts
+            });
         }
         catch (err) { console.error(err); reject(err); }
     });
@@ -563,8 +566,8 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
             cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
             resolve({
-                'ProfilePId': profilePId,
-                'LeagueAccounts': leagueAccountsObject,
+                profilePId: profilePId,
+                leagueAccounts: leagueAccountsObject,
             });
         }).catch((err) => { console.error(err); reject(err); });
     });

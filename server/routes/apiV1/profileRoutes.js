@@ -237,12 +237,12 @@ profileV1Routes.put('/add/account', (req, res) => {
  * @access  Private (to Admins)
  */
 profileV1Routes.put('/remove/account', (req, res) => {
-    const { profileName, summId } = req.body;
-    console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summId}`);
+    const { profileName, summonerId } = req.body;
+    console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summonerId}`);
 
     getProfilePIdByName(profileName).then((profilePId) => {
         if (!profilePId) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
-        putProfileRemoveAccount(profilePId, summId).then((data) => {
+        putProfileRemoveAccount(profilePId, summonerId).then((data) => {
             if (data.error) { return res400sClientError(res, req, `Error in removing Summoner Account`, data.error); }
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - PUT function removing account."));
