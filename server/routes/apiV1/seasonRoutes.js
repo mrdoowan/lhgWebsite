@@ -12,8 +12,8 @@ import {
     getSeasonRosterById,
     getSeasonRegular,
     getSeasonPlayoffs,
-    putSeasonTeams,
-    putSeasonProfilesInTeam,
+    putSeasonRosterTeams,
+    putSeasonRosterProfiles,
     getSeasonRosterByName,
 } from '../../functions/apiV1/seasonData';
 import { 
@@ -139,7 +139,7 @@ seasonV1Routes.put('/roster/team/add', (req, res) => {
                 return res400sClientError(res, req, `Error in getting TeamPIds from list`, teamPIdListResponse.errorList);
             }
             const teamPIdList = teamPIdListResponse.data;
-            putSeasonTeams(seasonId, teamPIdList).then((data) => {
+            putSeasonRosterTeams(seasonId, teamPIdList).then((data) => {
                 if (data.errorList) { 
                     return res400sClientError(res, req, `Error in adding Teams into the database`, data.errorList);
                 }
@@ -169,7 +169,7 @@ seasonV1Routes.put('/roster/profile/add', (req, res) => {
                     return res400sClientError(res, req, `Error in getting ProfilePIds from list`, profilePIdsResponse.errorList);
                 }
                 const profilePIdList = profilePIdsResponse.data;
-                putSeasonProfilesInTeam(seasonId, teamPId, profilePIdList).then((data) => {
+                putSeasonRosterProfiles(seasonId, teamPId, profilePIdList).then((data) => {
                     if (data.errorList) {
                         return res400sClientError(res, req, `Error in adding Profiles into the database`, data.errorList);
                     }
