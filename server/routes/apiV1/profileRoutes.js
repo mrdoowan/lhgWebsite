@@ -8,17 +8,16 @@ import {
 /*  Import helper Data function modules */
 import {
     getProfilePIdByName,
-    getProfilePIdBySummonerId,
     getProfileName,
     getProfileInfo,
     getProfileGamesBySeason,
     getProfileStatsByTourney,
-    getSummonerIdBySummonerName,
     postNewProfile,
     updateProfileInfoSummonerList,
     updateProfileName,
     getSummonerIdsFromList,
     getProfilePIdsFromSummIdList,
+    putProfileRemoveAccount,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -226,19 +225,28 @@ profileV1Routes.put('/add/account', (req, res) => {
     }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - Get Summoner Ids From List."));
 });
 
-/**
- * @route   PUT api/profile/v1/remove/account
- * @desc    Remove a Summoner account from the profile
- * @access  Private (to Admins)
- */
 // Remove summoner account from Profile.
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
 //     "summonerId": "SUMM_ID",
 // }
+/**
+ * @route   PUT api/profile/v1/remove/account
+ * @desc    Remove a Summoner account from the profile
+ * @access  Private (to Admins)
+ */
 profileV1Routes.put('/remove/account', (req, res) => {
+    const { profileName, summId } = req.body;
+    console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summId}`);
 
+    getProfilePIdByName(profileName).then((profilePId) => {
+        if (!profilePId) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        putProfileRemoveAccount(profilePId, summId).then((data) => {
+            if (data.error) { return res400sClientError(res, req, `Error in removing Summoner Account`, data.error); }
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - PUT function removing account."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - Get ProfilePId."));
 })
 
 /**
