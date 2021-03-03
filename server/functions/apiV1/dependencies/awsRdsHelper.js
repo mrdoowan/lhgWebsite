@@ -18,7 +18,7 @@ const getRdsInstantName = (rdsType) => {
         `${process.env.MYSQL_INSTANCE}-test` : 
         (rdsType === RDS_TYPE.PROD) ? // Production
         process.env.MYSQL_INSTANCE :
-        (process.env.TEST_DB === 'false') ? // Default
+        (process.env.TEST_DB === 'false' || process.env.NODE_ENV === 'production') ? // Default to production
         process.env.MYSQL_INSTANCE : 
         `${process.env.MYSQL_INSTANCE}-test`;
 }
