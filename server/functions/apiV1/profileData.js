@@ -469,7 +469,10 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
             // Cache set Key: PROFILE_INFO_PREFIX
             cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
-            resolve(item.LeagueAccounts);
+            resolve({ 
+                profilePId: profilePId,
+                leagueAccounts: item.LeagueAccounts
+            });
         }
         catch (err) { console.error(err); reject(err); }
     });
@@ -517,6 +520,57 @@ export const updateProfileName = (profilePId, newName, oldName) => {
         }
         catch (err) { console.error(err); reject(err); }
     })
+}
+
+/**
+ * 
+ * @param {string} profilePId   Assume valid
+ * @param {string} summonerId   Assume not valid
+ */
+export const putProfileRemoveAccount = (profilePId, summonerId) => {
+    return new Promise((resolve, reject) => {
+        // Get from dynamoDb and remove from profile PId
+        dynamoDbGetItem('Profile', 'ProfilePId', profilePId).then(async (profileObject) => {
+            if (!(profileObject.Information?.LeagueAccounts)) {
+                resolve({ error: `Profile object does not have property 'LeagueAccounts'` });
+                return;
+            }
+            const leagueAccountsObject = profileObject.Information.LeagueAccounts;
+            
+            if (Object.keys(profileObject.Information.LeagueAccounts).length < 2) {
+                resolve({ error: `Profile only has one summoner account linked.` });
+                return;
+            }
+            if (leagueAccountsObject[summonerId]) {
+                delete leagueAccountsObject[summonerId];
+            }
+            else {
+                resolve({ error: `Summoner Id ${summonerId} is not in the Profile.` });
+                return;
+            }
+
+            // Remove from SummonerIdMap dynamodb
+            await dynamoDbDeleteItem('SummonerIdMap', 'SummonerId', summonerId);
+            // Update Profile Info dynamoDb
+            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                'SET #info = :val', 
+                {
+                    '#info': 'Information'
+                },
+                {
+                    ':val': profileObject.Information
+                }
+            );
+
+            // Delete Cache
+            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
+
+            resolve({
+                profilePId: profilePId,
+                leagueAccounts: leagueAccountsObject,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
+    });
 }
 
 // Returns an object indicating Profile GameLog has been updated
