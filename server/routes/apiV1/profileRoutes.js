@@ -8,15 +8,16 @@ import {
 /*  Import helper Data function modules */
 import {
     getProfilePIdByName,
-    getProfilePIdBySummonerId,
     getProfileName,
     getProfileInfo,
     getProfileGamesBySeason,
     getProfileStatsByTourney,
-    getSummonerIdBySummonerName,
     postNewProfile,
-    updateProfileInfo,
+    updateProfileInfoSummonerList,
     updateProfileName,
+    getSummonerIdsFromList,
+    getProfilePIdsFromSummIdList,
+    putProfileRemoveAccount,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -37,6 +38,7 @@ import { getTournamentId } from '../../functions/apiV1/tournamentData';
 profileV1Routes.get('/information/name/:profileName', (req, res) => {
     const { profileName } = req.params;
     console.log(`GET Request Profile '${profileName}' Information.`);
+
     getProfilePIdByName(profileName).then((pPId) => {
         if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
         getProfileInfo(pPId).then((data) => {
@@ -53,6 +55,7 @@ profileV1Routes.get('/information/name/:profileName', (req, res) => {
 profileV1Routes.get('/games/name/:profileName/:seasonShortName', (req, res) => {
     const { profileName, seasonShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Game Log from Season '${seasonShortName}'.`);
+
     getProfilePIdByName(profileName).then((pPId) => {
         if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
         getSeasonId(seasonShortName).then((sPId) => {
@@ -73,6 +76,7 @@ profileV1Routes.get('/games/name/:profileName/:seasonShortName', (req, res) => {
 profileV1Routes.get('/stats/name/:profileName/:tournamentShortName', (req, res) => {
     const { profileName, tournamentShortName } = req.params;
     console.log(`GET Request Profile '${profileName}' Stats Log from Tournament '${tournamentShortName}'.`);
+
     getProfilePIdByName(profileName).then((pPId) => {
         if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
         getTournamentId(tournamentShortName).then((tPId) => {
@@ -92,7 +96,8 @@ profileV1Routes.get('/stats/name/:profileName/:tournamentShortName', (req, res) 
  */
 profileV1Routes.get('/games/latest/name/:profileName', (req, res) => {
     const { profileName } = req.params;
-    console.log(`"GET Request Profile '${profileName}' Game Log from the latest Season."`);
+    console.log(`GET Request Profile '${profileName}' Game Log from the latest Season.`);
+
     getProfilePIdByName(profileName).then((pPId) => {
         if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
         getProfileGamesBySeason(pPId).then((data) => {
@@ -108,7 +113,8 @@ profileV1Routes.get('/games/latest/name/:profileName', (req, res) => {
  */
 profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
     const { profileName } = req.params;
-    console.log(`"GET Request Profile '${profileName}' Game Log from the latest Tournament"`);
+    console.log(`GET Request Profile '${profileName}' Game Log from the latest Tournament`);
+
     getProfilePIdByName(profileName).then((pPId) => {
         if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
         getProfileStatsByTourney(pPId).then((data) => {
@@ -123,94 +129,124 @@ profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
 
 /**
  * @route   POST api/profile/v1/add/new
- * @desc    Add new Profile with primary summoner account
+ * @desc    Add new Profile with a list of summoners. Main account is the first index
  * @access  Private (to Admins)
  */
 profileV1Routes.post('/add/new', (req, res) => {
-    const { profileName, summonerName } = req.body;
-    // Check if the IGN exists. 
-    getSummonerIdBySummonerName(summonerName).then((summId) => {
-        if (summId == null) {
-            // Summoner Id does not exist
-            return res400sClientError(res, req, `Summoner Name '${summonerName}' does not exist.`);
+    const { profileName, summonerNameList } = req.body;
+    console.log(`POST Request Profile '${profileName}' - Add New Profile`);
+
+    // Filter out empty strings
+    const filteredSummonerNameList = summonerNameList.filter(name => name !== '');
+    // Check if the IGNs exist. 
+    getSummonerIdsFromList(filteredSummonerNameList).then((summIdListData) => {
+        if (summIdListData.errorList) {
+            return res400sClientError(res, req, `Error in getting Summoner Ids from list`, summIdListData.errorList);
         }
-        // Check if summoner Name has its ID already registered. 
-        getProfilePIdBySummonerId(summId).then((pPId) => {
-            if (pPId != null) {
-                // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                getProfileName(pPId, false).then((pName) => {
-                    return res400sClientError(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${pPId}'`);
-                }).catch((err) => error500sServerError(err, res, "GET Profile Name Error."));
-                return;
-            }
-            // New Summoner Id found.
-            // Check if Profile name already exists.
-            getProfilePIdByName(profileName).then((pPId) => {
-                if (pPId != null) {
-                    // Id Found in DB. That means Profile name exists. Reject.
-                    return res400sClientError(res, req, `Profile '${profileName}' already exists under Profile ID '${pPId}'`);
+        const summIdList = summIdListData.data;
+
+        // Check if any of the summoner Names has its ID already registered.
+        getProfilePIdsFromSummIdList(summIdList).then(async (profilePIdList) => {
+            const profilePIdErrorList = [];
+            for (const [idx, thisProfilePId] of profilePIdList.entries()) {
+                if (thisProfilePId) {
+                    const thisProfileName = await getProfileName(thisProfilePId, false);
+                    profilePIdErrorList.push(`Summoner name '${filteredSummonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
                 }
+            }
+            if (profilePIdErrorList.length > 0) {
+                return res400sClientError(res, req, `Summoner Name(s) already assigned to a Profile`, profilePIdErrorList);
+            }
+
+            // Check if Profile name already exists in Db.
+            getProfilePIdByName(profileName).then((profilePId) => {
+                if (profilePId) {
+                    // Id Found in DB. That means Profile name exists. Reject.
+                    return res400sClientError(res, req, `Profile '${profileName}' already exists under Profile ID '${profilePId}'`);
+                }
+
                 // Make new Profile
-                postNewProfile(profileName, summId).then((data) => {
+                postNewProfile(profileName, summIdList).then((data) => {
                     return res200sOK(res, req, data);
-                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 1."));
-            }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 3."));
-        }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error 4."));
-    });
+                }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Update Database."));
+            }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get ProfilePId by Name."));
+        }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get ProfilePIds From List."));
+    }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - Get Summoner Ids From List."));
 });
 
 /**
  * @route   PUT api/profile/v1/add/account
- * @desc    Add a Summoner account to the Profile
+ * @desc    Add Summoner accounts to the Profile
  * @access  Private (to Admins)
  */
 profileV1Routes.put('/add/account', (req, res) => {
-    const { profileName, summonerName } = req.body;
-    // Check if the IGN exists (Riot API call)
-    getSummonerIdBySummonerName(summonerName).then((summId) => {
-        if (summId == null) {
-            // Summoner Id does not exist
-            return res400sClientError(res, req, `Summoner Name '${summonerName}' does not exist.`);
+    const { profileName, summonerNameList } = req.body;
+    console.log(`PUT Request Profile '${profileName}' - Add Summoners`);
+
+    // Filter out empty strings
+    const filteredSummonerNameList = summonerNameList.filter(name => name !== '');
+    // Check if the IGNs exist. 
+    getSummonerIdsFromList(filteredSummonerNameList).then((summIdListData) => {
+        if (summIdListData.errorList) {
+            return res400sClientError(res, req, `Error in getting Summoner Ids from list`, summIdListData.errorList);
         }
-        getProfilePIdBySummonerId(summId).then((profileIdExist) => {
-            if (profileIdExist != null) {
-                // Profile Id Found in DB. That means Profile name exists with Summoner. Reject.
-                getProfileName(profileIdExist, false).then((pName) => {
-                    return res400sClientError(res, req, `Summoner Name '${summonerName}' already registered under Profile Name '${pName}' and ID '${profileIdExist}'`);
-                }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 1."));
-                return;
+        const summIdList = summIdListData.data;
+
+        // Check if any of the summoner Names has its ID already registered.
+        getProfilePIdsFromSummIdList(summIdList).then(async (profilePIdList) => {
+            const profilePIdErrorList = [];
+            for (const [idx, thisProfilePId] of profilePIdList.entries()) {
+                if (thisProfilePId) {
+                    const thisProfileName = await getProfileName(thisProfilePId, false);
+                    profilePIdErrorList.push(`Summoner name '${filteredSummonerNameList[idx]}' is under Profile Name '${thisProfileName}'`);
+                }
             }
-            // Check if Profile Name exists
-            getProfilePIdByName(profileName).then((pPId) => {
-                if (pPId == null) {
-                    // Profile does not exist
+            if (profilePIdErrorList.length > 0) {
+                return res400sClientError(res, req, `Summoner Name(s) already assigned to a Profile`, profilePIdErrorList);
+            }
+
+            // Check if Profile name exists.
+            getProfilePIdByName(profileName).then((profilePId) => {
+                if (!profilePId) {
                     return res400sClientError(res, req, `Profile '${profileName}' does not exist.`);
                 }
-                // Get Profile Information
-                getProfileInfo(pPId).then((infoData) => {
-                    infoData['LeagueAccounts'][summId] = { 'MainAccount': false };
-                    updateProfileInfo(pPId, summId, infoData).then((data) => {
-                        return res200sOK(res, req, data);
-                    }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 2."));
-                }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 3."));
-            }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 4."));
-        }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 5."));
-    }).catch((err) => error500sServerError(err, res, "PUT Profile Info Error 6."));
-})
 
-/**
- * @route   PUT api/profile/v1/remove/account
- * @desc    Remove a Summoner account from the profile
- * @access  Private (to Admins)
- */
+                // Get Profile Information
+                getProfileInfo(profilePId).then((infoData) => {
+                    for (const summId of summIdList) {
+                        infoData.LeagueAccounts[summId] = { MainAccount: false };
+                    }
+                    updateProfileInfoSummonerList(profilePId, summIdList, infoData).then((data) => {
+                        return res200sOK(res, req, data);
+                    }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - PUT Profile Info Error."));
+                }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - GET Profile Info Error."));
+            }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - GET ProfilePId Error."));
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - Get ProfilePIds From List."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - Get Summoner Ids From List."));
+});
+
 // Remove summoner account from Profile.
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
 //     "summonerId": "SUMM_ID",
 // }
+/**
+ * @route   PUT api/profile/v1/remove/account
+ * @desc    Remove a Summoner account from the profile
+ * @access  Private (to Admins)
+ */
 profileV1Routes.put('/remove/account', (req, res) => {
+    const { profileName, summonerId } = req.body;
+    console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summonerId}`);
 
+    getProfilePIdByName(profileName).then((profilePId) => {
+        if (!profilePId) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
+        putProfileRemoveAccount(profilePId, summonerId).then((data) => {
+            if (data.error) { return res400sClientError(res, req, `Error in removing Summoner Account`, data.error); }
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - PUT function removing account."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - Get ProfilePId."));
 })
 
 /**

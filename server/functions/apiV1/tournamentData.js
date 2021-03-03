@@ -39,7 +39,7 @@ import { createChampObject } from '../../services/ddragonChampion';
  * @param {string} shortName 
  */
 export const getTournamentId = (shortName) => {
-    let simpleName = filterName(shortName);
+    const simpleName = filterName(shortName);
     const cacheKey = CACHE_KEYS.TN_ID_PREFIX + simpleName;
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
@@ -48,7 +48,7 @@ export const getTournamentId = (shortName) => {
             dynamoDbScanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
             .then((obj) => {
                 if (obj.length === 0) { resolve(null); return; } // Not Found
-                let Id = obj[0]['TournamentPId'];
+                const Id = obj[0]['TournamentPId'];
                 cache.set(cacheKey, Id);
                 resolve(Id);
             }).catch((ex) => { console.error(ex); reject(ex) });
@@ -116,6 +116,10 @@ export const getTournamentTabName = (tournamentPId) => {
     });
 }
 
+/**
+ * 
+ * @param {number} tournamentPId 
+ */
 export const getTournamentInfo = (tournamentPId) => {
     const cacheKey = CACHE_KEYS.TN_INFO_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
