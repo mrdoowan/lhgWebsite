@@ -57,34 +57,89 @@ export const getProfilePIdByName = (name) => {
     });
 }
 
-// Get ProfilePId from Riot Summoner Id
+/**
+ * 
+ * @param {array} profileNameList 
+ */
+export const getProfilePIdsFromList = (profileNameList) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const errorList = [];
+            const profilePIdList = [];
+            for (const profileName of profileNameList) {
+                const profilePId = await getProfilePIdByName(profileName);
+                if (!profilePId) {
+                    errorList.push(`${profileName} - Profile name does not exist.`);
+                }
+                else if (profilePIdList.includes(profilePId)) {
+                    errorList.push(`${profileName} - Duplicate names.`);
+                }
+                else {
+                    profilePIdList.push(profilePId);
+                }
+            }
+
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                resolve({ data: profilePIdList });
+            }
+        }
+        catch (err) { reject(err); }
+    });
+}
+
+/**
+ * Get ProfilePId from Riot Summoner Id
+ * @param {string} summId
+ */
 export const getProfilePIdBySummonerId = (summId) => {
     const cacheKey = CACHE_KEYS.PROFILE_PID_BYSUMM_PREFIX + summId;
     return new Promise(function(resolve, reject) {
         if (!summId) { resolve(null); return; }
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
-            else if (data != null) { resolve(data); return; }
+            else if (data) { resolve(data); return; }
             dynamoDbGetItem('SummonerIdMap', 'SummonerId', summId)
             .then((obj) => {
-                if (obj == null) { resolve(null); return; } // Not Found
-                let pPId = getProfilePIdFromHash(obj['ProfileHId']);
-                cache.set(cacheKey, pPId);
-                resolve(pPId);
+                if (!obj) { resolve(null); return; } // Not Found
+                const profilePId = getProfilePIdFromHash(obj['ProfileHId']);
+                cache.set(cacheKey, profilePId);
+                resolve(profilePId);
             }).catch((error) => { console.error(error); reject(error) });
         });
     });
 }
 
 /**
- * Get ProfileName from DynamoDb
- * @param {string} id       Profile PId or HId
- * @param {boolean} hash    hash=true if id is HId, hash=false if id is PId
+ * Returns an array of Profile PIds based on summoner Ids
+ * If an index is null, that means no PId is associated
+ * @param {array} summIdList 
  */
-export const getProfileName = (id, hash=true) => {
+export const getProfilePIdsFromSummIdList = (summIdList) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const profilePIdList = [];
+            for (const summId of summIdList) {
+                const profilePId = await getProfilePIdBySummonerId(summId);
+                profilePIdList.push(profilePId);
+            }
+            resolve(profilePIdList);
+        }
+        catch (err) { reject(err); }
+    });
+}
+
+/**
+ * Get ProfileName from DynamoDb
+ * @param {string} profileId    Profile PId or HId
+ * @param {boolean} hash        hash=true if id is HId, hash=false if id is PId. hash is 'true' by default
+ */
+export const getProfileName = (profileId, hash=true) => {
     return new Promise(function(resolve, reject) {
-        if (!id) { resolve(null); return; }
-        const profilePId = (hash) ? getProfilePIdFromHash(id) : id;
+        if (!profileId) { resolve(null); return; }
+        const profilePId = (hash) ? getProfilePIdFromHash(profileId) : profileId;
         const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId;
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
@@ -265,75 +320,132 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
     });
 }
 
-// Get Summoner Id from Summoner Name
-// Won't need to cache this. Just call directly from Riot API
-export const getSummonerIdBySummonerName = (summName) => {
+/**
+ * Returns Summoner Id from Summoner Name
+ * @param {string} summonerName
+ */
+export const getSummonerIdBySummonerName = (summonerName) => {
+    // Won't need to cache this. Just call directly from Riot API
     return new Promise(function(resolve, reject) {
-        getRiotSummonerId(summName).then((data) => {
+        getRiotSummonerId(summonerName).then((data) => {
             resolve(data['id']);
         }).catch((err) => { reject(err); })
     });
 }
 
-// Add new profiles and its summoner accounts. 
-// First Summoner listed will automatically be flagged as 'main'
+/**
+ * Return an array of summoner Ids in object 'data'. 
+ * Returns 'errorList' instead if API calls fail
+ * @param {array} summonerNameList 
+ */
+export const getSummonerIdsFromList = (summonerNameList) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const errorList = [];
+            const summonerIdList = [];
+            for (const summonerName of summonerNameList) {
+                try {
+                    const summId = await getSummonerIdBySummonerName(summonerName);
+                    if (!summId) {
+                        errorList.push(`${summonerName} - Summoner name does not exist.`);
+                    }
+                    else if (summonerIdList.includes(summId)) {
+                        errorList.push(`${summonerName} - Duplicate names.`);
+                    }
+                    else {
+                        summonerIdList.push(summId);
+                    }
+                }          
+                catch (err) { 
+                    errorList.push(`${summonerName} - Riot API call failed.`); 
+                };
+            }
+
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                resolve({ data: summonerIdList });
+            }
+        }
+        catch (err) { reject(err); }
+    });
+}
+
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
-//     "summonerName": "SUMM_NAME",
+//     "summonerNames": [
+//          "summName1",
+//          "summName2",
+//     ]
 // }
 // Add to "Profile", "ProfileNameMap", "SummonerIdMap" Table
-export const postNewProfile = (profileName, summId) => {
+/**
+ * Add new profiles and its summoner accounts. First Summoner listed will automatically be flagged as 'main'.
+ * @param {string} profileName 
+ * @param {array} summIdList
+ */
+export const postNewProfile = (profileName, summIdList) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Generate a new Profile ID
-            let newPId = await generateNewPId('Profile');
-            let newProfileItem = {
-                'Information': {
-                    'LeagueAccounts': {
-                        [summId]: {
-                            'MainAccount': true,
-                        }
-                    },
-                    'ProfileName': profileName,
+            const newPId = await generateNewPId('Profile');
+
+            // Create LeagueAccounts object
+            const newLeagueAccountsObject = {};
+            for (const [idx, summId] of summIdList.entries()) {
+                newLeagueAccountsObject[summId] = {
+                    MainAccount: (idx === 0) ? true : false,
+                }
+            }
+
+            const newProfileItem = {
+                Information: {
+                    LeagueAccounts: newLeagueAccountsObject,
+                    ProfileName: profileName,
                 },
-                'ProfileName': profileName,
-                'ProfilePId': newPId,
+                ProfileName: profileName,
+                ProfilePId: newPId,
             };
+
             // Add to 'Profile' Table
             await dynamoDbPutItem('Profile', newProfileItem, newPId);
             // Add to 'ProfileNameMap' Table
-            let simpleProfileName = filterName(newProfileItem['ProfileName']);
-            let newProfileMap = {
+            const simpleProfileName = filterName(newProfileItem['ProfileName']);
+            const newProfileMap = {
                 'ProfileName': simpleProfileName,
                 'ProfileHId': getProfileHashId(newPId),
             }
             await dynamoDbPutItem('ProfileNameMap', newProfileMap, simpleProfileName);
             // Add to 'SummonerIdMap' Table
-            let newSummonerMap = {
-                'SummonerId': summId,
-                'ProfileHId': getProfileHashId(newPId),
-            };
-            await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
+            for (const summId of summIdList) {
+                const newSummonerMap = {
+                    'SummonerId': summId,
+                    'ProfileHId': getProfileHashId(newPId),
+                };
+                await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
+            }
             
-            resolve({
-                'SummonerId': summId,
-                'ProfileName': newProfileItem['ProfileName'],
-                'ProfilePId': newPId,
-            });
+            resolve(newProfileItem);
         }
         catch (err) { console.error(err); reject(err); }
     });
 }
 
-// Add summoner account to profile. Summoner will not be flagged as 'main'
 // BODY EXAMPLE:
 // {
 //     "profileName": "NAME",
 //     "summonerName": "SUMM_NAME",
 // }
-// Update "Profile" Information
-export const updateProfileInfo = (profilePId, summId, item) => {
+/**
+ * Add summoner account to profile. Summoner will not be flagged as 'main'
+ * Update "Profile" Information
+ * @param {string} profilePId 
+ * @param {array} summIdList 
+ * @param {object} item 
+ */
+export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
     return new Promise(async (resolve, reject) => {
         try {
             await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
@@ -346,16 +458,21 @@ export const updateProfileInfo = (profilePId, summId, item) => {
                 }
             );
             // Add to 'SummonerIdMap' Table
-            let newSummonerMap = {
-                'SummonerId': summId,
-                'ProfileHId': getProfileHashId(profilePId),
-            };
-            await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
+            for (const summId of summIdList) {
+                const newSummonerMap = {
+                    'SummonerId': summId,
+                    'ProfileHId': getProfileHashId(profilePId),
+                };
+                await dynamoDbPutItem('SummonerIdMap', newSummonerMap, summId);
+            }
 
             // Cache set Key: PROFILE_INFO_PREFIX
             cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
-            resolve(item);
+            resolve({ 
+                profilePId: profilePId,
+                leagueAccounts: item.LeagueAccounts
+            });
         }
         catch (err) { console.error(err); reject(err); }
     });
@@ -403,6 +520,57 @@ export const updateProfileName = (profilePId, newName, oldName) => {
         }
         catch (err) { console.error(err); reject(err); }
     })
+}
+
+/**
+ * 
+ * @param {string} profilePId   Assume valid
+ * @param {string} summonerId   Assume not valid
+ */
+export const putProfileRemoveAccount = (profilePId, summonerId) => {
+    return new Promise((resolve, reject) => {
+        // Get from dynamoDb and remove from profile PId
+        dynamoDbGetItem('Profile', 'ProfilePId', profilePId).then(async (profileObject) => {
+            if (!(profileObject.Information?.LeagueAccounts)) {
+                resolve({ error: `Profile object does not have property 'LeagueAccounts'` });
+                return;
+            }
+            const leagueAccountsObject = profileObject.Information.LeagueAccounts;
+            
+            if (Object.keys(profileObject.Information.LeagueAccounts).length < 2) {
+                resolve({ error: `Profile only has one summoner account linked.` });
+                return;
+            }
+            if (leagueAccountsObject[summonerId]) {
+                delete leagueAccountsObject[summonerId];
+            }
+            else {
+                resolve({ error: `Summoner Id ${summonerId} is not in the Profile.` });
+                return;
+            }
+
+            // Remove from SummonerIdMap dynamodb
+            await dynamoDbDeleteItem('SummonerIdMap', 'SummonerId', summonerId);
+            // Update Profile Info dynamoDb
+            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                'SET #info = :val', 
+                {
+                    '#info': 'Information'
+                },
+                {
+                    ':val': profileObject.Information
+                }
+            );
+
+            // Delete Cache
+            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
+
+            resolve({
+                profilePId: profilePId,
+                leagueAccounts: leagueAccountsObject,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
+    });
 }
 
 // Returns an object indicating Profile GameLog has been updated

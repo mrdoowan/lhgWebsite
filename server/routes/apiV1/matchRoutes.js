@@ -18,6 +18,7 @@ import {
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
 import { AWS_RDS_STATUS } from '../../services/constants';
+import { getTournamentId } from '../../functions/apiV1/tournamentData';
 
 /*  
     ----------------------
@@ -87,13 +88,16 @@ matchV1Routes.put('/players/update', (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/id', (req, res) => {
-    const { riotMatchId, seasonId, tournamentId } = req.body;
+    const { riotMatchId, tournamentName } = req.body;
 
-    console.log(`POST Request Match '${riotMatchId}' New Setup`);
-    postMatchNewSetup(riotMatchId, seasonId, tournamentId).then((data) => {
-        if (data == null) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`); }
-        return res200sOK(res, req, data);
-    }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
+    console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
+    getTournamentId(tournamentName).then((tournamentId) => {
+        if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
+        postMatchNewSetup(riotMatchId, tournamentId).then((data) => {
+            if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Tournament Id Error."));
 });
 
 /**

@@ -57,6 +57,39 @@ export const getTeamPIdByName = (name) => {
 }
 
 /**
+ * 
+ * @param {array} teamNameList 
+ */
+export const getTeamPIdListFromNames = (teamNameList) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const errorList = [];
+            const teamPIdList = [];
+            for (const teamName of teamNameList) {
+                const teamPId = await getTeamPIdByName(teamName);
+                if (!teamPId) {
+                    errorList.push(`${teamName} - Team name does not exist.`);
+                }
+                else if (teamPIdList.includes(teamPId)) {
+                    errorList.push(`${teamName} - Duplicate names.`);
+                }
+                else {
+                    teamPIdList.push(teamPId);
+                }
+            }
+
+            if (errorList.length > 0) {
+                resolve({ errorList: errorList });
+            }
+            else {
+                resolve({ data: teamPIdList });
+            }
+        }
+        catch (err) { reject(err); }
+    });
+}
+
+/**
  * Get the TeamName of its hash ID from DynamoDb
  * @param {string} teamHId       Team's hash
  */
