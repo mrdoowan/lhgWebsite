@@ -79,11 +79,7 @@ schedule.scheduleJob(rule, function(){
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
-<<<<<<< HEAD
 console.log((process.env.TEST_DB === 'false' || process.env.NODE_ENV === 'production') ? 
     "Connected to DB Production endpoints!" : 
     "Connected to DB Test endpoints."
 );
-=======
-console.log(`Test DB: ${!!process.env.TEST_DB}`);
->>>>>>> fixed dpmDiff values. added matchSubmit API test endpoint
