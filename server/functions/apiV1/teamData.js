@@ -17,6 +17,7 @@ import {
     dynamoDbGetItem,
     dynamoDbUpdateItem,
     dynamoDbPutItem,
+    dynamoDbDeleteItem,
 } from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -342,13 +343,16 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     });
 }
 
-// Add new teams into the DB
 // BODY EXAMPLE:
 // {
 //     "teamName": "NAME",
 //     "shortName": "XXX",
 // }
-// Add new Team to "Team", "TeamNameMap"
+/**
+ * Add a new team into the DB. Add new Team to "Team", "TeamNameMap"
+ * @param {string} teamName 
+ * @param {string} shortName    i.e. "TSM"
+ */
 export const postNewTeam = (teamName, shortName) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -381,7 +385,51 @@ export const postNewTeam = (teamName, shortName) => {
     });
 }
 
-// Doing both "GameLog" and "StatsLog" for Team Item
+export const updateTeamName = (teamPId, newName, oldName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Update "Team" table
+            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                'SET #name = :new, #info.#name = :new',
+                {
+                    '#name': 'TeamName',
+                    '#info': 'Information',                    
+                },
+                {
+                    ':new': newName,
+                }
+            );
+            // Add newName to "TeamNameMap" table
+            await dynamoDbPutItem('TeamNameMap', {
+                'TeamName': filterName(newName),
+                'TeamHId': getTeamHashId(teamPId),
+            }, filterName(newName));
+            // Delete oldName from "TeamNameMap" table
+            await dynamoDbDeleteItem('TeamNameMap', 'TeamName', filterName(oldName));
+
+            // Del Cache
+            cache.del(CACHE_KEYS.TEAM_PID_PREFIX + filterName(oldName));
+            cache.del(CACHE_KEYS.TEAM_NAME_PREFIX + teamPId);
+            cache.del(CACHE_KEYS.TEAM_INFO_PREFIX + teamPId);
+
+            resolve({
+                'TeamPId': teamPId,
+                'NewProfileName': newName,
+                'OldProfileName': oldName,
+            });
+        }
+        catch (err) {
+            console.error(err);
+            reject(err);
+        }
+    });
+}
+
+/**
+ * Doing both "GameLog" and "Scouting" for Team Item
+ * @param {string} teamPId 
+ * @param {number} tournamentPId 
+ */
 export const updateTeamGameLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -626,7 +674,11 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
     });
 }
 
-// Update Stats Log
+/**
+ * Update the team's Stats Log
+ * @param {string} teamPId 
+ * @param {number} tournamentPId 
+ */
 export const updateTeamStatsLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
