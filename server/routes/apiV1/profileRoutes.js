@@ -260,7 +260,7 @@ profileV1Routes.put('/update/name', (req, res) => {
 
     // Check if currentName and newName exist
     getProfilePIdByName(currentName).then((profileId) => {
-        if (!profilePId) {
+        if (!profileId) {
             // Profile Name does not exist
             return res400sClientError(res, req, `Profile '${currentName}' does not exist.`);
         }
