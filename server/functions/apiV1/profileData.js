@@ -478,13 +478,17 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
     });
 }
 
-// Update a Profile Name.
 // BODY EXAMPLE:
 // {
 //     "currentName": "OLD_NAME",
 //     "newName": "NEW_NAME",
 // }
-// Change Profile name. Update "Profile", "ProfileNameMap" table
+/**
+ * Change Profile name. Update "Profile", "ProfileNameMap" table
+ * @param {string} profilePId 
+ * @param {string} newName 
+ * @param {string} oldName 
+ */
 export const updateProfileName = (profilePId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -510,7 +514,7 @@ export const updateProfileName = (profilePId, newName, oldName) => {
             // Del Cache
             cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + filterName(oldName));
             cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId);
-            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId)
+            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
             resolve({
                 'ProfilePId': profilePId,

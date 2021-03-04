@@ -256,22 +256,24 @@ profileV1Routes.put('/remove/account', (req, res) => {
  */
 profileV1Routes.put('/update/name', (req, res) => {
     const { currentName, newName } = req.body;
+    console.log(`PUT Request Profile '${currentName} - Changing Name to '${newName}'`);
+
     // Check if currentName and newName exist
     getProfilePIdByName(currentName).then((profileId) => {
-        if (profileId == null) {
+        if (!profilePId) {
             // Profile Name does not exist
             return res400sClientError(res, req, `Profile '${currentName}' does not exist.`);
         }
         getProfilePIdByName(newName).then((checkId) => {
-            if (checkId != null) {
+            if (checkId) {
                 // New name already exists in Db
                 return res400sClientError(res, req, `New profile name '${newName}' is already taken!`);
             }
             updateProfileName(profileId, newName, currentName).then((data) => {
                 return res200sOK(res, req, data);
-            }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 1."));
-        }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 2."));
-    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 3."))
+            }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Update Function Error."));
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId NewName Error."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId OldName Error."));
 })
 
 //#endregion

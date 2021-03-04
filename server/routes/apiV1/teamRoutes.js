@@ -13,6 +13,7 @@ import {
     getTeamGamesBySeason,
     getTeamStatsByTourney,
     postNewTeam,
+    updateTeamName,
 } from '../../functions/apiV1/teamData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -171,7 +172,34 @@ teamV1Routes.post('/add/new', (req, res) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "POST Team Add New Error 1"));
     }).catch((err) => error500sServerError(err, res, "POST Team Add New Error 2"));
-})
+});
+
+/**
+ * @route   POST api/team/v1/update/name
+ * @desc    Change Team Name
+ * @access  Private (to Admins)
+ */
+teamV1Routes.put('/update/name', (req, res) => {
+    const { currentName, newName } = req.body;
+    console.log(`PUT Request Team '${currentName} - Changing Name to '${newName}'`);
+
+    // Check if currentName and newName exist
+    getTeamPIdByName(currentName).then((teamPId) => {
+        if (!teamPId) {
+            // Team Name does not exist
+            return res400sClientError(res, req, `Team '${currentName}' does not exist.`);
+        }
+        getTeamPIdByName(newName).then((checkTeamPId) => {
+            if (checkTeamPId) {
+                // New name already exists in Db
+                return res400sClientError(res, req, `New Team name '${newName}' is already taken!`);
+            }
+            updateTeamName(teamPId, newName, currentName).then((data) => {
+                return res200sOK(res, req, data);
+            }).catch((err) => error500sServerError(err, res, "PUT Team Name Change - Update Function Error."));
+        }).catch((err) => error500sServerError(err, res, "PUT Team Name Change - Get Team PId NewName Error."));
+    }).catch((err) => error500sServerError(err, res, "PUT Team Name Change - Get Team PId OldName Error."));
+});
 
 //#endregion
 
