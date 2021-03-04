@@ -17,6 +17,7 @@ import {
     dynamoDbGetItem,
     dynamoDbUpdateItem,
     dynamoDbPutItem,
+    dynamoDbDeleteItem,
 } from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -385,7 +386,7 @@ export const postNewTeam = (teamName, shortName) => {
 }
 
 export const updateTeamName = (teamPId, newName, oldName) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             // Update "Team" table
             await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,

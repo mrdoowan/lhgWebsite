@@ -175,7 +175,7 @@ teamV1Routes.post('/add/new', (req, res) => {
 });
 
 /**
- * @route   POST api/team/v1/update/name
+ * @route   PUT api/team/v1/update/name
  * @desc    Change Team Name
  * @access  Private (to Admins)
  */
