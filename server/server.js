@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Check if the MySQL Db is "Available" every 24 hours. If so, stop the instance.
 const rule = new schedule.RecurrenceRule();
-rule.hour = 9;
+rule.hour = 3;
 rule.minute = 0;
 rule.tz = 'America/New_York';
 schedule.scheduleJob(rule, function(){
