@@ -421,7 +421,7 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
                 const profileHId = getProfileHashId(profilePId);
                 if (rosterPlayersObject && profileHId in rosterPlayersObject) {
                     // Duplicate found
-                    const profileName = getProfileName(profileHId);
+                    const profileName = await getProfileName(profileHId);
                     errorList.push(`${profileName} - Profile is already in the Team.`);
                 }
                 else {
