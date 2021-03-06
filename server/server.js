@@ -72,14 +72,13 @@ const checkRdsStatusFunction = () => {
         }
     });
 }
-
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 3;
 rule1.minute = 0;
 rule1.tz = 'America/New_York';
 const rule2 = new schedule.RecurrenceRule();
-rule2.hour = 7;
-rule2.minute = 27;
+rule2.hour = 13;
+rule2.minute = 0;
 rule2.tz = 'America/New_York';
 const rule3 = new schedule.RecurrenceRule();
 rule3.hour = 21;
