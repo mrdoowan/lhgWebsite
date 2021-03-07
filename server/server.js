@@ -48,12 +48,8 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Check if the MySQL Db is "Available" every 24 hours. If so, stop the instance.
-const rule = new schedule.RecurrenceRule();
-rule.hour = 3;
-rule.minute = 0;
-rule.tz = 'America/New_York';
-schedule.scheduleJob(rule, function(){
+// Check if the MySQL Db is "Available" at 3amEST, 1pmEST, 9pmEST. If so, stop the instance.
+const checkRdsStatusFunction = () => {
     checkRdsStatus(RDS_TYPE.PROD).then((status) => {
         console.log(`Current AWS RDS Production status: '${status}'`);
         if (status === AWS_RDS_STATUS.AVAILABLE) {
@@ -64,7 +60,6 @@ schedule.scheduleJob(rule, function(){
             });
         }
     });
-
     checkRdsStatus(RDS_TYPE.TEST).then((status) => {
         console.log(`Current AWS RDS Test status: '${status}'`);
         if (status === AWS_RDS_STATUS.AVAILABLE) {
@@ -75,7 +70,22 @@ schedule.scheduleJob(rule, function(){
             });
         }
     });
-});
+}
+const rule1 = new schedule.RecurrenceRule();
+rule1.hour = 3;
+rule1.minute = 0;
+rule1.tz = 'America/New_York';
+const rule2 = new schedule.RecurrenceRule();
+rule2.hour = 13;
+rule2.minute = 0;
+rule2.tz = 'America/New_York';
+const rule3 = new schedule.RecurrenceRule();
+rule3.hour = 21;
+rule3.minute = 0;
+rule3.tz = 'America/New_York';
+schedule.scheduleJob(rule1, checkRdsStatusFunction);
+schedule.scheduleJob(rule2, checkRdsStatusFunction);
+schedule.scheduleJob(rule3, checkRdsStatusFunction);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
