@@ -71,18 +71,19 @@ const checkRdsStatusFunction = () => {
         }
     });
 }
+const TZ_STRING = 'America/New_York';
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 3;
 rule1.minute = 0;
-rule1.tz = 'America/New_York';
+rule1.tz = TZ_STRING;
 const rule2 = new schedule.RecurrenceRule();
 rule2.hour = 13;
 rule2.minute = 0;
-rule2.tz = 'America/New_York';
+rule2.tz = TZ_STRING;
 const rule3 = new schedule.RecurrenceRule();
 rule3.hour = 21;
 rule3.minute = 0;
-rule3.tz = 'America/New_York';
+rule3.tz = TZ_STRING;
 schedule.scheduleJob(rule1, checkRdsStatusFunction);
 schedule.scheduleJob(rule2, checkRdsStatusFunction);
 schedule.scheduleJob(rule3, checkRdsStatusFunction);
