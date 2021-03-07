@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Check if the MySQL Db is "Available" at 3amEST, 1pmEST, 9pmEST, . If so, stop the instance.
+// Check if the MySQL Db is "Available" at 3amEST, 1pmEST, 9pmEST. If so, stop the instance.
 const checkRdsStatusFunction = () => {
     checkRdsStatus(RDS_TYPE.PROD).then((status) => {
         console.log(`Current AWS RDS Production status: '${status}'`);
@@ -60,7 +60,6 @@ const checkRdsStatusFunction = () => {
             });
         }
     });
-
     checkRdsStatus(RDS_TYPE.TEST).then((status) => {
         console.log(`Current AWS RDS Test status: '${status}'`);
         if (status === AWS_RDS_STATUS.AVAILABLE) {
