@@ -1,8 +1,9 @@
 import { getProfileInfo, getProfilePIdByName } from '../../functions/apiV1/profileData';
 import { error500sServerError, res400sClientError, res403ClientError } from './dependencies/handlers';
 
-const jwt = require('jsonwebtoken');
 const authV1Routes = require('express').Router();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 /*  
     ----------------------
@@ -13,7 +14,7 @@ const authV1Routes = require('express').Router();
 //#region POST Requests - User Auth
 
 /**
- * @route   GET api/login/v1
+ * @route   GET api/auth/v1
  * @desc    Login for Staff/Mods only
  * @access  Public
  */
@@ -24,12 +25,12 @@ authV1Routes.post('/login', (req, res) => {
         if (!profilePId) { return res400sClientError(res, req, `Username '${username}' doesn't exist.`); }
         getProfileInfo(profilePId).then((userObject) => {
             if (!userObject) { return res400sClientError(res, req, `Username '${username}' does not have an Info object.`); }
-            bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS), (err, hash) => {
-                if (err) { throw(err); }
-                if (!userObject.Admin) {
-                    return res403ClientError(res, `Username '${username}' is not an Admin.`);
-                }
-                if (hash !== userObject.Password) {
+            if (!userObject.Admin) {
+                return res403ClientError(res, `Username '${username}' is not an Admin.`);
+            }
+
+            bcrypt.compare(password, userObject.Password).then(function(result) {
+                if (!result) {
                     return res400sClientError(res, req, `Username '${username}' entered the wrong password.`);
                 }
 
@@ -46,7 +47,7 @@ authV1Routes.post('/login', (req, res) => {
 });
 
 /**
- * @route   GET api/login/v1
+ * @route   GET api/auth/v1
  * @desc    Login for Staff/Mods only
  * @access  Private - Only Staff/Mods who have authenticated
  */

@@ -29,8 +29,7 @@ export const putNewStaff = (staff) => {
     return new Promise((resolve, reject) => {
         getProfilePIdByName(staff.profile).then((pPId) => {
             if (pPId == null) { resolve(null); return; } // Not Found
-            bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
-                if (err) { console.error(err); reject(err); return; }
+            bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS)).then(function(hash) {
                 getProfileInfo(pPId).then((profileInfo) => {
                     profileInfo['Password'] = hash;
                     profileInfo['Admin'] = staff.admin;
