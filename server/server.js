@@ -22,10 +22,12 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 const schedule = require('node-schedule');
+const cookieParser = require('cookie-parser');
 
 // Configure express
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
 
 // Use Routes

@@ -40,6 +40,9 @@ authV1Routes.post('/login', (req, res) => {
                     role: 'Admin'
                 }, process.env.ACCESS_TOKEN_SECRET);
 
+                // Add cookie
+                res.cookie('token', accessToken, { httpOnly: true });
+
                 res.json({ accessToken });
             }).catch((err) => { return error500sServerError(err, res, `POST Login Error - Bcrypt Hash`); });
         }).catch((err) => { return error500sServerError(err, res, `POST Login Error - Get Profile Info`); });
