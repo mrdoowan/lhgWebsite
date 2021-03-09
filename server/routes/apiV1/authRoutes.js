@@ -7,7 +7,7 @@ import {
 } from './dependencies/handlers';
 
 const authV1Routes = require('express').Router();
-const jwt = require('jsonwebtoken');
+const jsonwebtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 /*  
@@ -26,6 +26,11 @@ const bcrypt = require('bcrypt');
 authV1Routes.post('/login', (req, res) => {
     const { username, password } = req.body;
 
+    console.log(`POST Request - Logging in ${username}.`);
+    if (req.cookies.token) {
+        return res400sClientError(res, req, `Already logged in`);
+    }
+
     getProfilePIdByName(username).then((profilePId) => {
         if (!profilePId) { return res400sClientError(res, req, `Username '${username}' doesn't exist.`); }
         getProfileInfo(profilePId).then((userObject) => {
@@ -40,7 +45,7 @@ authV1Routes.post('/login', (req, res) => {
                 }
 
                 // Username and password correct. Generate access token
-                const accessToken = jwt.sign({
+                const accessToken = jsonwebtoken.sign({
                     username: username,
                     role: 'Admin'
                 }, process.env.ACCESS_TOKEN_SECRET);
@@ -60,6 +65,8 @@ authV1Routes.post('/login', (req, res) => {
  * @access  Private - Only Staff/Mods who have authenticated
  */
 authV1Routes.post('/logout', (req, res) => {
+    console.log(`POST Request - Logging in ${username}.`);
+
     try {
         if (req.cookies.token) {
             const token = req.cookies.token;
