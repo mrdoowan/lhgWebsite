@@ -67,7 +67,7 @@ authV1Routes.post('/login', (req, res) => {
 authV1Routes.post('/logout', (req, res) => {
     try {
         console.log(`POST Request - Logging Out.`);
-        if (req.cookies.token) {
+        if (req.cookies.league_token) {
             const token = req.cookies.league_token;
             res.clearCookie('league_token');
 
