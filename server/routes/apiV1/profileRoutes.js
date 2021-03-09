@@ -21,6 +21,7 @@ import {
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -254,7 +255,7 @@ profileV1Routes.put('/remove/account', (req, res) => {
  * @desc    Change profile Name
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/update/name', (req, res) => {
+profileV1Routes.put('/update/name', authenticateJWT,  (req, res) => {
     const { currentName, newName } = req.body;
     console.log(`PUT Request Profile '${currentName} - Changing Name to '${newName}'`);
 

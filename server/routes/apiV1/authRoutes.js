@@ -1,5 +1,5 @@
 import { getProfileInfo, getProfilePIdByName } from '../../functions/apiV1/profileData';
-import { error500sServerError, res400sClientError, res403ClientError } from './dependencies/handlers';
+import { error500sServerError, res200sOK, res400sClientError, res403ClientError } from './dependencies/handlers';
 
 const authV1Routes = require('express').Router();
 const jwt = require('jsonwebtoken');
@@ -43,7 +43,7 @@ authV1Routes.post('/login', (req, res) => {
                 // Add cookie
                 res.cookie('token', accessToken, { httpOnly: true });
 
-                res.json({ accessToken });
+                return res200sOK(res, req, { accessToken });
             }).catch((err) => { return error500sServerError(err, res, `POST Login Error - Bcrypt Hash`); });
         }).catch((err) => { return error500sServerError(err, res, `POST Login Error - Get Profile Info`); });
     }).catch((err) => { return error500sServerError(err, res, `POST Login Error - Get Profile PId`); });
@@ -55,7 +55,23 @@ authV1Routes.post('/login', (req, res) => {
  * @access  Private - Only Staff/Mods who have authenticated
  */
 authV1Routes.post('/logout', (req, res) => {
+    try {
+        if (req.cookies.token) {
+            const token = req.cookies.token;
+            res.clearCookie('token');
 
+            return res200sOK(res, req, {
+                response: `Logout successful.`,
+                token: token
+            });
+        }
+        else {
+            return res400sClientError(res, req, `No cookie token available to logout.`);
+        }
+    }
+    catch (err) {
+        return error500sServerError(err, res, `POST Logout Error`);
+    }
 });
 
 //#endregion
