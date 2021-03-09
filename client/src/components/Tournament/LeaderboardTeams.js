@@ -91,9 +91,9 @@ function recordString(type, item) {
     let tsSeconds = Math.floor(item.Timestamp / 1000);
     switch (type) {
         case 'TeamTopBaronPowerPlay':
-            return '+' + item.BaronPowerPlay.toLocaleString() + ' Power Play - Taken at ' + getTimeString(tsSeconds);
+            return (<React.Fragment><b>+{item.BaronPowerPlay.toLocaleString()} Power Play</b> - Taken at {getTimeString(tsSeconds)}</React.Fragment>);
         case 'TeamEarliestTower':
-            return item.Lane + ' ' + item.TowerType + ' Tower - Taken at ' + getTimeString(tsSeconds);
+            return (<React.Fragment><b>Taken at {getTimeString(tsSeconds)}</b> - {item.Lane} {item.TowerType} Tower</React.Fragment>);
         default:
             return '';
     }
