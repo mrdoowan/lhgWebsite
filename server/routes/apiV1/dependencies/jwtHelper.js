@@ -10,7 +10,7 @@ export const authenticateJWT = (req, res, next) => {
         const token = req.cookies.token;
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
             if (err) {
-                return res403ClientError(res, `Invalid credentials to process.`);
+                return res403ClientError(res, `Invalid credentials to proceed.`);
             }
             req.user = user;
             next();

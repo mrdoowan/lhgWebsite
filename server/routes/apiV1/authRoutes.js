@@ -1,5 +1,10 @@
 import { getProfileInfo, getProfilePIdByName } from '../../functions/apiV1/profileData';
-import { error500sServerError, res200sOK, res400sClientError, res403ClientError } from './dependencies/handlers';
+import { 
+    error500sServerError,
+    res200sOK,
+    res400sClientError,
+    res403ClientError
+} from './dependencies/handlers';
 
 const authV1Routes = require('express').Router();
 const jwt = require('jsonwebtoken');

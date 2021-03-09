@@ -133,7 +133,7 @@ profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
  * @desc    Add new Profile with a list of summoners. Main account is the first index
  * @access  Private (to Admins)
  */
-profileV1Routes.post('/add/new', (req, res) => {
+profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
     const { profileName, summonerNameList } = req.body;
     console.log(`POST Request Profile '${profileName}' - Add New Profile`);
 
@@ -180,7 +180,7 @@ profileV1Routes.post('/add/new', (req, res) => {
  * @desc    Add Summoner accounts to the Profile
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/add/account', (req, res) => {
+profileV1Routes.put('/add/account', authenticateJWT, (req, res) => {
     const { profileName, summonerNameList } = req.body;
     console.log(`PUT Request Profile '${profileName}' - Add Summoners`);
 
@@ -237,7 +237,7 @@ profileV1Routes.put('/add/account', (req, res) => {
  * @desc    Remove a Summoner account from the profile
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/remove/account', (req, res) => {
+profileV1Routes.put('/remove/account', authenticateJWT, (req, res) => {
     const { profileName, summonerId } = req.body;
     console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summonerId}`);
 
@@ -255,7 +255,7 @@ profileV1Routes.put('/remove/account', (req, res) => {
  * @desc    Change profile Name
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/update/name', authenticateJWT,  (req, res) => {
+profileV1Routes.put('/update/name', authenticateJWT, (req, res) => {
     const { currentName, newName } = req.body;
     console.log(`PUT Request Profile '${currentName} - Changing Name to '${newName}'`);
 
