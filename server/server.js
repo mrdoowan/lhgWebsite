@@ -19,15 +19,14 @@ import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 const schedule = require('node-schedule');
 const cookieParser = require('cookie-parser');
 
 // Configure express
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
 app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
