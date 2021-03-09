@@ -65,9 +65,8 @@ authV1Routes.post('/login', (req, res) => {
  * @access  Private - Only Staff/Mods who have authenticated
  */
 authV1Routes.post('/logout', (req, res) => {
-    console.log(`POST Request - Logging in ${username}.`);
-
     try {
+        console.log(`POST Request - Logging Out.`);
         if (req.cookies.token) {
             const token = req.cookies.league_token;
             res.clearCookie('league_token');
