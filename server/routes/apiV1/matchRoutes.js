@@ -165,7 +165,7 @@ matchV1Routes.put('/setup/submit', authenticateJWT, (req, res) => {
  * @desc    Remove a match from Records
  * @access  Private (to Admins)
  */
-matchV1Routes.delete('/remove/:matchId', (req, res) => {
+matchV1Routes.delete('/remove/:matchId', authenticateJWT, (req, res) => {
     const { matchId } = req.params;
 
     console.log(`DELETE Request Match '${matchId}'.`);

@@ -51,7 +51,7 @@ authV1Routes.post('/login', (req, res) => {
                 }, process.env.ACCESS_TOKEN_SECRET);
 
                 // Add cookie
-                res.cookie('token', accessToken, { httpOnly: true });
+                res.cookie('league_token', accessToken, { httpOnly: true });
 
                 return res200sOK(res, req, { accessToken });
             }).catch((err) => { return error500sServerError(err, res, `POST Login Error - Bcrypt Hash`); });
@@ -69,8 +69,8 @@ authV1Routes.post('/logout', (req, res) => {
 
     try {
         if (req.cookies.token) {
-            const token = req.cookies.token;
-            res.clearCookie('token');
+            const token = req.cookies.league_token;
+            res.clearCookie('league_token');
 
             return res200sOK(res, req, {
                 response: `Logout successful.`,
