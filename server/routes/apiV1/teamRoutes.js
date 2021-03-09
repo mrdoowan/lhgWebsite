@@ -17,6 +17,7 @@ import {
 } from '../../functions/apiV1/teamData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -159,7 +160,7 @@ teamV1Routes.get('/stats/latest/name/:teamName', (req, res) => {
  * @desc    Add new Team Name
  * @access  Private (to Admins)
  */
-teamV1Routes.post('/add/new', (req, res) => {
+teamV1Routes.post('/add/new', authenticateJWT, (req, res) => {
     const { teamName, shortName } = req.body;
     // Check if Team Name already exists
     getTeamPIdByName(teamName).then((tPId) => {
@@ -179,7 +180,7 @@ teamV1Routes.post('/add/new', (req, res) => {
  * @desc    Change Team Name
  * @access  Private (to Admins)
  */
-teamV1Routes.put('/update/name', (req, res) => {
+teamV1Routes.put('/update/name', authenticateJWT, (req, res) => {
     const { currentName, newName } = req.body;
     console.log(`PUT Request Team '${currentName} - Changing Name to '${newName}'`);
 

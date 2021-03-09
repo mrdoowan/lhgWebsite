@@ -19,6 +19,7 @@ import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit'
 import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
 import { AWS_RDS_STATUS } from '../../services/constants';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -67,7 +68,7 @@ matchV1Routes.get('/setup/data/:matchId', (req, res) => {
  * @desc    Fix Player assignment to champions
  * @access  Private (to Admins)
  */
-matchV1Routes.put('/players/update', (req, res) => {
+matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
     const { playersToFix, matchId } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Players`);
@@ -87,7 +88,7 @@ matchV1Routes.put('/players/update', (req, res) => {
  * @desc    Create Match "Setup" Item by the ID of a previous played Match
  * @access  Private (to Admins)
  */
-matchV1Routes.post('/setup/new/id', (req, res) => {
+matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
     const { riotMatchId, tournamentName } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
@@ -125,7 +126,7 @@ matchV1Routes.get('/setup/list', (req, res) => {
  * @desc    Saves text fields from /matchup/setup page into 'Setup' object
  * @access  Private (to Admins)
  */
-matchV1Routes.put('/setup/save', (req, res) => {
+matchV1Routes.put('/setup/save', authenticateJWT, (req, res) => {
     const { matchId, teams } = req.body;
     
     console.log(`PUT Request Match '${matchId}' Save Setup`);
@@ -140,7 +141,7 @@ matchV1Routes.put('/setup/save', (req, res) => {
  * @desc    Saves the text fields and submits the Match Data into MySQL and DynamoDb
  * @access  Private (to Admins)
  */
-matchV1Routes.put('/setup/submit', (req, res) => {
+matchV1Routes.put('/setup/submit', authenticateJWT, (req, res) => {
     const { matchId, teams } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Setup Submit.`);
@@ -164,7 +165,7 @@ matchV1Routes.put('/setup/submit', (req, res) => {
  * @desc    Remove a match from Records
  * @access  Private (to Admins)
  */
-matchV1Routes.delete('/remove/:matchId', (req, res) => {
+matchV1Routes.delete('/remove/:matchId', authenticateJWT, (req, res) => {
     const { matchId } = req.params;
 
     console.log(`DELETE Request Match '${matchId}'.`);

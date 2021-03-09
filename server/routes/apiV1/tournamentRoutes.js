@@ -29,6 +29,7 @@ import {
 } from '../../functions/apiV1/teamData';
 import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
 import { AWS_RDS_STATUS } from '../../services/constants';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -188,7 +189,7 @@ tournamentV1Routes.get('/teams/ids/name/:tournamentShortName', (req, res) => {
  * @desc    Update Tournament overall stats
  * @access  Private (Admins only)
  */
-tournamentV1Routes.put('/update/overall', (req, res) => {
+tournamentV1Routes.put('/update/overall', authenticateJWT, (req, res) => {
     const { tournamentShortName } = req.body;
 
     console.log(`PUT Request Tournament ${tournamentShortName} Overall Stats.`);
@@ -215,7 +216,7 @@ tournamentV1Routes.put('/update/overall', (req, res) => {
  * @desc    Update a Player's stat for the Tournament
  * @access  Private (Admins only)
  */
-tournamentV1Routes.put('/update/player', (req, res) => {
+tournamentV1Routes.put('/update/player', authenticateJWT, (req, res) => {
     const { tournamentShortName, playerPId } = req.body;
 
     console.log(`PUT Request Tournament ${tournamentShortName} Player Stats of ID '${playerPId}'`);
@@ -244,7 +245,7 @@ tournamentV1Routes.put('/update/player', (req, res) => {
  * @desc    Update a Team's stat for the Tournament
  * @access  Private (Admins only)
  */
-tournamentV1Routes.put('/update/team', (req, res) => {
+tournamentV1Routes.put('/update/team', authenticateJWT, (req, res) => {
     const { tournamentShortName, teamPId } = req.body;
 
     console.log(`PUT Request Tournament ${tournamentShortName} Team Stats of ID '${teamPId}'`);

@@ -21,6 +21,7 @@ import {
     getTeamPIdListFromNames
 } from '../../functions/apiV1/teamData';
 import { getProfilePIdByName, getProfilePIdsFromList } from '../../functions/apiV1/profileData';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -126,7 +127,7 @@ seasonV1Routes.get('/playoffs/name/:seasonShortName', (req, res) => {
  * @desc    Adds a Team into the Season's roster
  * @access  Private
  */
-seasonV1Routes.put('/roster/team/add', (req, res) => {
+seasonV1Routes.put('/roster/team/add', authenticateJWT, (req, res) => {
     const { teamNameList, seasonShortName } = req.body;
 
     console.log(`PUT Request Adding Teams in Season '${seasonShortName}'.`);
@@ -154,7 +155,7 @@ seasonV1Routes.put('/roster/team/add', (req, res) => {
  * @desc    Adds a Profile into a specified Team in the Season
  * @access  Private
  */
-seasonV1Routes.put('/roster/profile/add', (req, res) => {
+seasonV1Routes.put('/roster/profile/add', authenticateJWT, (req, res) => {
     const { profileNameList, teamName, seasonShortName } = req.body;
 
     console.log(`PUT Request Adding Profiles to Team '${teamName}' in Season '${seasonShortName}'.`);
