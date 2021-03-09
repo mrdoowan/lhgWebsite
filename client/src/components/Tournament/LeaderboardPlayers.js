@@ -116,15 +116,15 @@ export default function LeaderboardPlayers({ playerRecords }) {
 function recordString(type, item) {
     switch (type) {
         case 'PlayerMostDamage':
-            return item.DamagePerMin.toFixed(2).toLocaleString() + ' DPM - ' + item.DamageDealt + ' in ' + getTimeString(item.GameDuration);
+            return (<React.Fragment><b>{item.DamagePerMin.toFixed(2).toLocaleString()} DPM</b> - {item.DamageDealt.toLocaleString()} in {getTimeString(item.GameDuration)}</React.Fragment>);
         case 'PlayerMostFarm':
-            return item.CsPerMin.toFixed(2) + ' CSPM - ' + item.CreepScore + ' in ' + getTimeString(item.GameDuration);
+            return (<React.Fragment><b>{item.CsPerMin.toFixed(2)} CSPM</b> - {item.CreepScore} in {getTimeString(item.GameDuration)}</React.Fragment>);
         case 'PlayerMostGoldDiffEarly':
-            return '+' + item.GDiffEarly.toLocaleString() + ' GD@15 - ' + item.GAtEarly + ' Gold';
+            return (<React.Fragment><b>+{item.GDiffEarly.toLocaleString()} GD@15</b> - {item.GAtEarly.toLocaleString()} Gold</React.Fragment>);
         case 'PlayerMostXpDiffEarly':
-            return '+' + item.XpDiffEarly.toLocaleString() + ' XPD@15 - ' + item.XpAtEarly + ' XP';
+            return (<React.Fragment><b>+{item.XpDiffEarly.toLocaleString()} XPD@15</b> - {item.XpAtEarly.toLocaleString()} XP</React.Fragment>);
         case 'PlayerMostVision':
-            return item.VsPerMin.toFixed(2) + ' VSPM - ' + item.VisionScore + ' in ' + getTimeString(item.GameDuration);
+            return (<React.Fragment><b>{item.VsPerMin.toFixed(2)} VSPM</b> - {item.VisionScore} in {getTimeString(item.GameDuration)}</React.Fragment>);
         default:
             return '';
     }
