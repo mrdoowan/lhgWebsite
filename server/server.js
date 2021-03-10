@@ -12,8 +12,9 @@ import profileV1Routes from './routes/apiV1/profileRoutes.js';
 import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
-import { AWS_RDS_STATUS, RDS_TYPE } from './services/constants';
+import { AWS_RDS_STATUS, DYNAMODB_TABLENAMES, RDS_TYPE } from './services/constants';
 import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
+import { dynamoDbCreateBackup } from './functions/apiV1/dependencies/dynamoDbHelper';
 
 /*  Declaring npm modules */
 const express = require('express');
@@ -74,6 +75,14 @@ const checkRdsStatusFunction = () => {
         }
     });
 }
+// Create DynamoDb backups once per week
+const createDynamoDbBackups = () => {
+    Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
+        dynamoDbCreateBackup(tableName).then(() => {}).catch((err) => {
+            console.error(err, err.stack);
+        });
+    });
+}
 const TZ_STRING = 'America/New_York';
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 3;
@@ -90,6 +99,11 @@ rule3.tz = TZ_STRING;
 schedule.scheduleJob(rule1, checkRdsStatusFunction);
 schedule.scheduleJob(rule2, checkRdsStatusFunction);
 schedule.scheduleJob(rule3, checkRdsStatusFunction);
+const rule4 = new schedule.RecurrenceRule();
+rule4.dayOfWeek = 0;
+rule4.hour = 0;
+rule4.minute = 0;
+schedule.scheduleJob(rule4, createDynamoDbBackups);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
