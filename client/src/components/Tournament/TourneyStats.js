@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
         float: "right",
         width: "50%",
         textAlign: 'center',
+        fontWeight: 'bold',
     },
     row: {
         padding: theme.spacing(1),
