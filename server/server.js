@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Check if the MySQL Db is "Available" at 3amEST, 1pmEST, 9pmEST. If so, stop the instance.
+// Check if the MySQL Db is "Available". If so, stop the instance.
 const checkRdsStatusFunction = () => {
     checkRdsStatus(RDS_TYPE.PROD).then((status) => {
         console.log(`Current AWS RDS Production status: '${status}'`);
@@ -83,6 +83,7 @@ const createDynamoDbBackups = () => {
         });
     });
 }
+// Check Rds availability daily at 3amEST, 1pmEST, 9pmEST
 const TZ_STRING = 'America/New_York';
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 3;
@@ -99,10 +100,11 @@ rule3.tz = TZ_STRING;
 schedule.scheduleJob(rule1, checkRdsStatusFunction);
 schedule.scheduleJob(rule2, checkRdsStatusFunction);
 schedule.scheduleJob(rule3, checkRdsStatusFunction);
+// Create DynamoDb Backups: Once every week on Sunday
 const rule4 = new schedule.RecurrenceRule();
 rule4.dayOfWeek = 0;
 rule4.hour = 0;
-rule4.minute = 0;
+rule4.minute = 1;
 schedule.scheduleJob(rule4, createDynamoDbBackups);
 
 const port = process.env.PORT || 5000;
