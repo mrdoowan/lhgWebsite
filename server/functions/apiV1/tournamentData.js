@@ -226,74 +226,85 @@ export const getTournamentPlayerStats = (tournamentPId) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                const profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
-                if (profileHIdList != null) {
-                    let profileStatsList = [];
-                    for (let i = 0; i < profileHIdList.length; ++i) {
-                        const profilePId = getProfilePIdFromHash(profileHIdList[i]);
+            else if (data) { resolve(JSON.parse(data)); return; }
+            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId).then((tournamentObject) => {
+                const profileHIdList = tournamentObject.ProfileHIdList;
+                if (profileHIdList) {
+                    Promise.all(profileHIdList.map(async (profileHId) => {
+                        const profilePId = getProfilePIdFromHash(profileHId);
                         const profileStatsLog = await getProfileStatsByTourney(profilePId, tournamentPId);
-                        if (profileStatsLog != null) {
-                            for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
-                                const role = Object.keys(profileStatsLog['RoleStats'])[j];
-                                const statsObj = profileStatsLog['RoleStats'][role];
-                                profileStatsList.push({
-                                    'ProfileName': await getProfileName(profileHIdList[i]),
-                                    'Role': role,
-                                    'GamesPlayed': statsObj.GamesPlayed,
-                                    'GamesWin': statsObj.GamesWin,
-                                    'Kda': statsObj.Kda,
-                                    'TotalKills': statsObj.TotalKills,
-                                    'TotalDeaths': statsObj.TotalDeaths,
-                                    'TotalAssists': statsObj.TotalAssists,
-                                    'AverageKills': statsObj.AverageKills,
-                                    'AverageDeaths': statsObj.AverageDeaths,
-                                    'AverageAssists': statsObj.AverageAssists,
-                                    'KillPct': statsObj.KillPct,
-                                    'DeathPct': statsObj.DeathPct,
-                                    'GoldPct': statsObj.GoldPct,
-                                    'FirstBloodPct': statsObj.FirstBloodPct,
-                                    'DamagePct': statsObj.DamagePct,
-                                    'VisionScorePct': statsObj.VisionScorePct,
-                                    'CreepScorePerMinute': statsObj.CreepScorePerMinute,
-                                    'GoldPerMinute': statsObj.GoldPerMinute,
-                                    'DamagePerMinute': statsObj.DamagePerMinute,
-                                    'DamagePerMinuteStdDev': statsObj.DamagePerMinuteStdDev,
-                                    'DamagePerGold': statsObj.DamagePerGold,
-                                    'VisionScorePerMinute': statsObj.VisionScorePerMinute,
-                                    'WardsPerMinute': statsObj.WardsPerMinute,
-                                    'WardsClearedPerMinute': statsObj.WardsClearedPerMinute,
-                                    'ControlWardsPerMinute': statsObj.ControlWardsPerMinute,
-                                    'AverageCsAtEarly': statsObj.AverageCsAtEarly,
-                                    'AverageGoldAtEarly': statsObj.AverageGoldAtEarly,
-                                    'AverageXpAtEarly': statsObj.AverageXpAtEarly,
-                                    'AverageCsDiffEarly': statsObj.AverageCsDiffEarly,
-                                    'AverageGoldDiffEarly': statsObj.AverageGoldDiffEarly,
-                                    'AverageXpDiffEarly': statsObj.AverageXpDiffEarly,
-                                    'AverageCsAtMid': statsObj.AverageCsAtMid,
-                                    'AverageGoldAtMid': statsObj.AverageGoldAtMid,
-                                    'AverageXpAtMid': statsObj.AverageXpAtMid,
-                                    'AverageCsDiffMid': statsObj.AverageCsDiffMid,
-                                    'AverageGoldDiffMid': statsObj.AverageGoldDiffMid,
-                                    'AverageXpDiffMid': statsObj.AverageXpDiffMid,
-                                    'TotalDoubleKills': statsObj.TotalDoubleKills,
-                                    'TotalTripleKills': statsObj.TotalTripleKills,
-                                    'TotalQuadraKills': statsObj.TotalQuadraKills,
-                                    'TotalPentaKills': statsObj.TotalPentaKills,
-                                    'TotalSoloKills': statsObj.TotalSoloKills,
+                        if (profileStatsLog) {
+                            Promise.all(Object.keys(profileStatsLog.RoleStats).map(async (role) => {
+                                return new Promise(async (resolveObject) => {
+                                    const statsObject = profileStatsLog.RoleStats[role];
+                                    resolveObject({
+                                        'ProfileName': await getProfileName(profileHId),
+                                        'Role': role,
+                                        'GamesPlayed': statsObject.GamesPlayed,
+                                        'GamesWin': statsObject.GamesWin,
+                                        'Kda': statsObject.Kda,
+                                        'TotalKills': statsObject.TotalKills,
+                                        'TotalDeaths': statsObject.TotalDeaths,
+                                        'TotalAssists': statsObject.TotalAssists,
+                                        'AverageKills': statsObject.AverageKills,
+                                        'AverageDeaths': statsObject.AverageDeaths,
+                                        'AverageAssists': statsObject.AverageAssists,
+                                        'KillPct': statsObject.KillPct,
+                                        'DeathPct': statsObject.DeathPct,
+                                        'GoldPct': statsObject.GoldPct,
+                                        'FirstBloodPct': statsObject.FirstBloodPct,
+                                        'DamagePct': statsObject.DamagePct,
+                                        'VisionScorePct': statsObject.VisionScorePct,
+                                        'CreepScorePerMinute': statsObject.CreepScorePerMinute,
+                                        'GoldPerMinute': statsObject.GoldPerMinute,
+                                        'DamagePerMinute': statsObject.DamagePerMinute,
+                                        'DamagePerMinuteStdDev': statsObject.DamagePerMinuteStdDev,
+                                        'DamagePerGold': statsObject.DamagePerGold,
+                                        'VisionScorePerMinute': statsObject.VisionScorePerMinute,
+                                        'WardsPerMinute': statsObject.WardsPerMinute,
+                                        'WardsClearedPerMinute': statsObject.WardsClearedPerMinute,
+                                        'ControlWardsPerMinute': statsObject.ControlWardsPerMinute,
+                                        'AverageCsAtEarly': statsObject.AverageCsAtEarly,
+                                        'AverageGoldAtEarly': statsObject.AverageGoldAtEarly,
+                                        'AverageXpAtEarly': statsObject.AverageXpAtEarly,
+                                        'AverageCsDiffEarly': statsObject.AverageCsDiffEarly,
+                                        'AverageGoldDiffEarly': statsObject.AverageGoldDiffEarly,
+                                        'AverageXpDiffEarly': statsObject.AverageXpDiffEarly,
+                                        'AverageCsAtMid': statsObject.AverageCsAtMid,
+                                        'AverageGoldAtMid': statsObject.AverageGoldAtMid,
+                                        'AverageXpAtMid': statsObject.AverageXpAtMid,
+                                        'AverageCsDiffMid': statsObject.AverageCsDiffMid,
+                                        'AverageGoldDiffMid': statsObject.AverageGoldDiffMid,
+                                        'AverageXpDiffMid': statsObject.AverageXpDiffMid,
+                                        'TotalDoubleKills': statsObject.TotalDoubleKills,
+                                        'TotalTripleKills': statsObject.TotalTripleKills,
+                                        'TotalQuadraKills': statsObject.TotalQuadraKills,
+                                        'TotalPentaKills': statsObject.TotalPentaKills,
+                                        'TotalSoloKills': statsObject.TotalSoloKills,
+                                    });
                                 });
-                            }
+                            })).then((profileStatsLogArray) => {
+                                if (profileStatsLogArray[0].ProfileName === 'Isner') {
+                                    console.log(profileStatsLogArray);
+                                }
+                                return Promise.all(profileStatsLogArray);
+                            });
                         }
-                    }
-                    let profileObject = {};
-                    profileObject['PlayerList'] = profileStatsList;
-                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                    resolve(profileObject);
+                    })).then((values) => {
+                        resolve(values);
+                    });
+                    // const profileObject = {};
+                    // profileObject['PlayerList'] = profileStatsList;
+                    // cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                    // resolve(profileObject);
                 }
                 else {
                     resolve({});    // If 'ProfileHIdList' does not exist
                 }
+            })
+            try {
+                const profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
+                
             }
             catch (ex) { console.error(ex); reject(ex); }
         });
