@@ -36,3 +36,15 @@ export const RDS_TYPE = {
     PROD: 'Production',
     TEST: 'Test',
 }
+
+export const DYNAMODB_TABLENAMES = {
+    MATCHES: 'Matches',
+    MISCELLANEOUS: 'Miscellaneous',
+    PROFILE: 'Profile',
+    PROFILENAMEMAP: 'ProfileNameMap',
+    SEASON: 'Season',
+    SUMMONERIDMAP: 'SummonerIdMap',
+    TEAM: 'Team',
+    TEAMNAMEMAP: 'TeamNameMap',
+    TOURNAMENT: 'Tournament',
+}
