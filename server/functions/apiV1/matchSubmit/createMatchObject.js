@@ -26,16 +26,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             // ----- 1) Add onto matchObj of profileHId
             const profileObjByChampId = {}
             const bluePlayerArr = matchTeamsSetupObject['BlueTeam']['Players']; // Array
-            for (let i = 0; i < bluePlayerArr.length; i++) {
-                const playerSetupObject = bluePlayerArr[i];
+            for (const playerSetupObject of bluePlayerArr) {
                 profileObjByChampId[playerSetupObject['ChampId']] = {
                     'PId': playerSetupObject.ProfilePId,
                     'Role': playerSetupObject.Role,
                 };
             }
             const redPlayerArr = matchTeamsSetupObject['RedTeam']['Players']; // Array
-            for (let i = 0; i < redPlayerArr.length; i++) {
-                const playerSetupObject = redPlayerArr[i];
+            for (const playerSetupObject of redPlayerArr) {
                 profileObjByChampId[playerSetupObject['ChampId']] = {
                     'PId': playerSetupObject.ProfilePId,
                     'Role': playerSetupObject.Role,
@@ -59,8 +57,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             // We will merge these two Items at 2.3)
             const teamIdByPartId = {}; // Mapping participantId -> teamId in timeline
             const partIdByTeamIdAndRole = {};
-            for (let i = 0; i < matchDataRiotJson.teams.length; i++) {
-                const teamRiotObject = matchDataRiotJson.teams[i];
+            for (const teamRiotObject of matchDataRiotJson.teams) {
                 const teamData = {};
                 const teamId = teamRiotObject.teamId; // 100 === BLUE, 200 === RED
                 partIdByTeamIdAndRole[teamId] = {};
@@ -101,9 +98,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 let teamWardsPlaced = 0;
                 let teamControlWardsBought = 0;
                 let teamWardsCleared = 0;
-                for (let j = 0; j < matchDataRiotJson.participants.length; j++) {
+                for (const participantRiotObject of matchDataRiotJson.participants) {
                     const playerData = {}
-                    const participantRiotObject = matchDataRiotJson.participants[j];
                     if (participantRiotObject.teamId === teamId) {
                         const partId = participantRiotObject.participantId;
                         teamIdByPartId[partId] = teamId;
@@ -241,27 +237,27 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 const frameRiotObject = matchTimelineRiotJson.frames[minute];
                 let blueTeamGold = 0;
                 let redTeamGold = 0;
-                for (const partId in frameRiotObject.participantFrames) {
-                    const thisTeamId = teamIdByPartId[partId];
-                    const partFrameRiotObject = frameRiotObject.participantFrames[partId];
+                for (const participantFrameRiotObject of Object.values(frameRiotObject.participantFrames)) {
+                    const participantId = participantFrameRiotObject.participantId;
+                    const thisTeamId = teamIdByPartId[participantId];
                     if (thisTeamId == TEAM_ID.BLUE) {
-                        blueTeamGold += partFrameRiotObject['totalGold'];
+                        blueTeamGold += participantFrameRiotObject.totalGold;
                     }
                     else if (thisTeamId == TEAM_ID.RED) {
-                        redTeamGold += partFrameRiotObject['totalGold'];
+                        redTeamGold += participantFrameRiotObject.totalGold;
                     }
                     // playerData: EARLY_MINUTE and MID_MINUTE
                     if ((minute === MINUTE.EARLY && matchDataRiotJson.gameDuration >= MINUTE.EARLY * 60) || 
                         (minute === MINUTE.MID && matchDataRiotJson.gameDuration >= MINUTE.MID * 60)) {
-                        let type = (minute === MINUTE.EARLY) ? "Early" : "Mid";
-                        playerItems[partId]['GoldAt'+type] = partFrameRiotObject.totalGold;
-                        teamItems[thisTeamId]['GoldAt'+type] += partFrameRiotObject.totalGold;
-                        let playerCsAt = partFrameRiotObject.minionsKilled + partFrameRiotObject.jungleMinionsKilled;
-                        playerItems[partId]['CsAt'+type] = playerCsAt;
+                        const type = (minute === MINUTE.EARLY) ? "Early" : "Mid";
+                        playerItems[participantId]['GoldAt'+type] = participantFrameRiotObject.totalGold;
+                        teamItems[thisTeamId]['GoldAt'+type] += participantFrameRiotObject.totalGold;
+                        const playerCsAt = participantFrameRiotObject.minionsKilled + participantFrameRiotObject.jungleMinionsKilled;
+                        playerItems[participantId]['CsAt'+type] = playerCsAt;
                         teamItems[thisTeamId]['CsAt'+type] += playerCsAt;
-                        playerItems[partId]['XpAt'+type] = partFrameRiotObject.xp;
-                        teamItems[thisTeamId]['XpAt'+type] += partFrameRiotObject.xp;
-                        playerItems[partId]['JungleCsAt'+type] = partFrameRiotObject.jungleMinionsKilled;
+                        playerItems[participantId]['XpAt'+type] = participantFrameRiotObject.xp;
+                        teamItems[thisTeamId]['XpAt'+type] += participantFrameRiotObject.xp;
+                        playerItems[participantId]['JungleCsAt'+type] = participantFrameRiotObject.jungleMinionsKilled;
                     }
                 }
                 minuteTimelineItem['MinuteStamp'] = minute;
@@ -269,8 +265,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 minuteTimelineItem['RedTeamGold'] = redTeamGold;
                 // Looping through Events
                 const eventsList = [];
-                for (let j = 0; j < frameRiotObject.events.length; j++) {
-                    const riotEventObject = frameRiotObject.events[j];
+                for (const riotEventObject of frameRiotObject.events) {
                     const eventItem = {};
                     // Only Tower, Inhibitor, Dragon, Baron, Herald, and Kills are added to eventData
                     if (riotEventObject.type === 'ELITE_MONSTER_KILL') {
