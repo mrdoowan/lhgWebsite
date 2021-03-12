@@ -284,10 +284,9 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                                     });
                                 });
                             })).then((profileStatsLogArray) => {
-                                if (profileStatsLogArray[0].ProfileName === 'Isner') {
-                                    console.log(profileStatsLogArray);
-                                }
-                                return Promise.all(profileStatsLogArray);
+                                profileStatsLogArray.map((profileStatsLogObject) => {
+                                    return new Promise(resolveObject => resolveObject(profileStatsLogObject));
+                                });
                             });
                         }
                     })).then((values) => {
@@ -301,12 +300,9 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                 else {
                     resolve({});    // If 'ProfileHIdList' does not exist
                 }
-            })
-            try {
-                const profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
-                
-            }
-            catch (ex) { console.error(ex); reject(ex); }
+            }).catch((ex) => { 
+                console.error(ex); reject(ex); 
+            });
         });
     });
 }
