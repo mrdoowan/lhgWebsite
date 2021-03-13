@@ -44,7 +44,7 @@ export const getTournamentId = (shortName) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
-            else if (data != null) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
+            else if (data) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
             dynamoDbScanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
             .then((obj) => {
                 if (obj.length === 0) { resolve(null); return; } // Not Found
@@ -65,7 +65,7 @@ export const getTournamentShortName = (tournamentPId) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(data); return; }
+            else if (data) { resolve(data); return; }
             dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
@@ -86,7 +86,7 @@ export const getTournamentName = (tournamentPId) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(data); return; }
+            else if (data) { resolve(data); return; }
             dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
             .then((obj) => {
                 if (obj == null) { reject(null); return; } // Not Found
@@ -234,7 +234,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                         const profilePId = getProfilePIdFromHash(profileHId);
                         const profileStatsLog = await getProfileStatsByTourney(profilePId, tournamentPId);
                         if (profileStatsLog) {
-                            Promise.all(Object.keys(profileStatsLog.RoleStats).map(async (role) => {
+                            return Promise.all(Object.keys(profileStatsLog.RoleStats).map(async (role) => {
                                 return new Promise(async (resolveObject) => {
                                     const statsObject = profileStatsLog.RoleStats[role];
                                     resolveObject({
@@ -283,19 +283,14 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                                         'TotalSoloKills': statsObject.TotalSoloKills,
                                     });
                                 });
-                            })).then((profileStatsLogArray) => {
-                                profileStatsLogArray.map((profileStatsLogObject) => {
-                                    return new Promise(resolveObject => resolveObject(profileStatsLogObject));
-                                });
-                            });
+                            }));
                         }
-                    })).then((values) => {
-                        resolve(values);
+                    })).then((statsLogArray) => {
+                        const profileObject = {};
+                        profileObject['PlayerList'] = statsLogArray.flat();;
+                        cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                        resolve(profileObject);
                     });
-                    // const profileObject = {};
-                    // profileObject['PlayerList'] = profileStatsList;
-                    // cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                    // resolve(profileObject);
                 }
                 else {
                     resolve({});    // If 'ProfileHIdList' does not exist
@@ -314,63 +309,66 @@ export const getTournamentPlayerStats = (tournamentPId) => {
 export const getTournamentTeamStats = (tournamentPId) => {
     const cacheKey = CACHE_KEYS.TN_TEAM_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
+        cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let teamHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TeamHIdList'];
-                if (teamHIdList != null) {
-                    let teamStatsList = [];
-                    for (let i = 0; i < teamHIdList.length; ++i) {
-                        let teamPId = getTeamPIdFromHash(teamHIdList[i]);
-                        let teamStatsLog = await getTeamStatsByTourney(teamPId, tournamentPId);
-                        if (teamStatsLog != null) {
-                            teamStatsList.push({
-                                'TeamName': await getTeamName(teamHIdList[i]),
-                                'GamesPlayed': teamStatsLog.GamesPlayed,
-                                'GamesWin': teamStatsLog.GamesWon,
-                                'AverageGameDuration': teamStatsLog.AverageGameDuration,
-                                'KillDeathRatio': teamStatsLog.KillDeathRatio,
-                                'AverageKills': teamStatsLog.AverageKills,
-                                'AverageDeaths': teamStatsLog.AverageDeaths,
-                                'AverageAssists': teamStatsLog.AverageAssists,
-                                'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
-                                'DamagePerMinute': teamStatsLog.DamagePerMinute,
-                                'GoldPerMinute': teamStatsLog.GoldPerMinute,
-                                'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
-                                'WardsPerMinute': teamStatsLog.WardsPerMinute,
-                                'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
-                                'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
-                                'FirstBloodPct': teamStatsLog.FirstBloodPct,
-                                'FirstTowerPct': teamStatsLog.FirstTowerPct,
-                                'DragonPct': teamStatsLog.DragonPct,
-                                'HeraldPct': teamStatsLog.HeraldPct,
-                                'BaronPct': teamStatsLog.BaronPct,
-                                'WardsClearedPct': teamStatsLog.WardsClearedPct,
-                                'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
-                                'AverageTowersLost': teamStatsLog.AverageTowersLost,
-                                'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
-                                'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
-                                'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
-                                'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
-                                'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
-                                'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
-                                'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
-                                'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
-                                'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
+            else if (data) { resolve(JSON.parse(data)); return; }
+            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId).then((tournamentObject) => {
+                const teamHIdList = tournamentObject.TeamHIdList;
+                if (teamHIdList) {
+                    Promise.all(teamHIdList.map(async (teamHId) => {
+                        const teamPId = getTeamPIdFromHash(teamHId);
+                        const teamStatsLog = await getTeamStatsByTourney(teamPId, tournamentPId);
+                        if (teamStatsLog) {
+                            return new Promise(async (resolveObject) => {
+                                resolveObject({
+                                    'TeamName': await getTeamName(teamHId),
+                                    'GamesPlayed': teamStatsLog.GamesPlayed,
+                                    'GamesWin': teamStatsLog.GamesWon,
+                                    'AverageGameDuration': teamStatsLog.AverageGameDuration,
+                                    'KillDeathRatio': teamStatsLog.KillDeathRatio,
+                                    'AverageKills': teamStatsLog.AverageKills,
+                                    'AverageDeaths': teamStatsLog.AverageDeaths,
+                                    'AverageAssists': teamStatsLog.AverageAssists,
+                                    'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
+                                    'DamagePerMinute': teamStatsLog.DamagePerMinute,
+                                    'GoldPerMinute': teamStatsLog.GoldPerMinute,
+                                    'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
+                                    'WardsPerMinute': teamStatsLog.WardsPerMinute,
+                                    'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
+                                    'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
+                                    'FirstBloodPct': teamStatsLog.FirstBloodPct,
+                                    'FirstTowerPct': teamStatsLog.FirstTowerPct,
+                                    'DragonPct': teamStatsLog.DragonPct,
+                                    'HeraldPct': teamStatsLog.HeraldPct,
+                                    'BaronPct': teamStatsLog.BaronPct,
+                                    'WardsClearedPct': teamStatsLog.WardsClearedPct,
+                                    'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
+                                    'AverageTowersLost': teamStatsLog.AverageTowersLost,
+                                    'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
+                                    'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
+                                    'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
+                                    'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
+                                    'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
+                                    'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
+                                    'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
+                                    'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
+                                    'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
+                                });
                             });
                         }
-                    }
-                    let teamObject = {};
-                    teamObject['TeamList'] = teamStatsList;
-                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                    resolve(teamObject);
+                    })).then((statsLogArray) => {
+                        const teamObject = {};
+                        teamObject['TeamList'] = statsLogArray;
+                        cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                        resolve(teamObject);
+                    });
                 }
                 else {
                     resolve({});    // If 'TeamHIdList' does not exist
                 }
-            }
-            catch (ex) { console.error(ex); reject(ex); }
+            }).catch((ex) => { 
+                console.error(ex); reject(ex); 
+            });
         });
     });
 }
@@ -450,7 +448,7 @@ export const getTournamentGames = (tournamentPId) => {
 export const getTournamentPlayerList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileIdsSqlList = await mySqlCallSProc('profilePIdsByTournamentPId', tournamentPId);
+            const profileIdsSqlList = await mySqlCallSProc('profilePIdsByTournamentPId', tournamentPId);
             resolve(profileIdsSqlList.map(a => a.profilePId));
         }
         catch (err) { console.error(err); reject(err); }
@@ -464,7 +462,7 @@ export const getTournamentPlayerList = (tournamentPId) => {
 export const getTournamentTeamList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let teamIdsSqlList = await mySqlCallSProc('teamPIdsByTournamentPId', tournamentPId);
+            const teamIdsSqlList = await mySqlCallSProc('teamPIdsByTournamentPId', tournamentPId);
             resolve(teamIdsSqlList.map(a => a.teamPId));
         }
         catch (err) { console.error(err); reject(err); }
