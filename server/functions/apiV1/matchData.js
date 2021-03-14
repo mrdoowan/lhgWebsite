@@ -38,6 +38,8 @@ import {
     getTeamPIdFromHash,
     GLOBAL_CONSTS,
 } from './dependencies/global';
+import { checkRdsStatus } from './dependencies/awsRdsHelper';
+import { AWS_RDS_STATUS } from '../../services/constants';
 
 /**
  * Get the data of a specific Match from DynamoDb
@@ -335,84 +337,90 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
  */
 export const putMatchPlayerFix = (playersToFix, matchId) => {
     return new Promise(function(resolve, reject) {
-        getMatchData(matchId).then(async (data) => {
-            if (data == null) { resolve(null); return; } // Not found
-            let changesMade = false;
-            let seasonId = data['SeasonPId'];
-            let namesChanged = [];
-            for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
-                let teamId = Object.keys(data.Teams)[tIdx];
-                let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
-                let { Players } = data.Teams[teamId];
-                for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
-                    let playerObject = Object.values(Players)[pIdx];
-                    let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
-                    let champId = playerObject['ChampId'].toString();
-                    if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
-                        let newProfilePId = playersToFix[champId];
-                        let name = await getProfileName(newProfilePId, false); // For PId
-                        //await getProfileName(newProfileId); // For HId
-                        if (name == null) { resolve(null); return; } // Not found
-                        namesChanged.push(name); // For response
-                        await mySqlCallSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
-                        playerObject['ProfileHId'] = getProfileHashId(newProfilePId);
-                        delete playerObject['ProfileName']; // In the database for no reason
+        checkRdsStatus().then((status) => {
+            if (status !== AWS_RDS_STATUS.AVAILABLE) {
+                resolve({ error: `AWS Rds Instance not available.` });
+                return;
+            }
+            getMatchData(matchId).then(async (data) => {
+                if (!data) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
+                let changesMade = false;
+                let seasonId = data['SeasonPId'];
+                let namesChanged = [];
+                for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
+                    let teamId = Object.keys(data.Teams)[tIdx];
+                    let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
+                    let { Players } = data.Teams[teamId];
+                    for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
+                        let playerObject = Object.values(Players)[pIdx];
+                        let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
+                        let champId = playerObject['ChampId'].toString();
+                        if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
+                            let newProfilePId = playersToFix[champId];
+                            let name = await getProfileName(newProfilePId, false); // For PId
+                            //await getProfileName(newProfileId); // For HId
+                            if (!name) { resolve({ error: `Profile ID '${newProfilePId}' in body object Not Found` }); return; } // Not found
+                            namesChanged.push(name); // For response
+                            await mySqlCallSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
+                            playerObject['ProfileHId'] = getProfileHashId(newProfilePId);
+                            delete playerObject['ProfileName']; // In the database for no reason
 
-                        // Remove from Profile GameLog in former Profile Id and Team GameLog
-                        let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
-                        if (matchId in profileGameLog['Matches']) {
-                            delete profileGameLog['Matches'][matchId];
-                            await dynamoDbUpdateItem('Profile', 'ProfilePId', thisProfilePId,
-                                'SET #glog.#sId = :data',
-                                {
-                                    '#glog': 'GameLog',
-                                    '#sId': seasonId,
-                                },
-                                {
-                                    ':data': profileGameLog,
-                                }
-                            );
+                            // Remove from Profile GameLog in former Profile Id and Team GameLog
+                            let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
+                            if (matchId in profileGameLog['Matches']) {
+                                delete profileGameLog['Matches'][matchId];
+                                await dynamoDbUpdateItem('Profile', 'ProfilePId', thisProfilePId,
+                                    'SET #glog.#sId = :data',
+                                    {
+                                        '#glog': 'GameLog',
+                                        '#sId': seasonId,
+                                    },
+                                    {
+                                        ':data': profileGameLog,
+                                    }
+                                );
+                            }
+                            let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
+                            if (matchId in teamGameLog['Matches']) {
+                                delete teamGameLog['Matches'][matchId];
+                                await dynamoDbUpdateItem('Team', 'TeamPId', thisTeamPId,
+                                    'SET #gLog.#sId = :val',
+                                    {
+                                        '#gLog': 'GameLog',
+                                        '#sId': seasonId,
+                                    },
+                                    {
+                                        ':val': teamGameLog,
+                                    }
+                                );
+                            }
+                            changesMade = true;
                         }
-                        let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
-                        if (matchId in teamGameLog['Matches']) {
-                            delete teamGameLog['Matches'][matchId];
-                            await dynamoDbUpdateItem('Team', 'TeamPId', thisTeamPId,
-                                'SET #gLog.#sId = :val',
-                                {
-                                    '#gLog': 'GameLog',
-                                    '#sId': seasonId,
-                                },
-                                {
-                                    ':val': teamGameLog,
-                                }
-                            );
-                        }
-                        changesMade = true;
                     }
                 }
-            }
-            if (changesMade) {
-                await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
-                    'SET #teams = :data',
-                    {
-                        '#teams': 'Teams',
-                    },
-                    {
-                        ':data': data.Teams,
-                    }
-                );
-                // Delete match cache
-                cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
-                
-                // Return
-                resolve({
-                    response: `Match ID '${matchId}' successfully updated.`,
-                    profileUpdate: namesChanged,
-                })
-            }
-            else {
-                resolve({ response: `No changes made in Match ID '${matchId}'` })
-            }
+                if (changesMade) {
+                    await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
+                        'SET #teams = :data',
+                        {
+                            '#teams': 'Teams',
+                        },
+                        {
+                            ':data': data.Teams,
+                        }
+                    );
+                    // Delete match cache
+                    cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
+                    
+                    // Return
+                    resolve({
+                        response: `Match ID '${matchId}' successfully updated.`,
+                        profileUpdate: namesChanged,
+                    })
+                }
+                else {
+                    resolve({ response: `No changes made in Match ID '${matchId}'` })
+                }
+            }).catch((error) => { console.error(error); reject(error); });
         }).catch((error) => { console.error(error); reject(error); });
     });
 }

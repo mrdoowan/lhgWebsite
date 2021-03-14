@@ -72,15 +72,10 @@ matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
     const { playersToFix, matchId } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Players`);
-    checkRdsStatus().then((status) => {
-        if (status !== AWS_RDS_STATUS.AVAILABLE) {
-            return res400sClientError(res, req, `AWS Rds Instance not available.`);
-        }
-        putMatchPlayerFix(playersToFix, matchId).then((data) => {
-            if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
-            return res200sOK(res, req, data);
-        }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
-    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
+    putMatchPlayerFix(playersToFix, matchId).then((data) => {
+        if (data.error) { return res400sClientError(res, req, data.error); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
 });
 
 /**
