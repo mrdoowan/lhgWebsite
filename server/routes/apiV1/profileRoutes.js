@@ -278,6 +278,11 @@ profileV1Routes.put('/update/name', authenticateJWT, (req, res) => {
     }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId OldName Error."));
 });
 
+/**
+ * @route   DELETE api/profile/v1/remove/name
+ * @desc    Remove a Profile that does not have a GameLog or StatsLog property
+ * @access  Private (to Admins)
+ */
 profileV1Routes.delete('/remove/name', authenticateJWT, (req, res) => {
     const { profileName } = req.body;
     console.log(`DELETE Request Profile '${profileName}'`);
