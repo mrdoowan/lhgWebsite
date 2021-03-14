@@ -13,7 +13,7 @@ import {
     getSeasonRegular,
     getSeasonPlayoffs,
     putSeasonRosterTeams,
-    addProfilesToSeasonRoster,
+    addProfilesToRoster,
     getSeasonRosterByName,
     removeProfileFromRoster,
 } from '../../functions/apiV1/seasonData';
@@ -171,7 +171,7 @@ seasonV1Routes.put('/roster/profile/add', authenticateJWT, (req, res) => {
                     return res400sClientError(res, req, `Error in getting ProfilePIds from list`, profilePIdsResponse.errorList);
                 }
                 const profilePIdList = profilePIdsResponse.data;
-                addProfilesToSeasonRoster(seasonId, teamPId, profilePIdList).then((data) => {
+                addProfilesToRoster(seasonId, teamPId, profilePIdList).then((data) => {
                     if (data.errorList) {
                         return res400sClientError(res, req, `Error in adding Profiles into the database`, data.errorList);
                     }
