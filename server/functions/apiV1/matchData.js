@@ -418,20 +418,32 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
 }
 
 /**
- * Removes the specific Match item from from DynamoDb
+ * Removes the specific Match item from from DynamoDb. 
+ * Also remove if it's just a 'Setup' 
  * @param {string} matchId      Match Id in string format
  */
 export const deleteMatchData = (matchId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Matches', 'MatchPId', matchId).then(async (matchData) => {
             // 1) Remove and update Game Logs from EACH Profile Table
             // 2) Remove and update Game Logs from EACH Team Table
             // 3) Remove from Match Table
             // 4) Remove from MySQL
-            let matchData = await dynamoDbGetItem('Matches', 'MatchPId', matchId);
-            if (matchData == null) { resolve(null); return; } // Not found
-            // Check if it's just a Setup Match table. If it is, skip everything below
-            if (!('Setup' in matchData)) {
+            if (!matchData) { resolve(null); return; } // Not found
+
+            // Check if it's just a Setup Match table.
+            const setupFlag = !!matchData.Setup;
+            if (matchData.Setup) {
+                // Remove from 'Miscellaneous' Table
+                const setupIdList = await getMatchSetupList();
+                setupIdList = setupIdList.filter(id => id !== matchId);
+                const newDbItem = {
+                    Key: 'MatchSetupIds',
+                    MatchSetupIdList: setupIdList
+                };
+                await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+            }
+            else {
                 let seasonPId = matchData['SeasonPId'];
                 const { Teams } = matchData;
                 for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
@@ -480,8 +492,12 @@ export const deleteMatchData = (matchId) => {
 
             // Del from Cache
             cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
-            resolve({ response: `Match ID '${matchId}' removed from the database.` });
-        }
-        catch (err) { reject({ error: err }) };
+            resolve({ 
+                setup: setupFlag,
+                response: `Match ID '${matchId}' removed from the database.` 
+            });
+        }).catch((err) => { 
+            reject({ error: err });
+        });
     });
 }

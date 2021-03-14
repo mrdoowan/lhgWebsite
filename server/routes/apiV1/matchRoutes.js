@@ -173,9 +173,9 @@ matchV1Routes.delete('/remove/:matchId', authenticateJWT, (req, res) => {
         if (status !== AWS_RDS_STATUS.AVAILABLE) {
             return res400sClientError(res, req, `AWS Rds Instance not available.`);
         }
-        deleteMatchData(matchId).then((message) => {
-            if (message == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
-            return res200sOK(res, req, message);
+        deleteMatchData(matchId).then((response) => {
+            if (response == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
+            return res200sOK(res, req, response);
         }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
     }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
 });

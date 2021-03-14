@@ -145,7 +145,6 @@ export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=nul
  * @param {string} tableName        DynamoDb Table Name
  * @param {string} partitionName    Column name of the Partition Key
  * @param {*} keyItem               Value of Partition Key to remove
- * @param {boolean} testFlag        Deletes the item from test DB
  */
 export const dynamoDbDeleteItem = (tableName, partitionName, keyItem) => {
     const params = {
