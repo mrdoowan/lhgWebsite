@@ -444,3 +444,44 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
         }).catch((err) => { console.error(err); reject(err); });
     });
 }
+
+/**
+ * Remove Profile from Season's roster. Assume inputs are valid.
+ * @param {number} seasonPId 
+ * @param {string} profilePId 
+ * @param {string} teamPId 
+ */
+export const removeProfileFromRoster = (seasonPId, profilePId, teamPId) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+            if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
+                resolve({ error: `Season Object does not have Roster.` });
+                return;
+            }
+            const rosterTeamObject = seasonObject.Roster.Teams;
+            const teamHId = getTeamHashId(teamPId);
+            const teamName = await getTeamName(teamHId);
+            if (!(teamHId in rosterTeamObject)) {
+                resolve({ error: `${teamName} - Team is not in the Season Roster`});
+                return;
+            }
+
+            const rosterPlayersObject = rosterTeamObject[teamHId].Players;
+            const profileHId = getProfileHashId(profilePId);
+            const profileName = await getProfileName(profileHId);
+            if (profileHId in rosterPlayersObject) {
+                delete rosterPlayersObject[profileHId];
+                await dynamoDbPutItem('Season', seasonObject, seasonId);
+                resolve({
+                    'SeasonId': seasonId,
+                    'TeamName': teamName,
+                    'ProfileRemoved': profileName,
+                    'SeasonRoster': { [teamHId]: rosterPlayersObject },
+                });
+            }
+            else {
+                resolve({ error: `${profileName} - Profile not found in Team ${teamName}` });
+            }
+        });
+    });
+}
