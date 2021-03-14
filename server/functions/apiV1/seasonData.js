@@ -418,16 +418,18 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
             }
             // Check for duplicate in ProfilePId
             const rosterPlayersDbObject = rosterTeamDbObject[teamHId].Players;
+            const profileMessages = [];
             for (const profilePId of profilePIdList) {
                 const profileHId = getProfileHashId(profilePId);
+                const profileName = await getProfileName(profileHId);
                 if (rosterPlayersDbObject && profileHId in rosterPlayersDbObject) {
                     // Duplicate found
-                    const profileName = await getProfileName(profileHId);
-                    errorList.push(`${profileName} - Profile is already in the Team.`);
+                    profileMessages.push(`${profileName} - Profile is already in the Team.`);
                 }
                 else {
                     // Create new object
                     rosterPlayersDbObject[profileHId] = {};
+                    profileMessages.push(`${profileName} - Profile added to the Team.`)
                 }
             }
 
@@ -439,6 +441,7 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
                 resolve({
                     'SeasonId': seasonId,
                     'TeamName': teamName,
+                    'Profiles': profileMessages,
                     'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
                 });
             }
@@ -474,10 +477,10 @@ export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
                 const profileName = await getProfileName(profileHId);
                 if (profileHId in rosterPlayersDbObject) {
                     delete rosterPlayersDbObject[profileHId];
-                    profileMessages.push(`${profileName} - Profile removed from Team ${teamName}`);
+                    profileMessages.push(`${profileName} - Profile removed from Team`);
                 }
                 else {
-                    profileMessages.push(`${profileName} - Profile not found in Team ${teamName}`);
+                    profileMessages.push(`${profileName} - Profile not found in Team`);
                 }
             }
             
