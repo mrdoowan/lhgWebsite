@@ -18,6 +18,7 @@ import {
     getSummonerIdsFromList,
     getProfilePIdsFromSummIdList,
     putProfileRemoveAccount,
+    deleteProfileFromDb,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -248,7 +249,7 @@ profileV1Routes.put('/remove/account', authenticateJWT, (req, res) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - PUT function removing account."));
     }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - Get ProfilePId."));
-})
+});
 
 /**
  * @route   PUT api/profile/v1/update/name
@@ -275,7 +276,27 @@ profileV1Routes.put('/update/name', authenticateJWT, (req, res) => {
             }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Update Function Error."));
         }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId NewName Error."));
     }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId OldName Error."));
-})
+});
+
+/**
+ * @route   DELETE api/profile/v1/remove/name
+ * @desc    Remove a Profile that does not have a GameLog or StatsLog property
+ * @access  Private (to Admins)
+ */
+profileV1Routes.delete('/remove/name', authenticateJWT, (req, res) => {
+    const { profileName } = req.body;
+    console.log(`DELETE Request Profile '${profileName}'`);
+
+    getProfilePIdByName(profileName).then((profilePId) => {
+        if (!profilePId) {
+            // Profile Name does not exist
+            return res400sClientError(res, req, `Profile '${profileName}' does not exist.`);
+        }
+        deleteProfileFromDb(profilePId, profileName).then((data) => {
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "DELETE Profile - Function Error."));
+    }).catch((err) => error500sServerError(err, res, "DELETE Profile - Get Profile PId Error."));
+});
 
 //#endregion
 

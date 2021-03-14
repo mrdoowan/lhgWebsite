@@ -577,7 +577,12 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
     });
 }
 
-// Returns an object indicating Profile GameLog has been updated
+/**
+ * Returns an object indicating Profile GameLog has been updated
+ * @param {string} profilePId 
+ * @param {number} tournamentPId 
+ * @returns 
+ */
 export const updateProfileGameLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -847,5 +852,30 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             });
         }
         catch (err) { reject(err) }
+    });
+}
+
+/**
+ * Removes Profile from the database
+ * @param {string} profilePId   Assume valid
+ * @param {string} profileName  Assume valid
+ */
+export const deleteProfileFromDb = (profilePId, profileName) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Profile', 'ProfilePId', profilePId).then(async (profileObject) => {
+            if (profileObject.GameLog || profileObject.StatsLog) {
+                resolve({
+                    error: `Profile '${profileName}' object has a GameLog or StatsLog property`
+                });
+            }
+            
+            // Delete from 'ProfileNameMap'
+            await dynamoDbDeleteItem('ProfileNameMap', 'ProfileName', filterName(profileName));
+            // Delete from 'Profile'
+            await dynamoDbDeleteItem('Profile', 'ProfilePId', profilePId);
+            resolve({
+                'ProfileRemoved': profilePId,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
     });
 }
