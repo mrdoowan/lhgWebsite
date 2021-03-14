@@ -399,7 +399,7 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
  * @param {string} teamPId          Assume valid
  * @param {string} profilePIdList   Assume valid
  */
-export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
+export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
     return new Promise((resolve, reject) => {
         dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonDbObject) => {
             const errorList = [];
