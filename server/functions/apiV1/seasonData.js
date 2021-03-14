@@ -401,32 +401,33 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
  */
 export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
     return new Promise((resolve, reject) => {
-        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonDbObject) => {
             const errorList = [];
 
             // Check if Roster or Team property exists.
-            if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
+            if (!('Roster' in seasonDbObject) || !('Teams' in seasonDbObject.Roster)) {
                 resolve({ errorList: `Season Object does not have Roster` });
                 return;
             }
-            const rosterTeamObject = seasonObject.Roster.Teams;
+            const rosterTeamDbObject = seasonDbObject.Roster.Teams;
             const teamHId = getTeamHashId(teamPId);
             const teamName = await getTeamName(teamHId);
-            if (!(teamHId in rosterTeamObject)) {
-                errorList.push(`${teamName} - Team is not in the Season Roster`);
+            if (!(teamHId in rosterTeamDbObject)) {
+                resolve({ errorList: `${teamName} - Team is not in the Season Roster`});
+                return;
             }
             // Check for duplicate in ProfilePId
-            const rosterPlayersObject = rosterTeamObject[teamHId].Players;
+            const rosterPlayersDbObject = rosterTeamDbObject[teamHId].Players;
             for (const profilePId of profilePIdList) {
                 const profileHId = getProfileHashId(profilePId);
-                if (rosterPlayersObject && profileHId in rosterPlayersObject) {
+                if (rosterPlayersDbObject && profileHId in rosterPlayersDbObject) {
                     // Duplicate found
                     const profileName = await getProfileName(profileHId);
                     errorList.push(`${profileName} - Profile is already in the Team.`);
                 }
                 else {
                     // Create new object
-                    rosterPlayersObject[profileHId] = {};
+                    rosterPlayersDbObject[profileHId] = {};
                 }
             }
 
@@ -434,11 +435,11 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
                 resolve({ errorList: errorList });
             }
             else {
-                await dynamoDbPutItem('Season', seasonObject, seasonId);
+                await dynamoDbPutItem('Season', seasonDbObject, seasonId);
                 resolve({
                     'SeasonId': seasonId,
                     'TeamName': teamName,
-                    'SeasonRoster': { [teamHId]: rosterPlayersObject },
+                    'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
                 });
             }
         }).catch((err) => { console.error(err); reject(err); });
@@ -447,41 +448,47 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
 
 /**
  * Remove Profile from Season's roster. Assume inputs are valid.
- * @param {number} seasonPId 
- * @param {string} profilePId 
- * @param {string} teamPId 
+ * @param {number} seasonId         Assume valid
+ * @param {string} teamPId          Assume valid
+ * @param {array} profilePIdList    Assume valid
  */
-export const removeProfileFromRoster = (seasonPId, profilePId, teamPId) => {
+export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
     return new Promise((resolve, reject) => {
-        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
-            if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
+        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonDbObject) => {
+            if (!('Roster' in seasonDbObject) || !('Teams' in seasonDbObject.Roster)) {
                 resolve({ error: `Season Object does not have Roster.` });
                 return;
             }
-            const rosterTeamObject = seasonObject.Roster.Teams;
+            const rosterTeamDbObject = seasonDbObject.Roster.Teams;
             const teamHId = getTeamHashId(teamPId);
             const teamName = await getTeamName(teamHId);
-            if (!(teamHId in rosterTeamObject)) {
+            if (!(teamHId in rosterTeamDbObject)) {
                 resolve({ error: `${teamName} - Team is not in the Season Roster`});
                 return;
             }
 
-            const rosterPlayersObject = rosterTeamObject[teamHId].Players;
-            const profileHId = getProfileHashId(profilePId);
-            const profileName = await getProfileName(profileHId);
-            if (profileHId in rosterPlayersObject) {
-                delete rosterPlayersObject[profileHId];
-                await dynamoDbPutItem('Season', seasonObject, seasonId);
-                resolve({
-                    'SeasonId': seasonId,
-                    'TeamName': teamName,
-                    'ProfileRemoved': profileName,
-                    'SeasonRoster': { [teamHId]: rosterPlayersObject },
-                });
+            const rosterPlayersDbObject = rosterTeamDbObject[teamHId].Players;
+            const profileMessages = [];
+            for (const profilePId of profilePIdList) {
+                const profileHId = getProfileHashId(profilePId);
+                const profileName = await getProfileName(profileHId);
+                if (profileHId in rosterPlayersDbObject) {
+                    delete rosterPlayersDbObject[profileHId];
+                    profileMessages.push(`${profileName} - Profile removed from Team ${teamName}`);
+                }
+                else {
+                    profileMessages.push(`${profileName} - Profile not found in Team ${teamName}`);
+                }
             }
-            else {
-                resolve({ error: `${profileName} - Profile not found in Team ${teamName}` });
-            }
-        });
+            
+            await dynamoDbPutItem('Season', seasonDbObject, seasonId);
+            resolve({
+                'SeasonId': seasonId,
+                'TeamName': teamName,
+                'Profiles': profileMessages,
+                'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
+            });
+            
+        }).catch((err) => { console.error(err); reject(err); });
     });
 }
