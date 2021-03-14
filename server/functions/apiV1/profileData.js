@@ -709,7 +709,12 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
     });
 }
 
-// Returns an object indicating Profile StatsLog has been updated
+/**
+ * Returns an object indicating Profile StatsLog has been updated
+ * @param {string} profilePId 
+ * @param {number} tournamentPId 
+ * @returns 
+ */
 export const updateProfileStatsLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
