@@ -38,6 +38,8 @@ import {
     getTeamPIdFromHash,
     GLOBAL_CONSTS,
 } from './dependencies/global';
+import { checkRdsStatus } from './dependencies/awsRdsHelper';
+import { AWS_RDS_STATUS } from '../../services/constants';
 
 /**
  * Get the data of a specific Match from DynamoDb
@@ -335,118 +337,162 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
  */
 export const putMatchPlayerFix = (playersToFix, matchId) => {
     return new Promise(function(resolve, reject) {
-        getMatchData(matchId).then(async (data) => {
-            if (data == null) { resolve(null); return; } // Not found
-            let changesMade = false;
-            let seasonId = data['SeasonPId'];
-            let namesChanged = [];
-            for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
-                let teamId = Object.keys(data.Teams)[tIdx];
-                let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
-                let { Players } = data.Teams[teamId];
-                for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
-                    let playerObject = Object.values(Players)[pIdx];
-                    let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
-                    let champId = playerObject['ChampId'].toString();
-                    if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
-                        let newProfilePId = playersToFix[champId];
-                        let name = await getProfileName(newProfilePId, false); // For PId
-                        //await getProfileName(newProfileId); // For HId
-                        if (name == null) { resolve(null); return; } // Not found
-                        namesChanged.push(name); // For response
-                        await mySqlCallSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
-                        playerObject['ProfileHId'] = getProfileHashId(newProfilePId);
-                        delete playerObject['ProfileName']; // In the database for no reason
+        checkRdsStatus().then((status) => {
+            if (status !== AWS_RDS_STATUS.AVAILABLE) {
+                resolve({ error: `AWS Rds Instance not available.` });
+                return;
+            }
+            getMatchData(matchId).then(async (data) => {
+                if (!data) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
+                let changesMade = false;
+                let seasonId = data['SeasonPId'];
+                let namesChanged = [];
+                for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
+                    let teamId = Object.keys(data.Teams)[tIdx];
+                    let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
+                    let { Players } = data.Teams[teamId];
+                    for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
+                        let playerObject = Object.values(Players)[pIdx];
+                        let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
+                        let champId = playerObject['ChampId'].toString();
+                        if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
+                            let newProfilePId = playersToFix[champId];
+                            let name = await getProfileName(newProfilePId, false); // For PId
+                            //await getProfileName(newProfileId); // For HId
+                            if (!name) { resolve({ error: `Profile ID '${newProfilePId}' in body object Not Found` }); return; } // Not found
+                            namesChanged.push(name); // For response
+                            await mySqlCallSProc('updatePlayerIdByChampIdMatchId', newProfilePId, champId, matchId);
+                            playerObject['ProfileHId'] = getProfileHashId(newProfilePId);
+                            delete playerObject['ProfileName']; // In the database for no reason
 
-                        // Remove from Profile GameLog in former Profile Id and Team GameLog
-                        let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
-                        if (matchId in profileGameLog['Matches']) {
-                            delete profileGameLog['Matches'][matchId];
-                            await dynamoDbUpdateItem('Profile', 'ProfilePId', thisProfilePId,
-                                'SET #glog.#sId = :data',
-                                {
-                                    '#glog': 'GameLog',
-                                    '#sId': seasonId,
-                                },
-                                {
-                                    ':data': profileGameLog,
-                                }
-                            );
+                            // Remove from Profile GameLog in former Profile Id and Team GameLog
+                            let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
+                            if (matchId in profileGameLog['Matches']) {
+                                delete profileGameLog['Matches'][matchId];
+                                await dynamoDbUpdateItem('Profile', 'ProfilePId', thisProfilePId,
+                                    'SET #glog.#sId = :data',
+                                    {
+                                        '#glog': 'GameLog',
+                                        '#sId': seasonId,
+                                    },
+                                    {
+                                        ':data': profileGameLog,
+                                    }
+                                );
+                            }
+                            let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
+                            if (matchId in teamGameLog['Matches']) {
+                                delete teamGameLog['Matches'][matchId];
+                                await dynamoDbUpdateItem('Team', 'TeamPId', thisTeamPId,
+                                    'SET #gLog.#sId = :val',
+                                    {
+                                        '#gLog': 'GameLog',
+                                        '#sId': seasonId,
+                                    },
+                                    {
+                                        ':val': teamGameLog,
+                                    }
+                                );
+                            }
+                            changesMade = true;
                         }
-                        let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
-                        if (matchId in teamGameLog['Matches']) {
-                            delete teamGameLog['Matches'][matchId];
-                            await dynamoDbUpdateItem('Team', 'TeamPId', thisTeamPId,
-                                'SET #gLog.#sId = :val',
-                                {
-                                    '#gLog': 'GameLog',
-                                    '#sId': seasonId,
-                                },
-                                {
-                                    ':val': teamGameLog,
-                                }
-                            );
-                        }
-                        changesMade = true;
                     }
                 }
-            }
-            if (changesMade) {
-                await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
-                    'SET #teams = :data',
-                    {
-                        '#teams': 'Teams',
-                    },
-                    {
-                        ':data': data.Teams,
-                    }
-                );
-                // Delete match cache
-                cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
-                
-                // Return
-                resolve({
-                    response: `Match ID '${matchId}' successfully updated.`,
-                    profileUpdate: namesChanged,
-                })
-            }
-            else {
-                resolve({ response: `No changes made in Match ID '${matchId}'` })
-            }
+                if (changesMade) {
+                    await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
+                        'SET #teams = :data',
+                        {
+                            '#teams': 'Teams',
+                        },
+                        {
+                            ':data': data.Teams,
+                        }
+                    );
+                    // Delete match cache
+                    cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
+                    
+                    // Return
+                    resolve({
+                        response: `Match ID '${matchId}' successfully updated.`,
+                        profileUpdate: namesChanged,
+                    })
+                }
+                else {
+                    resolve({ response: `No changes made in Match ID '${matchId}'` })
+                }
+            }).catch((error) => { console.error(error); reject(error); });
         }).catch((error) => { console.error(error); reject(error); });
     });
 }
 
 /**
- * Removes the specific Match item from from DynamoDb
+ * Removes the specific Match item from from DynamoDb. 
+ * Also remove if it's just a 'Setup' 
  * @param {string} matchId      Match Id in string format
  */
 export const deleteMatchData = (matchId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Matches', 'MatchPId', matchId).then(async (matchData) => {
             // 1) Remove and update Game Logs from EACH Profile Table
             // 2) Remove and update Game Logs from EACH Team Table
             // 3) Remove from Match Table
             // 4) Remove from MySQL
-            let matchData = await dynamoDbGetItem('Matches', 'MatchPId', matchId);
-            if (matchData == null) { resolve(null); return; } // Not found
-            // Check if it's just a Setup Match table. If it is, skip everything below
-            if (!('Setup' in matchData)) {
-                let seasonPId = matchData['SeasonPId'];
-                const { Teams } = matchData;
-                for (let teamIdx = 0; teamIdx < Object.values(Teams).length; ++teamIdx) {
-                    let teamObject = Object.values(Teams)[teamIdx];
-                    let teamPId = getTeamPIdFromHash(teamObject['TeamHId']);
-                    let teamSeasonGameLog = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
-                    delete teamSeasonGameLog[matchId];
-                    const { Players } = teamObject;
-                    for (let playerIdx = 0; playerIdx < Object.values(Players).length; ++playerIdx) {
-                        let playerObject = Object.values(Players)[playerIdx];
-                        let profilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
-                        let playerSeasonGameLog = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
-                        delete playerSeasonGameLog[matchId];
-                        // 1)
-                        await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            if (!matchData) { 
+                resolve({ error: `Match Id '${matchId} Not Found.` });
+                return; 
+            } // Not found
+
+            // Check if it's just a Setup Match table.
+            const setupFlag = !!matchData.Setup;
+            if (matchData.Setup) {
+                // Remove from 'Miscellaneous' Table
+                let setupIdList = await getMatchSetupList();
+                setupIdList = setupIdList.filter(id => id !== matchId);
+                const newDbItem = {
+                    Key: 'MatchSetupIds',
+                    MatchSetupIdList: setupIdList
+                };
+                await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+                
+                // 3) 
+                await dynamoDbDeleteItem('Matches', 'MatchPId', matchId);
+                resolve({ 
+                    setup: setupFlag,
+                    response: `Match ID '${matchId}' removed from the database.` 
+                });
+            }
+            else {
+                checkRdsStatus().then(async (status) => {
+                    if (status !== AWS_RDS_STATUS.AVAILABLE) {
+                        resolve({ error: `AWS Rds Instance not available.` });
+                        return;
+                    }
+                    const seasonPId = matchData['SeasonPId'];
+                    const { Teams } = matchData;
+                    for (const teamObject of Object.values(Teams)) {
+                        const teamPId = getTeamPIdFromHash(teamObject['TeamHId']);
+                        const teamSeasonGameLog = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
+                        delete teamSeasonGameLog[matchId];
+                        const { Players } = teamObject;
+                        for (const playerObject of Object.values(Players)) {
+                            const profilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
+                            const playerSeasonGameLog = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
+                            delete playerSeasonGameLog[matchId];
+                            // 1)
+                            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                                'SET #gLog.#sPId.#mtch = :data',
+                                {
+                                    '#gLog': 'GameLog',
+                                    '#sPId': seasonPId,
+                                    '#mtch': 'Matches'
+                                },
+                                {
+                                    ':data': playerSeasonGameLog,
+                                }
+                            );
+                        }
+                        // 2)
+                        await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
                             'SET #gLog.#sPId.#mtch = :data',
                             {
                                 '#gLog': 'GameLog',
@@ -454,34 +500,24 @@ export const deleteMatchData = (matchId) => {
                                 '#mtch': 'Matches'
                             },
                             {
-                                ':data': playerSeasonGameLog,
+                                ':data': teamSeasonGameLog,
                             }
                         );
                     }
-                    // 2)
-                    await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
-                        'SET #gLog.#sPId.#mtch = :data',
-                        {
-                            '#gLog': 'GameLog',
-                            '#sPId': seasonPId,
-                            '#mtch': 'Matches'
-                        },
-                        {
-                            ':data': teamSeasonGameLog,
-                        }
-                    );
-                }
-                // 4) 
-                await mySqlCallSProc('removeMatchByMatchId', parseInt(matchId));
-            }
-            
-            // 3) 
-            await dynamoDbDeleteItem('Matches', 'MatchPId', matchId);
+                    // 3) 
+                    await dynamoDbDeleteItem('Matches', 'MatchPId', matchId);
+                    
+                    // 4) 
+                    await mySqlCallSProc('removeMatchByMatchId', parseInt(matchId));
 
-            // Del from Cache
-            cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
-            resolve({ response: `Match ID '${matchId}' removed from the database.` });
-        }
-        catch (err) { reject({ error: err }) };
+                    // Del from Cache
+                    cache.del(`${CACHE_KEYS.MATCH_PREFIX}${matchId}`);
+                    resolve({ 
+                        setup: setupFlag,
+                        response: `Match ID '${matchId}' removed from the database.` 
+                    });
+                }).catch((error) => { console.error(error); reject(error); });
+            }
+        }).catch((error) => { console.error(error); reject(error); });
     });
 }
