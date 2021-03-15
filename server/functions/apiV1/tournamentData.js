@@ -66,7 +66,7 @@ export const getTournamentShortName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data) { resolve(data); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let shortName = obj['TournamentShortName'];
@@ -87,7 +87,7 @@ export const getTournamentName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data) { resolve(data); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', tournamentPId)
             .then((obj) => {
                 if (obj == null) { reject(null); return; } // Not Found
                 let name = obj['Information']['TournamentName'];
@@ -105,7 +105,7 @@ export const getTournamentTabName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['TournamentTabName'];
@@ -127,7 +127,7 @@ export const getTournamentInfo = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyInfoJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['Information'];
+                let tourneyInfoJson = (await dynamoDbGetItem('Tournament', tournamentPId))['Information'];
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
@@ -150,7 +150,7 @@ export const getTournamentStats = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyStatsJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TourneyStats'];
+                let tourneyStatsJson = (await dynamoDbGetItem('Tournament', tournamentPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
@@ -171,7 +171,7 @@ export const getTournamentLeaderboards = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let leaderboardJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['Leaderboards'];
+                let leaderboardJson = (await dynamoDbGetItem('Tournament', tournamentPId))['Leaderboards'];
                 if (leaderboardJson != null) {
                     let gameRecords = leaderboardJson['GameRecords'];
                     for (let i = 0; i < Object.values(gameRecords).length; ++i) {
@@ -227,7 +227,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data) { resolve(JSON.parse(data)); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId).then((tournamentObject) => {
+            dynamoDbGetItem('Tournament', tournamentPId).then((tournamentObject) => {
                 const profileHIdList = tournamentObject.ProfileHIdList;
                 if (profileHIdList) {
                     Promise.all(profileHIdList.map(async (profileHId) => {
@@ -312,7 +312,7 @@ export const getTournamentTeamStats = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data) { resolve(JSON.parse(data)); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId).then((tournamentObject) => {
+            dynamoDbGetItem('Tournament', tournamentPId).then((tournamentObject) => {
                 const teamHIdList = tournamentObject.TeamHIdList;
                 if (teamHIdList) {
                     Promise.all(teamHIdList.map(async (teamHId) => {
@@ -380,7 +380,7 @@ export const getTournamentPickBans = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId));
+                let tourneyJson = (await dynamoDbGetItem('Tournament', tournamentPId));
                 let pickBansJson = {}
                 if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
                     const pbList = [];
@@ -420,7 +420,7 @@ export const getTournamentGames = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['GameLog'];
+                let gameLogJson = (await dynamoDbGetItem('Tournament', tournamentPId))['GameLog'];
                 if (gameLogJson != null) {
                     for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
                         let matchId = Object.keys(gameLogJson)[i];
@@ -476,7 +476,7 @@ export const getTournamentTeamList = (tournamentPId) => {
 export const updateTournamentOverallStats = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
+            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
             /*  
                 -------------------
                 Init DynamoDB Items
@@ -527,7 +527,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 tourneyStatsItem['MountainDrakes'] += matchStatsSqlRow.mountainDragons;
                 tourneyStatsItem['ElderDrakes'] += matchStatsSqlRow.elderDragons;
     
-                let matchObject = await dynamoDbGetItem('Matches', 'MatchPId', matchPId.toString());
+                let matchObject = await dynamoDbGetItem('Matches', matchPId.toString());
                 for (let teamIdx = 0; teamIdx < Object.keys(matchObject['Teams']).length; ++teamIdx) {
                     let teamId = Object.keys(matchObject['Teams'])[teamIdx];
                     let teamObject = matchObject['Teams'][teamId];    
@@ -697,7 +697,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 -------------------
             */
             //#region Push to Db
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #info = :val',
                 {
                     '#info': 'Information'
@@ -706,7 +706,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyDbObject['Information']
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #tStats = :val',
                 {
                     '#tStats': 'TourneyStats'
@@ -715,7 +715,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyStatsItem
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #pb = :val',
                 {
                     '#pb': 'PickBans'
@@ -724,7 +724,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': pickBansObject
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #pHIdList = :val',
                 {
                     '#pHIdList': 'ProfileHIdList'
@@ -733,7 +733,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(profileHIdSet)
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #tHIdList = :val',
                 {
                     '#tHIdList': 'TeamHIdList'
@@ -742,7 +742,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(teamHIdSet)
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #gLog = :val',
                 {
                     '#gLog': 'GameLog'
@@ -751,7 +751,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': gameLogTourneyItem
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #lb = :val',
                 {
                     '#lb': 'Leaderboards'
