@@ -448,7 +448,7 @@ export const postNewProfile = (profileName, summIdList) => {
 export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
     return new Promise(async (resolve, reject) => {
         try {
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile' profilePId,
                 'SET #key = :data',
                 {
                     '#key': 'Information',
@@ -493,7 +493,7 @@ export const updateProfileName = (profilePId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Update "Profile" table
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile' profilePId,
                 'SET #name = :new, #info.#name = :new',
                 {
                     '#name': 'ProfileName',
@@ -556,7 +556,7 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
             // Remove from SummonerIdMap dynamodb
             await dynamoDbDeleteItem('SummonerIdMap', 'SummonerId', summonerId);
             // Update Profile Info dynamoDb
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile' profilePId,
                 'SET #info = :val', 
                 {
                     '#info': 'Information'
@@ -602,7 +602,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             const initProfileGameLog = { [seasonPId]: initProfileSeasonGames };
             // Check if 'GameLog' exists in Profile
             if (!('GameLog' in profileDbObject)) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile' profilePId,
                     'SET #gLog = :val',
                     { 
                         '#gLog': 'GameLog'
@@ -615,7 +615,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             }
             // Check if that season exists in the GameLogs
             else if (!(seasonPId in profileDbObject['GameLog'])) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile' profilePId,
                     'SET #gLog.#sId = :val',
                     {
                         '#gLog': 'GameLog',
@@ -689,7 +689,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile' profilePId,
                 'SET #glog.#sId.#mtch = :data',
                 {
                     '#glog': 'GameLog',
@@ -736,7 +736,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             const initStatsLog = { [tournamentPId]: initProfileTourneyStatsGames };
             if (!('StatsLog' in profileDbObject)) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile' profilePId,
                     'SET #sLog = :val',
                     { 
                         '#sLog': 'StatsLog'
@@ -749,7 +749,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             // Check if that TournamentPId in StatsLog
             else if (!(tournamentPId in profileDbObject['StatsLog'])) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile' profilePId,
                     'SET #sLog.#tId = :val',
                     { 
                         '#sLog': 'StatsLog',
@@ -830,7 +830,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId, 
+            await dynamoDbUpdateItem('Profile' profilePId, 
                 'SET #slog.#tId.#rStats = :data',
                 {
                     '#slog': 'StatsLog',

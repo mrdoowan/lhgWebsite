@@ -243,7 +243,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
             setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
 
             // Push into 'Matches' DynamoDb
-            await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
+            await dynamoDbUpdateItem('Matches', matchId,
                 'SET #setup = :obj',
                 {
                     '#setup': 'Setup',
@@ -303,7 +303,7 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
             transformTeamsObject('Red', newTeamsObject);
 
             // Update to DynamoDb
-            await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
+            await dynamoDbUpdateItem('Matches', matchId,
                 'SET #setup.#teams = :obj',
                 {
                     '#setup': 'Setup',
@@ -369,7 +369,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
                             let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
                             if (matchId in profileGameLog['Matches']) {
                                 delete profileGameLog['Matches'][matchId];
-                                await dynamoDbUpdateItem('Profile', 'ProfilePId', thisProfilePId,
+                                await dynamoDbUpdateItem('Profile' thisProfilePId,
                                     'SET #glog.#sId = :data',
                                     {
                                         '#glog': 'GameLog',
@@ -383,7 +383,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
                             let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
                             if (matchId in teamGameLog['Matches']) {
                                 delete teamGameLog['Matches'][matchId];
-                                await dynamoDbUpdateItem('Team', 'TeamPId', thisTeamPId,
+                                await dynamoDbUpdateItem('Team', thisTeamPId,
                                     'SET #gLog.#sId = :val',
                                     {
                                         '#gLog': 'GameLog',
@@ -399,7 +399,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
                     }
                 }
                 if (changesMade) {
-                    await dynamoDbUpdateItem('Matches', 'MatchPId', matchId,
+                    await dynamoDbUpdateItem('Matches', matchId,
                         'SET #teams = :data',
                         {
                             '#teams': 'Teams',
@@ -479,7 +479,7 @@ export const deleteMatchData = (matchId) => {
                             const playerSeasonGameLog = (await dynamoDbGetItem('Profile', profilePId))['GameLog'][seasonPId]['Matches'];
                             delete playerSeasonGameLog[matchId];
                             // 1)
-                            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                            await dynamoDbUpdateItem('Profile' profilePId,
                                 'SET #gLog.#sPId.#mtch = :data',
                                 {
                                     '#gLog': 'GameLog',
@@ -492,7 +492,7 @@ export const deleteMatchData = (matchId) => {
                             );
                         }
                         // 2)
-                        await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                        await dynamoDbUpdateItem('Team', teamPId,
                             'SET #gLog.#sPId.#mtch = :data',
                             {
                                 '#gLog': 'GameLog',

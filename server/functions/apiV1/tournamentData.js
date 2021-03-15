@@ -697,7 +697,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 -------------------
             */
             //#region Push to Db
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #info = :val',
                 {
                     '#info': 'Information'
@@ -706,7 +706,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyDbObject['Information']
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #tStats = :val',
                 {
                     '#tStats': 'TourneyStats'
@@ -715,7 +715,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyStatsItem
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #pb = :val',
                 {
                     '#pb': 'PickBans'
@@ -724,7 +724,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': pickBansObject
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #pHIdList = :val',
                 {
                     '#pHIdList': 'ProfileHIdList'
@@ -733,7 +733,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(profileHIdSet)
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #tHIdList = :val',
                 {
                     '#tHIdList': 'TeamHIdList'
@@ -742,7 +742,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(teamHIdSet)
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #gLog = :val',
                 {
                     '#gLog': 'GameLog'
@@ -751,7 +751,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': gameLogTourneyItem
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #lb = :val',
                 {
                     '#lb': 'Leaderboards'

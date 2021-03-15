@@ -389,7 +389,7 @@ export const updateTeamName = (teamPId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Update "Team" table
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+            await dynamoDbUpdateItem('Team', teamPId,
                 'SET #name = :new, #info.#name = :new',
                 {
                     '#name': 'TeamName',
@@ -449,7 +449,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             };
             const initTeamGameLog = { [seasonPId]: initTeamSeasonGames };
             if (!('GameLog' in teamDbObject)) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                await dynamoDbUpdateItem('Team', teamPId,
                     'SET #gLog = :val',
                     {
                         '#gLog': 'GameLog'
@@ -461,7 +461,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 teamDbObject['GameLog'] = initTeamGameLog;
             }
             else if (!(seasonPId in teamDbObject['GameLog'])) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                await dynamoDbUpdateItem('Team', teamPId,
                     'SET #gLog.#sId = :val',
                     {
                         '#gLog': 'GameLog',
@@ -476,7 +476,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             // Check 'Scouting' exists in TeamItem 
             const initTeamScouting = { [seasonPId]: {} };
             if (!('Scouting' in teamDbObject)) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId, 
+                await dynamoDbUpdateItem('Team', teamPId, 
                     'SET #sct = :val',
                     {
                         '#sct': 'Scouting'
@@ -637,7 +637,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+            await dynamoDbUpdateItem('Team', teamPId,
                 'SET #gLog.#sId.#mtchs = :val',
                 {
                     '#gLog': 'GameLog',
@@ -648,7 +648,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     ':val': gameLogTeamItem
                 }
             );
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId, 
+            await dynamoDbUpdateItem('Team', teamPId, 
                 'SET #scout.#sId = :val',
                 {
                     '#scout': 'Scouting',
@@ -693,7 +693,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             // Check 'StatsLog' exists in TeamItem
             const initTeamStatsLog = { [tournamentPId]: {} };
             if (!('StatsLog' in teamDbObject)) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                await dynamoDbUpdateItem('Team', teamPId,
                     'SET #sLog = :val',
                     { 
                         '#sLog': 'StatsLog'
@@ -761,7 +761,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+            await dynamoDbUpdateItem('Team', teamPId,
                 'SET #sLog.#tId = :val',
                 {
                     '#sLog': 'StatsLog',
