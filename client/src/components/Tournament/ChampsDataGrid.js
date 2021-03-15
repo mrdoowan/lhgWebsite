@@ -14,8 +14,6 @@ import DataGrid, {
     Scrolling,
     Paging
 } from 'devextreme-react/data-grid';
-// Static
-import { ChampById } from '../../static/ChampById';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
