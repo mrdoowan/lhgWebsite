@@ -2,6 +2,10 @@
 const AWS = require('aws-sdk'); // Interfacing with DynamoDB
 import { unix as _unix } from 'moment-timezone';
 import { getDateString } from './global';
+import {
+    PARTITION_KEY_MAP,
+} from '../../../services/constants';
+
 /*  Configurations of npm modules */
 AWS.config.update({ region: 'us-east-2' });
 const dynamoDb = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
@@ -14,14 +18,14 @@ const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV
 /**
  * Gets an item from the Table based on keyValue. Returns 'undefined' if key item does NOT EXIST
  * @param {string} tableName        Table name of DynamoDb
- * @param {string} partitionName    Column name of the Partition Key
- * @param {*} keyItem               Specific item to look for
+ * @param {*} keyName               Specific item to look for
  */
-export const dynamoDbGetItem = (tableName, partitionName, keyItem) => {
+export const dynamoDbGetItem = (tableName, keyName) => {
+    const partitionKey = PARTITION_KEY_MAP[tableName];
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: keyItem
+            [partitionKey]: keyName
         }
     };
     return new Promise(function(resolve, reject) {
@@ -31,13 +35,13 @@ export const dynamoDbGetItem = (tableName, partitionName, keyItem) => {
                     reject(err);
                 }
                 else {
-                    console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyItem}' from Table '${tableName}'`);
+                    console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyName}' from Table '${tableName}'`);
                     resolve(data['Item']);
                 }
             });
         }
         catch (error) {
-            console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyItem}'.`)
+            console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyName}'.`)
             reject(error);
         }
     });
@@ -71,17 +75,17 @@ export const dynamoDbPutItem = (tableName, items, keyItem) => {
 /**
  * Updates a DynamoDb Item based on keyObject + valueObject condition
  * @param {string} tableName        DynamoDb Table name
- * @param {string} partitionName    Column name of the Table's Partition Key
- * @param {*} key                   Item Key to update
+ * @param {*} keyName               Item Key to update
  * @param {string} updateExp        The Condition to update (i.e. 'SET #glog.#sId = :data')
  * @param {Object} keyObject        Map of Keys (i.e. { '#glog': 'GameLog' })
  * @param {Object} valueObject      Map of Values (i.e. { ':data': (DATA) })
  */
-export const dynamoDbUpdateItem = (tableName, partitionName, key, updateExp, keyObject, valueObject) => {
+export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, valueObject) => {
+    const partitionKey = PARTITION_KEY_MAP[tableName];
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: key
+            [partitionKey]: keyName
         },
         UpdateExpression: updateExp,
         ExpressionAttributeNames: keyObject,
@@ -94,7 +98,7 @@ export const dynamoDbUpdateItem = (tableName, partitionName, key, updateExp, key
                 reject(err); 
             }
             else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Update Item '${key}' in Table '${tableName}'`);
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Update Item '${keyName}' in Table '${tableName}'`);
                 resolve(data);
             }
         });
@@ -143,14 +147,14 @@ export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=nul
 /**
  * Deletes an item from the specific Table
  * @param {string} tableName        DynamoDb Table Name
- * @param {string} partitionName    Column name of the Partition Key
- * @param {*} keyItem               Value of Partition Key to remove
+ * @param {*} keyName               Value of Partition Key to remove
  */
-export const dynamoDbDeleteItem = (tableName, partitionName, keyItem) => {
+export const dynamoDbDeleteItem = (tableName, keyName) => {
+    const partitionKey = PARTITION_KEY_MAP[tableName];
     const params = {
         TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
         Key: {
-            [partitionName]: keyItem,
+            [partitionKey]: keyName,
         }
     }
     return new Promise(function(resolve, reject) {
@@ -160,7 +164,7 @@ export const dynamoDbDeleteItem = (tableName, partitionName, keyItem) => {
                 reject(err); 
             }
             else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${keyItem}' in Table '${tableName}'`);
+                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${keyName}' in Table '${tableName}'`);
                 resolve(data);
             }
         })
