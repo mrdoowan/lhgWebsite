@@ -476,7 +476,7 @@ export const getTournamentTeamList = (tournamentPId) => {
 export const updateTournamentOverallStats = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
+            const tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
             /*  
                 -------------------
                 Init DynamoDB Items
@@ -493,7 +493,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 'MountainDrakes': 0,
                 'ElderDrakes': 0,
             }
-            let pickBansObject = await initPickBansObject();
+            let pickBansObject = await initPickBansObject(tourneyDbObject.Information.MostRecentPatch);
             let profileHIdSet = new Set();
             let teamHIdSet = new Set();
             let gameLogTourneyItem = {};
@@ -510,9 +510,8 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             */
             const matchStatsSqlList = await mySqlCallSProc('matchStatsByTournamentId', tournamentPId);
             //#region Process GameLog Data
-            for (let matchIdx = 0; matchIdx < matchStatsSqlList.length; ++matchIdx) {
-                let matchStatsSqlRow = matchStatsSqlList[matchIdx];
-                let matchPId = matchStatsSqlRow.riotMatchId;
+            for (const matchStatsSqlRow of matchStatsSqlList) {
+                const matchPId = matchStatsSqlRow.riotMatchId;
                 /*  
                     --------------
                     'TourneyStats'
@@ -527,10 +526,9 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 tourneyStatsItem['MountainDrakes'] += matchStatsSqlRow.mountainDragons;
                 tourneyStatsItem['ElderDrakes'] += matchStatsSqlRow.elderDragons;
     
-                let matchObject = await dynamoDbGetItem('Matches', matchPId.toString());
-                for (let teamIdx = 0; teamIdx < Object.keys(matchObject['Teams']).length; ++teamIdx) {
-                    let teamId = Object.keys(matchObject['Teams'])[teamIdx];
-                    let teamObject = matchObject['Teams'][teamId];    
+                const matchObject = await dynamoDbGetItem('Matches', matchPId.toString());
+                for (const teamId in matchObject.Teams) {
+                    const teamObject = matchObject['Teams'][teamId];    
                     /*
                         --------------
                         'PickBans'
@@ -565,7 +563,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     'Patch': matchObject.GamePatchVersion,
                 };
                 // Update 'MostRecentPatch'
-                tourneyDbObject['Information']['MostRecentPatch'] = matchObject.GamePatchVersion;
+                tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
             }
             //#endregion
             //#region Process Leaderboard Data
@@ -791,13 +789,14 @@ export const updateTournamentOverallStats = (tournamentPId) => {
 
 /**
  * Returns an initialized pickBansObject
+ * @param {string} patch        If null, will return latest
+ * @returns Promise<Object>
  */
-function initPickBansObject() {
+function initPickBansObject(patch) {
     return new Promise((resolve, reject) => {
-        createChampObject().then((champObject) => {
-            let newPickBansObject = {};
-            for (let i = 0; i < Object.keys(champObject).length; ++i) {
-                const champId = Object.keys(champObject)[i];
+        createChampObject(patch).then((champObject) => {
+            const newPickBansObject = {};
+            for (const champId in champObject) {
                 newPickBansObject[champId] = {
                     'BluePicks': 0,
                     'RedPicks': 0,
@@ -820,8 +819,7 @@ function initPickBansObject() {
  * @param {string} teamId           "100" == Blue, "200" == Red
  */
 function addBansToTourneyItem(pickBansObject, banArray, teamId) {
-    for (let k = 0; k < banArray.length; ++k) {
-        const champBanned = banArray[k];
+    for (const champBanned of banArray) {
         if (teamId == GLOBAL_CONSTS.BLUE_ID) {
             pickBansObject[champBanned]['BlueBans']++;
         }
@@ -838,10 +836,9 @@ function addBansToTourneyItem(pickBansObject, banArray, teamId) {
  * @param {string} teamId               "100" == Blue, "200" == Red
  */
 function addWinPicksToTourneyItem(pickBansObject, teamObject, teamId) {
-    let playersObject = teamObject['Players'];
-    for (let k = 0; k < Object.values(playersObject).length; ++k) {
-        let playerObject = Object.values(playersObject)[k];
-        let champPicked = playerObject['ChampId'];
+    const playersObject = teamObject['Players'];
+    for (const singlePlayerObject of Object.values(playersObject)) {
+        const champPicked = singlePlayerObject['ChampId'];
         if (teamId == GLOBAL_CONSTS.BLUE_ID) {
             pickBansObject[champPicked]['BluePicks']++;
         }
