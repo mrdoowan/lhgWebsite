@@ -34,7 +34,7 @@ export const putNewStaff = (staff) => {
                     profileInfo['Password'] = hash;
                     profileInfo['Admin'] = staff.admin;
                     profileInfo['Moderator'] = staff.moderator;
-                    dynamoDbUpdateItem('Profile' pPId,
+                    dynamoDbUpdateItem('Profile', pPId,
                         'SET #info = :data',
                         {
                             '#info': 'Information',

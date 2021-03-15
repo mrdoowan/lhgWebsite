@@ -405,7 +405,7 @@ export const updateTeamName = (teamPId, newName, oldName) => {
                 'TeamHId': getTeamHashId(teamPId),
             }, filterName(newName));
             // Delete oldName from "TeamNameMap" table
-            await dynamoDbDeleteItem('TeamNameMap', 'TeamName', filterName(oldName));
+            await dynamoDbDeleteItem('TeamNameMap', filterName(oldName));
 
             // Del Cache
             cache.del(CACHE_KEYS.TEAM_PID_PREFIX + filterName(oldName));

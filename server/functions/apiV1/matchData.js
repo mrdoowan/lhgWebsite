@@ -369,7 +369,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
                             let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
                             if (matchId in profileGameLog['Matches']) {
                                 delete profileGameLog['Matches'][matchId];
-                                await dynamoDbUpdateItem('Profile' thisProfilePId,
+                                await dynamoDbUpdateItem('Profile', thisProfilePId,
                                     'SET #glog.#sId = :data',
                                     {
                                         '#glog': 'GameLog',
@@ -455,7 +455,7 @@ export const deleteMatchData = (matchId) => {
                 await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
                 
                 // 3) 
-                await dynamoDbDeleteItem('Matches', 'MatchPId', matchId);
+                await dynamoDbDeleteItem('Matches', matchId);
                 resolve({ 
                     setup: setupFlag,
                     response: `Match ID '${matchId}' removed from the database.` 
@@ -479,7 +479,7 @@ export const deleteMatchData = (matchId) => {
                             const playerSeasonGameLog = (await dynamoDbGetItem('Profile', profilePId))['GameLog'][seasonPId]['Matches'];
                             delete playerSeasonGameLog[matchId];
                             // 1)
-                            await dynamoDbUpdateItem('Profile' profilePId,
+                            await dynamoDbUpdateItem('Profile', profilePId,
                                 'SET #gLog.#sPId.#mtch = :data',
                                 {
                                     '#gLog': 'GameLog',
@@ -505,7 +505,7 @@ export const deleteMatchData = (matchId) => {
                         );
                     }
                     // 3) 
-                    await dynamoDbDeleteItem('Matches', 'MatchPId', matchId);
+                    await dynamoDbDeleteItem('Matches', matchId);
                     
                     // 4) 
                     await mySqlCallSProc('removeMatchByMatchId', parseInt(matchId));
