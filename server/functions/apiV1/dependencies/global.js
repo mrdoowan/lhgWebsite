@@ -155,13 +155,13 @@ export const generateNewPId = (type) => {
         while (duplicate) {
             let newPId = strPadZeroes(randomNumber.integer(1, 99999999), 8); // 8 digit number
             if (type.toLowerCase() === "profile") {
-                if (!(await dynamoDbGetItem('Profile', 'ProfilePId', newPId))) {
+                if (!(await dynamoDbGetItem('Profile', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }
             }
             else if (type.toLowerCase() === "team") {
-                if (!(await dynamoDbGetItem('Team', 'TeamPId', newPId))) {
+                if (!(await dynamoDbGetItem('Team', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }

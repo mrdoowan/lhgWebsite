@@ -52,7 +52,7 @@ export const getMatchData = (id) => {
             if (err) { console.error(err); reject(err); }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let matchJson = await dynamoDbGetItem('Matches', 'MatchPId', id);
+                let matchJson = await dynamoDbGetItem('Matches', id);
                 if (matchJson == null || "Setup" in matchJson) { resolve(null); return; } // Not Found or it's a Setup
                 let seasonPId = matchJson['SeasonPId'];
                 matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
@@ -102,7 +102,7 @@ export const getMatchData = (id) => {
 export const getMatchSetup = (id) => {
     return new Promise(async function(resolve, reject) {
         try {
-            const matchJson = await dynamoDbGetItem('Matches', 'MatchPId', id);
+            const matchJson = await dynamoDbGetItem('Matches', id);
             if (matchJson == null || !("Setup" in matchJson)) { resolve(null); return; } // Not Found
             const matchSetupJson = matchJson['Setup'];
             matchSetupJson['SeasonName'] = await getSeasonName(matchSetupJson['SeasonPId']);
@@ -133,7 +133,7 @@ export const getMatchSetup = (id) => {
 export const getMatchSetupList = () => {
     return new Promise(async function(resolve, reject) {
         try {
-            const matchIdList = (await dynamoDbGetItem('Miscellaneous', 'Key', 'MatchSetupIds'))['MatchSetupIdList'];
+            const matchIdList = (await dynamoDbGetItem('Miscellaneous', 'MatchSetupIds'))['MatchSetupIdList'];
             resolve(matchIdList);
         }
         catch (error) { console.error(error); reject(error); }
@@ -159,7 +159,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
                 });
             }
             // Check if matchId already exists
-            if (await dynamoDbGetItem('Matches', 'MatchPId', matchId)) {
+            if (await dynamoDbGetItem('Matches', matchId)) {
                 resolve({
                     'MatchId': matchId,
                     'Error': `Match ID ${matchId} already exists.`,
@@ -167,7 +167,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
                 return; 
             }
             // Check if seasonId exists
-            if (!(await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentId))) {
+            if (!(await dynamoDbGetItem('Tournament', tournamentId))) {
                 resolve({
                     'MatchId': matchId,
                     'Error': `Tournament ID ${tournamentId} doesn't exists.`,
@@ -175,7 +175,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
                 return; 
             }
             // Check if tournamentId exists
-            if (!(await dynamoDbGetItem('Season', 'SeasonPId', seasonId))) {
+            if (!(await dynamoDbGetItem('Season', seasonId))) {
                 resolve({
                     'MatchId': matchId,
                     'Error': `Season ID ${seasonId} doesn't exists.`,
@@ -292,7 +292,7 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
             }
         }
 
-        dynamoDbGetItem('Matches', 'MatchPId', matchId).then(async (dbMatchObject) => {
+        dynamoDbGetItem('Matches', matchId).then(async (dbMatchObject) => {
             if (!dbMatchObject || !('Setup' in dbMatchObject)) { resolve(null); return; } // Not Found
             const newTeamsObject = dbMatchObject['Setup']['Teams'];
             newTeamsObject['BlueTeam']['TeamName'] = payloadBlueTeam.TeamName;
@@ -432,7 +432,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
  */
 export const deleteMatchData = (matchId) => {
     return new Promise((resolve, reject) => {
-        dynamoDbGetItem('Matches', 'MatchPId', matchId).then(async (matchData) => {
+        dynamoDbGetItem('Matches', matchId).then(async (matchData) => {
             // 1) Remove and update Game Logs from EACH Profile Table
             // 2) Remove and update Game Logs from EACH Team Table
             // 3) Remove from Match Table
@@ -471,12 +471,12 @@ export const deleteMatchData = (matchId) => {
                     const { Teams } = matchData;
                     for (const teamObject of Object.values(Teams)) {
                         const teamPId = getTeamPIdFromHash(teamObject['TeamHId']);
-                        const teamSeasonGameLog = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'][seasonPId]['Matches'];
+                        const teamSeasonGameLog = (await dynamoDbGetItem('Team', teamPId))['GameLog'][seasonPId]['Matches'];
                         delete teamSeasonGameLog[matchId];
                         const { Players } = teamObject;
                         for (const playerObject of Object.values(Players)) {
                             const profilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
-                            const playerSeasonGameLog = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'][seasonPId]['Matches'];
+                            const playerSeasonGameLog = (await dynamoDbGetItem('Profile', profilePId))['GameLog'][seasonPId]['Matches'];
                             delete playerSeasonGameLog[matchId];
                             // 1)
                             await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,

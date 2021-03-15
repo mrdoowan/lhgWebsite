@@ -46,7 +46,7 @@ export const getTeamPIdByName = (name) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('TeamNameMap', 'TeamName', simpleName)
+            dynamoDbGetItem('TeamNameMap', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const teamPId = getTeamPIdFromHash(obj['TeamHId']);
@@ -103,7 +103,7 @@ export const getTeamName = (teamHId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Team', 'TeamPId', teamPId)
+            dynamoDbGetItem('Team', teamPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const name = obj['TeamName'];
@@ -127,7 +127,7 @@ export const getTeamShortName = (teamHId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Team', 'TeamPId', teamPId)
+            dynamoDbGetItem('Team', teamPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const shortName = obj['Information']['TeamShortName'];
@@ -146,7 +146,7 @@ export const getTeamInfo = (teamPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let teamInfoJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['Information'];
+                let teamInfoJson = (await dynamoDbGetItem('Team', teamPId))['Information'];
                 if (teamInfoJson != null) {
                     if ('TrophyCase' in teamInfoJson) {
                         for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
@@ -156,12 +156,12 @@ export const getTeamInfo = (teamPId) => {
                         }
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'];
+                    let gameLogJson = (await dynamoDbGetItem('Team', teamPId))['GameLog'];
                     if (gameLogJson != null) {
                         teamInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['StatsLog'];
+                    let statsLogJson = (await dynamoDbGetItem('Team', teamPId))['StatsLog'];
                     if (statsLogJson != null) {
                         teamInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -185,7 +185,7 @@ export const getTeamInfo = (teamPId) => {
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!teamPId) { resolve(null); return; }
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+        dynamoDbGetItem('Team', teamPId).then((teamObject) => {
             if (teamObject && 'Scouting' in teamObject) {
                 const scoutingJson = teamObject['Scouting'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
@@ -236,7 +236,7 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
 export const getTeamGamesBySeason = (teamPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!teamPId) { resolve(null); return; }
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+        dynamoDbGetItem('Team', teamPId).then((teamObject) => {
             if (teamObject && 'GameLog' in teamObject) {
                 const gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
@@ -282,7 +282,7 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
 export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!teamPId) { resolve(null); return; }
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+        dynamoDbGetItem('Team', teamPId).then((teamObject) => {
             if (teamObject && 'StatsLog' in teamObject) {
                 const statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
@@ -433,9 +433,9 @@ export const updateTeamName = (teamPId, newName, oldName) => {
 export const updateTeamGameLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
+            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
             let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let teamDbObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+            let teamDbObject = await dynamoDbGetItem('Team', teamPId);
 
             /*  
                 -------------------
@@ -682,7 +682,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
 export const updateTeamStatsLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let teamDbObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+            let teamDbObject = await dynamoDbGetItem('Team', teamPId);
 
             /*  
                 -------------------
