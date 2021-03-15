@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
         float: "right",
         width: "50%",
         textAlign: 'center',
+        fontWeight: 'bold',
     },
     row: {
         padding: theme.spacing(1),
@@ -51,7 +52,10 @@ export default function TourneyStats({ stats }) {
         { side: 'Blue', wins: stats.BlueSideWins },
         { side: 'Red', wins: (stats.NumberGames - stats.BlueSideWins) },
     ];
-    const sidePalette = ['#0000FF', '#FF0000'];
+    const sidePalette = [
+        '#1241ce', // Blue
+        '#cb2c31', // Red
+    ];
 
     const totalDragons = stats.CloudDrakes + stats.InfernalDrakes + stats.MountainDrakes + stats.OceanDrakes + stats.ElderDrakes;
     const dragonData = [

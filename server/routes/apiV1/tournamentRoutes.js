@@ -29,6 +29,7 @@ import {
 } from '../../functions/apiV1/teamData';
 import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
 import { AWS_RDS_STATUS } from '../../services/constants';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -151,6 +152,7 @@ tournamentV1Routes.get('/games/name/:tournamentShortName', (req, res) => {
 });
 
 /**
+ * Uses Rds
  * @route   GET api/tournament/v1/players/ids/name/:tournamentShortName
  * @desc    Get List of unique Player IDs participating in the Tournament
  * @access  Public
@@ -158,15 +160,22 @@ tournamentV1Routes.get('/games/name/:tournamentShortName', (req, res) => {
 tournamentV1Routes.get('/players/ids/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Player IDs List.`);
-    getTournamentId(tournamentShortName).then((tourneyPId) => {
-        if (tourneyPId == null) { return res400sClientError(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        getTournamentPlayerList(tourneyPId).then((playerList) => {
-            return res200sOK(res, req, playerList);
-        });
-    });
+
+    checkRdsStatus().then((status) => {
+        if (status !== AWS_RDS_STATUS.AVAILABLE) {
+            return res400sClientError(res, req, `AWS Rds Instance not available.`);
+        }
+        getTournamentId(tournamentShortName).then((tourneyPId) => {
+            if (tourneyPId == null) { return res400sClientError(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
+            getTournamentPlayerList(tourneyPId).then((playerList) => {
+                return res200sOK(res, req, playerList);
+            }).catch((err) => error500sServerError(err, res, "GET Tourney Player List Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Tourney ID Error."));
+    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
 });
 
 /**
+ * Uses Rds
  * @route   GET api/tournament/v1/teams/ids/name/:tournamentShortName
  * @desc    Get List of unique Team IDs participating in the Tournament
  * @access  Public
@@ -174,12 +183,18 @@ tournamentV1Routes.get('/players/ids/name/:tournamentShortName', (req, res) => {
 tournamentV1Routes.get('/teams/ids/name/:tournamentShortName', (req, res) => {
     const { tournamentShortName } = req.params;
     console.log(`GET Request Tournament '${tournamentShortName}' Team IDs List.`);
-    getTournamentId(tournamentShortName).then((tourneyPId) => {
-        if (tourneyPId == null) { return res400sClientError(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
-        getTournamentTeamList(tourneyPId).then((teamList) => {
-            return res200sOK(res, req, teamList);
-        });
-    });
+
+    checkRdsStatus().then((status) => {
+        if (status !== AWS_RDS_STATUS.AVAILABLE) {
+            return res400sClientError(res, req, `AWS Rds Instance not available.`);
+        }
+        getTournamentId(tournamentShortName).then((tourneyPId) => {
+            if (tourneyPId == null) { return res400sClientError(res, req, `Tournament Name '${tournamentShortName}' Not Found`); }
+            getTournamentTeamList(tourneyPId).then((teamList) => {
+                return res200sOK(res, req, teamList);
+            }).catch((err) => error500sServerError(err, res, "GET Tourney Team List Error."));
+        }).catch((err) => error500sServerError(err, res, "GET Tourney ID Error."));
+    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
 });
 
 /**
@@ -188,7 +203,7 @@ tournamentV1Routes.get('/teams/ids/name/:tournamentShortName', (req, res) => {
  * @desc    Update Tournament overall stats
  * @access  Private (Admins only)
  */
-tournamentV1Routes.put('/update/overall', (req, res) => {
+tournamentV1Routes.put('/update/overall', authenticateJWT, (req, res) => {
     const { tournamentShortName } = req.body;
 
     console.log(`PUT Request Tournament ${tournamentShortName} Overall Stats.`);
@@ -215,7 +230,7 @@ tournamentV1Routes.put('/update/overall', (req, res) => {
  * @desc    Update a Player's stat for the Tournament
  * @access  Private (Admins only)
  */
-tournamentV1Routes.put('/update/player', (req, res) => {
+tournamentV1Routes.put('/update/player', authenticateJWT, (req, res) => {
     const { tournamentShortName, playerPId } = req.body;
 
     console.log(`PUT Request Tournament ${tournamentShortName} Player Stats of ID '${playerPId}'`);
@@ -244,7 +259,7 @@ tournamentV1Routes.put('/update/player', (req, res) => {
  * @desc    Update a Team's stat for the Tournament
  * @access  Private (Admins only)
  */
-tournamentV1Routes.put('/update/team', (req, res) => {
+tournamentV1Routes.put('/update/team', authenticateJWT, (req, res) => {
     const { tournamentShortName, teamPId } = req.body;
 
     console.log(`PUT Request Tournament ${tournamentShortName} Team Stats of ID '${teamPId}'`);

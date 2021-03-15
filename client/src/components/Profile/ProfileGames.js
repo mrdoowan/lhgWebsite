@@ -45,12 +45,12 @@ const useStyles = makeStyles((theme) => ({
     rowWin: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#90EE90',
+        backgroundColor: '#BDE7BD',
     },
     rowLose: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#FF7F7F',
+        backgroundColor: '#FFB6B3',
     },
     leftHeader: {
         textAlign: 'left',

@@ -53,7 +53,7 @@ export const getSeasonShortName = (seasonId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
+            dynamoDbGetItem('Season', seasonId)
             .then((obj) => {
                 let shortName = obj['SeasonShortName'];
                 if (shortName == null) { resolve(null); return; } // Not Found
@@ -74,7 +74,7 @@ export const getSeasonName = (seasonId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
+            dynamoDbGetItem('Season', seasonId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['SeasonName'];
@@ -95,7 +95,7 @@ export const getSeasonTime = (seasonId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
+            dynamoDbGetItem('Season', seasonId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let time = obj['Information']['SeasonTime'];
@@ -116,7 +116,7 @@ export const getSeasonTabName = (seasonId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Season', 'SeasonPId', seasonId)
+            dynamoDbGetItem('Season', seasonId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let time = obj['Information']['SeasonTabName'];
@@ -175,7 +175,7 @@ export const getSeasonInformation = (seasonId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonInfoJson = (await dynamoDbGetItem('Season', 'SeasonPId', seasonId))['Information'];
+                let seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
                 if (seasonInfoJson != null) {
                     seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
                     seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
@@ -214,7 +214,7 @@ export const getSeasonInformation = (seasonId) => {
 export const getSeasonRosterById = (seasonId) => {
     return new Promise(function(resolve, reject) {
         // Gonna avoid caching for this one
-        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonJson) => {
+        dynamoDbGetItem('Season', seasonId).then(async (seasonJson) => {
             if (!seasonJson) { resolve(null); return; }
             const seasonRosterJson = seasonJson['Roster'];
             if (seasonRosterJson) {
@@ -278,7 +278,7 @@ export const getSeasonRegular = (seasonId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonRegularJson = (await dynamoDbGetItem('Season', 'SeasonPId', seasonId))['Regular'];
+                let seasonRegularJson = (await dynamoDbGetItem('Season', seasonId))['Regular'];
                 if (seasonRegularJson != null) {
                     for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
                         let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
@@ -317,7 +317,7 @@ export const getSeasonPlayoffs = (seasonId) => {
             if (err) { console(err); reject(err); return }
             else if (data != null) { resolve(JSON.parse(data)); return }
             try {
-                let playoffJson = (await dynamoDbGetItem('Season', 'SeasonPId', seasonId))['Playoffs'];
+                let playoffJson = (await dynamoDbGetItem('Season', seasonId))['Playoffs'];
                 if (playoffJson != null) {
                     for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
                         let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
@@ -354,7 +354,7 @@ export const getSeasonPlayoffs = (seasonId) => {
  */
 export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
     return new Promise((resolve, reject) => {
-        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+        dynamoDbGetItem('Season', seasonId).then(async (seasonObject) => {
             const errorList = [];
 
             // Check if Roster property exists. If not, init new one
@@ -399,34 +399,37 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
  * @param {string} teamPId          Assume valid
  * @param {string} profilePIdList   Assume valid
  */
-export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
+export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
     return new Promise((resolve, reject) => {
-        dynamoDbGetItem('Season', 'SeasonPId', seasonId).then(async (seasonObject) => {
+        dynamoDbGetItem('Season', seasonId).then(async (seasonDbObject) => {
             const errorList = [];
 
             // Check if Roster or Team property exists.
-            if (!('Roster' in seasonObject) || !('Teams' in seasonObject.Roster)) {
+            if (!('Roster' in seasonDbObject) || !('Teams' in seasonDbObject.Roster)) {
                 resolve({ errorList: `Season Object does not have Roster` });
                 return;
             }
-            const rosterTeamObject = seasonObject.Roster.Teams;
+            const rosterTeamDbObject = seasonDbObject.Roster.Teams;
             const teamHId = getTeamHashId(teamPId);
             const teamName = await getTeamName(teamHId);
-            if (!(teamHId in rosterTeamObject)) {
-                errorList.push(`${teamName} - Team is not in the Season Roster`);
+            if (!(teamHId in rosterTeamDbObject)) {
+                resolve({ errorList: `${teamName} - Team is not in the Season Roster`});
+                return;
             }
             // Check for duplicate in ProfilePId
-            const rosterPlayersObject = rosterTeamObject[teamHId].Players;
+            const rosterPlayersDbObject = rosterTeamDbObject[teamHId].Players;
+            const profileMessages = [];
             for (const profilePId of profilePIdList) {
                 const profileHId = getProfileHashId(profilePId);
-                if (rosterPlayersObject && profileHId in rosterPlayersObject) {
+                const profileName = await getProfileName(profileHId);
+                if (rosterPlayersDbObject && profileHId in rosterPlayersDbObject) {
                     // Duplicate found
-                    const profileName = getProfileName(profileHId);
-                    errorList.push(`${profileName} - Profile is already in the Team.`);
+                    profileMessages.push(`${profileName} - Profile is already in the Team.`);
                 }
                 else {
                     // Create new object
-                    rosterPlayersObject[profileHId] = {};
+                    rosterPlayersDbObject[profileHId] = {};
+                    profileMessages.push(`${profileName} - Profile added to the Team.`)
                 }
             }
 
@@ -434,13 +437,60 @@ export const putSeasonRosterProfiles = (seasonId, teamPId, profilePIdList) => {
                 resolve({ errorList: errorList });
             }
             else {
-                await dynamoDbPutItem('Season', seasonObject, seasonId);
+                await dynamoDbPutItem('Season', seasonDbObject, seasonId);
                 resolve({
                     'SeasonId': seasonId,
                     'TeamName': teamName,
-                    'SeasonRoster': { [teamHId]: rosterPlayersObject },
+                    'Profiles': profileMessages,
+                    'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
                 });
             }
         }).catch((err) => { console.error(err); reject(err); });
     });
 }
+
+/**
+ * Remove Profile from Season's roster. Assume inputs are valid.
+ * @param {number} seasonId         Assume valid
+ * @param {string} teamPId          Assume valid
+ * @param {array} profilePIdList    Assume valid
+ */
+export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Season', seasonId).then(async (seasonDbObject) => {
+            if (!('Roster' in seasonDbObject) || !('Teams' in seasonDbObject.Roster)) {
+                resolve({ error: `Season Object does not have Roster.` });
+                return;
+            }
+            const rosterTeamDbObject = seasonDbObject.Roster.Teams;
+            const teamHId = getTeamHashId(teamPId);
+            const teamName = await getTeamName(teamHId);
+            if (!(teamHId in rosterTeamDbObject)) {
+                resolve({ error: `${teamName} - Team is not in the Season Roster`});
+                return;
+            }
+
+            const rosterPlayersDbObject = rosterTeamDbObject[teamHId].Players;
+            const profileMessages = [];
+            for (const profilePId of profilePIdList) {
+                const profileHId = getProfileHashId(profilePId);
+                const profileName = await getProfileName(profileHId);
+                if (profileHId in rosterPlayersDbObject) {
+                    delete rosterPlayersDbObject[profileHId];
+                    profileMessages.push(`${profileName} - Profile removed from Team`);
+                }
+                else {
+                    profileMessages.push(`${profileName} - Profile not found in Team`);
+                }
+            }
+            
+            await dynamoDbPutItem('Season', seasonDbObject, seasonId);
+            resolve({
+                'SeasonId': seasonId,
+                'TeamName': teamName,
+                'Profiles': profileMessages,
+                'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
+            });
+            
+        }).catch((err) => { console.error(err); reject(err); });
+    });

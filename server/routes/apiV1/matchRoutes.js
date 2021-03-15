@@ -16,9 +16,8 @@ import {
     putMatchSaveSetup,
 } from '../../functions/apiV1/matchData';
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
-import { checkRdsStatus } from '../../functions/apiV1/dependencies/awsRdsHelper';
-import { AWS_RDS_STATUS } from '../../services/constants';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -67,19 +66,14 @@ matchV1Routes.get('/setup/data/:matchId', (req, res) => {
  * @desc    Fix Player assignment to champions
  * @access  Private (to Admins)
  */
-matchV1Routes.put('/players/update', (req, res) => {
+matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
     const { playersToFix, matchId } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Players`);
-    checkRdsStatus().then((status) => {
-        if (status !== AWS_RDS_STATUS.AVAILABLE) {
-            return res400sClientError(res, req, `AWS Rds Instance not available.`);
-        }
-        putMatchPlayerFix(playersToFix, matchId).then((data) => {
-            if (data == null) { return res400sClientError(res, req, `Match ID '${matchId}' PUT Request Fix Players' Champions Failed`); }
-            return res200sOK(res, req, data);
-        }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
-    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
+    putMatchPlayerFix(playersToFix, matchId).then((data) => {
+        if (data.error) { return res400sClientError(res, req, data.error); }
+        return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
 });
 
 /**
@@ -87,7 +81,7 @@ matchV1Routes.put('/players/update', (req, res) => {
  * @desc    Create Match "Setup" Item by the ID of a previous played Match
  * @access  Private (to Admins)
  */
-matchV1Routes.post('/setup/new/id', (req, res) => {
+matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
     const { riotMatchId, tournamentName } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
@@ -125,7 +119,7 @@ matchV1Routes.get('/setup/list', (req, res) => {
  * @desc    Saves text fields from /matchup/setup page into 'Setup' object
  * @access  Private (to Admins)
  */
-matchV1Routes.put('/setup/save', (req, res) => {
+matchV1Routes.put('/setup/save', authenticateJWT, (req, res) => {
     const { matchId, teams } = req.body;
     
     console.log(`PUT Request Match '${matchId}' Save Setup`);
@@ -140,7 +134,7 @@ matchV1Routes.put('/setup/save', (req, res) => {
  * @desc    Saves the text fields and submits the Match Data into MySQL and DynamoDb
  * @access  Private (to Admins)
  */
-matchV1Routes.put('/setup/submit', (req, res) => {
+matchV1Routes.put('/setup/submit', authenticateJWT, (req, res) => {
     const { matchId, teams } = req.body;
 
     console.log(`PUT Request Match '${matchId}' Setup Submit.`);
@@ -164,19 +158,14 @@ matchV1Routes.put('/setup/submit', (req, res) => {
  * @desc    Remove a match from Records
  * @access  Private (to Admins)
  */
-matchV1Routes.delete('/remove/:matchId', (req, res) => {
+matchV1Routes.delete('/remove/:matchId', authenticateJWT, (req, res) => {
     const { matchId } = req.params;
 
     console.log(`DELETE Request Match '${matchId}'.`);
-    checkRdsStatus().then((status) => {
-        if (status !== AWS_RDS_STATUS.AVAILABLE) {
-            return res400sClientError(res, req, `AWS Rds Instance not available.`);
-        }
-        deleteMatchData(matchId).then((message) => {
-            if (message == null) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
-            return res200sOK(res, req, message);
-        }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
-    }).catch((err) => error500sServerError(err, res, "Check RDS Status Error."));
+    deleteMatchData(matchId).then((response) => {
+        if (response.error) { return res400sClientError(res, req, response.error); }
+        return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
 });
 
 //#endregion

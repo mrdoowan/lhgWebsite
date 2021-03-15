@@ -1,10 +1,5 @@
 import axios from "axios"
-import { CACHE_KEYS } from "../functions/apiV1/dependencies/cacheKeys"
-import { GLOBAL_CONSTS } from "../functions/apiV1/dependencies/global";
 import { getDDragonVersion } from "./ddragonVersion"
-
-const redis = require('redis');
-const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
  * @param {string} key      The id of each Champion (i.e. '1' is Annie)
@@ -50,30 +45,25 @@ export const getChampName = (key) => {
  *     "name": "Annie"
  *   }
  * }
+ * @param {string} patch        Can be 'null' for latest
+ * @returns Promise<object>
  */
-export const createChampObject = () => {
-    return new Promise((resolve, reject) => {
-        const cacheKey = CACHE_KEYS.CHAMP_OBJECT;
-        cache.get(cacheKey, async (err, data) => {
-            if (err) { console.error(err); reject(err); return; }
-            else if (data) { resolve(JSON.parse(data)); return; }
-
-            const latestDdragonPatch = await getDDragonVersion();
-            axios.get(`http://ddragon.leagueoflegends.com/cdn/${latestDdragonPatch}/data/en_US/champion.json`)
-            .then((res) => {
-                const { data } = res.data;
-                let champByKey = {};
-                for (const value of Object.values(data)) {
-                    champByKey[value.key] = {
-                        id: value.id,
-                        name: value.name,
-                    }
+export const createChampObject = (patch=null) => {
+    return new Promise(async (resolve, reject) => {
+        const ddragonVersion = await getDDragonVersion(patch);
+        axios.get(`http://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/champion.json`)
+        .then((res) => {
+            const { data } = res.data;
+            let champByKey = {};
+            for (const value of Object.values(data)) {
+                champByKey[value.key] = {
+                    id: value.id,
+                    name: value.name,
                 }
-                cache.set(cacheKey, JSON.stringify(champByKey), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                resolve(champByKey);
-            }).catch((err) => {
-                reject(err);
-            });
+            }
+            resolve(champByKey);
+        }).catch((err) => {
+            reject(err);
         });
     });
 }

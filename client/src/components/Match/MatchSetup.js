@@ -184,7 +184,7 @@ export default function MatchSetup({ setupData }) {
         return profileNamesList.sort();
     }
     //#endregion
-
+    
     // API data
     const [rosterData, setRosterData] = useState(null);
     // Form fields
@@ -238,6 +238,11 @@ export default function MatchSetup({ setupData }) {
                         'Setup Submit PUT request failed...'
                     );
                 }
+                else if (err.response.status === 403) {
+                    appendMessage(
+                        'Forbidden access...'
+                    );
+                }
                 else {
                     const { data: { data } } = err.response;
                     appendMessage(
@@ -258,10 +263,17 @@ export default function MatchSetup({ setupData }) {
                 appendMessage(
                     'Setup saved!'
                 );
-            }).catch(() => {
-                appendMessage(
-                    'Setup Save PUT request failed...'
-                );
+            }).catch((err) => {
+                if (err.response.status === 403) {
+                    appendMessage(
+                        'Forbidden access...'
+                    );
+                }
+                else {
+                    appendMessage(
+                        'Setup Submit PUT request failed...'
+                    );
+                }
             }).finally(() => {
                 setApiRequestSent(false);
                 setSaveButtonPressed(false);

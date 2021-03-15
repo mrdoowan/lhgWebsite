@@ -6,7 +6,7 @@ import Loading from './Loading';
 // Need a loading status as this is happening
 export default function Markup({ data, code, dataComponent }) {
     let markup = 
-        (data == null && (code === 200 || code == null)) ? ( <Loading /> ) : 
+        (!data && (code === 200 || !code)) ? ( <Loading /> ) : 
         (data) ? ( dataComponent ) : 
         ('');
 

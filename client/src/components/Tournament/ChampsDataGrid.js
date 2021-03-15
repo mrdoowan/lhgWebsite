@@ -14,8 +14,6 @@ import DataGrid, {
     Scrolling,
     Paging
 } from 'devextreme-react/data-grid';
-// Static
-import { ChampById } from '../../static/ChampById';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -42,7 +40,7 @@ export default function ChampsDataGrid({ pickbans }) {
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
                 <div className={classes.title}>{pickbans.NumberGames} Games Played</div>
-                <div className={classes.blurb}>{pickbans.ChampsWithPresence} / {Object.keys(ChampById).length} Champions Picked or Banned</div>
+                <div className={classes.blurb}>{pickbans.ChampsWithPresence} / {pickbans.PickBanList.length} Champions Picked or Banned</div>
                 <DataGrid
                     id="gridContainer"
                     width="inherit"

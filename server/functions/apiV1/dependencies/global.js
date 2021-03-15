@@ -12,6 +12,7 @@ import {
     getTournamentTabName,
 } from '../tournamentData';
 import { dynamoDbGetItem } from './dynamoDbHelper';
+import { unix as _unix } from 'moment-timezone';
 
 const oldEnv = true; // 'true' for old salt name, 'false' for new salt name
 const profileHIdSalt = (oldEnv) ? process.env.OLD_PROFILE_HID_SALT : process.env.SALT_PROFILE_HID;
@@ -48,6 +49,16 @@ export const GLOBAL_CONSTS = {
     OLD_BARON_DURATION: 210, // in seconds
     CURRENT_BARON_DURATION: 180, // in seconds
     LEADERBOARD_NUM: 5
+}
+
+/**
+ * Converts unix value into a Date (i.e. 01/01/2020)
+ * @param {number} unix         time value in ms
+ * @param {string} format       Default is 'MM/DD/YYYY'
+ * @param {string} timeZone     Default is 'EST'
+ */
+export const getDateString = (unix, format='MM/DD/YYYY', timeZone='EST') => {
+    return _unix(unix).tz(timeZone).format(format);
 }
 
 /**
@@ -144,13 +155,13 @@ export const generateNewPId = (type) => {
         while (duplicate) {
             let newPId = strPadZeroes(randomNumber.integer(1, 99999999), 8); // 8 digit number
             if (type.toLowerCase() === "profile") {
-                if (!(await dynamoDbGetItem('Profile', 'ProfilePId', newPId))) {
+                if (!(await dynamoDbGetItem('Profile', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }
             }
             else if (type.toLowerCase() === "team") {
-                if (!(await dynamoDbGetItem('Team', 'TeamPId', newPId))) {
+                if (!(await dynamoDbGetItem('Team', newPId))) {
                     resolve(newPId);
                     duplicate = false;
                 }
