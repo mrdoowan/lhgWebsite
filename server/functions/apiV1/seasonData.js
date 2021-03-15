@@ -494,4 +494,3 @@ export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
             
         }).catch((err) => { console.error(err); reject(err); });
     });
-}
