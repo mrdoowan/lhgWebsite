@@ -46,7 +46,7 @@ export const getProfilePIdByName = (name) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data) { resolve(data); return; }
-            dynamoDbGetItem('ProfileNameMap', 'ProfileName', simpleName)
+            dynamoDbGetItem('ProfileNameMap', simpleName)
             .then((obj) => {
                 if (!obj) { resolve(null); return; } // Not Found 
                 const pPId = getProfilePIdFromHash(obj['ProfileHId']);
@@ -101,7 +101,7 @@ export const getProfilePIdBySummonerId = (summId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data) { resolve(data); return; }
-            dynamoDbGetItem('SummonerIdMap', 'SummonerId', summId)
+            dynamoDbGetItem('SummonerIdMap', summId)
             .then((obj) => {
                 if (!obj) { resolve(null); return; } // Not Found
                 const profilePId = getProfilePIdFromHash(obj['ProfileHId']);
@@ -144,7 +144,7 @@ export const getProfileName = (profileId, hash=true) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Profile', 'ProfilePId', profilePId)
+            dynamoDbGetItem('Profile', profilePId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 cache.set(cacheKey, obj['ProfileName'], 'EX', GLOBAL_CONSTS.TTL_DURATION);
@@ -166,7 +166,7 @@ export const getProfileInfo = (profilePId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let profileInfoJson = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['Information'];
+                let profileInfoJson = (await dynamoDbGetItem('Profile', profilePId))['Information'];
                 if (profileInfoJson != null) { 
                     if ('ActiveSeasonPId' in profileInfoJson) {
                         profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
@@ -176,12 +176,12 @@ export const getProfileInfo = (profilePId) => {
                         profileInfoJson['ActiveTeamName'] = await getTeamName(profileInfoJson['ActiveTeamHId']);
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['GameLog'];
+                    let gameLogJson = (await dynamoDbGetItem('Profile', profilePId))['GameLog'];
                     if (gameLogJson != null) {
                         profileInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDbGetItem('Profile', 'ProfilePId', profilePId))['StatsLog'];
+                    let statsLogJson = (await dynamoDbGetItem('Profile', profilePId))['StatsLog'];
                     if (statsLogJson != null) {
                         profileInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -205,7 +205,7 @@ export const getProfileInfo = (profilePId) => {
 export const getProfileGamesBySeason = (pPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!pPId) { resolve(null); return; }
-        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
+        dynamoDbGetItem('Profile', pPId).then((profileObject) => {
             if (profileObject && 'GameLog' in profileObject) {
                 const gameLogJson = profileObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
@@ -257,7 +257,7 @@ export const getProfileGamesBySeason = (pPId, sPId=null) => {
 export const getProfileStatsByTourney = (pPId, tPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!pPId) { resolve(null); return; }
-        dynamoDbGetItem('Profile', 'ProfilePId', pPId).then((profileObject) => {
+        dynamoDbGetItem('Profile', pPId).then((profileObject) => {
             if (profileObject && 'StatsLog' in profileObject) {
                 const statsLogJson = profileObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
@@ -448,7 +448,7 @@ export const postNewProfile = (profileName, summIdList) => {
 export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
     return new Promise(async (resolve, reject) => {
         try {
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', profilePId,
                 'SET #key = :data',
                 {
                     '#key': 'Information',
@@ -478,18 +478,22 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
     });
 }
 
-// Update a Profile Name.
 // BODY EXAMPLE:
 // {
 //     "currentName": "OLD_NAME",
 //     "newName": "NEW_NAME",
 // }
-// Change Profile name. Update "Profile", "ProfileNameMap" table
+/**
+ * Change Profile name. Update "Profile", "ProfileNameMap" table
+ * @param {string} profilePId 
+ * @param {string} newName 
+ * @param {string} oldName 
+ */
 export const updateProfileName = (profilePId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Update "Profile" table
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', profilePId,
                 'SET #name = :new, #info.#name = :new',
                 {
                     '#name': 'ProfileName',
@@ -505,12 +509,12 @@ export const updateProfileName = (profilePId, newName, oldName) => {
                 'ProfileHId': getProfileHashId(profilePId),
             }, filterName(newName));
             // Delete oldName from "ProfileNameMap" table
-            await dynamoDbDeleteItem('ProfileNameMap', 'ProfileName', filterName(oldName));
+            await dynamoDbDeleteItem('ProfileNameMap', filterName(oldName));
 
             // Del Cache
             cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + filterName(oldName));
             cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId);
-            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId)
+            cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
             resolve({
                 'ProfilePId': profilePId,
@@ -530,7 +534,7 @@ export const updateProfileName = (profilePId, newName, oldName) => {
 export const putProfileRemoveAccount = (profilePId, summonerId) => {
     return new Promise((resolve, reject) => {
         // Get from dynamoDb and remove from profile PId
-        dynamoDbGetItem('Profile', 'ProfilePId', profilePId).then(async (profileObject) => {
+        dynamoDbGetItem('Profile', profilePId).then(async (profileObject) => {
             if (!(profileObject.Information?.LeagueAccounts)) {
                 resolve({ error: `Profile object does not have property 'LeagueAccounts'` });
                 return;
@@ -550,9 +554,9 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
             }
 
             // Remove from SummonerIdMap dynamodb
-            await dynamoDbDeleteItem('SummonerIdMap', 'SummonerId', summonerId);
+            await dynamoDbDeleteItem('SummonerIdMap', summonerId);
             // Update Profile Info dynamoDb
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', profilePId,
                 'SET #info = :val', 
                 {
                     '#info': 'Information'
@@ -573,13 +577,18 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
     });
 }
 
-// Returns an object indicating Profile GameLog has been updated
+/**
+ * Returns an object indicating Profile GameLog has been updated
+ * @param {string} profilePId 
+ * @param {number} tournamentPId 
+ * @returns 
+ */
 export const updateProfileGameLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
+            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
             let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let profileDbObject = await dynamoDbGetItem('Profile', 'ProfilePId', profilePId);
+            let profileDbObject = await dynamoDbGetItem('Profile', profilePId);
             
             /*  
                 -------------------
@@ -593,7 +602,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             const initProfileGameLog = { [seasonPId]: initProfileSeasonGames };
             // Check if 'GameLog' exists in Profile
             if (!('GameLog' in profileDbObject)) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', profilePId,
                     'SET #gLog = :val',
                     { 
                         '#gLog': 'GameLog'
@@ -606,7 +615,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             }
             // Check if that season exists in the GameLogs
             else if (!(seasonPId in profileDbObject['GameLog'])) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', profilePId,
                     'SET #gLog.#sId = :val',
                     {
                         '#gLog': 'GameLog',
@@ -680,7 +689,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+            await dynamoDbUpdateItem('Profile', profilePId,
                 'SET #glog.#sId.#mtch = :data',
                 {
                     '#glog': 'GameLog',
@@ -705,11 +714,16 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
     });
 }
 
-// Returns an object indicating Profile StatsLog has been updated
+/**
+ * Returns an object indicating Profile StatsLog has been updated
+ * @param {string} profilePId 
+ * @param {number} tournamentPId 
+ * @returns 
+ */
 export const updateProfileStatsLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileDbObject = await dynamoDbGetItem('Profile', 'ProfilePId', profilePId);
+            let profileDbObject = await dynamoDbGetItem('Profile', profilePId);
 
             /*  
                 -------------------
@@ -722,7 +736,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             const initStatsLog = { [tournamentPId]: initProfileTourneyStatsGames };
             if (!('StatsLog' in profileDbObject)) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', profilePId,
                     'SET #sLog = :val',
                     { 
                         '#sLog': 'StatsLog'
@@ -735,7 +749,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             // Check if that TournamentPId in StatsLog
             else if (!(tournamentPId in profileDbObject['StatsLog'])) {
-                await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId,
+                await dynamoDbUpdateItem('Profile', profilePId,
                     'SET #sLog.#tId = :val',
                     { 
                         '#sLog': 'StatsLog',
@@ -816,7 +830,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Profile', 'ProfilePId', profilePId, 
+            await dynamoDbUpdateItem('Profile', profilePId, 
                 'SET #slog.#tId.#rStats = :data',
                 {
                     '#slog': 'StatsLog',
@@ -838,5 +852,30 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             });
         }
         catch (err) { reject(err) }
+    });
+}
+
+/**
+ * Removes Profile from the database
+ * @param {string} profilePId   Assume valid
+ * @param {string} profileName  Assume valid
+ */
+export const deleteProfileFromDb = (profilePId, profileName) => {
+    return new Promise((resolve, reject) => {
+        dynamoDbGetItem('Profile', profilePId).then(async (profileObject) => {
+            if (profileObject.GameLog || profileObject.StatsLog) {
+                resolve({
+                    error: `Profile '${profileName}' object has a GameLog or StatsLog property`
+                });
+            }
+            
+            // Delete from 'ProfileNameMap'
+            await dynamoDbDeleteItem('ProfileNameMap', filterName(profileName));
+            // Delete from 'Profile'
+            await dynamoDbDeleteItem('Profile', profilePId);
+            resolve({
+                'ProfileRemoved': profilePId,
+            });
+        }).catch((err) => { console.error(err); reject(err); });
     });
 }

@@ -36,3 +36,27 @@ export const RDS_TYPE = {
     PROD: 'Production',
     TEST: 'Test',
 }
+
+export const DYNAMODB_TABLENAMES = {
+    MATCHES: 'Matches',
+    MISCELLANEOUS: 'Miscellaneous',
+    PROFILE: 'Profile',
+    PROFILENAMEMAP: 'ProfileNameMap',
+    SEASON: 'Season',
+    SUMMONERIDMAP: 'SummonerIdMap',
+    TEAM: 'Team',
+    TEAMNAMEMAP: 'TeamNameMap',
+    TOURNAMENT: 'Tournament',
+}
+
+export const PARTITION_KEY_MAP = {
+    [DYNAMODB_TABLENAMES.MATCHES]: 'MatchPId',
+    [DYNAMODB_TABLENAMES.MISCELLANEOUS]: 'Key',
+    [DYNAMODB_TABLENAMES.PROFILE]: 'ProfilePId',
+    [DYNAMODB_TABLENAMES.PROFILENAMEMAP]: 'ProfileName',
+    [DYNAMODB_TABLENAMES.SEASON]: 'SeasonPId',
+    [DYNAMODB_TABLENAMES.SUMMONERIDMAP]: 'SummonerId',
+    [DYNAMODB_TABLENAMES.TEAM]: 'TeamPId',
+    [DYNAMODB_TABLENAMES.TEAMNAMEMAP]: 'TeamName',
+    [DYNAMODB_TABLENAMES.TOURNAMENT]: 'TournamentPId',
+}

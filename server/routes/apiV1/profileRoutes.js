@@ -18,9 +18,11 @@ import {
     getSummonerIdsFromList,
     getProfilePIdsFromSummIdList,
     putProfileRemoveAccount,
+    deleteProfileFromDb,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
+import { authenticateJWT } from './dependencies/jwtHelper';
 
 /*  
     ----------------------
@@ -132,7 +134,7 @@ profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
  * @desc    Add new Profile with a list of summoners. Main account is the first index
  * @access  Private (to Admins)
  */
-profileV1Routes.post('/add/new', (req, res) => {
+profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
     const { profileName, summonerNameList } = req.body;
     console.log(`POST Request Profile '${profileName}' - Add New Profile`);
 
@@ -179,7 +181,7 @@ profileV1Routes.post('/add/new', (req, res) => {
  * @desc    Add Summoner accounts to the Profile
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/add/account', (req, res) => {
+profileV1Routes.put('/add/account', authenticateJWT, (req, res) => {
     const { profileName, summonerNameList } = req.body;
     console.log(`PUT Request Profile '${profileName}' - Add Summoners`);
 
@@ -236,7 +238,7 @@ profileV1Routes.put('/add/account', (req, res) => {
  * @desc    Remove a Summoner account from the profile
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/remove/account', (req, res) => {
+profileV1Routes.put('/remove/account', authenticateJWT, (req, res) => {
     const { profileName, summonerId } = req.body;
     console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summonerId}`);
 
@@ -247,32 +249,54 @@ profileV1Routes.put('/remove/account', (req, res) => {
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - PUT function removing account."));
     }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - Get ProfilePId."));
-})
+});
 
 /**
  * @route   PUT api/profile/v1/update/name
  * @desc    Change profile Name
  * @access  Private (to Admins)
  */
-profileV1Routes.put('/update/name', (req, res) => {
+profileV1Routes.put('/update/name', authenticateJWT, (req, res) => {
     const { currentName, newName } = req.body;
+    console.log(`PUT Request Profile '${currentName} - Changing Name to '${newName}'`);
+
     // Check if currentName and newName exist
     getProfilePIdByName(currentName).then((profileId) => {
-        if (profileId == null) {
+        if (!profileId) {
             // Profile Name does not exist
             return res400sClientError(res, req, `Profile '${currentName}' does not exist.`);
         }
         getProfilePIdByName(newName).then((checkId) => {
-            if (checkId != null) {
+            if (checkId) {
                 // New name already exists in Db
                 return res400sClientError(res, req, `New profile name '${newName}' is already taken!`);
             }
             updateProfileName(profileId, newName, currentName).then((data) => {
                 return res200sOK(res, req, data);
-            }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 1."));
-        }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 2."));
-    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change Error 3."))
-})
+            }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Update Function Error."));
+        }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId NewName Error."));
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId OldName Error."));
+});
+
+/**
+ * @route   DELETE api/profile/v1/remove/name
+ * @desc    Remove a Profile that does not have a GameLog or StatsLog property
+ * @access  Private (to Admins)
+ */
+profileV1Routes.delete('/remove/name', authenticateJWT, (req, res) => {
+    const { profileName } = req.body;
+    console.log(`DELETE Request Profile '${profileName}'`);
+
+    getProfilePIdByName(profileName).then((profilePId) => {
+        if (!profilePId) {
+            // Profile Name does not exist
+            return res400sClientError(res, req, `Profile '${profileName}' does not exist.`);
+        }
+        deleteProfileFromDb(profilePId, profileName).then((data) => {
+            return res200sOK(res, req, data);
+        }).catch((err) => error500sServerError(err, res, "DELETE Profile - Function Error."));
+    }).catch((err) => error500sServerError(err, res, "DELETE Profile - Get Profile PId Error."));
+});
 
 //#endregion
 

@@ -28,6 +28,21 @@ export const res400sClientError = (res, req, errorMessage, data=null) => {
 }
 
 /**
+ * Response Code 403 - Forbidden
+ * @param {*} res 
+ * @param {string} errorMessage 
+ * @param {*} data 
+ * @returns 
+ */
+export const res403ClientError = (res, errorMessage, data=null) => {
+    const code = 403;
+    return res.status(code).json({
+        error: errorMessage,
+        data: data,
+    });
+}
+
+/**
  * Response Code 200s - OK
  * @param {*} res 
  * @param {*} req 

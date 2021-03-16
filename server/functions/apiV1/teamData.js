@@ -17,6 +17,7 @@ import {
     dynamoDbGetItem,
     dynamoDbUpdateItem,
     dynamoDbPutItem,
+    dynamoDbDeleteItem,
 } from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
@@ -45,7 +46,7 @@ export const getTeamPIdByName = (name) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('TeamNameMap', 'TeamName', simpleName)
+            dynamoDbGetItem('TeamNameMap', simpleName)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const teamPId = getTeamPIdFromHash(obj['TeamHId']);
@@ -102,7 +103,7 @@ export const getTeamName = (teamHId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Team', 'TeamPId', teamPId)
+            dynamoDbGetItem('Team', teamPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const name = obj['TeamName'];
@@ -126,7 +127,7 @@ export const getTeamShortName = (teamHId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Team', 'TeamPId', teamPId)
+            dynamoDbGetItem('Team', teamPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 const shortName = obj['Information']['TeamShortName'];
@@ -145,7 +146,7 @@ export const getTeamInfo = (teamPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let teamInfoJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['Information'];
+                let teamInfoJson = (await dynamoDbGetItem('Team', teamPId))['Information'];
                 if (teamInfoJson != null) {
                     if ('TrophyCase' in teamInfoJson) {
                         for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
@@ -155,12 +156,12 @@ export const getTeamInfo = (teamPId) => {
                         }
                     }
                     // Add Season List
-                    let gameLogJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['GameLog'];
+                    let gameLogJson = (await dynamoDbGetItem('Team', teamPId))['GameLog'];
                     if (gameLogJson != null) {
                         teamInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
                     }
                     // Add Tournament List
-                    let statsLogJson = (await dynamoDbGetItem('Team', 'TeamPId', teamPId))['StatsLog'];
+                    let statsLogJson = (await dynamoDbGetItem('Team', teamPId))['StatsLog'];
                     if (statsLogJson != null) {
                         teamInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
                     }
@@ -184,7 +185,7 @@ export const getTeamInfo = (teamPId) => {
 export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!teamPId) { resolve(null); return; }
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+        dynamoDbGetItem('Team', teamPId).then((teamObject) => {
             if (teamObject && 'Scouting' in teamObject) {
                 const scoutingJson = teamObject['Scouting'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(scoutingJson)));    // if season parameter Id is null, find latest
@@ -235,7 +236,7 @@ export const getTeamScoutingBySeason = (teamPId, sPId=null) => {
 export const getTeamGamesBySeason = (teamPId, sPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!teamPId) { resolve(null); return; }
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+        dynamoDbGetItem('Team', teamPId).then((teamObject) => {
             if (teamObject && 'GameLog' in teamObject) {
                 const gameLogJson = teamObject['GameLog'];
                 const seasonId = (sPId) ? sPId : (Math.max(...Object.keys(gameLogJson)));    // if season parameter Id is null, find latest
@@ -281,7 +282,7 @@ export const getTeamGamesBySeason = (teamPId, sPId=null) => {
 export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     return new Promise(function(resolve, reject) {
         if (!teamPId) { resolve(null); return; }
-        dynamoDbGetItem('Team', 'TeamPId', teamPId).then((teamObject) => {
+        dynamoDbGetItem('Team', teamPId).then((teamObject) => {
             if (teamObject && 'StatsLog' in teamObject) {
                 const statsLogJson = teamObject['StatsLog'];
                 const tourneyId = (tPId) ? tPId : (Math.max(...Object.keys(statsLogJson)));    // if tourney parameter Id is null, find latest
@@ -342,13 +343,16 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
     });
 }
 
-// Add new teams into the DB
 // BODY EXAMPLE:
 // {
 //     "teamName": "NAME",
 //     "shortName": "XXX",
 // }
-// Add new Team to "Team", "TeamNameMap"
+/**
+ * Add a new team into the DB. Add new Team to "Team", "TeamNameMap"
+ * @param {string} teamName 
+ * @param {string} shortName    i.e. "TSM"
+ */
 export const postNewTeam = (teamName, shortName) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -381,13 +385,57 @@ export const postNewTeam = (teamName, shortName) => {
     });
 }
 
-// Doing both "GameLog" and "StatsLog" for Team Item
+export const updateTeamName = (teamPId, newName, oldName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Update "Team" table
+            await dynamoDbUpdateItem('Team', teamPId,
+                'SET #name = :new, #info.#name = :new',
+                {
+                    '#name': 'TeamName',
+                    '#info': 'Information',                    
+                },
+                {
+                    ':new': newName,
+                }
+            );
+            // Add newName to "TeamNameMap" table
+            await dynamoDbPutItem('TeamNameMap', {
+                'TeamName': filterName(newName),
+                'TeamHId': getTeamHashId(teamPId),
+            }, filterName(newName));
+            // Delete oldName from "TeamNameMap" table
+            await dynamoDbDeleteItem('TeamNameMap', filterName(oldName));
+
+            // Del Cache
+            cache.del(CACHE_KEYS.TEAM_PID_PREFIX + filterName(oldName));
+            cache.del(CACHE_KEYS.TEAM_NAME_PREFIX + teamPId);
+            cache.del(CACHE_KEYS.TEAM_INFO_PREFIX + teamPId);
+
+            resolve({
+                'TeamPId': teamPId,
+                'NewProfileName': newName,
+                'OldProfileName': oldName,
+            });
+        }
+        catch (err) {
+            console.error(err);
+            reject(err);
+        }
+    });
+}
+
+/**
+ * Doing both "GameLog" and "Scouting" for Team Item
+ * @param {string} teamPId 
+ * @param {number} tournamentPId 
+ */
 export const updateTeamGameLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
+            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
             let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let teamDbObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+            let teamDbObject = await dynamoDbGetItem('Team', teamPId);
 
             /*  
                 -------------------
@@ -401,7 +449,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             };
             const initTeamGameLog = { [seasonPId]: initTeamSeasonGames };
             if (!('GameLog' in teamDbObject)) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                await dynamoDbUpdateItem('Team', teamPId,
                     'SET #gLog = :val',
                     {
                         '#gLog': 'GameLog'
@@ -413,7 +461,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 teamDbObject['GameLog'] = initTeamGameLog;
             }
             else if (!(seasonPId in teamDbObject['GameLog'])) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                await dynamoDbUpdateItem('Team', teamPId,
                     'SET #gLog.#sId = :val',
                     {
                         '#gLog': 'GameLog',
@@ -428,7 +476,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             // Check 'Scouting' exists in TeamItem 
             const initTeamScouting = { [seasonPId]: {} };
             if (!('Scouting' in teamDbObject)) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId, 
+                await dynamoDbUpdateItem('Team', teamPId, 
                     'SET #sct = :val',
                     {
                         '#sct': 'Scouting'
@@ -589,7 +637,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+            await dynamoDbUpdateItem('Team', teamPId,
                 'SET #gLog.#sId.#mtchs = :val',
                 {
                     '#gLog': 'GameLog',
@@ -600,7 +648,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     ':val': gameLogTeamItem
                 }
             );
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId, 
+            await dynamoDbUpdateItem('Team', teamPId, 
                 'SET #scout.#sId = :val',
                 {
                     '#scout': 'Scouting',
@@ -626,11 +674,15 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
     });
 }
 
-// Update Stats Log
+/**
+ * Update the team's Stats Log
+ * @param {string} teamPId 
+ * @param {number} tournamentPId 
+ */
 export const updateTeamStatsLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let teamDbObject = await dynamoDbGetItem('Team', 'TeamPId', teamPId);
+            let teamDbObject = await dynamoDbGetItem('Team', teamPId);
 
             /*  
                 -------------------
@@ -641,7 +693,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             // Check 'StatsLog' exists in TeamItem
             const initTeamStatsLog = { [tournamentPId]: {} };
             if (!('StatsLog' in teamDbObject)) {
-                await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+                await dynamoDbUpdateItem('Team', teamPId,
                     'SET #sLog = :val',
                     { 
                         '#sLog': 'StatsLog'
@@ -709,7 +761,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 Push into DB
                 ----------
             */
-            await dynamoDbUpdateItem('Team', 'TeamPId', teamPId,
+            await dynamoDbUpdateItem('Team', teamPId,
                 'SET #sLog.#tId = :val',
                 {
                     '#sLog': 'StatsLog',

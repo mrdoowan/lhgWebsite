@@ -29,21 +29,12 @@ export const putNewStaff = (staff) => {
     return new Promise((resolve, reject) => {
         getProfilePIdByName(staff.profile).then((pPId) => {
             if (pPId == null) { resolve(null); return; } // Not Found
-            bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS), function(err, hash) {
-                if (err) { console.error(err); reject(err); return; }
-                dynamoDbUpdateItem('Profile', 'ProfilePId', pPId,
-                    'SET #pw = :data',
-                    {
-                        '#pw': 'Password',
-                    },
-                    {
-                        ':data': hash,
-                    }
-                );
+            bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS)).then(function(hash) {
                 getProfileInfo(pPId).then((profileInfo) => {
+                    profileInfo['Password'] = hash;
                     profileInfo['Admin'] = staff.admin;
                     profileInfo['Moderator'] = staff.moderator;
-                    dynamoDbUpdateItem('Profile', 'ProfilePId', pPId,
+                    dynamoDbUpdateItem('Profile', pPId,
                         'SET #info = :data',
                         {
                             '#info': 'Information',
@@ -58,7 +49,7 @@ export const putNewStaff = (staff) => {
                     profileInfo['Password'] = hash;
                     resolve(profileInfo);
                 }).catch((err) => { console.error(err); reject(err); });
-            });
+            }).catch((err) => { console.error(err); reject(err); });
         }).catch((err) => { console.error(err); reject(err); });
     });
 }

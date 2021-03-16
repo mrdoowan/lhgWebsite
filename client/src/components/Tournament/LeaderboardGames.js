@@ -49,7 +49,7 @@ export default function LeaderboardGames({ gameRecords }) {
                             <Link className={classes.link} to={`/team/${ShortestGame.BlueTeamName}`}>{ShortestGame.BlueTeamName}</Link>
                             &nbsp;vs.&nbsp;
                             <Link className={classes.link} to={`/team/${ShortestGame.RedTeamName}`}>{ShortestGame.RedTeamName}</Link>
-                            &nbsp;- <Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{getTimeString(ShortestGame.GameDuration)}</Link>
+                            &nbsp;- <b><Link className={classes.link} to={`/match/${ShortestGame.MatchPId}`}>{getTimeString(ShortestGame.GameDuration)}</Link></b>
                         </p>
                     </Paper>
                 </Grid>
@@ -60,7 +60,7 @@ export default function LeaderboardGames({ gameRecords }) {
                             <Link className={classes.link} to={`/team/${LongestGame.BlueTeamName}`}>{LongestGame.BlueTeamName}</Link>
                             &nbsp;vs.&nbsp;
                             <Link className={classes.link} to={`/team/${LongestGame.RedTeamName}`}>{LongestGame.RedTeamName}</Link>
-                            &nbsp;- <Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{getTimeString(LongestGame.GameDuration)}</Link>
+                            &nbsp;- <b><Link className={classes.link} to={`/match/${LongestGame.MatchPId}`}>{getTimeString(LongestGame.GameDuration)}</Link></b>
                         </p>
                     </Paper>
                 </Grid>
@@ -71,7 +71,7 @@ export default function LeaderboardGames({ gameRecords }) {
                             <Link className={classes.link} to={`/team/${MostKillGame.BlueTeamName}`}>{MostKillGame.BlueTeamName}</Link>
                             &nbsp;vs.&nbsp;
                             <Link className={classes.link} to={`/team/${MostKillGame.RedTeamName}`}>{MostKillGame.RedTeamName}</Link>
-                            &nbsp;- <Link className={classes.link} to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.Kills} Kills</Link>
+                            &nbsp;- <b><Link className={classes.link} to={`/match/${MostKillGame.MatchPId}`}>{MostKillGame.Kills} Kills</Link></b>
                         </p>
                     </Paper>
                 </Grid>

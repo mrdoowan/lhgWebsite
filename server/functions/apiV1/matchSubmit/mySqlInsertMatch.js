@@ -26,7 +26,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
             'riotMatchId': matchSetupObject['RiotMatchId'],
             'seasonPId': matchSetupObject['SeasonPId'],
             'tournamentPId': matchSetupObject['TournamentPId'],
-            'tournamentType': (await dynamoDbGetItem('Tournament', 'TournamentPId', matchSetupObject['TournamentPId']))['Information']['TournamentType'],
+            'tournamentType': (await dynamoDbGetItem('Tournament', matchSetupObject['TournamentPId']))['Information']['TournamentType'],
             'blueTeamPId': blueTeamPId,
             'redTeamPId': redTeamPId,
             'duration': newMatchDynamoDbItem.GameDuration,

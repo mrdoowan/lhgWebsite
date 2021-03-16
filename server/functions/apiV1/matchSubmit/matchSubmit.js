@@ -21,7 +21,7 @@ import { createChampObject } from '../../../services/ddragonChampion';
 export const submitMatchSetup = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const matchDbObject = await dynamoDbGetItem('Matches', 'MatchPId', id);
+            const matchDbObject = await dynamoDbGetItem('Matches', id);
 
             // Check if matchJson exists
             if (!matchDbObject) { 

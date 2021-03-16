@@ -44,7 +44,7 @@ export const getTournamentId = (shortName) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console.error(err); reject(err); return; }
-            else if (data != null) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
+            else if (data) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
             dynamoDbScanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
             .then((obj) => {
                 if (obj.length === 0) { resolve(null); return; } // Not Found
@@ -65,8 +65,8 @@ export const getTournamentShortName = (tournamentPId) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
+            else if (data) { resolve(data); return; }
+            dynamoDbGetItem('Tournament', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let shortName = obj['TournamentShortName'];
@@ -86,8 +86,8 @@ export const getTournamentName = (tournamentPId) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
+            else if (data) { resolve(data); return; }
+            dynamoDbGetItem('Tournament', tournamentPId)
             .then((obj) => {
                 if (obj == null) { reject(null); return; } // Not Found
                 let name = obj['Information']['TournamentName'];
@@ -105,7 +105,7 @@ export const getTournamentTabName = (tournamentPId) => {
         cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(data); return; }
-            dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId)
+            dynamoDbGetItem('Tournament', tournamentPId)
             .then((obj) => {
                 if (obj == null) { resolve(null); return; } // Not Found
                 let name = obj['Information']['TournamentTabName'];
@@ -127,7 +127,7 @@ export const getTournamentInfo = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyInfoJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['Information'];
+                let tourneyInfoJson = (await dynamoDbGetItem('Tournament', tournamentPId))['Information'];
                 if (tourneyInfoJson != null) {
                     tourneyInfoJson['SeasonName'] = await getSeasonName(tourneyInfoJson['SeasonPId']);
                     tourneyInfoJson['SeasonShortName'] = await getSeasonShortName(tourneyInfoJson['SeasonPId']);
@@ -150,7 +150,7 @@ export const getTournamentStats = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyStatsJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TourneyStats'];
+                let tourneyStatsJson = (await dynamoDbGetItem('Tournament', tournamentPId))['TourneyStats'];
                 if (tourneyStatsJson != null) {
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
@@ -171,7 +171,7 @@ export const getTournamentLeaderboards = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let leaderboardJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['Leaderboards'];
+                let leaderboardJson = (await dynamoDbGetItem('Tournament', tournamentPId))['Leaderboards'];
                 if (leaderboardJson != null) {
                     let gameRecords = leaderboardJson['GameRecords'];
                     for (let i = 0; i < Object.values(gameRecords).length; ++i) {
@@ -226,76 +226,78 @@ export const getTournamentPlayerStats = (tournamentPId) => {
     return new Promise(function(resolve, reject) {
         cache.get(cacheKey, async (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                const profileHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['ProfileHIdList'];
-                if (profileHIdList != null) {
-                    let profileStatsList = [];
-                    for (let i = 0; i < profileHIdList.length; ++i) {
-                        const profilePId = getProfilePIdFromHash(profileHIdList[i]);
+            else if (data) { resolve(JSON.parse(data)); return; }
+            dynamoDbGetItem('Tournament', tournamentPId).then((tournamentObject) => {
+                const profileHIdList = tournamentObject.ProfileHIdList;
+                if (profileHIdList) {
+                    Promise.all(profileHIdList.map(async (profileHId) => {
+                        const profilePId = getProfilePIdFromHash(profileHId);
                         const profileStatsLog = await getProfileStatsByTourney(profilePId, tournamentPId);
-                        if (profileStatsLog != null) {
-                            for (let j = 0; j < Object.keys(profileStatsLog['RoleStats']).length; ++j) {
-                                const role = Object.keys(profileStatsLog['RoleStats'])[j];
-                                const statsObj = profileStatsLog['RoleStats'][role];
-                                profileStatsList.push({
-                                    'ProfileName': await getProfileName(profileHIdList[i]),
-                                    'Role': role,
-                                    'GamesPlayed': statsObj.GamesPlayed,
-                                    'GamesWin': statsObj.GamesWin,
-                                    'Kda': statsObj.Kda,
-                                    'TotalKills': statsObj.TotalKills,
-                                    'TotalDeaths': statsObj.TotalDeaths,
-                                    'TotalAssists': statsObj.TotalAssists,
-                                    'AverageKills': statsObj.AverageKills,
-                                    'AverageDeaths': statsObj.AverageDeaths,
-                                    'AverageAssists': statsObj.AverageAssists,
-                                    'KillPct': statsObj.KillPct,
-                                    'DeathPct': statsObj.DeathPct,
-                                    'GoldPct': statsObj.GoldPct,
-                                    'FirstBloodPct': statsObj.FirstBloodPct,
-                                    'DamagePct': statsObj.DamagePct,
-                                    'VisionScorePct': statsObj.VisionScorePct,
-                                    'CreepScorePerMinute': statsObj.CreepScorePerMinute,
-                                    'GoldPerMinute': statsObj.GoldPerMinute,
-                                    'DamagePerMinute': statsObj.DamagePerMinute,
-                                    'DamagePerMinuteStdDev': statsObj.DamagePerMinuteStdDev,
-                                    'DamagePerGold': statsObj.DamagePerGold,
-                                    'VisionScorePerMinute': statsObj.VisionScorePerMinute,
-                                    'WardsPerMinute': statsObj.WardsPerMinute,
-                                    'WardsClearedPerMinute': statsObj.WardsClearedPerMinute,
-                                    'ControlWardsPerMinute': statsObj.ControlWardsPerMinute,
-                                    'AverageCsAtEarly': statsObj.AverageCsAtEarly,
-                                    'AverageGoldAtEarly': statsObj.AverageGoldAtEarly,
-                                    'AverageXpAtEarly': statsObj.AverageXpAtEarly,
-                                    'AverageCsDiffEarly': statsObj.AverageCsDiffEarly,
-                                    'AverageGoldDiffEarly': statsObj.AverageGoldDiffEarly,
-                                    'AverageXpDiffEarly': statsObj.AverageXpDiffEarly,
-                                    'AverageCsAtMid': statsObj.AverageCsAtMid,
-                                    'AverageGoldAtMid': statsObj.AverageGoldAtMid,
-                                    'AverageXpAtMid': statsObj.AverageXpAtMid,
-                                    'AverageCsDiffMid': statsObj.AverageCsDiffMid,
-                                    'AverageGoldDiffMid': statsObj.AverageGoldDiffMid,
-                                    'AverageXpDiffMid': statsObj.AverageXpDiffMid,
-                                    'TotalDoubleKills': statsObj.TotalDoubleKills,
-                                    'TotalTripleKills': statsObj.TotalTripleKills,
-                                    'TotalQuadraKills': statsObj.TotalQuadraKills,
-                                    'TotalPentaKills': statsObj.TotalPentaKills,
-                                    'TotalSoloKills': statsObj.TotalSoloKills,
+                        if (profileStatsLog) {
+                            return Promise.all(Object.keys(profileStatsLog.RoleStats).map(async (role) => {
+                                return new Promise(async (resolveObject) => {
+                                    const statsObject = profileStatsLog.RoleStats[role];
+                                    resolveObject({
+                                        'ProfileName': await getProfileName(profileHId),
+                                        'Role': role,
+                                        'GamesPlayed': statsObject.GamesPlayed,
+                                        'GamesWin': statsObject.GamesWin,
+                                        'Kda': statsObject.Kda,
+                                        'TotalKills': statsObject.TotalKills,
+                                        'TotalDeaths': statsObject.TotalDeaths,
+                                        'TotalAssists': statsObject.TotalAssists,
+                                        'AverageKills': statsObject.AverageKills,
+                                        'AverageDeaths': statsObject.AverageDeaths,
+                                        'AverageAssists': statsObject.AverageAssists,
+                                        'KillPct': statsObject.KillPct,
+                                        'DeathPct': statsObject.DeathPct,
+                                        'GoldPct': statsObject.GoldPct,
+                                        'FirstBloodPct': statsObject.FirstBloodPct,
+                                        'DamagePct': statsObject.DamagePct,
+                                        'VisionScorePct': statsObject.VisionScorePct,
+                                        'CreepScorePerMinute': statsObject.CreepScorePerMinute,
+                                        'GoldPerMinute': statsObject.GoldPerMinute,
+                                        'DamagePerMinute': statsObject.DamagePerMinute,
+                                        'DamagePerMinuteStdDev': statsObject.DamagePerMinuteStdDev,
+                                        'DamagePerGold': statsObject.DamagePerGold,
+                                        'VisionScorePerMinute': statsObject.VisionScorePerMinute,
+                                        'WardsPerMinute': statsObject.WardsPerMinute,
+                                        'WardsClearedPerMinute': statsObject.WardsClearedPerMinute,
+                                        'ControlWardsPerMinute': statsObject.ControlWardsPerMinute,
+                                        'AverageCsAtEarly': statsObject.AverageCsAtEarly,
+                                        'AverageGoldAtEarly': statsObject.AverageGoldAtEarly,
+                                        'AverageXpAtEarly': statsObject.AverageXpAtEarly,
+                                        'AverageCsDiffEarly': statsObject.AverageCsDiffEarly,
+                                        'AverageGoldDiffEarly': statsObject.AverageGoldDiffEarly,
+                                        'AverageXpDiffEarly': statsObject.AverageXpDiffEarly,
+                                        'AverageCsAtMid': statsObject.AverageCsAtMid,
+                                        'AverageGoldAtMid': statsObject.AverageGoldAtMid,
+                                        'AverageXpAtMid': statsObject.AverageXpAtMid,
+                                        'AverageCsDiffMid': statsObject.AverageCsDiffMid,
+                                        'AverageGoldDiffMid': statsObject.AverageGoldDiffMid,
+                                        'AverageXpDiffMid': statsObject.AverageXpDiffMid,
+                                        'TotalDoubleKills': statsObject.TotalDoubleKills,
+                                        'TotalTripleKills': statsObject.TotalTripleKills,
+                                        'TotalQuadraKills': statsObject.TotalQuadraKills,
+                                        'TotalPentaKills': statsObject.TotalPentaKills,
+                                        'TotalSoloKills': statsObject.TotalSoloKills,
+                                    });
                                 });
-                            }
+                            }));
                         }
-                    }
-                    let profileObject = {};
-                    profileObject['PlayerList'] = profileStatsList;
-                    cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                    resolve(profileObject);
+                    })).then((statsLogArray) => {
+                        const profileObject = {};
+                        profileObject['PlayerList'] = statsLogArray.flat();;
+                        cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                        resolve(profileObject);
+                    });
                 }
                 else {
                     resolve({});    // If 'ProfileHIdList' does not exist
                 }
-            }
-            catch (ex) { console.error(ex); reject(ex); }
+            }).catch((ex) => { 
+                console.error(ex); reject(ex); 
+            });
         });
     });
 }
@@ -307,63 +309,66 @@ export const getTournamentPlayerStats = (tournamentPId) => {
 export const getTournamentTeamStats = (tournamentPId) => {
     const cacheKey = CACHE_KEYS.TN_TEAM_PREFIX + tournamentPId;
     return new Promise(function(resolve, reject) {
-        cache.get(cacheKey, async (err, data) => {
+        cache.get(cacheKey, (err, data) => {
             if (err) { console(err); reject(err); return; }
-            else if (data != null) { resolve(JSON.parse(data)); return; }
-            try {
-                let teamHIdList = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['TeamHIdList'];
-                if (teamHIdList != null) {
-                    let teamStatsList = [];
-                    for (let i = 0; i < teamHIdList.length; ++i) {
-                        let teamPId = getTeamPIdFromHash(teamHIdList[i]);
-                        let teamStatsLog = await getTeamStatsByTourney(teamPId, tournamentPId);
-                        if (teamStatsLog != null) {
-                            teamStatsList.push({
-                                'TeamName': await getTeamName(teamHIdList[i]),
-                                'GamesPlayed': teamStatsLog.GamesPlayed,
-                                'GamesWin': teamStatsLog.GamesWon,
-                                'AverageGameDuration': teamStatsLog.AverageGameDuration,
-                                'KillDeathRatio': teamStatsLog.KillDeathRatio,
-                                'AverageKills': teamStatsLog.AverageKills,
-                                'AverageDeaths': teamStatsLog.AverageDeaths,
-                                'AverageAssists': teamStatsLog.AverageAssists,
-                                'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
-                                'DamagePerMinute': teamStatsLog.DamagePerMinute,
-                                'GoldPerMinute': teamStatsLog.GoldPerMinute,
-                                'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
-                                'WardsPerMinute': teamStatsLog.WardsPerMinute,
-                                'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
-                                'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
-                                'FirstBloodPct': teamStatsLog.FirstBloodPct,
-                                'FirstTowerPct': teamStatsLog.FirstTowerPct,
-                                'DragonPct': teamStatsLog.DragonPct,
-                                'HeraldPct': teamStatsLog.HeraldPct,
-                                'BaronPct': teamStatsLog.BaronPct,
-                                'WardsClearedPct': teamStatsLog.WardsClearedPct,
-                                'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
-                                'AverageTowersLost': teamStatsLog.AverageTowersLost,
-                                'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
-                                'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
-                                'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
-                                'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
-                                'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
-                                'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
-                                'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
-                                'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
-                                'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
+            else if (data) { resolve(JSON.parse(data)); return; }
+            dynamoDbGetItem('Tournament', tournamentPId).then((tournamentObject) => {
+                const teamHIdList = tournamentObject.TeamHIdList;
+                if (teamHIdList) {
+                    Promise.all(teamHIdList.map(async (teamHId) => {
+                        const teamPId = getTeamPIdFromHash(teamHId);
+                        const teamStatsLog = await getTeamStatsByTourney(teamPId, tournamentPId);
+                        if (teamStatsLog) {
+                            return new Promise(async (resolveObject) => {
+                                resolveObject({
+                                    'TeamName': await getTeamName(teamHId),
+                                    'GamesPlayed': teamStatsLog.GamesPlayed,
+                                    'GamesWin': teamStatsLog.GamesWon,
+                                    'AverageGameDuration': teamStatsLog.AverageGameDuration,
+                                    'KillDeathRatio': teamStatsLog.KillDeathRatio,
+                                    'AverageKills': teamStatsLog.AverageKills,
+                                    'AverageDeaths': teamStatsLog.AverageDeaths,
+                                    'AverageAssists': teamStatsLog.AverageAssists,
+                                    'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
+                                    'DamagePerMinute': teamStatsLog.DamagePerMinute,
+                                    'GoldPerMinute': teamStatsLog.GoldPerMinute,
+                                    'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
+                                    'WardsPerMinute': teamStatsLog.WardsPerMinute,
+                                    'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
+                                    'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
+                                    'FirstBloodPct': teamStatsLog.FirstBloodPct,
+                                    'FirstTowerPct': teamStatsLog.FirstTowerPct,
+                                    'DragonPct': teamStatsLog.DragonPct,
+                                    'HeraldPct': teamStatsLog.HeraldPct,
+                                    'BaronPct': teamStatsLog.BaronPct,
+                                    'WardsClearedPct': teamStatsLog.WardsClearedPct,
+                                    'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
+                                    'AverageTowersLost': teamStatsLog.AverageTowersLost,
+                                    'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
+                                    'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
+                                    'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
+                                    'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
+                                    'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
+                                    'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
+                                    'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
+                                    'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
+                                    'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
+                                });
                             });
                         }
-                    }
-                    let teamObject = {};
-                    teamObject['TeamList'] = teamStatsList;
-                    cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                    resolve(teamObject);
+                    })).then((statsLogArray) => {
+                        const teamObject = {};
+                        teamObject['TeamList'] = statsLogArray;
+                        cache.set(cacheKey, JSON.stringify(teamObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                        resolve(teamObject);
+                    });
                 }
                 else {
                     resolve({});    // If 'TeamHIdList' does not exist
                 }
-            }
-            catch (ex) { console.error(ex); reject(ex); }
+            }).catch((ex) => { 
+                console.error(ex); reject(ex); 
+            });
         });
     });
 }
@@ -375,7 +380,7 @@ export const getTournamentPickBans = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let tourneyJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId));
+                let tourneyJson = (await dynamoDbGetItem('Tournament', tournamentPId));
                 let pickBansJson = {}
                 if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
                     const pbList = [];
@@ -415,7 +420,7 @@ export const getTournamentGames = (tournamentPId) => {
             if (err) { console(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let gameLogJson = (await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId))['GameLog'];
+                let gameLogJson = (await dynamoDbGetItem('Tournament', tournamentPId))['GameLog'];
                 if (gameLogJson != null) {
                     for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
                         let matchId = Object.keys(gameLogJson)[i];
@@ -443,7 +448,7 @@ export const getTournamentGames = (tournamentPId) => {
 export const getTournamentPlayerList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileIdsSqlList = await mySqlCallSProc('profilePIdsByTournamentPId', tournamentPId);
+            const profileIdsSqlList = await mySqlCallSProc('profilePIdsByTournamentPId', tournamentPId);
             resolve(profileIdsSqlList.map(a => a.profilePId));
         }
         catch (err) { console.error(err); reject(err); }
@@ -457,7 +462,7 @@ export const getTournamentPlayerList = (tournamentPId) => {
 export const getTournamentTeamList = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let teamIdsSqlList = await mySqlCallSProc('teamPIdsByTournamentPId', tournamentPId);
+            const teamIdsSqlList = await mySqlCallSProc('teamPIdsByTournamentPId', tournamentPId);
             resolve(teamIdsSqlList.map(a => a.teamPId));
         }
         catch (err) { console.error(err); reject(err); }
@@ -471,7 +476,7 @@ export const getTournamentTeamList = (tournamentPId) => {
 export const updateTournamentOverallStats = (tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', 'TournamentPId', tournamentPId);
+            const tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
             /*  
                 -------------------
                 Init DynamoDB Items
@@ -488,7 +493,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 'MountainDrakes': 0,
                 'ElderDrakes': 0,
             }
-            let pickBansObject = await initPickBansObject();
+            let pickBansObject = await initPickBansObject(tourneyDbObject.Information.MostRecentPatch);
             let profileHIdSet = new Set();
             let teamHIdSet = new Set();
             let gameLogTourneyItem = {};
@@ -505,9 +510,8 @@ export const updateTournamentOverallStats = (tournamentPId) => {
             */
             const matchStatsSqlList = await mySqlCallSProc('matchStatsByTournamentId', tournamentPId);
             //#region Process GameLog Data
-            for (let matchIdx = 0; matchIdx < matchStatsSqlList.length; ++matchIdx) {
-                let matchStatsSqlRow = matchStatsSqlList[matchIdx];
-                let matchPId = matchStatsSqlRow.riotMatchId;
+            for (const matchStatsSqlRow of matchStatsSqlList) {
+                const matchPId = matchStatsSqlRow.riotMatchId;
                 /*  
                     --------------
                     'TourneyStats'
@@ -522,10 +526,9 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 tourneyStatsItem['MountainDrakes'] += matchStatsSqlRow.mountainDragons;
                 tourneyStatsItem['ElderDrakes'] += matchStatsSqlRow.elderDragons;
     
-                let matchObject = await dynamoDbGetItem('Matches', 'MatchPId', matchPId.toString());
-                for (let teamIdx = 0; teamIdx < Object.keys(matchObject['Teams']).length; ++teamIdx) {
-                    let teamId = Object.keys(matchObject['Teams'])[teamIdx];
-                    let teamObject = matchObject['Teams'][teamId];    
+                const matchObject = await dynamoDbGetItem('Matches', matchPId.toString());
+                for (const teamId in matchObject.Teams) {
+                    const teamObject = matchObject['Teams'][teamId];    
                     /*
                         --------------
                         'PickBans'
@@ -560,7 +563,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     'Patch': matchObject.GamePatchVersion,
                 };
                 // Update 'MostRecentPatch'
-                tourneyDbObject['Information']['MostRecentPatch'] = matchObject.GamePatchVersion;
+                tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
             }
             //#endregion
             //#region Process Leaderboard Data
@@ -692,7 +695,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                 -------------------
             */
             //#region Push to Db
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #info = :val',
                 {
                     '#info': 'Information'
@@ -701,7 +704,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyDbObject['Information']
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #tStats = :val',
                 {
                     '#tStats': 'TourneyStats'
@@ -710,7 +713,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': tourneyStatsItem
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #pb = :val',
                 {
                     '#pb': 'PickBans'
@@ -719,7 +722,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': pickBansObject
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #pHIdList = :val',
                 {
                     '#pHIdList': 'ProfileHIdList'
@@ -728,7 +731,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(profileHIdSet)
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #tHIdList = :val',
                 {
                     '#tHIdList': 'TeamHIdList'
@@ -737,7 +740,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': Array.from(teamHIdSet)
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #gLog = :val',
                 {
                     '#gLog': 'GameLog'
@@ -746,7 +749,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     ':val': gameLogTourneyItem
                 }
             );
-            await dynamoDbUpdateItem('Tournament', 'TournamentPId', tournamentPId,
+            await dynamoDbUpdateItem('Tournament', tournamentPId,
                 'SET #lb = :val',
                 {
                     '#lb': 'Leaderboards'
@@ -786,13 +789,14 @@ export const updateTournamentOverallStats = (tournamentPId) => {
 
 /**
  * Returns an initialized pickBansObject
+ * @param {string} patch        If null, will return latest
+ * @returns Promise<Object>
  */
-function initPickBansObject() {
+function initPickBansObject(patch) {
     return new Promise((resolve, reject) => {
-        createChampObject().then((champObject) => {
-            let newPickBansObject = {};
-            for (let i = 0; i < Object.keys(champObject).length; ++i) {
-                const champId = Object.keys(champObject)[i];
+        createChampObject(patch).then((champObject) => {
+            const newPickBansObject = {};
+            for (const champId in champObject) {
                 newPickBansObject[champId] = {
                     'BluePicks': 0,
                     'RedPicks': 0,
@@ -815,8 +819,7 @@ function initPickBansObject() {
  * @param {string} teamId           "100" == Blue, "200" == Red
  */
 function addBansToTourneyItem(pickBansObject, banArray, teamId) {
-    for (let k = 0; k < banArray.length; ++k) {
-        const champBanned = banArray[k];
+    for (const champBanned of banArray) {
         if (teamId == GLOBAL_CONSTS.BLUE_ID) {
             pickBansObject[champBanned]['BlueBans']++;
         }
@@ -833,10 +836,9 @@ function addBansToTourneyItem(pickBansObject, banArray, teamId) {
  * @param {string} teamId               "100" == Blue, "200" == Red
  */
 function addWinPicksToTourneyItem(pickBansObject, teamObject, teamId) {
-    let playersObject = teamObject['Players'];
-    for (let k = 0; k < Object.values(playersObject).length; ++k) {
-        let playerObject = Object.values(playersObject)[k];
-        let champPicked = playerObject['ChampId'];
+    const playersObject = teamObject['Players'];
+    for (const singlePlayerObject of Object.values(playersObject)) {
+        const champPicked = singlePlayerObject['ChampId'];
         if (teamId == GLOBAL_CONSTS.BLUE_ID) {
             pickBansObject[champPicked]['BluePicks']++;
         }

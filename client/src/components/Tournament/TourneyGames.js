@@ -36,13 +36,13 @@ const useStyles = makeStyles((theme) => ({
     headerBlue: {
         textDecoration: 'underline',
         textAlign: 'right',
-        color: '#2863e1',
+        color: '#1241ce',
         fontWeight: 'bold',
     },
     headerRed: {
         textDecoration: 'underline',
         textAlign: 'left',
-        color: '#d83729',
+        color: '#cb2c31',
         fontWeight: 'bold',
     },
     colDate: {
@@ -74,10 +74,10 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'middle',
     },
     win: {
-        color: '#006400', // Green
+        color: '#006f3c', // Green
     },
     lose: {
-        color: '#eb0c04', // Red
+        color: '#bf212f', // Red
     },
     matchLink: {
         color: 'blue',
