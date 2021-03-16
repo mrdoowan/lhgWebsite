@@ -471,6 +471,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                 teamItems[TEAM_ID.RED]['KillsDiffMid'] = (blueKillsDiffMid === 0) ? 0 : (blueKillsDiffMid * -1);
                 teamItems[TEAM_ID.BLUE]['GoldDiffMid'] = blueTeamGoldDiffMid;
                 teamItems[TEAM_ID.RED]['GoldDiffMid'] = (blueTeamGoldDiffMid === 0) ? 0 : (blueTeamGoldDiffMid * -1);
+                teamItems[TEAM_ID.BLUE]['GoldDiffEarlyToMid'] = teamItems[TEAM_ID.BLUE]['GoldAtMid'] - teamItems[TEAM_ID.BLUE]['GoldAtEarly'];
+                teamItems[TEAM_ID.RED]['GoldDiffEarlyToMid'] = teamItems[TEAM_ID.RED]['GoldAtMid'] - teamItems[TEAM_ID.RED]['GoldAtEarly'];
                 teamItems[TEAM_ID.BLUE]['CsDiffMid'] = blueTeamCsDiffMid;
                 teamItems[TEAM_ID.RED]['CsDiffMid'] = (blueTeamCsDiffMid === 0) ? 0 : (blueTeamCsDiffMid * -1);
                 teamItems[TEAM_ID.BLUE]['XpDiffMid'] = blueTeamXpDiffMid;
@@ -516,6 +518,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                     const bluePlayerGoldDiffMid = playerItems[bluePartId].GoldAtMid - playerItems[redPartId].GoldAtMid;
                     playerItems[bluePartId]['GoldDiffMid'] = bluePlayerGoldDiffMid;
                     playerItems[redPartId]['GoldDiffMid'] = (bluePlayerGoldDiffMid === 0) ? 0 : (bluePlayerGoldDiffMid * -1);
+                    playerItems[bluePartId]['GoldDiffEarlyToMid'] = playerItems[bluePartId]['GoldDiffMid'] - playerItems[bluePartId]['GoldDiffEarly'];
+                    playerItems[redPartId]['GoldDiffEarlyToMid'] = playerItems[redPartId]['GoldDiffMid'] - playerItems[redPartId]['GoldDiffEarly'];
                     const bluePlayerCsDiffMid = playerItems[bluePartId].CsAtMid - playerItems[redPartId].CsAtMid;
                     playerItems[bluePartId]['CsDiffMid'] = bluePlayerCsDiffMid;
                     playerItems[redPartId]['CsDiffMid'] = (bluePlayerCsDiffMid === 0) ? 0 : (bluePlayerCsDiffMid * -1);
