@@ -523,7 +523,7 @@ export const deleteMatchData = (matchId) => {
 }
 
 /**
- * 
+ * Invalidate the match
  * @param {string} matchId      
  */
 export const invalidateMatch = (matchId) => {
