@@ -586,9 +586,9 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
 export const updateProfileGameLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
-            let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let profileDbObject = await dynamoDbGetItem('Profile', profilePId);
+            const tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
+            const seasonPId = tourneyDbObject['Information']['SeasonPId'];
+            const profileDbObject = await dynamoDbGetItem('Profile', profilePId);
             
             /*  
                 -------------------
@@ -630,7 +630,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             // #endregion
 
             // Shallow copy
-            let gameLogProfileItem = profileDbObject['GameLog'][seasonPId]['Matches'];
+            const gameLogProfileItem = profileDbObject['GameLog'][seasonPId]['Matches'];
 
             /*  
                 -------------
@@ -641,10 +641,10 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             // Load each Stat into Profile in tournamentId
             const matchDataList = await mySqlCallSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
             console.log(`Profile '${profilePId}' played ${matchDataList.length} matches in TournamentPID '${tournamentPId}'.`);
-            for (let matchIdx = 0; matchIdx < matchDataList.length; ++matchIdx) {
-                const sqlPlayerStats = matchDataList[matchIdx];
+            for (const sqlPlayerStats of matchDataList) {
                 const matchPId = sqlPlayerStats.riotMatchId;
-                let profileGameItem = {
+                const profileGameItem = {
+                    'Invalid': sqlPlayerStats.invalid,
                     'DatePlayed': sqlPlayerStats.datePlayed,
                     'TournamentType': sqlPlayerStats.tournamentType,
                     'GameWeekNumber': 0, // N/A
@@ -723,7 +723,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
 export const updateProfileStatsLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileDbObject = await dynamoDbGetItem('Profile', profilePId);
+            const profileDbObject = await dynamoDbGetItem('Profile', profilePId);
 
             /*  
                 -------------------
@@ -764,7 +764,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             // #endregion
 
             // shallow copy
-            let statsLogProfileItem = profileDbObject['StatsLog'][tournamentPId]['RoleStats'];
+            const statsLogProfileItem = profileDbObject['StatsLog'][tournamentPId]['RoleStats'];
 
             /*  
                 ----------
@@ -772,17 +772,16 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 ----------
             */
             // #region Compile Data
-            let playerStatsTotalData = await mySqlCallSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, 
+            const playerStatsTotalData = await mySqlCallSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, 
                 GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID);
-            for (let idx = 0; idx < playerStatsTotalData.length; ++idx) {
-                let playerStatsTotalRow = playerStatsTotalData[idx];
-                let role = playerStatsTotalRow.playerRole;
+            for (const playerStatsTotalRow of playerStatsTotalData) {
+                const role = playerStatsTotalRow.playerRole;
                 // Initialize StatsLog Role 
                 if (!(role in statsLogProfileItem)) {
                     statsLogProfileItem[role] = {};
                 }
                 // Get from sProc
-                let statsRoleItem = statsLogProfileItem[role];
+                const statsRoleItem = statsLogProfileItem[role];
                 statsRoleItem['GamesPlayed'] = playerStatsTotalRow.gamesPlayed;
                 statsRoleItem['GamesPlayedOverEarly'] = playerStatsTotalRow.gamesPlayedOverEarly;
                 statsRoleItem['GamesPlayedOverMid'] = playerStatsTotalRow.gamesPlayedOverMid;
