@@ -1,9 +1,6 @@
 {
   "name": "lhg_server",
   "version": "0.1.8",
-  "engines": {
-    "npm": "12.x"
-  },
   "description": "Prototype for LHG website",
   "main": "server.js",
   "scripts": {
