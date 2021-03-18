@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
     rowInvalid: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#8B8588', // Gray
+        backgroundColor: '#aaaaaa', // Gray
     },
     leftHeader: {
         textAlign: 'left',
