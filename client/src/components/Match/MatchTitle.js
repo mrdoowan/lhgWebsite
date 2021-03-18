@@ -13,10 +13,10 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
     },
     blueTeam: {
-        color: 'blue',
+        color: '#1241ce', // Blue
     },
     redTeam: {
-        color: 'red',
+        color: '#cb2c31', // Red
     }
 }));
 
