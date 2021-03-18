@@ -14,6 +14,7 @@ import {
     deleteMatchData,
     getMatchSetupList,
     putMatchSaveSetup,
+    invalidateMatch,
 } from '../../functions/apiV1/matchData';
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -163,6 +164,22 @@ matchV1Routes.delete('/remove/:matchId', authenticateJWT, (req, res) => {
 
     console.log(`DELETE Request Match '${matchId}'.`);
     deleteMatchData(matchId).then((response) => {
+        if (response.error) { return res400sClientError(res, req, response.error); }
+        return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
+});
+
+/**
+ * Uses MySQL
+ * @route   PUT api/match/v1/invalidate
+ * @desc    Mark a match through DynamoDb and MySQL as invalid
+ * @access  Private (to Admins)
+ */
+matchV1Routes.put('/invalidate', authenticateJWT, (req, res) => {
+    const { matchId } = req.body;
+
+    console.log(`PUT Request Match '${matchId} - Invalidate`);
+    invalidateMatch(matchId).then((response) => {
         if (response.error) { return res400sClientError(res, req, response.error); }
         return res200sOK(res, req, response);
     }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));

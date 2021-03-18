@@ -521,3 +521,33 @@ export const deleteMatchData = (matchId) => {
         }).catch((error) => { console.error(error); reject(error); });
     });
 }
+
+/**
+ * 
+ * @param {string} matchId      
+ */
+export const invalidateMatch = (matchId) => {
+    return new Promise((resolve, reject) => {
+        checkRdsStatus().then((status) => {
+            if (status !== AWS_RDS_STATUS.AVAILABLE) {
+                resolve({ error: `AWS Rds Instance not available.` });
+                return;
+            }
+            getMatchData(matchId).then(async (matchObject) => {
+                if (!matchObject) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
+                matchObject.Invalid = true;
+
+                // MySQL
+                await mySqlCallSProc('matchInvalidate', matchId);
+
+                // DynamoDb
+                await dynamoDbPutItem('Matches', matchObject, matchId);
+
+                resolve({
+                    message: `Match invalidated.`,
+                    matchId: matchId,
+                });
+            }).catch((error) => { console.error(error); reject(error); });
+        }).catch((error) => { console.error(error); reject(error); });
+    });
+}
