@@ -83,12 +83,12 @@ matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
-    const { riotMatchId, tournamentName } = req.body;
+    const { riotMatchId, tournamentName, invalidFlag } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
     getTournamentId(tournamentName).then((tournamentId) => {
         if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
-        postMatchNewSetup(riotMatchId, tournamentId).then((data) => {
+        postMatchNewSetup(riotMatchId, tournamentId, invalidFlag).then((data) => {
             if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));

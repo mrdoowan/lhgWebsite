@@ -144,8 +144,9 @@ export const getMatchSetupList = () => {
  * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
  * @param {string} tournamentId ID of Tournament (number)
+ * @param {boolean} invalidFlag 
  */
-export const postMatchNewSetup = (matchId, tournamentId) => {
+export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
     return new Promise(async function(resolve, reject) {
         try {
             const tournamentInfoObject = await getTournamentInfo(tournamentId);
@@ -157,6 +158,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
                     'MatchId': matchId,
                     'Error': `Match ID ${matchId} is not a valid string.`,
                 });
+                return;
             }
             // Check if matchId already exists
             if (await dynamoDbGetItem('Matches', matchId)) {
@@ -187,6 +189,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
             const matchDataRiotJson = (await getRiotMatchData(matchId))['Data'];
 
             const setupObject = {}
+            setupObject['Invalid'] = invalidFlag;
             setupObject['RiotMatchId'] = matchId;
             setupObject['SeasonPId'] = seasonId;
             setupObject['TournamentPId'] = tournamentId;
