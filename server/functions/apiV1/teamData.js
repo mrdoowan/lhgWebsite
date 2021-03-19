@@ -711,16 +711,14 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 teamDbObject['StatsLog'][tournamentPId] = {};
             }
             //#endregion
-
-            // Shallow Copy
-            const tourneyTeamStatsItem = teamDbObject['StatsLog'][tournamentPId];
-
+            
             /*  
                 -------------
                 'StatsLog' (TournamentId dependent)
                 -------------
             */
             // #region Compile Data
+            const tourneyTeamStatsItem = {};
             const sqlTeamStatsTotal = (await mySqlCallSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID))[0];
             tourneyTeamStatsItem['GamesPlayed'] = sqlTeamStatsTotal.gamesPlayed;
             tourneyTeamStatsItem['GamesPlayedOverEarly'] = sqlTeamStatsTotal.gamesPlayedOverEarly;
@@ -756,6 +754,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             tourneyTeamStatsItem['TotalControlWardsBought'] = sqlTeamStatsTotal.totalControlWardsBought;
             tourneyTeamStatsItem['TotalWardsCleared'] = sqlTeamStatsTotal.totalWardsCleared;
             tourneyTeamStatsItem['TotalEnemyWardsPlaced'] = sqlTeamStatsTotal.totalEnemyWardsPlaced;
+            teamDbObject['StatsLog'][tournamentPId] = tourneyTeamStatsItem;
             // #endregion
 
             /*  
