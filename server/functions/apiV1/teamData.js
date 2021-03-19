@@ -499,16 +499,13 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             }
             // #endregion
 
-            // Shallow Copy
-            const scoutingItem = teamDbObject['Scouting'][seasonPId];
-            const gameLogTeamItem = teamDbObject['GameLog'][seasonPId]['Matches'];
-
             /*  
                 -------------
                 Game Log
                 -------------
             */
             // #region Compile Data
+            const gameLogTeamItem = {};
             const teamMatchesSqlListTourney = await mySqlCallSProc('teamMatchesByTournamentPId', teamPId, tournamentPId);
             for (const sqlTeamMatch of teamMatchesSqlListTourney) {
                 const matchPId = sqlTeamMatch.riotMatchId;
@@ -554,6 +551,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 }
                 gameLogTeamItem[matchPId] = teamGameItem;
             }
+            teamDbObject['GameLog'][seasonPId]['Matches'] = gameLogTeamItem;
             // #endregion
 
             /*  
@@ -562,6 +560,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 -------------
             */
             // #region Compile Data
+            const scoutingItem = {};
             // Banned Champs List
             const sqlTeamSeasonStats = (await mySqlCallSProc('teamStatsBySeasonId', teamPId, seasonPId))[0];
             scoutingItem['Ongoing'] = false;
@@ -632,6 +631,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 }
             }
             scoutingItem['PlayerLog'] = playerLog;
+            teamDbObject['Scouting'][seasonPId] = scoutingItem;
             // #endregion
 
             /*  

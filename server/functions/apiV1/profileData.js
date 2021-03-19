@@ -629,9 +629,6 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             }
             // #endregion
 
-            // Shallow copy
-            const gameLogProfileItem = profileDbObject['GameLog'][seasonPId]['Matches'];
-
             /*  
                 -------------
                 Game Log
@@ -639,6 +636,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             */
             // #region Compile Data
             // Load each Stat into Profile in tournamentId
+            const gameLogProfileItem = {};
             const matchDataList = await mySqlCallSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
             console.log(`Profile '${profilePId}' played ${matchDataList.length} matches in TournamentPID '${tournamentPId}'.`);
             for (const sqlPlayerStats of matchDataList) {
@@ -682,6 +680,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                 };
                 gameLogProfileItem[matchPId] = profileGameItem;
             }
+            profileDbObject['GameLog'][seasonPId]['Matches'] = gameLogProfileItem;
             //#endregion
             
             /*  
@@ -763,15 +762,13 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             // #endregion
 
-            // shallow copy
-            const statsLogProfileItem = profileDbObject['StatsLog'][tournamentPId]['RoleStats'];
-
             /*  
                 ----------
                 'StatsLog'
                 ----------
             */
             // #region Compile Data
+            const statsLogProfileItem = {};
             const playerStatsTotalData = await mySqlCallSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, 
                 GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID);
             for (const playerStatsTotalRow of playerStatsTotalData) {
@@ -822,6 +819,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 statsRoleItem['TotalQuadraKills'] = playerStatsTotalRow.totalQuadraKills;
                 statsRoleItem['TotalPentaKills'] = playerStatsTotalRow.totalPentaKills;
             }
+            profileDbObject['StatsLog'][tournamentPId]['RoleStats'] = statsLogProfileItem;
             // #endregion
             
             /*  
