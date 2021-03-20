@@ -14,6 +14,7 @@ import {
     deleteMatchData,
     getMatchSetupList,
     putMatchSaveSetup,
+    invalidateMatch,
 } from '../../functions/apiV1/matchData';
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -82,12 +83,12 @@ matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
-    const { riotMatchId, tournamentName } = req.body;
+    const { riotMatchId, tournamentName, invalidFlag } = req.body;
 
     console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
     getTournamentId(tournamentName).then((tournamentId) => {
         if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
-        postMatchNewSetup(riotMatchId, tournamentId).then((data) => {
+        postMatchNewSetup(riotMatchId, tournamentId, invalidFlag).then((data) => {
             if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
             return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
@@ -182,6 +183,22 @@ matchV1Routes.delete('/remove/:matchId', authenticateJWT, (req, res) => {
 
     console.log(`DELETE Request Match '${matchId}'.`);
     deleteMatchData(matchId).then((response) => {
+        if (response.error) { return res400sClientError(res, req, response.error); }
+        return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));
+});
+
+/**
+ * Uses MySQL
+ * @route   PUT api/match/v1/invalidate
+ * @desc    Mark a match through DynamoDb and MySQL as invalid
+ * @access  Private (to Admins)
+ */
+matchV1Routes.put('/invalidate', authenticateJWT, (req, res) => {
+    const { matchId } = req.body;
+
+    console.log(`PUT Request Match '${matchId} - Invalidate`);
+    invalidateMatch(matchId).then((response) => {
         if (response.error) { return res400sClientError(res, req, response.error); }
         return res200sOK(res, req, response);
     }).catch((err) => error500sServerError(err, res, "DELETE Match Data Error."));

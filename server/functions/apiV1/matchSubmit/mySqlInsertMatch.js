@@ -23,6 +23,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
         const blueTeamPId = getTeamPIdFromHash(newMatchDynamoDbItem['Teams'][TEAM_ID.BLUE]['TeamHId']);
         const redTeamPId = getTeamPIdFromHash(newMatchDynamoDbItem['Teams'][TEAM_ID.RED]['TeamHId']);
         const insertMatchStatsColumn = {
+            'invalid': matchSetupObject['Invalid'],
             'riotMatchId': matchSetupObject['RiotMatchId'],
             'seasonPId': matchSetupObject['SeasonPId'],
             'tournamentPId': matchSetupObject['TournamentPId'],

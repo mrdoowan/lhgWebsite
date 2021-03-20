@@ -145,8 +145,9 @@ export const getMatchSetupList = () => {
  * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
  * @param {string} tournamentId ID of Tournament (number)
+ * @param {boolean} invalidFlag 
  */
-export const postMatchNewSetup = (matchId, tournamentId) => {
+export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
     return new Promise(async function(resolve, reject) {
         try {
             const tournamentInfoObject = await getTournamentInfo(tournamentId);
@@ -158,6 +159,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
                     'MatchId': matchId,
                     'Error': `Match ID ${matchId} is not a valid string.`,
                 });
+                return;
             }
             // Check if matchId already exists
             if (await dynamoDbGetItem('Matches', matchId)) {
@@ -188,6 +190,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
             const matchDataRiotJson = (await getRiotMatchData(matchId))['Data'];
 
             const setupObject = {}
+            setupObject['Invalid'] = invalidFlag;
             setupObject['RiotMatchId'] = matchId;
             setupObject['SeasonPId'] = seasonId;
             setupObject['TournamentPId'] = tournamentId;
@@ -519,6 +522,36 @@ export const deleteMatchData = (matchId) => {
                     });
                 }).catch((error) => { console.error(error); reject(error); });
             }
+        }).catch((error) => { console.error(error); reject(error); });
+    });
+}
+
+/**
+ * Invalidate the match
+ * @param {string} matchId      
+ */
+export const invalidateMatch = (matchId) => {
+    return new Promise((resolve, reject) => {
+        checkRdsStatus().then((status) => {
+            if (status !== AWS_RDS_STATUS.AVAILABLE) {
+                resolve({ error: `AWS Rds Instance not available.` });
+                return;
+            }
+            getMatchData(matchId).then(async (matchObject) => {
+                if (!matchObject) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
+                matchObject.Invalid = true;
+
+                // MySQL
+                await mySqlCallSProc('matchInvalidate', matchId);
+
+                // DynamoDb
+                await dynamoDbPutItem('Matches', matchObject, matchId);
+
+                resolve({
+                    message: `Match invalidated.`,
+                    matchId: matchId,
+                });
+            }).catch((error) => { console.error(error); reject(error); });
         }).catch((error) => { console.error(error); reject(error); });
     });
 }

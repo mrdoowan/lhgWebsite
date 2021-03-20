@@ -34,12 +34,17 @@ const useStyles = makeStyles((theme) => ({
     rowWin: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#BDE7BD',
+        backgroundColor: '#BDE7BD', // Green
     },
     rowLose: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#FFB6B3',
+        backgroundColor: '#FFB6B3', // Red
+    },
+    rowInvalid: {
+        padding: theme.spacing(5),
+        border: '1px solid black',
+        backgroundColor: '#aaaaaa', // Gray
     },
     leftHeader: {
         textAlign: 'left',
@@ -151,7 +156,9 @@ export default function TeamGameLog({ games }) {
                     const { ChampPicks: { Top, Jungle, Middle, Bottom, Support } } = match;
                     const { BannedAgainst } = match;
 
-                    return (<tr key={matchId} className={(match.Win) ? classes.rowWin : classes.rowLose}>
+                    return (<tr key={matchId} className={(match.Invalid) ? classes.rowInvalid : 
+                        (match.Win) ? classes.rowWin : 
+                        classes.rowLose}>
                         <td className={classes.colDate}>
                             <Link to={`/match/${matchId}`} className={classes.link}>{getDateString(match.DatePlayed / 1000)}</Link><br />
                             {match.TournamentType} [{sideString(match.Side, classes)}]<br />

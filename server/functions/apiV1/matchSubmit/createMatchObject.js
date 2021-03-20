@@ -42,6 +42,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
 
             // ----- 2) Create the Match item for DynamoDB
             const matchObject = {};
+            matchObject['Invalid'] = matchSetupObject['Invalid'];
             matchObject['MatchPId'] = matchSetupObject['RiotMatchId'];
             matchObject['SeasonPId'] = matchSetupObject['SeasonPId'];
             matchObject['TournamentPId'] = matchSetupObject['TournamentPId'];
