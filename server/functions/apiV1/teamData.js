@@ -327,9 +327,9 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                     tourneyStatsJson['AverageXpDiffMid'] = (tourneyStatsJson['TotalXpDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
                     const avgGoldDiffEarlyFloat = tourneyStatsJson['TotalGoldDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly'];
                     const avgGoldDiffMidFloat = tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid'];
-                    tourneyStatsJson['AverageGoldDiffEarly'] = (avgGoldDiffEarlyFloat).toFixed(1);
-                    tourneyStatsJson['AverageGoldDiffMid'] = (avgGoldDiffMidFloat).toFixed(1);
-                    tourneyStatsJson['AverageTeamGoldDiffEarlyToMid'] = (avgGoldDiffMidFloat - avgGoldDiffEarlyFloa).toFixed(1);
+                    tourneyStatsJson['AverageGoldDiffEarly'] = avgGoldDiffEarlyFloat.toFixed(1);
+                    tourneyStatsJson['AverageGoldDiffMid'] = avgGoldDiffMidFloat.toFixed(1);
+                    tourneyStatsJson['AverageTeamGoldDiffEarlyToMid'] = (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
                     tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
                     tourneyStatsJson['AverageTeamKillsEarly'] = (tourneyStatsJson['TotalTeamKillsAtEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
