@@ -38,8 +38,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
 
         // 2) TeamStats + PlayerStats + BannedChamps
         // 2.1) TeamStats
-        for (let i = 0; i < Object.keys(newMatchDynamoDbItem['Teams']).length; ++i) {
-            const teamSide = Object.keys(newMatchDynamoDbItem['Teams'])[i]; // "100" or "200"
+        for (const teamSide in newMatchDynamoDbItem['Teams']) { // "100" or "200"
             const teamObject = newMatchDynamoDbItem['Teams'][teamSide];
             const durationByMinute = newMatchDynamoDbItem.GameDuration / 60;
             const thisTeamPId = (teamSide == TEAM_ID.BLUE) ? blueTeamPId : redTeamPId;
@@ -106,8 +105,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
             }
 
             // 2.3) PlayerStats
-            for (let j = 0; j < Object.values(teamObject['Players']).length; ++j) {
-                const playerObject = Object.values(teamObject['Players'])[j];
+            for (const playerObject of Object.values(teamObject['Players'])) {
                 const insertPlayerStatsColumn = {
                     'profilePId': getProfilePIdFromHash(playerObject.ProfileHId),
                     'riotMatchId': matchSetupObject['RiotMatchId'],
@@ -155,6 +153,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
                     insertPlayerStatsColumn['killsAssistsAtMid'] = playerObject.KillsAtMid + playerObject.AssistsAtMid;
                     insertPlayerStatsColumn['goldAtMid'] = playerObject.GoldAtMid;
                     insertPlayerStatsColumn['goldDiffMid'] = playerObject.GoldDiffMid;
+                    insertPlayerStatsColumn['goldDiffEarlyToMid'] = playerObject.GoldDiffEarlyToMid;
                     insertPlayerStatsColumn['csAtMid'] = playerObject.CsAtMid;
                     insertPlayerStatsColumn['csDiffMid'] = playerObject.CsDiffMid;
                     insertPlayerStatsColumn['xpAtMid'] = playerObject.XpAtMid;
