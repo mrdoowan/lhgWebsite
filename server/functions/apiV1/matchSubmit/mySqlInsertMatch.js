@@ -153,7 +153,6 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
                     insertPlayerStatsColumn['killsAssistsAtMid'] = playerObject.KillsAtMid + playerObject.AssistsAtMid;
                     insertPlayerStatsColumn['goldAtMid'] = playerObject.GoldAtMid;
                     insertPlayerStatsColumn['goldDiffMid'] = playerObject.GoldDiffMid;
-                    insertPlayerStatsColumn['goldDiffEarlyToMid'] = playerObject.GoldDiffEarlyToMid;
                     insertPlayerStatsColumn['csAtMid'] = playerObject.CsAtMid;
                     insertPlayerStatsColumn['csDiffMid'] = playerObject.CsDiffMid;
                     insertPlayerStatsColumn['xpAtMid'] = playerObject.XpAtMid;
