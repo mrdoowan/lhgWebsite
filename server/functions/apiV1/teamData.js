@@ -522,7 +522,6 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     'ChampPicks': {},
                     'Side': sqlTeamMatch.side,
                     'Win': (sqlTeamMatch.win === 1) ? true : false,
-                    'Vacated': false,
                     'EnemyTeamHId': getTeamHashId((sqlTeamMatch.side === 'Blue') ? sqlTeamMatch.redTeamPId : sqlTeamMatch.blueTeamPId),
                     'GameDuration': sqlTeamMatch.duration,
                     'Kills': sqlTeamMatch.totalKills,

@@ -651,7 +651,6 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                     'Role': sqlPlayerStats.role,
                     'Side': sqlPlayerStats.side,
                     'Win': (sqlPlayerStats.win == 1) ? true : false,
-                    'Vacated': false,
                     'EnemyTeamHId': getTeamHashId((sqlPlayerStats.side === 'Blue') ? sqlPlayerStats.redTeamPId : sqlPlayerStats.blueTeamPId),
                     'GameDuration': sqlPlayerStats.duration,
                     'Kills': sqlPlayerStats.kills,
