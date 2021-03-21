@@ -139,7 +139,8 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
                     'pentaKills': playerObject.PentaKills
                 };
                 if (newMatchDynamoDbItem.GameDuration >= MINUTE.EARLY * 60) {
-                    insertPlayerStatsColumn['killsAssistsAtEarly'] = playerObject.KillsAtEarly + playerObject.AssistsAtEarly;
+                    insertPlayerStatsColumn['killsAtEarly'] = playerObject.KillsAtEarly;
+                    insertPlayerStatsColumn['assistsAtEarly'] = playerObject.AssistsAtEarly;
                     insertPlayerStatsColumn['goldAtEarly'] = playerObject.GoldAtEarly;
                     insertPlayerStatsColumn['goldDiffEarly'] = playerObject.GoldDiffEarly;
                     insertPlayerStatsColumn['csAtEarly'] = playerObject.CsAtEarly;
@@ -150,7 +151,8 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
                     insertPlayerStatsColumn['jungleCsDiffEarly'] = playerObject.JungleCsDiffEarly;
                 }
                 if (newMatchDynamoDbItem.GameDuration >= MINUTE.MID * 60) {
-                    insertPlayerStatsColumn['killsAssistsAtMid'] = playerObject.KillsAtMid + playerObject.AssistsAtMid;
+                    insertPlayerStatsColumn['killsAtMid'] = playerObject.KillsAtMid;
+                    insertPlayerStatsColumn['assistsAtMid'] = playerObject.AssistsAtMid;
                     insertPlayerStatsColumn['goldAtMid'] = playerObject.GoldAtMid;
                     insertPlayerStatsColumn['goldDiffMid'] = playerObject.GoldDiffMid;
                     insertPlayerStatsColumn['csAtMid'] = playerObject.CsAtMid;

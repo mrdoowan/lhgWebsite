@@ -741,6 +741,8 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             tourneyTeamStatsItem['TotalKills'] = sqlTeamStatsTotal.totalKills;
             tourneyTeamStatsItem['TotalDeaths'] = sqlTeamStatsTotal.totalDeaths;
             tourneyTeamStatsItem['TotalAssists'] = sqlTeamStatsTotal.totalAssists;
+            tourneyTeamStatsItem['TotalTeamKillsAtEarly'] = sqlTeamStatsTotal.totalKillsAtEarly;
+            tourneyTeamStatsItem['TotalTeamKillsAtMid'] = sqlTeamStatsTotal.totalKillsAtMid;
             tourneyTeamStatsItem['TotalTowersTaken'] = sqlTeamStatsTotal.totalTeamTowers;
             tourneyTeamStatsItem['TotalTowersLost'] = sqlTeamStatsTotal.totalEnemyTowers;
             tourneyTeamStatsItem['TotalDragonsTaken'] = sqlTeamStatsTotal.totalTeamDragons;
