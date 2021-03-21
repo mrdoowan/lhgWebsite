@@ -650,6 +650,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                     'ChampionPlayed': sqlPlayerStats.champId,
                     'Role': sqlPlayerStats.role,
                     'Side': sqlPlayerStats.side,
+                    'Patch': sqlPlayerStats.patch,
                     'Win': (sqlPlayerStats.win == 1) ? true : false,
                     'EnemyTeamHId': getTeamHashId((sqlPlayerStats.side === 'Blue') ? sqlPlayerStats.redTeamPId : sqlPlayerStats.blueTeamPId),
                     'GameDuration': sqlPlayerStats.duration,
