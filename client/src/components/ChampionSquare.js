@@ -97,5 +97,10 @@ function getCurrentVersion() {
 }
 
 function getVersionByPatch(patch) {
-    return Versions[0]; // TODO: grab DDragon version based on patch
+    for (const DDragonVersion of Versions) {
+        if (DDragonVersion.includes(patch)) {
+            return DDragonVersion;
+        }
+    }
+    return Versions[0]; // Default latest patch
 }
