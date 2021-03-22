@@ -69,6 +69,54 @@ export default function LeaderboardPlayers({ playerRecords }) {
         'PlayerMostGoldDiffEarly': "Highest Gold Diff @15",
         'PlayerMostXpDiffEarly': "Highest XP Diff @15",
         'PlayerMostVision': "Highest Vision",
+    };
+
+    /**
+     * Returns leaderboard description type of stat
+     * @param {string} type     Type of leaderboard
+     * @param {object} item     Data containing the MySql row
+     */
+    const recordString = (type, item) => {
+        switch (type) {
+            case 'PlayerMostDamage':
+                return (<React.Fragment><b>{item.DamagePerMin.toFixed(2).toLocaleString()} DPM</b> - {item.DamageDealt.toLocaleString()} in {getTimeString(item.GameDuration)}</React.Fragment>);
+            case 'PlayerMostFarm':
+                return (<React.Fragment><b>{item.CsPerMin.toFixed(2)} CSPM</b> - {item.CreepScore} in {getTimeString(item.GameDuration)}</React.Fragment>);
+            case 'PlayerMostGoldDiffEarly':
+                return (<React.Fragment><b>+{item.GDiffEarly.toLocaleString()} GD@15</b> - {item.GAtEarly.toLocaleString()} Gold</React.Fragment>);
+            case 'PlayerMostXpDiffEarly':
+                return (<React.Fragment><b>+{item.XpDiffEarly.toLocaleString()} XPD@15</b> - {item.XpAtEarly.toLocaleString()} XP</React.Fragment>);
+            case 'PlayerMostVision':
+                return (<React.Fragment><b>{item.VsPerMin.toFixed(2)} VSPM</b> - {item.VisionScore} in {getTimeString(item.GameDuration)}</React.Fragment>);
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Returns JSX element of the player's team in following format: [TSM]
+     * @param {object} item     Data containing the MySql row
+     * @param {object} classes  Material-UI styles
+     */
+    const thisTeam = (item, classes) => {
+        let teamName = (item.Side === 'Blue') ? item.BlueTeamName :
+            (item.Side === 'Red') ? item.RedTeamName : null;
+        let shortName = (item.Side === 'Blue') ? item.BlueTeamShortName : 
+            (item.Side === 'Red') ? item.RedTeamShortName : null;
+        
+        return (<React.Fragment>[<Link className={classes.link} to={`/team/${teamName}`}>{shortName}</Link>]</React.Fragment>);
+    }
+
+    /**
+     * Returns JSX element of enemy team in the following format: (vs. C9)
+     * @param {object} item     Data containing the MySql row
+     * @param {object} classes  Material-UI styles
+     */
+    const enemyTeam = (item, classes) => {
+        let shortName = (item.Side === 'Blue') ? item.RedTeamShortName : 
+            (item.Side === 'Red') ? item.BlueTeamShortName : null;
+
+        return (<React.Fragment>(<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {shortName}</Link>)</React.Fragment>);
     }
 
     return (
@@ -106,52 +154,4 @@ export default function LeaderboardPlayers({ playerRecords }) {
             </Grid>
         </div>
     )
-}
-
-/**
- * Returns leaderboard description type of stat
- * @param {string} type     Type of leaderboard
- * @param {object} item     Data containing the MySql row
- */
-function recordString(type, item) {
-    switch (type) {
-        case 'PlayerMostDamage':
-            return (<React.Fragment><b>{item.DamagePerMin.toFixed(2).toLocaleString()} DPM</b> - {item.DamageDealt.toLocaleString()} in {getTimeString(item.GameDuration)}</React.Fragment>);
-        case 'PlayerMostFarm':
-            return (<React.Fragment><b>{item.CsPerMin.toFixed(2)} CSPM</b> - {item.CreepScore} in {getTimeString(item.GameDuration)}</React.Fragment>);
-        case 'PlayerMostGoldDiffEarly':
-            return (<React.Fragment><b>+{item.GDiffEarly.toLocaleString()} GD@15</b> - {item.GAtEarly.toLocaleString()} Gold</React.Fragment>);
-        case 'PlayerMostXpDiffEarly':
-            return (<React.Fragment><b>+{item.XpDiffEarly.toLocaleString()} XPD@15</b> - {item.XpAtEarly.toLocaleString()} XP</React.Fragment>);
-        case 'PlayerMostVision':
-            return (<React.Fragment><b>{item.VsPerMin.toFixed(2)} VSPM</b> - {item.VisionScore} in {getTimeString(item.GameDuration)}</React.Fragment>);
-        default:
-            return '';
-    }
-}
-
-/**
- * Returns JSX element of the player's team in following format: [TSM]
- * @param {object} item     Data containing the MySql row
- * @param {object} classes  Material-UI styles
- */
-function thisTeam(item, classes) {
-    let teamName = (item.Side === 'Blue') ? item.BlueTeamName :
-        (item.Side === 'Red') ? item.RedTeamName : null;
-    let shortName = (item.Side === 'Blue') ? item.BlueTeamShortName : 
-        (item.Side === 'Red') ? item.RedTeamShortName : null;
-    
-    return (<React.Fragment>[<Link className={classes.link} to={`/team/${teamName}`}>{shortName}</Link>]</React.Fragment>);
-}
-
-/**
- * Returns JSX element of enemy team in the following format: (vs. C9)
- * @param {object} item     Data containing the MySql row
- * @param {object} classes  Material-UI styles
- */
-function enemyTeam(item, classes) {
-    let shortName = (item.Side === 'Blue') ? item.RedTeamShortName : 
-        (item.Side === 'Red') ? item.BlueTeamShortName : null;
-
-    return (<React.Fragment>(<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {shortName}</Link>)</React.Fragment>);
 }

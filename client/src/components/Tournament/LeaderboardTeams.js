@@ -60,6 +60,22 @@ export default function LeaderboardTeams({ teamRecords }) {
     const titles = {
         'TeamTopBaronPowerPlay': "Highest Baron Power Play",
         'TeamEarliestTower': "Earliest Tower", 
+    };
+
+    const recordString = (type, item) => {
+        let tsSeconds = Math.floor(item.Timestamp / 1000);
+        switch (type) {
+            case 'TeamTopBaronPowerPlay':
+                return (<React.Fragment><b>+{item.BaronPowerPlay.toLocaleString()} Power Play</b> - Taken at {getTimeString(tsSeconds)}</React.Fragment>);
+            case 'TeamEarliestTower':
+                return (<React.Fragment><b>Taken at {getTimeString(tsSeconds)}</b> - {item.Lane} {item.TowerType} Tower</React.Fragment>);
+            default:
+                return '';
+        }
+    }
+    
+    const opposingTeam = (item) => {
+        return (item.TeamName === item.BlueTeamName) ? item.RedTeamShortName : item.BlueTeamShortName;
     }
 
     return (<div>
@@ -85,20 +101,4 @@ export default function LeaderboardTeams({ teamRecords }) {
             ))}
         </Grid>
     </div>)
-}
-
-function recordString(type, item) {
-    let tsSeconds = Math.floor(item.Timestamp / 1000);
-    switch (type) {
-        case 'TeamTopBaronPowerPlay':
-            return (<React.Fragment><b>+{item.BaronPowerPlay.toLocaleString()} Power Play</b> - Taken at {getTimeString(tsSeconds)}</React.Fragment>);
-        case 'TeamEarliestTower':
-            return (<React.Fragment><b>Taken at {getTimeString(tsSeconds)}</b> - {item.Lane} {item.TowerType} Tower</React.Fragment>);
-        default:
-            return '';
-    }
-}
-
-function opposingTeam(item) {
-    return (item.TeamName === item.BlueTeamName) ? item.RedTeamShortName : item.BlueTeamShortName;
 }

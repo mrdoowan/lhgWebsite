@@ -135,6 +135,41 @@ export default function TeamGameLog({ games }) {
     const classes = useStyles();
     const { Matches } = games;
 
+    /**
+     * Displays Gold as i.e. '+1000' or '-1000'.
+     * @param {number} gold     If gold is null, return ''.
+     * @param {string} label    'GD15' or 'GD25'
+     */
+    const goldString = (gold, label) => {
+        return (gold != null) ? (<React.Fragment><b>{(gold > 0) ? '+' : ''}{gold.toLocaleString()}</b> {label}<br /></React.Fragment>) : '';
+    }
+
+    /**
+     * Returns the JSX Element of the Player's stats within that game
+     * @param {object} playerObject     From ChampPicks in Team's GameLog
+     * @param {object} seasonShortName  Code of season
+     * @param {string} patch            Patch of the match played
+     * @param {object} classes          Material-ui styles
+     */
+    const playerCell = (playerObject, seasonShortName, patch, classes) => {
+        return (<div>
+            <ChampionSquare id={playerObject.ChampId} patch={patch} /><br />
+            <Link to={`/profile/${playerObject.ProfileName}/games/${seasonShortName}`} className={classes.link}>{playerObject.ProfileName}</Link><br />
+            <b>{playerObject.PlayerKills} / {playerObject.PlayerDeaths} / {playerObject.PlayerAssists}</b><br />
+            {goldString(playerObject.PlayerGoldDiffEarly, 'GD@15')}
+            {goldString(playerObject.PlayerGoldDiffMid, 'GD@25')}
+        </div>);
+    }
+
+    /**
+     * Returns JSX element of the side the Team played on
+     * @param {string} side     'Blue' or 'Red'
+     * @param {object} classes  Material-ui styles
+     */
+    const sideString = (side, classes) => {
+        return (side === 'Blue') ? (<div className={classes.blueSide}>B</div>) : (side === 'Red') ? (<div className={classes.redSide}>R</div>) : '';
+    }
+
     return (
         <Paper variant="outlined" square className={classes.paper}>
             <table>
@@ -174,23 +209,23 @@ export default function TeamGameLog({ games }) {
                             {goldString(match.GoldDiffMid, 'GD@25')}
                         </td>
                         <td className={classes.colTop}>
-                            {playerCell(Top, games.SeasonShortName, classes)}
+                            {playerCell(Top, games.SeasonShortName, match.Patch, classes)}
                         </td>
                         <td className={classes.colJng}>
-                            {playerCell(Jungle, games.SeasonShortName, classes)}
+                            {playerCell(Jungle, games.SeasonShortName, match.Patch, classes)}
                         </td>
                         <td className={classes.colMid}>
-                            {playerCell(Middle, games.SeasonShortName, classes)}
+                            {playerCell(Middle, games.SeasonShortName, match.Patch, classes)}
                         </td>
                         <td className={classes.colBot}>
-                            {playerCell(Bottom, games.SeasonShortName, classes)}
+                            {playerCell(Bottom, games.SeasonShortName, match.Patch, classes)}
                         </td>
                         <td className={classes.colSup}>
-                            {playerCell(Support, games.SeasonShortName, classes)}
+                            {playerCell(Support, games.SeasonShortName, match.Patch, classes)}
                         </td>
                         <td className={classes.colBansAgainst}>
                             <div className={classes.layoutChamps}>
-                                {BannedAgainst.map((Id) => (<ChampionSquare key={Id} id={Id} />))}
+                                {BannedAgainst.map((Id) => (<ChampionSquare key={Id} id={Id} patch={match.Patch} />))}
                             </div>
                         </td>
                     </tr>)
@@ -198,38 +233,4 @@ export default function TeamGameLog({ games }) {
             </table>
         </Paper>
     )
-}
-
-/**
- * Displays Gold as i.e. '+1000' or '-1000'.
- * @param {number} gold     If gold is null, return ''.
- * @param {string} label    'GD15' or 'GD25'
- */
-function goldString(gold, label) {
-    return (gold != null) ? (<React.Fragment><b>{(gold > 0) ? '+' : ''}{gold.toLocaleString()}</b> {label}<br /></React.Fragment>) : '';
-}
-
-/**
- * Returns the JSX Element of the Player's stats within that game
- * @param {object} playerObject     From ChampPicks in Team's GameLog
- * @param {object} seasonShortName  Code of season
- * @param {object} classes          Material-ui styles
- */
-function playerCell(playerObject, seasonShortName, classes) {
-    return (<div>
-        <ChampionSquare id={playerObject.ChampId} /><br />
-        <Link to={`/profile/${playerObject.ProfileName}/games/${seasonShortName}`} className={classes.link}>{playerObject.ProfileName}</Link><br />
-        <b>{playerObject.PlayerKills} / {playerObject.PlayerDeaths} / {playerObject.PlayerAssists}</b><br />
-        {goldString(playerObject.PlayerGoldDiffEarly, 'GD@15')}
-        {goldString(playerObject.PlayerGoldDiffMid, 'GD@25')}
-    </div>);
-}
-
-/**
- * Returns JSX element of the side the Team played on
- * @param {string} side     'Blue' or 'Red'
- * @param {object} classes  Material-ui styles
- */
-function sideString(side, classes) {
-    return (side === 'Blue') ? (<div className={classes.blueSide}>B</div>) : (side === 'Red') ? (<div className={classes.redSide}>R</div>) : '';
 }

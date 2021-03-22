@@ -382,10 +382,11 @@ export const getTournamentPickBans = (tournamentPId) => {
             try {
                 let tourneyJson = (await dynamoDbGetItem('Tournament', tournamentPId));
                 let pickBansJson = {}
-                if ('PickBans' in tourneyJson && 'TourneyStats' in tourneyJson) {
+                if (tourneyJson.PickBans) {
                     const pbList = [];
-                    const numberGames = tourneyJson['TourneyStats']['NumberGames'];
+                    const numberGames = tourneyJson.TourneyStats?.NumberGames;
                     pickBansJson['NumberGames'] = numberGames;
+                    pickBansJson['MostRecentPatch'] = tourneyJson.Information?.MostRecentPatch;
                     let numberChampsWithPresence = 0;
                     for (let i = 0; i < Object.keys(tourneyJson['PickBans']).length; ++i) {
                         let champId = Object.keys(tourneyJson['PickBans'])[i];
