@@ -151,7 +151,7 @@ matchV1Routes.put('/setup/submit', authenticateJWT, (req, res) => {
             return res200sOK(res, req, submitResponse);
         }).catch((err) => error500sServerError(err, res, "PUT Match Setup Submit Error."));
     }).catch((err) => error500sServerError(err, res, "PUT Match Setup Save Error."));
-})
+});
 
 /**
  * Uses MySQL
