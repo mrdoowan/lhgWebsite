@@ -332,8 +332,8 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                     tourneyStatsJson['AverageTeamGoldDiffEarlyToMid'] = (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
                     tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    tourneyStatsJson['AverageTeamKillsEarly'] = (tourneyStatsJson['TotalTeamKillsAtEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
-                    tourneyStatsJson['AverageTeamKillsMid'] = (tourneyStatsJson['TotalTeamKillsAtMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
+                    tourneyStatsJson['AverageTeamKillsEarly'] = (tourneyStatsJson['TotalTeamKillsAtEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(2);
+                    tourneyStatsJson['AverageTeamKillsMid'] = (tourneyStatsJson['TotalTeamKillsAtMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(2);
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 });

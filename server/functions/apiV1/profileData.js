@@ -281,8 +281,8 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                         statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['KillPct'] = (statsJson['TotalTeamKills'] == 0) ? 0 : ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
                         statsJson['DeathPct'] = (statsJson['TotalTeamDeaths'] == 0) ? 0 : (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
-                        statsJson['AverageKillsAssistsAtEarly'] = ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageKillsAssistsAtMid'] = ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageKillsAssistsAtEarly'] = ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(2);
+                        statsJson['AverageKillsAssistsAtMid'] = ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(2);
                         statsJson['KillPctAtEarly'] = ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['TotalTeamKillsAtEarly']).toFixed(4);
                         statsJson['KillPctAtMid'] = ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['TotalTeamKillsAtMid']).toFixed(4);
                         statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
