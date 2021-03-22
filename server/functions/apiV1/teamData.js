@@ -325,10 +325,15 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                     tourneyStatsJson['WardsClearedPct'] = (tourneyStatsJson['TotalWardsCleared'] / tourneyStatsJson['TotalEnemyWardsPlaced']).toFixed(4);
                     tourneyStatsJson['AverageXpDiffEarly'] = (tourneyStatsJson['TotalXpDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageXpDiffMid'] = (tourneyStatsJson['TotalXpDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    tourneyStatsJson['AverageGoldDiffEarly'] = (tourneyStatsJson['TotalGoldDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
-                    tourneyStatsJson['AverageGoldDiffMid'] = (tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
+                    const avgGoldDiffEarlyFloat = tourneyStatsJson['TotalGoldDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly'];
+                    const avgGoldDiffMidFloat = tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid'];
+                    tourneyStatsJson['AverageGoldDiffEarly'] = avgGoldDiffEarlyFloat.toFixed(1);
+                    tourneyStatsJson['AverageGoldDiffMid'] = avgGoldDiffMidFloat.toFixed(1);
+                    tourneyStatsJson['AverageTeamGoldDiffEarlyToMid'] = (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
                     tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
                     tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
+                    tourneyStatsJson['AverageTeamKillsEarly'] = (tourneyStatsJson['TotalTeamKillsAtEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
+                    tourneyStatsJson['AverageTeamKillsMid'] = (tourneyStatsJson['TotalTeamKillsAtMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 });
@@ -741,6 +746,8 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             tourneyTeamStatsItem['TotalKills'] = sqlTeamStatsTotal.totalKills;
             tourneyTeamStatsItem['TotalDeaths'] = sqlTeamStatsTotal.totalDeaths;
             tourneyTeamStatsItem['TotalAssists'] = sqlTeamStatsTotal.totalAssists;
+            tourneyTeamStatsItem['TotalTeamKillsAtEarly'] = sqlTeamStatsTotal.totalKillsAtEarly;
+            tourneyTeamStatsItem['TotalTeamKillsAtMid'] = sqlTeamStatsTotal.totalKillsAtMid;
             tourneyTeamStatsItem['TotalTowersTaken'] = sqlTeamStatsTotal.totalTeamTowers;
             tourneyTeamStatsItem['TotalTowersLost'] = sqlTeamStatsTotal.totalEnemyTowers;
             tourneyTeamStatsItem['TotalDragonsTaken'] = sqlTeamStatsTotal.totalTeamDragons;
