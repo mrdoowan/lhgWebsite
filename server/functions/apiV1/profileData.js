@@ -281,10 +281,10 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                         statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['KillPct'] = (statsJson['TotalTeamKills'] == 0) ? 0 : ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
                         statsJson['DeathPct'] = (statsJson['TotalTeamDeaths'] == 0) ? 0 : (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
-                        statsJson['AverageKillsAssistsAtEarly'] = ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(2);
-                        statsJson['AverageKillsAssistsAtMid'] = ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(2);
-                        statsJson['KillPctAtEarly'] = ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['TotalTeamKillsAtEarly']).toFixed(4);
-                        statsJson['KillPctAtMid'] = ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['TotalTeamKillsAtMid']).toFixed(4);
+                        statsJson['AverageKillsAssistsAtEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(2);
+                        statsJson['AverageKillsAssistsAtMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(2);
+                        statsJson['KillPctAtEarly'] = (statsJson['TotalTeamKillsAtEarly'] == 0) ? 0 : ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['TotalTeamKillsAtEarly']).toFixed(4);
+                        statsJson['KillPctAtMid'] = (statsJson['TotalTeamKillsAtMid'] == 0) ? 0 : ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['TotalTeamKillsAtMid']).toFixed(4);
                         statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
                         statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / gameDurationMinute).toFixed(2);
                         statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
@@ -637,6 +637,9 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             }
             // #endregion
 
+            // Shallow copy: Need to include both Regular+Playoff
+            const gameLogProfileItem = profileDbObject['GameLog'][seasonPId]['Matches'];
+
             /*  
                 -------------
                 Game Log
@@ -644,7 +647,6 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             */
             // #region Compile Data
             // Load each Stat into Profile in tournamentId
-            const gameLogProfileItem = {};
             const matchDataList = await mySqlCallSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
             console.log(`Profile '${profilePId}' played ${matchDataList.length} matches in TournamentPID '${tournamentPId}'.`);
             for (const sqlPlayerStats of matchDataList) {
@@ -688,7 +690,6 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                 };
                 gameLogProfileItem[matchPId] = profileGameItem;
             }
-            profileDbObject['GameLog'][seasonPId]['Matches'] = gameLogProfileItem;
             //#endregion
             
             /*  
