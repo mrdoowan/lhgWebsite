@@ -22,7 +22,7 @@ export default function TourneyPlayersSkeleton({info, players}) {
     const classes = useStyles();
 
     let headerComponent = (<TourneyHeader info={info} type='Players' />);
-    let playersComponent = (<div><PlayerDataGrid players={players} /></div>);
+    let playersComponent = (<PlayerDataGrid players={players} seasonShortName={info.SeasonShortName} />);
 
     let headerEmpty = "There is no Information logged for this Tournament.";
     let playersEmpty = "There are no Player Stats logged for this Tournament.";

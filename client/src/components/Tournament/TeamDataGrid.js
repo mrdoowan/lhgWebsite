@@ -24,8 +24,42 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamDataGrid({ teams }) {
+export default function TeamDataGrid({ 
+    teams,
+    seasonShortName
+}) {
     const classes = useStyles();
+
+    const filterBuilderPopupPosition = {
+        of: window,
+        at: 'top',
+        my: 'top',
+        offset: { y: 50 }
+    };
+    
+    const fixedPoint = (num) => {
+        return {
+            type: 'fixedPoint',
+            precision: num,
+        }
+    }
+    
+    const fixedPercent = () => {
+        return {
+            type: 'percent',
+            precision: 2,
+        }
+    }
+    
+    const formatTime = () => {
+        return {
+            formatter: getTimeString,
+        }
+    }
+
+    const cellLink = (data) => {
+        return <Link to={`/team/${data.value}/games/${seasonShortName}`}>{data.value}</Link>
+    }
 
     return (
         <Grid container spacing={3}>
@@ -84,35 +118,4 @@ export default function TeamDataGrid({ teams }) {
             </Grid>
         </Grid>
     )
-}
-
-const filterBuilderPopupPosition = {
-    of: window,
-    at: 'top',
-    my: 'top',
-    offset: { y: 50 }
-};
-
-function fixedPoint(num) {
-    return {
-        type: 'fixedPoint',
-        precision: num,
-    }
-}
-
-function fixedPercent() {
-    return {
-        type: 'percent',
-        precision: 2,
-    }
-}
-
-function formatTime() {
-    return {
-        formatter: getTimeString,
-    }
-}
-
-function cellLink(data) {
-    return <Link to={`/team/${data.value}/games`}>{data.value}</Link>
 }

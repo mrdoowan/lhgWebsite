@@ -22,8 +22,36 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function PlayerDataGrid({ players }) {
+export default function PlayerDataGrid({ 
+    players,
+    seasonShortName
+}) {
     const classes = useStyles();
+
+    const filterBuilderPopupPosition = {
+        of: window,
+        at: 'top',
+        my: 'top',
+        offset: { y: 50 }
+    };
+    
+    const fixedPoint = (num) => {
+        return {
+            type: 'fixedPoint',
+            precision: num,
+        }
+    }
+    
+    const fixedPercent = () => {
+        return {
+            type: 'percent',
+            precision: 2,
+        }
+    }
+    
+    const playerLink = (data) => {
+        return <Link to={`/profile/${data.value}/games/${seasonShortName}`}>{data.value}</Link>
+    }
 
     return (
         <Grid container spacing={3}>
@@ -96,29 +124,4 @@ export default function PlayerDataGrid({ players }) {
             </Grid>
         </Grid>
     )
-}
-
-const filterBuilderPopupPosition = {
-    of: window,
-    at: 'top',
-    my: 'top',
-    offset: { y: 50 }
-};
-
-function fixedPoint(num) {
-    return {
-        type: 'fixedPoint',
-        precision: num,
-    }
-}
-
-function fixedPercent() {
-    return {
-        type: 'percent',
-        precision: 2,
-    }
-}
-
-function playerLink(data) {
-    return <Link to={`/profile/${data.value}/games`}>{data.value}</Link>
 }
