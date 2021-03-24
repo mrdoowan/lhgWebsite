@@ -237,51 +237,9 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                             return Promise.all(Object.keys(profileStatsLog.RoleStats).map(async (role) => {
                                 return new Promise(async (resolveObject) => {
                                     const statsObject = profileStatsLog.RoleStats[role];
-                                    resolveObject({
-                                        'ProfileName': await getProfileName(profileHId),
-                                        'Role': role,
-                                        'GamesPlayed': statsObject.GamesPlayed,
-                                        'GamesWin': statsObject.GamesWin,
-                                        'Kda': statsObject.Kda,
-                                        'TotalKills': statsObject.TotalKills,
-                                        'TotalDeaths': statsObject.TotalDeaths,
-                                        'TotalAssists': statsObject.TotalAssists,
-                                        'AverageKills': statsObject.AverageKills,
-                                        'AverageDeaths': statsObject.AverageDeaths,
-                                        'AverageAssists': statsObject.AverageAssists,
-                                        'KillPct': statsObject.KillPct,
-                                        'DeathPct': statsObject.DeathPct,
-                                        'GoldPct': statsObject.GoldPct,
-                                        'FirstBloodPct': statsObject.FirstBloodPct,
-                                        'DamagePct': statsObject.DamagePct,
-                                        'VisionScorePct': statsObject.VisionScorePct,
-                                        'CreepScorePerMinute': statsObject.CreepScorePerMinute,
-                                        'GoldPerMinute': statsObject.GoldPerMinute,
-                                        'DamagePerMinute': statsObject.DamagePerMinute,
-                                        'DamagePerMinuteStdDev': statsObject.DamagePerMinuteStdDev,
-                                        'DamagePerGold': statsObject.DamagePerGold,
-                                        'VisionScorePerMinute': statsObject.VisionScorePerMinute,
-                                        'WardsPerMinute': statsObject.WardsPerMinute,
-                                        'WardsClearedPerMinute': statsObject.WardsClearedPerMinute,
-                                        'ControlWardsPerMinute': statsObject.ControlWardsPerMinute,
-                                        'AverageCsAtEarly': statsObject.AverageCsAtEarly,
-                                        'AverageGoldAtEarly': statsObject.AverageGoldAtEarly,
-                                        'AverageXpAtEarly': statsObject.AverageXpAtEarly,
-                                        'AverageCsDiffEarly': statsObject.AverageCsDiffEarly,
-                                        'AverageGoldDiffEarly': statsObject.AverageGoldDiffEarly,
-                                        'AverageXpDiffEarly': statsObject.AverageXpDiffEarly,
-                                        'AverageCsAtMid': statsObject.AverageCsAtMid,
-                                        'AverageGoldAtMid': statsObject.AverageGoldAtMid,
-                                        'AverageXpAtMid': statsObject.AverageXpAtMid,
-                                        'AverageCsDiffMid': statsObject.AverageCsDiffMid,
-                                        'AverageGoldDiffMid': statsObject.AverageGoldDiffMid,
-                                        'AverageXpDiffMid': statsObject.AverageXpDiffMid,
-                                        'TotalDoubleKills': statsObject.TotalDoubleKills,
-                                        'TotalTripleKills': statsObject.TotalTripleKills,
-                                        'TotalQuadraKills': statsObject.TotalQuadraKills,
-                                        'TotalPentaKills': statsObject.TotalPentaKills,
-                                        'TotalSoloKills': statsObject.TotalSoloKills,
-                                    });
+                                    statsObject.ProfileName = await getProfileName(profileHId);
+                                    statsObject.Role = role;
+                                    resolveObject(statsObject);
                                 });
                             }));
                         }
@@ -320,40 +278,8 @@ export const getTournamentTeamStats = (tournamentPId) => {
                         const teamStatsLog = await getTeamStatsByTourney(teamPId, tournamentPId);
                         if (teamStatsLog) {
                             return new Promise(async (resolveObject) => {
-                                resolveObject({
-                                    'TeamName': await getTeamName(teamHId),
-                                    'GamesPlayed': teamStatsLog.GamesPlayed,
-                                    'GamesWin': teamStatsLog.GamesWon,
-                                    'AverageGameDuration': teamStatsLog.AverageGameDuration,
-                                    'KillDeathRatio': teamStatsLog.KillDeathRatio,
-                                    'AverageKills': teamStatsLog.AverageKills,
-                                    'AverageDeaths': teamStatsLog.AverageDeaths,
-                                    'AverageAssists': teamStatsLog.AverageAssists,
-                                    'CreepScorePerMinute': teamStatsLog.CreepScorePerMinute,
-                                    'DamagePerMinute': teamStatsLog.DamagePerMinute,
-                                    'GoldPerMinute': teamStatsLog.GoldPerMinute,
-                                    'VisionScorePerMinute': teamStatsLog.VisionScorePerMinute,
-                                    'WardsPerMinute': teamStatsLog.WardsPerMinute,
-                                    'ControlWardsPerMinute': teamStatsLog.ControlWardsPerMinute,
-                                    'WardsClearedPerMinute': teamStatsLog.WardsClearedPerMinute,
-                                    'FirstBloodPct': teamStatsLog.FirstBloodPct,
-                                    'FirstTowerPct': teamStatsLog.FirstTowerPct,
-                                    'DragonPct': teamStatsLog.DragonPct,
-                                    'HeraldPct': teamStatsLog.HeraldPct,
-                                    'BaronPct': teamStatsLog.BaronPct,
-                                    'WardsClearedPct': teamStatsLog.WardsClearedPct,
-                                    'AverageTowersTaken': teamStatsLog.AverageTowersTaken,
-                                    'AverageTowersLost': teamStatsLog.AverageTowersLost,
-                                    'AverageDragonsTaken': teamStatsLog.AverageDragonsTaken,
-                                    'AverageHeraldsTaken': teamStatsLog.AverageHeraldsTaken,
-                                    'AverageBaronsTaken': teamStatsLog.AverageBaronsTaken,
-                                    'AverageXpDiffEarly': teamStatsLog.AverageXpDiffEarly,
-                                    'AverageXpDiffMid': teamStatsLog.AverageXpDiffMid,
-                                    'AverageGoldDiffEarly': teamStatsLog.AverageGoldDiffEarly,
-                                    'AverageGoldDiffMid': teamStatsLog.AverageGoldDiffMid,
-                                    'AverageCsDiffEarly': teamStatsLog.AverageCsDiffEarly,
-                                    'AverageCsDiffMid': teamStatsLog.AverageCsDiffMid,
-                                });
+                                teamStatsLog.TeamName = await getTeamName(teamHId);
+                                resolveObject(teamStatsLog);
                             });
                         }
                     })).then((statsLogArray) => {

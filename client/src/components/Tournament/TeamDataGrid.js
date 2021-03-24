@@ -46,7 +46,7 @@ export default function TeamDataGrid({ teams }) {
 
                     <Column dataField="TeamName" caption="Name" width={200} fixed={true} cellRender={cellLink} />
                     <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" />
-                    <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
+                    <Column dataField="GamesWon" alignment="center" dataType="number" caption="Wins" />
                     <Column dataField="AverageGameDuration" alignment="center" dataType="number" caption="AVG Time" format={formatTime()} />
                     <Column dataField="KillDeathRatio" alignment="center" dataType="number" caption="K:D" format={fixedPoint(2)} />
                     <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVG Kills" format={fixedPoint(1)} />

@@ -290,7 +290,7 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                         statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
                         statsJson['DamagePerMinute'] = (statsJson['TotalDamage'] / gameDurationMinute).toFixed(2);
                         statsJson['DamagePct'] = (statsJson['TotalDamage'] / statsJson['TotalTeamDamage']).toFixed(4);
-                        statsJson['AverageDpmDiff'] = (statsJson['TotalDpmDiff'] / statsJson['TotalTeamDamage']).toFixed(2);
+                        statsJson['AverageDpmDiff'] = (statsJson['TotalDpmDiff'] / statsJson['GamesPlayed']).toFixed(2);
                         statsJson['DamagePerGold'] = (statsJson['TotalDamage'] / statsJson['TotalGold']).toFixed(4);
                         statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / gameDurationMinute).toFixed(2);
                         statsJson['VisionScorePct'] = (statsJson['TotalVisionScore'] / statsJson['TotalTeamVisionScore']).toFixed(4);
