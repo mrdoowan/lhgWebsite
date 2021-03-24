@@ -10,6 +10,7 @@ import {
     getTeamPIdFromHash,
     getTeamHashId,
     GLOBAL_CONSTS,
+    isPatch1LaterThanPatch2,
 } from './dependencies/global';
 import {
     dynamoDbGetItem,
@@ -489,7 +490,9 @@ export const updateTournamentOverallStats = (tournamentPId) => {
                     'Patch': matchObject.GamePatchVersion,
                 };
                 // Update 'MostRecentPatch'
-                tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
+                if (isPatch1LaterThanPatch2(matchObject.GamePatchVersion, tourneyDbObject.Information.MostRecentPatch)) {
+                    tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
+                }
             }
             //#endregion
             //#region Process Leaderboard Data

@@ -6,7 +6,11 @@ import {
 } from '../../../services/constants';
 import { getDDragonVersion } from '../../../services/ddragonVersion';
 import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
-import { getProfileHashId, getTeamHashId } from '../dependencies/global';
+import { 
+    getProfileHashId,
+    getTeamHashId,
+    isPatch1LaterThanPatch2
+} from '../dependencies/global';
 
 /**
  * Creates object tailored for database
@@ -575,26 +579,6 @@ function getPatch(patchStr) {
 function updateBaronDuration(thisPatch) {
     return (isPatch1LaterThanPatch2(thisPatch, BARON_DURATION.PATCH_CHANGE)) ? 
         BARON_DURATION.CURRENT : BARON_DURATION.OLD;
-}
-
-/**
- * Compares the two patch strings and returns "true" if patch1 is later than patch2.
- * Assumption: patch1 and patch2 are formatted in "##.##"
- * @param {string} patch1 
- * @param {string} patch2 
- */
-// Assumption: patch1 and patch2 are formatted in "##.##"
-function isPatch1LaterThanPatch2(patch1, patch2) {
-    const patch1Arr = patch1.split('.');
-    const patch2Arr = patch2.split('.');
-    const season1 = parseInt(patch1Arr[0]);
-    const season2 = parseInt(patch2Arr[0]);
-    const version1 = parseInt(patch1Arr[1]);
-    const version2 = parseInt(patch2Arr[1]);
-
-    if (season1 < season2) { return false; }
-    else if (season1 > season2) { return true; }
-    return (version1 >= version2) ? true : false;
 }
 
 /**
