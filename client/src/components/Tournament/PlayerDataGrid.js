@@ -53,6 +53,10 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVG Kills" format={fixedPoint(1)} />
                     <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVG Deaths" format={fixedPoint(1)} />
                     <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVG Assists" format={fixedPoint(1)} />
+                    <Column dataField="AverageKillsAssistsAtEarly" alignment="center" dataType="number" caption="AVG K+A@15" format={fixedPoint(1)} />
+                    <Column dataField="AverageKillsAssistsAtMid" alignment="center" dataType="number" caption="AVG K+A@25" format={fixedPoint(1)} />
+                    <Column dataField="KillPctAtEarly" alignment="center" dataType="number" caption="K/P% @15" format={fixedPercent()} />
+                    <Column dataField="KillPctAtMid" alignment="center" dataType="number" caption="K/P% @25" format={fixedPercent()} />
                     <Column dataField="KillPct" alignment="center" dataType="number" caption="K/P%" format={fixedPercent()} />
                     <Column dataField="DeathPct" alignment="center" dataType="number" caption="Death%" format={fixedPercent()} />
                     <Column dataField="FirstBloodPct" alignment="center" dataType="number" caption="FB%" format={fixedPercent()} />
@@ -61,6 +65,8 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="VisionScorePct" alignment="center" dataType="number" caption="VS%" format={fixedPercent()} />
                     <Column dataField="GoldPerMinute" alignment="center" dataType="number" caption="GOLD/MIN" format={fixedPoint(2)} />
                     <Column dataField="DamagePerMinute" alignment="center" dataType="number" caption="DMG/MIN" format={fixedPoint(2)} />
+                    <Column dataField="DamagePerMinuteStdDev" alignment="center" dataType="number" caption="STDEV DPM" format={fixedPoint(2)} />
+                    <Column dataField="AverageDpmDiff" alignment="center" dataType="number" caption="DPM Diff" format={fixedPoint(2)} />
                     <Column dataField="DamagePerGold" alignment="center" dataType="number" caption="DMG/GOLD" format={fixedPoint(4)} />
                     <Column dataField="CreepScorePerMinute" alignment="center" dataType="number" caption="CS/MIN" format={fixedPoint(2)} />
                     <Column dataField="VisionScorePerMinute" alignment="center" dataType="number" caption="VS/MIN" format={fixedPoint(2)} />
@@ -71,6 +77,7 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="AverageCsDiffMid" alignment="center" dataType="number" caption="AVG CSD@25" format={fixedPoint(1)} />
                     <Column dataField="AverageGoldDiffEarly" alignment="center" dataType="number" caption="AVG GD@15" format={fixedPoint(0)} />
                     <Column dataField="AverageGoldDiffMid" alignment="center" dataType="number" caption="AVG GD@25" format={fixedPoint(0)} />
+                    <Column dataField="AverageGoldDiffEarlyToMid" alignment="center" dataType="number" caption="GD15->25" format={fixedPoint(0)} />
                     <Column dataField="AverageXpDiffEarly" alignment="center" dataType="number" caption="AVG XPD@15" format={fixedPoint(0)} />
                     <Column dataField="AverageXpDiffMid" alignment="center" dataType="number" caption="AVG XPD@25" format={fixedPoint(0)} />
                     <Column dataField="AverageCsAtEarly" alignment="center" dataType="number" caption="AVG CS@15" format={fixedPoint(1)} />

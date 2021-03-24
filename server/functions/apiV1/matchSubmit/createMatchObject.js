@@ -340,10 +340,10 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
                         }
                     }
                     else if (riotEventObject.type === 'CHAMPION_KILL') {
-                        const teamId = teamIdByPartId[riotEventObject.killerId];
+                        const killerId = riotEventObject.killerId;
+                        const teamId = teamIdByPartId[killerId];
                         eventItem['TeamId'] = teamId
                         eventItem['Timestamp'] = riotEventObject.timestamp;
-                        const killerId = riotEventObject.killerId;
                         eventItem['KillerId'] = killerId;
                         eventItem['PositionX'] = riotEventObject.position.x;
                         eventItem['PositionY'] = riotEventObject.position.y;
