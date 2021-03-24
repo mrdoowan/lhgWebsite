@@ -279,12 +279,16 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                         statsJson['AverageKills'] = (statsJson['TotalKills'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['AverageDeaths'] = (statsJson['TotalDeaths'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
-                        statsJson['KillPct'] = (statsJson['TotalTeamKills'] == 0) ? 0 : ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
-                        statsJson['DeathPct'] = (statsJson['TotalTeamDeaths'] == 0) ? 0 : (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
-                        statsJson['AverageKillsAssistsAtEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(2);
-                        statsJson['AverageKillsAssistsAtMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(2);
-                        statsJson['KillPctAtEarly'] = (statsJson['TotalTeamKillsAtEarly'] == 0) ? 0 : ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['TotalTeamKillsAtEarly']).toFixed(4);
-                        statsJson['KillPctAtMid'] = (statsJson['TotalTeamKillsAtMid'] == 0) ? 0 : ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['TotalTeamKillsAtMid']).toFixed(4);
+                        statsJson['KillPct'] = (!statsJson['TotalTeamKills']) ? 0 : ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
+                        statsJson['DeathPct'] = (!statsJson['TotalTeamDeaths']) ? 0 : (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
+                        statsJson['AverageKillsAssistsAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(2);
+                        statsJson['AverageKillsAssistsAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(2);
+                        statsJson['KillPctAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' :
+                            (!statsJson['TotalTeamKillsAtEarly']) ? 0 : 
+                            ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['TotalTeamKillsAtEarly']).toFixed(4);
+                        statsJson['KillPctAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' :
+                            (!statsJson['TotalTeamKillsAtMid']) ? 0 : 
+                            ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['TotalTeamKillsAtMid']).toFixed(4);
                         statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
                         statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / gameDurationMinute).toFixed(2);
                         statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
@@ -297,21 +301,21 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                         statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / gameDurationMinute).toFixed(2);
                         statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / gameDurationMinute).toFixed(2);
                         statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / gameDurationMinute).toFixed(2);
-                        statsJson['AverageCsAtEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageCsAtMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : (statsJson['TotalCsAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageGoldAtEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageGoldAtMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : (statsJson['TotalGoldAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageXpAtEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageXpAtMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : (statsJson['TotalXpAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageCsDiffEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageCsDiffMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : (statsJson['TotalCsDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageCsAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageCsAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalCsAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageGoldAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageGoldAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalGoldAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageXpAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageXpAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalXpAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageCsDiffEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageCsDiffMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalCsDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
                         const avgGoldDiffEarlyFloat = statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly'];
                         const avgGoldDiffMidFloat = statsJson['TotalGoldDiffMid'] / statsJson['GamesPlayedOverMid'];
-                        statsJson['AverageGoldDiffEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : avgGoldDiffEarlyFloat.toFixed(1);
-                        statsJson['AverageGoldDiffMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : avgGoldDiffMidFloat.toFixed(1);
-                        statsJson['AverageGoldDiffEarlyToMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
-                        statsJson['AverageXpDiffEarly'] = (statsJson['GamesPlayedOverEarly'] == 0) ? '' : (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageXpDiffMid'] = (statsJson['GamesPlayedOverMid'] == 0) ? '' : (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageGoldDiffEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : avgGoldDiffEarlyFloat.toFixed(1);
+                        statsJson['AverageGoldDiffMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : avgGoldDiffMidFloat.toFixed(1);
+                        statsJson['AverageGoldDiffEarlyToMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
+                        statsJson['AverageXpDiffEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageXpDiffMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
                         statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
                     }
                     cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
