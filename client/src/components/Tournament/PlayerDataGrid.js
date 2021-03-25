@@ -72,7 +72,7 @@ export default function PlayerDataGrid({
 
                     <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={playerLink} />
                     <Column dataField="Role" alignment="center" width={100} fixed={true} />
-                    <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" />
+                    <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" fixed={true} />
                     <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
                     <Column dataField="Kda" alignment="center" dataType="number" caption="KDA" format={fixedPoint(2)} />
                     <Column dataField="TotalKills" alignment="center" dataType="number" caption="Kills" />
