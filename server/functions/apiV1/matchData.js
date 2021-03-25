@@ -62,13 +62,11 @@ export const getMatchData = (id) => {
                 matchObject['TournamentName'] = await getTournamentName(tourneyPId);
                 matchObject['TournamentTabName'] = await getTournamentTabName(tourneyPId);
                 const gameDurationMinute = matchObject['GameDuration'] / 60;
-                for (const teamId of matchObject.Teams) {
-                    const teamObject = matchObject['Teams'][teamId];
+                for (const teamObject of Object.values(matchObject.Teams)) {
                     teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
                     teamObject['TeamShortName'] = await getTeamShortName(teamObject['TeamHId']);
                     teamObject['GoldDiffEarlyToMid'] = teamObject['GoldDiffMid'] - teamObject['GoldDiffEarly'];
-                    for (const partId of teamObject.Players) {
-                        const playerObject = teamObject['Players'][partId];
+                    for (const playerObject of Object.values(teamObject.Players)) {
                         playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
                         playerObject['Kda'] = (playerObject['Deaths'] > 0) ? (((playerObject['Kills'] + playerObject['Assists']) / playerObject['Deaths']).toFixed(2)).toString() : "Perfect";
                         playerObject['KillPct'] = (teamObject['TeamKills'] == 0) ? 0 : ((playerObject['Kills'] + playerObject['Assists']) / teamObject['TeamKills']).toFixed(4);
