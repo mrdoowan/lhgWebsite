@@ -172,3 +172,23 @@ export const generateNewPId = (type) => {
         }
     })
 }
+
+/**
+ * Compares the two patch strings and returns "true" if patch1 is later than patch2.
+ * Assumption: patch1 and patch2 are formatted in "##.##"
+ * @param {string} patch1 
+ * @param {string} patch2 
+ */
+// Assumption: patch1 and patch2 are formatted in "##.##"
+export const isPatch1LaterThanPatch2 = (patch1, patch2) => {
+    const patch1Arr = patch1.split('.');
+    const patch2Arr = patch2.split('.');
+    const season1 = parseInt(patch1Arr[0]);
+    const season2 = parseInt(patch2Arr[0]);
+    const version1 = parseInt(patch1Arr[1]);
+    const version2 = parseInt(patch2Arr[1]);
+
+    if (season1 < season2) { return false; }
+    else if (season1 > season2) { return true; }
+    return (version1 >= version2) ? true : false;
+}

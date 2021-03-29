@@ -279,31 +279,43 @@ export const getProfileStatsByTourney = (pPId, tPId=null) => {
                         statsJson['AverageKills'] = (statsJson['TotalKills'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['AverageDeaths'] = (statsJson['TotalDeaths'] / statsJson['GamesPlayed']).toFixed(1);
                         statsJson['AverageAssists'] = (statsJson['TotalAssists'] / statsJson['GamesPlayed']).toFixed(1);
-                        statsJson['KillPct'] = (statsJson['TotalTeamKills'] == 0) ? 0 : ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
-                        statsJson['DeathPct'] = (statsJson['TotalTeamDeaths'] == 0) ? 0 : (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
+                        statsJson['KillPct'] = (!statsJson['TotalTeamKills']) ? 0 : ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalTeamKills']).toFixed(4);
+                        statsJson['DeathPct'] = (!statsJson['TotalTeamDeaths']) ? 0 : (statsJson['TotalDeaths'] / statsJson['TotalTeamDeaths']).toFixed(4);
+                        statsJson['AverageKillsAssistsAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['GamesPlayedOverEarly']).toFixed(2);
+                        statsJson['AverageKillsAssistsAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['GamesPlayedOverMid']).toFixed(2);
+                        statsJson['KillPctAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' :
+                            (!statsJson['TotalTeamKillsAtEarly']) ? 0 : 
+                            ((statsJson['TotalKillsAtEarly'] + statsJson['TotalAssistsAtEarly']) / statsJson['TotalTeamKillsAtEarly']).toFixed(4);
+                        statsJson['KillPctAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' :
+                            (!statsJson['TotalTeamKillsAtMid']) ? 0 : 
+                            ((statsJson['TotalKillsAtMid'] + statsJson['TotalAssistsAtMid']) / statsJson['TotalTeamKillsAtMid']).toFixed(4);
                         statsJson['CreepScorePerMinute'] = (statsJson['TotalCreepScore'] / gameDurationMinute).toFixed(2);
                         statsJson['GoldPerMinute'] = (statsJson['TotalGold'] / gameDurationMinute).toFixed(2);
                         statsJson['GoldPct'] = (statsJson['TotalGold'] / statsJson['TotalTeamGold']).toFixed(4);
                         statsJson['DamagePerMinute'] = (statsJson['TotalDamage'] / gameDurationMinute).toFixed(2);
                         statsJson['DamagePct'] = (statsJson['TotalDamage'] / statsJson['TotalTeamDamage']).toFixed(4);
+                        statsJson['AverageDpmDiff'] = (statsJson['TotalDpmDiff'] / statsJson['GamesPlayed']).toFixed(2);
                         statsJson['DamagePerGold'] = (statsJson['TotalDamage'] / statsJson['TotalGold']).toFixed(4);
                         statsJson['VisionScorePerMinute'] = (statsJson['TotalVisionScore'] / gameDurationMinute).toFixed(2);
                         statsJson['VisionScorePct'] = (statsJson['TotalVisionScore'] / statsJson['TotalTeamVisionScore']).toFixed(4);
                         statsJson['WardsPerMinute'] = (statsJson['TotalWardsPlaced'] / gameDurationMinute).toFixed(2);
                         statsJson['WardsClearedPerMinute'] = (statsJson['TotalWardsCleared'] / gameDurationMinute).toFixed(2);
                         statsJson['ControlWardsPerMinute'] = (statsJson['TotalControlWardsBought'] / gameDurationMinute).toFixed(2);
-                        statsJson['AverageCsAtEarly'] = (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageGoldAtEarly'] = (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageXpAtEarly'] = (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageCsAtMid'] = (statsJson['TotalCsAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageGoldAtMid'] = (statsJson['TotalGoldAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageXpAtMid'] = (statsJson['TotalXpAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageCsDiffEarly'] = (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageGoldDiffEarly'] = (statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageXpDiffEarly'] = (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
-                        statsJson['AverageCsDiffMid'] = (statsJson['TotalCsDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageGoldDiffMid'] = (statsJson['TotalGoldDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
-                        statsJson['AverageXpDiffMid'] = (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageCsAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalCsAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageCsAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalCsAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageGoldAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalGoldAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageGoldAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalGoldAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageXpAtEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalXpAtEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageXpAtMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalXpAtMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        statsJson['AverageCsDiffEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalCsDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageCsDiffMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalCsDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
+                        const avgGoldDiffEarlyFloat = statsJson['TotalGoldDiffEarly'] / statsJson['GamesPlayedOverEarly'];
+                        const avgGoldDiffMidFloat = statsJson['TotalGoldDiffMid'] / statsJson['GamesPlayedOverMid'];
+                        statsJson['AverageGoldDiffEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : avgGoldDiffEarlyFloat.toFixed(1);
+                        statsJson['AverageGoldDiffMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : avgGoldDiffMidFloat.toFixed(1);
+                        statsJson['AverageGoldDiffEarlyToMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
+                        statsJson['AverageXpDiffEarly'] = (!statsJson['GamesPlayedOverEarly']) ? '' : (statsJson['TotalXpDiffEarly'] / statsJson['GamesPlayedOverEarly']).toFixed(1);
+                        statsJson['AverageXpDiffMid'] = (!statsJson['GamesPlayedOverMid']) ? '' : (statsJson['TotalXpDiffMid'] / statsJson['GamesPlayedOverMid']).toFixed(1);
                         statsJson['FirstBloodPct'] = (statsJson['TotalFirstBloods'] / statsJson['GamesPlayed']).toFixed(4);
                     }
                     cache.set(cacheKey, JSON.stringify(profileStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
@@ -586,9 +598,9 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
 export const updateProfileGameLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
-            let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let profileDbObject = await dynamoDbGetItem('Profile', profilePId);
+            const tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
+            const seasonPId = tourneyDbObject['Information']['SeasonPId'];
+            const profileDbObject = await dynamoDbGetItem('Profile', profilePId);
             
             /*  
                 -------------------
@@ -629,8 +641,8 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             }
             // #endregion
 
-            // Shallow copy
-            let gameLogProfileItem = profileDbObject['GameLog'][seasonPId]['Matches'];
+            // Shallow copy: Need to include both Regular+Playoff
+            const gameLogProfileItem = profileDbObject['GameLog'][seasonPId]['Matches'];
 
             /*  
                 -------------
@@ -641,10 +653,10 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
             // Load each Stat into Profile in tournamentId
             const matchDataList = await mySqlCallSProc('playerMatchesByTournamentPId', profilePId, tournamentPId);
             console.log(`Profile '${profilePId}' played ${matchDataList.length} matches in TournamentPID '${tournamentPId}'.`);
-            for (let matchIdx = 0; matchIdx < matchDataList.length; ++matchIdx) {
-                const sqlPlayerStats = matchDataList[matchIdx];
+            for (const sqlPlayerStats of matchDataList) {
                 const matchPId = sqlPlayerStats.riotMatchId;
-                let profileGameItem = {
+                const profileGameItem = {
+                    'Invalid': sqlPlayerStats.invalid,
                     'DatePlayed': sqlPlayerStats.datePlayed,
                     'TournamentType': sqlPlayerStats.tournamentType,
                     'GameWeekNumber': 0, // N/A
@@ -652,8 +664,8 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
                     'ChampionPlayed': sqlPlayerStats.champId,
                     'Role': sqlPlayerStats.role,
                     'Side': sqlPlayerStats.side,
+                    'Patch': sqlPlayerStats.patch,
                     'Win': (sqlPlayerStats.win == 1) ? true : false,
-                    'Vacated': false,
                     'EnemyTeamHId': getTeamHashId((sqlPlayerStats.side === 'Blue') ? sqlPlayerStats.redTeamPId : sqlPlayerStats.blueTeamPId),
                     'GameDuration': sqlPlayerStats.duration,
                     'Kills': sqlPlayerStats.kills,
@@ -723,7 +735,7 @@ export const updateProfileGameLog = (profilePId, tournamentPId) => {
 export const updateProfileStatsLog = (profilePId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let profileDbObject = await dynamoDbGetItem('Profile', profilePId);
+            const profileDbObject = await dynamoDbGetItem('Profile', profilePId);
 
             /*  
                 -------------------
@@ -763,26 +775,23 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
             }
             // #endregion
 
-            // shallow copy
-            let statsLogProfileItem = profileDbObject['StatsLog'][tournamentPId]['RoleStats'];
-
             /*  
                 ----------
                 'StatsLog'
                 ----------
             */
             // #region Compile Data
-            let playerStatsTotalData = await mySqlCallSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, 
+            const statsLogProfileItem = {};
+            const playerStatsTotalData = await mySqlCallSProc('playerStatsTotalByTournamentId', profilePId, tournamentPId, 
                 GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID);
-            for (let idx = 0; idx < playerStatsTotalData.length; ++idx) {
-                let playerStatsTotalRow = playerStatsTotalData[idx];
-                let role = playerStatsTotalRow.playerRole;
+            for (const playerStatsTotalRow of playerStatsTotalData) {
+                const role = playerStatsTotalRow.playerRole;
                 // Initialize StatsLog Role 
                 if (!(role in statsLogProfileItem)) {
                     statsLogProfileItem[role] = {};
                 }
                 // Get from sProc
-                let statsRoleItem = statsLogProfileItem[role];
+                const statsRoleItem = statsLogProfileItem[role];
                 statsRoleItem['GamesPlayed'] = playerStatsTotalRow.gamesPlayed;
                 statsRoleItem['GamesPlayedOverEarly'] = playerStatsTotalRow.gamesPlayedOverEarly;
                 statsRoleItem['GamesPlayedOverMid'] = playerStatsTotalRow.gamesPlayedOverMid;
@@ -796,18 +805,25 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 statsRoleItem['DamagePerMinuteStdDev'] = playerStatsTotalRow.stdDamage;
                 statsRoleItem['TotalGold'] = playerStatsTotalRow.totalGold;
                 statsRoleItem['TotalVisionScore'] = playerStatsTotalRow.totalVisionScore;
+                statsRoleItem['TotalKillsAtEarly'] = playerStatsTotalRow.totalKillsAtEarly;
+                statsRoleItem['TotalAssistsAtEarly'] = playerStatsTotalRow.totalAssistsAtEarly;
+                statsRoleItem['TotalTeamKillsAtEarly'] = playerStatsTotalRow.totalTeamKillsAtEarly;
                 statsRoleItem['TotalCsAtEarly'] = playerStatsTotalRow.totalCsAtEarly;
                 statsRoleItem['TotalGoldAtEarly'] = playerStatsTotalRow.totalGoldAtEarly;
                 statsRoleItem['TotalXpAtEarly'] = playerStatsTotalRow.totalXpAtEarly;
                 statsRoleItem['TotalCsDiffEarly'] = playerStatsTotalRow.totalCsDiffEarly;
                 statsRoleItem['TotalGoldDiffEarly'] = playerStatsTotalRow.totalGoldDiffEarly;
                 statsRoleItem['TotalXpDiffEarly'] = playerStatsTotalRow.totalXpDiffEarly;
+                statsRoleItem['TotalKillsAtMid'] = playerStatsTotalRow.totalKillsAtMid;
+                statsRoleItem['TotalAssistsAtMid'] = playerStatsTotalRow.totalAssistsAtMid;
+                statsRoleItem['TotalTeamKillsAtMid'] = playerStatsTotalRow.totalTeamKillsAtMid;
                 statsRoleItem['TotalCsAtMid'] = playerStatsTotalRow.totalCsAtMid;
                 statsRoleItem['TotalGoldAtMid'] = playerStatsTotalRow.totalGoldAtMid;
                 statsRoleItem['TotalXpAtMid'] = playerStatsTotalRow.totalXpAtMid;
                 statsRoleItem['TotalCsDiffMid'] = playerStatsTotalRow.totalCsDiffMid;
                 statsRoleItem['TotalGoldDiffMid'] = playerStatsTotalRow.totalGoldDiffMid;
                 statsRoleItem['TotalXpDiffMid'] = playerStatsTotalRow.totalXpDiffMid;
+                statsRoleItem['TotalDpmDiff'] = playerStatsTotalRow.totalDpmDiff;
                 statsRoleItem['TotalFirstBloods'] = playerStatsTotalRow.totalFirstBloods;
                 statsRoleItem['TotalTeamKills'] = playerStatsTotalRow.totalTeamKills;
                 statsRoleItem['TotalTeamDeaths'] = playerStatsTotalRow.totalTeamDeaths;
@@ -823,6 +839,7 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
                 statsRoleItem['TotalQuadraKills'] = playerStatsTotalRow.totalQuadraKills;
                 statsRoleItem['TotalPentaKills'] = playerStatsTotalRow.totalPentaKills;
             }
+            profileDbObject['StatsLog'][tournamentPId]['RoleStats'] = statsLogProfileItem;
             // #endregion
             
             /*  

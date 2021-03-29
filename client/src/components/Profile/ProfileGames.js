@@ -45,12 +45,17 @@ const useStyles = makeStyles((theme) => ({
     rowWin: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#BDE7BD',
+        backgroundColor: '#BDE7BD', // Green
     },
     rowLose: {
         padding: theme.spacing(5),
         border: '1px solid black',
-        backgroundColor: '#FFB6B3',
+        backgroundColor: '#FFB6B3', // Red
+    },
+    rowInvalid: {
+        padding: theme.spacing(5),
+        border: '1px solid black',
+        backgroundColor: '#aaaaaa', // Gray
     },
     leftHeader: {
         textAlign: 'left',
@@ -169,6 +174,47 @@ export default function ProfileGames({ info, games }) {
     const classes = useStyles();
     const { Matches } = games;
 
+    /**
+     * String format of the differential value. (i.e. '+1,000', '-1,500')
+     * @param {number} diff     Differential stat value
+     */
+    const diffString = (diff) => {
+        return (diff != null) ? (<React.Fragment><b>{(diff > 0) ? '+' : ''}{diff.toLocaleString()}</b></React.Fragment>) : '';
+    }
+
+    /**
+     * String format of Diff + At values.
+     * 15th minute is structured as "AT (<b>DIFF</b>)"
+     * 25th minute is structured as "(<b>DIFF</b>) AT"
+     * @param {number} at       At minute value (used as a null check)
+     * @param {number} diff     Differential value (used as a null check)
+     * @param {number} min      Minute value ('15' or '25')
+     */
+    const diffValueString = (at, diff, min) => {
+        return (at != null && diff != null) ? (
+            (min === 15) ? (<React.Fragment>{at.toLocaleString()} (<b>{diffString(diff)}</b>)</React.Fragment>) : 
+            (min === 25) ? (<React.Fragment>(<b>{diffString(diff)}</b>) {at.toLocaleString()}</React.Fragment>) : 
+            ''
+        ) : '';
+    }
+
+    /**
+     * Converts <1 value to a percentage and rounds to nearest number (i.e. 75%) 
+     * @param {number} percent  A value normally with fixed at 4 decimal places
+     */
+    const pctString = (percent) => {
+        return Math.round(percent * 100);
+    }
+
+    /**
+     * Returns JSX element of the side the Team played on
+     * @param {*} side 
+     * @param {*} classes 
+     */
+    const sideString = (side, classes) => {
+        return (side === 'Blue') ? (<div className={classes.blueSide}>B</div>) : (side === 'Red') ? (<div className={classes.redSide}>R</div>) : '';
+    }
+
     return (<div>
         <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -205,7 +251,9 @@ export default function ProfileGames({ info, games }) {
                         <tbody>{Object.keys(Matches).sort((a,b) => { return Matches[b].DatePlayed - Matches[a].DatePlayed; }).map((matchId) => {
                             const match = Matches[matchId];
 
-                            return (<tr key={matchId} className={(match.Win) ? classes.rowWin : classes.rowLose}>
+                            return (<tr key={matchId} className={(match.Invalid) ? classes.rowInvalid : 
+                                (match.Win) ? classes.rowWin : 
+                                classes.rowLose}>
                                 <td className={classes.colDate}>
                                     <Link to={`/match/${matchId}`} className={classes.link}>{getDateString(match.DatePlayed / 1000)}</Link><br />
                                     {match.TournamentType}<br />
@@ -216,7 +264,7 @@ export default function ProfileGames({ info, games }) {
                                     (vs. <Link to={`/team/${match.EnemyTeamName}/games/${games.SeasonShortName}`} className={classes.link}>{match.EnemyTeamName}</Link>)
                                 </td>
                                 <td className={classes.colChamp}>
-                                    <ChampionSquare id={match.ChampionPlayed} width="70" height="70" />
+                                    <ChampionSquare id={match.ChampionPlayed} patch={match.Patch} width="70" height="70" />
                                 </td>
                                 <td className={classes.colKda}>
                                     <b><u>{match.Role}</u></b><br />
@@ -284,45 +332,4 @@ export default function ProfileGames({ info, games }) {
             </Grid>
         </Grid>
     </div>);
-}
-
-/**
- * String format of the differential value. (i.e. '+1,000', '-1,500')
- * @param {number} diff     Differential stat value
- */
-function diffString(diff) {
-    return (diff != null) ? (<React.Fragment><b>{(diff > 0) ? '+' : ''}{diff.toLocaleString()}</b></React.Fragment>) : '';
-}
-
-/**
- * String format of Diff + At values.
- * 15th minute is structured as "AT (<b>DIFF</b>)"
- * 25th minute is structured as "(<b>DIFF</b>) AT"
- * @param {number} at       At minute value (used as a null check)
- * @param {number} diff     Differential value (used as a null check)
- * @param {number} min      Minute value ('15' or '25')
- */
-function diffValueString(at, diff, min) {
-    return (at != null && diff != null) ? (
-        (min === 15) ? (<React.Fragment>{at.toLocaleString()} (<b>{diffString(diff)}</b>)</React.Fragment>) : 
-        (min === 25) ? (<React.Fragment>(<b>{diffString(diff)}</b>) {at.toLocaleString()}</React.Fragment>) : 
-        ''
-    ) : '';
-}
-
-/**
- * Converts <1 value to a percentage and rounds to nearest number (i.e. 75%) 
- * @param {number} pct  A value normally with fixed at 4 decimal places
- */
-function pctString(pct) {
-    return Math.round(pct * 100);
-}
-
-/**
- * Returns JSX element of the side the Team played on
- * @param {*} side 
- * @param {*} classes 
- */
-function sideString(side, classes) {
-    return (side === 'Blue') ? (<div className={classes.blueSide}>B</div>) : (side === 'Red') ? (<div className={classes.redSide}>R</div>) : '';
 }

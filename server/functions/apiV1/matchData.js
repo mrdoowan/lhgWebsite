@@ -52,43 +52,42 @@ export const getMatchData = (id) => {
             if (err) { console.error(err); reject(err); }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let matchJson = await dynamoDbGetItem('Matches', id);
-                if (matchJson == null || "Setup" in matchJson) { resolve(null); return; } // Not Found or it's a Setup
-                let seasonPId = matchJson['SeasonPId'];
-                matchJson['SeasonShortName'] = await getSeasonShortName(seasonPId);
-                matchJson['SeasonName'] = await getSeasonName(seasonPId);
-                let tourneyPId = matchJson['TournamentPId'];
-                matchJson['TournamentShortName'] = await getTournamentShortName(tourneyPId);
-                matchJson['TournamentName'] = await getTournamentName(tourneyPId);
-                matchJson['TournamentTabName'] = await getTournamentTabName(tourneyPId);
-                let gameDurationMinute = matchJson['GameDuration'] / 60;
-                for (let i = 0; i < Object.keys(matchJson['Teams']).length; ++i) {
-                    let teamId = Object.keys(matchJson['Teams'])[i];
-                    let teamJson = matchJson['Teams'][teamId];
-                    teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
-                    teamJson['TeamShortName'] = await getTeamShortName(teamJson['TeamHId']);
-                    for (let j = 0; j < Object.keys(teamJson['Players']).length; ++j) {
-                        let partId = Object.keys(teamJson['Players'])[j];
-                        let playerJson = teamJson['Players'][partId];
-                        playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']);
-                        playerJson['Kda'] = (playerJson['Deaths'] > 0) ? (((playerJson['Kills'] + playerJson['Assists']) / playerJson['Deaths']).toFixed(2)).toString() : "Perfect";
-                        playerJson['KillPct'] = (teamJson['TeamKills'] == 0) ? 0 : ((playerJson['Kills'] + playerJson['Assists']) / teamJson['TeamKills']).toFixed(4);
-                        playerJson['DeathPct'] = (teamJson['TeamDeaths'] == 0) ? 0 : (playerJson['Deaths'] / teamJson['TeamDeaths']).toFixed(4);
-                        playerJson['GoldPct'] = (playerJson['Gold'] / teamJson['TeamGold']).toFixed(4);
-                        playerJson['GoldPerMinute'] = (playerJson['Gold'] / gameDurationMinute).toFixed(2);
-                        playerJson['DamageDealtPct'] = (playerJson['TotalDamageDealt'] / teamJson['TeamDamageDealt']).toFixed(4);
-                        playerJson['DamagePerMinute'] = (playerJson['TotalDamageDealt'] / gameDurationMinute).toFixed(2);
-                        playerJson['CreepScorePct'] = (playerJson['CreepScore'] / teamJson['TeamCreepScore']).toFixed(4);
-                        playerJson['CreepScorePerMinute'] = (playerJson['CreepScore'] / gameDurationMinute).toFixed(2);
-                        playerJson['VisionScorePct'] = (playerJson['VisionScore'] / teamJson['TeamVisionScore']).toFixed(4);
-                        playerJson['VisionScorePerMinute'] = (playerJson['VisionScore'] / gameDurationMinute).toFixed(2);
-                        playerJson['WardsPlacedPerMinute'] = (playerJson['WardsPlaced'] / gameDurationMinute).toFixed(2);
-                        playerJson['ControlWardsBoughtPerMinute'] = (playerJson['ControlWardsBought'] / gameDurationMinute).toFixed(2);
-                        playerJson['WardsClearedPerMinute'] = (playerJson['WardsCleared'] / gameDurationMinute).toFixed(2);
+                const matchObject = await dynamoDbGetItem('Matches', id);
+                if (!matchObject || matchObject.Setup) { resolve(null); return; } // Not Found or it's a Setup
+                const seasonPId = matchObject.SeasonPId;
+                matchObject['SeasonShortName'] = await getSeasonShortName(seasonPId);
+                matchObject['SeasonName'] = await getSeasonName(seasonPId);
+                const tourneyPId = matchObject['TournamentPId'];
+                matchObject['TournamentShortName'] = await getTournamentShortName(tourneyPId);
+                matchObject['TournamentName'] = await getTournamentName(tourneyPId);
+                matchObject['TournamentTabName'] = await getTournamentTabName(tourneyPId);
+                const gameDurationMinute = matchObject['GameDuration'] / 60;
+                for (const teamObject of Object.values(matchObject.Teams)) {
+                    teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
+                    teamObject['TeamShortName'] = await getTeamShortName(teamObject['TeamHId']);
+                    teamObject['GoldDiffEarlyToMid'] = teamObject['GoldDiffMid'] - teamObject['GoldDiffEarly'];
+                    for (const playerObject of Object.values(teamObject.Players)) {
+                        playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
+                        playerObject['Kda'] = (playerObject['Deaths'] > 0) ? (((playerObject['Kills'] + playerObject['Assists']) / playerObject['Deaths']).toFixed(2)).toString() : "Perfect";
+                        playerObject['KillPct'] = (teamObject['TeamKills'] == 0) ? 0 : ((playerObject['Kills'] + playerObject['Assists']) / teamObject['TeamKills']).toFixed(4);
+                        playerObject['KillPctAtEarly'] = ((playerObject['KillsAtEarly'] + playerObject['AssistsAtEarly']) / teamObject['KillsAtEarly']).toFixed(4);
+                        playerObject['KillPctAtMid'] = ((playerObject['KillsAtMid'] + playerObject['AssistsAtMid']) / teamObject['KillsAtMid']).toFixed(4);
+                        playerObject['DeathPct'] = (teamObject['TeamDeaths'] == 0) ? 0 : (playerObject['Deaths'] / teamObject['TeamDeaths']).toFixed(4);
+                        playerObject['GoldDiffEarlyToMid'] = playerObject['GoldDiffMid'] - playerObject['GoldDiffEarly'];
+                        playerObject['GoldPct'] = (playerObject['Gold'] / teamObject['TeamGold']).toFixed(4);
+                        playerObject['GoldPerMinute'] = (playerObject['Gold'] / gameDurationMinute).toFixed(2);
+                        playerObject['DamageDealtPct'] = (playerObject['TotalDamageDealt'] / teamObject['TeamDamageDealt']).toFixed(4);
+                        playerObject['CreepScorePct'] = (playerObject['CreepScore'] / teamObject['TeamCreepScore']).toFixed(4);
+                        playerObject['CreepScorePerMinute'] = (playerObject['CreepScore'] / gameDurationMinute).toFixed(2);
+                        playerObject['VisionScorePct'] = (playerObject['VisionScore'] / teamObject['TeamVisionScore']).toFixed(4);
+                        playerObject['VisionScorePerMinute'] = (playerObject['VisionScore'] / gameDurationMinute).toFixed(2);
+                        playerObject['WardsPlacedPerMinute'] = (playerObject['WardsPlaced'] / gameDurationMinute).toFixed(2);
+                        playerObject['ControlWardsBoughtPerMinute'] = (playerObject['ControlWardsBought'] / gameDurationMinute).toFixed(2);
+                        playerObject['WardsClearedPerMinute'] = (playerObject['WardsCleared'] / gameDurationMinute).toFixed(2);
                     }
                 }
-                cache.set(cacheKey, JSON.stringify(matchJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
-                resolve(matchJson);
+                cache.set(cacheKey, JSON.stringify(matchObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+                resolve(matchObject);
             }
             catch (error) { console.error(error); reject(error); }
         });
@@ -144,8 +143,9 @@ export const getMatchSetupList = () => {
  * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
  * @param {string} tournamentId ID of Tournament (number)
+ * @param {boolean} invalidFlag 
  */
-export const postMatchNewSetup = (matchId, tournamentId) => {
+export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
     return new Promise(async function(resolve, reject) {
         try {
             const tournamentInfoObject = await getTournamentInfo(tournamentId);
@@ -157,6 +157,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
                     'MatchId': matchId,
                     'Error': `Match ID ${matchId} is not a valid string.`,
                 });
+                return;
             }
             // Check if matchId already exists
             if (await dynamoDbGetItem('Matches', matchId)) {
@@ -187,6 +188,7 @@ export const postMatchNewSetup = (matchId, tournamentId) => {
             const matchDataRiotJson = (await getRiotMatchData(matchId))['Data'];
 
             const setupObject = {}
+            setupObject['Invalid'] = invalidFlag;
             setupObject['RiotMatchId'] = matchId;
             setupObject['SeasonPId'] = seasonId;
             setupObject['TournamentPId'] = tournamentId;
@@ -518,6 +520,36 @@ export const deleteMatchData = (matchId) => {
                     });
                 }).catch((error) => { console.error(error); reject(error); });
             }
+        }).catch((error) => { console.error(error); reject(error); });
+    });
+}
+
+/**
+ * Invalidate the match
+ * @param {string} matchId      
+ */
+export const invalidateMatch = (matchId) => {
+    return new Promise((resolve, reject) => {
+        checkRdsStatus().then((status) => {
+            if (status !== AWS_RDS_STATUS.AVAILABLE) {
+                resolve({ error: `AWS Rds Instance not available.` });
+                return;
+            }
+            getMatchData(matchId).then(async (matchObject) => {
+                if (!matchObject) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
+                matchObject.Invalid = true;
+
+                // MySQL
+                await mySqlCallSProc('matchInvalidate', matchId);
+
+                // DynamoDb
+                await dynamoDbPutItem('Matches', matchObject, matchId);
+
+                resolve({
+                    message: `Match invalidated.`,
+                    matchId: matchId,
+                });
+            }).catch((error) => { console.error(error); reject(error); });
         }).catch((error) => { console.error(error); reject(error); });
     });
 }

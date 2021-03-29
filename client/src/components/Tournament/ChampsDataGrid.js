@@ -35,6 +35,24 @@ const useStyles = makeStyles((theme) => ({
 export default function ChampsDataGrid({ pickbans }) {
     const classes = useStyles();
 
+    const champCell = (data) => {
+        return (<ChampionSquare id={data.value} patch={pickbans.MostRecentPatch} withName={true} />);
+    }
+
+    const fixedPercent = () => {
+        return {
+            type: 'percent',
+            precision: 2,
+        }
+    }
+
+    const filterBuilderPopupPosition = {
+        of: window,
+        at: 'top',
+        my: 'top',
+        offset: { y: 50 }
+    };
+
     return (
         <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -74,22 +92,4 @@ export default function ChampsDataGrid({ pickbans }) {
             </Grid>
         </Grid>
     )
-}
-
-const filterBuilderPopupPosition = {
-    of: window,
-    at: 'top',
-    my: 'top',
-    offset: { y: 50 }
-};
-
-function fixedPercent() {
-    return {
-        type: 'percent',
-        precision: 2,
-    }
-}
-
-function champCell(data) {
-    return (<ChampionSquare id={data.value} withName={true} />);
 }

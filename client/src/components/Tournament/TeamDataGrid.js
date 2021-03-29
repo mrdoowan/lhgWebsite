@@ -24,8 +24,42 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function TeamDataGrid({ teams }) {
+export default function TeamDataGrid({ 
+    teams,
+    seasonShortName
+}) {
     const classes = useStyles();
+
+    const filterBuilderPopupPosition = {
+        of: window,
+        at: 'top',
+        my: 'top',
+        offset: { y: 50 }
+    };
+    
+    const fixedPoint = (num) => {
+        return {
+            type: 'fixedPoint',
+            precision: num,
+        }
+    }
+    
+    const fixedPercent = () => {
+        return {
+            type: 'percent',
+            precision: 2,
+        }
+    }
+    
+    const formatTime = () => {
+        return {
+            formatter: getTimeString,
+        }
+    }
+
+    const cellLink = (data) => {
+        return <Link to={`/team/${data.value}/games/${seasonShortName}`}>{data.value}</Link>
+    }
 
     return (
         <Grid container spacing={3}>
@@ -46,12 +80,14 @@ export default function TeamDataGrid({ teams }) {
 
                     <Column dataField="TeamName" caption="Name" width={200} fixed={true} cellRender={cellLink} />
                     <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" />
-                    <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
+                    <Column dataField="GamesWon" alignment="center" dataType="number" caption="Wins" />
                     <Column dataField="AverageGameDuration" alignment="center" dataType="number" caption="AVG Time" format={formatTime()} />
                     <Column dataField="KillDeathRatio" alignment="center" dataType="number" caption="K:D" format={fixedPoint(2)} />
                     <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVG Kills" format={fixedPoint(1)} />
                     <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVG Deaths" format={fixedPoint(1)} />
                     <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVG Assists" format={fixedPoint(1)} />
+                    <Column dataField="AverageTeamKillsEarly" alignment="center" dataType="number" caption="AVG K@15" format={fixedPoint(1)} />
+                    <Column dataField="AverageTeamKillsMid" alignment="center" dataType="number" caption="AVG K@25" format={fixedPoint(1)} />
                     <Column dataField="GoldPerMinute" alignment="center" dataType="number" caption="GPM" format={fixedPoint(2)} />
                     <Column dataField="DamagePerMinute" alignment="center" dataType="number" caption="DPM" format={fixedPoint(2)} />
                     <Column dataField="CreepScorePerMinute" alignment="center" dataType="number" caption="CSPM" format={fixedPoint(2)} />
@@ -69,6 +105,7 @@ export default function TeamDataGrid({ teams }) {
                     <Column dataField="AverageXpDiffMid" alignment="center" dataType="number" caption="AVG XPD@25" format={fixedPoint(0)} />
                     <Column dataField="AverageGoldDiffEarly" alignment="center" dataType="number" caption="AVG GD@15" format={fixedPoint(0)} />
                     <Column dataField="AverageGoldDiffMid" alignment="center" dataType="number" caption="AVG GD@25" format={fixedPoint(0)} />
+                    <Column dataField="AverageTeamGoldDiffEarlyToMid" alignment="center" dataType="number" caption="GD15->25" format={fixedPoint(0)} />
                     <Column dataField="AverageCsDiffEarly" alignment="center" dataType="number" caption="AVG CSD@15" format={fixedPoint(1)} />
                     <Column dataField="AverageCsDiffMid" alignment="center" dataType="number" caption="AVG CSD@25" format={fixedPoint(1)} />
                     <Column dataField="AverageTowersTaken" alignment="center" dataType="number" caption="AVG TKills" format={fixedPoint(1)} />
@@ -81,35 +118,4 @@ export default function TeamDataGrid({ teams }) {
             </Grid>
         </Grid>
     )
-}
-
-const filterBuilderPopupPosition = {
-    of: window,
-    at: 'top',
-    my: 'top',
-    offset: { y: 50 }
-};
-
-function fixedPoint(num) {
-    return {
-        type: 'fixedPoint',
-        precision: num,
-    }
-}
-
-function fixedPercent() {
-    return {
-        type: 'percent',
-        precision: 2,
-    }
-}
-
-function formatTime() {
-    return {
-        formatter: getTimeString,
-    }
-}
-
-function cellLink(data) {
-    return <Link to={`/team/${data.value}/games`}>{data.value}</Link>
 }

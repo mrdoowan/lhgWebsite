@@ -323,12 +323,17 @@ export const getTeamStatsByTourney = (teamPId, tPId=null) => {
                     tourneyStatsJson['AverageBaronsTaken'] = (tourneyStatsJson['TotalBaronsTaken'] / tourneyStatsJson['GamesPlayed']).toFixed(1);
                     tourneyStatsJson['BaronPct'] = (tourneyStatsJson['TotalBaronsTaken'] / (tourneyStatsJson['TotalBaronsTaken'] + tourneyStatsJson['TotalEnemyBarons'])).toFixed(4);
                     tourneyStatsJson['WardsClearedPct'] = (tourneyStatsJson['TotalWardsCleared'] / tourneyStatsJson['TotalEnemyWardsPlaced']).toFixed(4);
-                    tourneyStatsJson['AverageXpDiffEarly'] = (tourneyStatsJson['TotalXpDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
-                    tourneyStatsJson['AverageXpDiffMid'] = (tourneyStatsJson['TotalXpDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    tourneyStatsJson['AverageGoldDiffEarly'] = (tourneyStatsJson['TotalGoldDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
-                    tourneyStatsJson['AverageGoldDiffMid'] = (tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
-                    tourneyStatsJson['AverageCsDiffEarly'] = (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
-                    tourneyStatsJson['AverageCsDiffMid'] = (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
+                    tourneyStatsJson['AverageXpDiffEarly'] = (!tourneyStatsJson['GamesPlayedOverEarly']) ? '' : (tourneyStatsJson['TotalXpDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
+                    tourneyStatsJson['AverageXpDiffMid'] = (!tourneyStatsJson['GamesPlayedOverMid']) ? '' : (tourneyStatsJson['TotalXpDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
+                    const avgGoldDiffEarlyFloat = tourneyStatsJson['TotalGoldDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly'];
+                    const avgGoldDiffMidFloat = tourneyStatsJson['TotalGoldDiffMid'] / tourneyStatsJson['GamesPlayedOverMid'];
+                    tourneyStatsJson['AverageGoldDiffEarly'] = (!tourneyStatsJson['GamesPlayedOverEarly']) ? '' : avgGoldDiffEarlyFloat.toFixed(1);
+                    tourneyStatsJson['AverageGoldDiffMid'] = (!tourneyStatsJson['GamesPlayedOverMid']) ? '' : avgGoldDiffMidFloat.toFixed(1);
+                    tourneyStatsJson['AverageTeamGoldDiffEarlyToMid'] = (!tourneyStatsJson['GamesPlayedOverMid']) ? '' : (avgGoldDiffMidFloat - avgGoldDiffEarlyFloat).toFixed(1);
+                    tourneyStatsJson['AverageCsDiffEarly'] = (!tourneyStatsJson['GamesPlayedOverEarly']) ? '' : (tourneyStatsJson['TotalCsDiffEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(1);
+                    tourneyStatsJson['AverageCsDiffMid'] = (!tourneyStatsJson['GamesPlayedOverMid']) ? '' : (tourneyStatsJson['TotalCsDiffMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(1);
+                    tourneyStatsJson['AverageTeamKillsEarly'] = (!tourneyStatsJson['GamesPlayedOverEarly']) ? '' : (tourneyStatsJson['TotalTeamKillsAtEarly'] / tourneyStatsJson['GamesPlayedOverEarly']).toFixed(2);
+                    tourneyStatsJson['AverageTeamKillsMid'] = (!tourneyStatsJson['GamesPlayedOverMid']) ? '' : (tourneyStatsJson['TotalTeamKillsAtMid'] / tourneyStatsJson['GamesPlayedOverMid']).toFixed(2);
                     cache.set(cacheKey, JSON.stringify(tourneyStatsJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(tourneyStatsJson);
                 });
@@ -385,6 +390,13 @@ export const postNewTeam = (teamName, shortName) => {
     });
 }
 
+/**
+ * 
+ * @param {*} teamPId 
+ * @param {*} newName 
+ * @param {*} oldName 
+ * @returns 
+ */
 export const updateTeamName = (teamPId, newName, oldName) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -433,9 +445,9 @@ export const updateTeamName = (teamPId, newName, oldName) => {
 export const updateTeamGameLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
-            let seasonPId = tourneyDbObject['Information']['SeasonPId'];
-            let teamDbObject = await dynamoDbGetItem('Team', teamPId);
+            const tourneyDbObject = await dynamoDbGetItem('Tournament', tournamentPId);
+            const seasonPId = tourneyDbObject['Information']['SeasonPId'];
+            const teamDbObject = await dynamoDbGetItem('Team', teamPId);
 
             /*  
                 -------------------
@@ -492,9 +504,9 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             }
             // #endregion
 
-            // Shallow Copy
-            let scoutingItem = teamDbObject['Scouting'][seasonPId];
-            let gameLogTeamItem = teamDbObject['GameLog'][seasonPId]['Matches'];
+            // Shallow Copy: Needed to include both Regular+Playoff games
+            const scoutingItem = teamDbObject['Scouting'][seasonPId];
+            const gameLogTeamItem = teamDbObject['GameLog'][seasonPId]['Matches'];
 
             /*  
                 -------------
@@ -502,23 +514,23 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                 -------------
             */
             // #region Compile Data
-            let teamMatchesSqlListTourney = await mySqlCallSProc('teamMatchesByTournamentPId', teamPId, tournamentPId);
-            for (let matchIdx = 0; matchIdx < teamMatchesSqlListTourney.length; ++matchIdx) {
-                let sqlTeamMatch = teamMatchesSqlListTourney[matchIdx];
-                let matchPId = sqlTeamMatch.riotMatchId;
+            const teamMatchesSqlListTourney = await mySqlCallSProc('teamMatchesByTournamentPId', teamPId, tournamentPId);
+            for (const sqlTeamMatch of teamMatchesSqlListTourney) {
+                const matchPId = sqlTeamMatch.riotMatchId;
 
                 // Additional sProcs from MySQL
-                let playerStatsSqlList = await mySqlCallSProc('playerStatsByMatchIdTeamId', matchPId, teamPId);
-                let bannedChampMatchSqlList = await mySqlCallSProc('bannedChampsByMatchId', matchPId);
+                const playerStatsSqlList = await mySqlCallSProc('playerStatsByMatchIdTeamId', matchPId, teamPId);
+                const bannedChampMatchSqlList = await mySqlCallSProc('bannedChampsByMatchId', matchPId);
                 
-                let teamGameItem = {
+                const teamGameItem = {
+                    'Invalid': sqlTeamMatch.invalid,
                     'DatePlayed': sqlTeamMatch.datePlayed,
                     'TournamentType': sqlTeamMatch.tournamentType,
                     'GameWeekNumber': 0, // N/A
                     'ChampPicks': {},
                     'Side': sqlTeamMatch.side,
-                    'Win': (sqlTeamMatch.win == 1) ? true : false,
-                    'Vacated': false,
+                    'Patch': sqlTeamMatch.patch,
+                    'Win': (sqlTeamMatch.win === 1) ? true : false,
                     'EnemyTeamHId': getTeamHashId((sqlTeamMatch.side === 'Blue') ? sqlTeamMatch.redTeamPId : sqlTeamMatch.blueTeamPId),
                     'GameDuration': sqlTeamMatch.duration,
                     'Kills': sqlTeamMatch.totalKills,
@@ -530,8 +542,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     'BannedByTeam': [],
                     'BannedAgainst': [],
                 };
-                for (let playerIdx = 0; playerIdx < playerStatsSqlList.length; ++playerIdx) {
-                    let playerSqlRow = playerStatsSqlList[playerIdx];
+                for (const playerSqlRow of playerStatsSqlList) {
                     teamGameItem['ChampPicks'][playerSqlRow.role] = { 
                         'ProfileHId': getProfileHashId(playerSqlRow.profilePId),
                         'ChampId': playerSqlRow.champId,
@@ -542,8 +553,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                         'PlayerGoldDiffMid': playerSqlRow.goldDiffMid,
                     };
                 }
-                for (let k = 0; k < bannedChampMatchSqlList.length; ++k) {
-                    let champSqlRow = bannedChampMatchSqlList[k];
+                for (const champSqlRow of bannedChampMatchSqlList) {
                     if (champSqlRow.teamBannedById == teamPId) { teamGameItem['BannedByTeam'].push(champSqlRow.champId); }
                     else { teamGameItem['BannedAgainst'].push(champSqlRow.champId); }
                 }
@@ -565,8 +575,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             scoutingItem['BannedByTeam'] = {};
             scoutingItem['BannedAgainstTeam'] = {};
             const bannedChampsSeasonSqlList = await mySqlCallSProc('bannedChampsByTeamIdSeasonId', teamPId, seasonPId);
-            for (let champIdx = 0; champIdx < bannedChampsSeasonSqlList.length; ++champIdx) {
-                const champSqlRow = bannedChampsSeasonSqlList[champIdx];
+            for (const champSqlRow of bannedChampsSeasonSqlList) {
                 if (champSqlRow.teamBannedById == teamPId) { 
                     if (!(champSqlRow.champId in scoutingItem['BannedByTeam'])) {
                         scoutingItem['BannedByTeam'][champSqlRow.champId] = 0;
@@ -582,9 +591,8 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
             }
             // Player Log
             const playerScoutingSqlList = await mySqlCallSProc('playerStatsTotalByTeamIdSeasonId', teamPId, seasonPId);
-            let playerLog = {};
-            for (let playerIdx = 0; playerIdx < playerScoutingSqlList.length; ++playerIdx) {
-                const playerSqlRow = playerScoutingSqlList[playerIdx];
+            const playerLog = {};
+            for (const playerSqlRow of playerScoutingSqlList) {
                 const role = playerSqlRow.playerRole;
                 if (!(role in playerLog)) {
                     playerLog[role] = {};
@@ -609,9 +617,8 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
                     };
                 }
                 const champStatsSqlList = await mySqlCallSProc('champStatsByProfileIdTeamIdRoleSeasonId', profilePId, teamPId, role, seasonPId, GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID);
-                let champsPlayed = playerLog[role][profileHId]['ChampsPlayed'];
-                for (let champIdx = 0; champIdx < champStatsSqlList.length; ++champIdx) {
-                    const champStats = champStatsSqlList[champIdx];
+                const champsPlayed = playerLog[role][profileHId]['ChampsPlayed'];
+                for (const champStats of champStatsSqlList) {
                     const { champId } = champStats;
                     champsPlayed[champId] = {};
                     champsPlayed[champId]['GamesPlayed'] = champStats.gamesPlayed;
@@ -682,7 +689,7 @@ export const updateTeamGameLog = (teamPId, tournamentPId) => {
 export const updateTeamStatsLog = (teamPId, tournamentPId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let teamDbObject = await dynamoDbGetItem('Team', teamPId);
+            const teamDbObject = await dynamoDbGetItem('Team', teamPId);
 
             /*  
                 -------------------
@@ -709,17 +716,15 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
                 teamDbObject['StatsLog'][tournamentPId] = {};
             }
             //#endregion
-
-            // Shallow Copy
-            let tourneyTeamStatsItem = teamDbObject['StatsLog'][tournamentPId];
-
+            
             /*  
                 -------------
                 'StatsLog' (TournamentId dependent)
                 -------------
             */
             // #region Compile Data
-            let sqlTeamStatsTotal = (await mySqlCallSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID))[0];
+            const tourneyTeamStatsItem = {};
+            const sqlTeamStatsTotal = (await mySqlCallSProc('teamStatsTotalByTournamentPId', teamPId, tournamentPId, GLOBAL_CONSTS.MINUTE_AT_EARLY, GLOBAL_CONSTS.MINUTE_AT_MID))[0];
             tourneyTeamStatsItem['GamesPlayed'] = sqlTeamStatsTotal.gamesPlayed;
             tourneyTeamStatsItem['GamesPlayedOverEarly'] = sqlTeamStatsTotal.gamesPlayedOverEarly;
             tourneyTeamStatsItem['GamesPlayedOverMid'] = sqlTeamStatsTotal.gamesPlayedOverMid;
@@ -741,6 +746,8 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             tourneyTeamStatsItem['TotalKills'] = sqlTeamStatsTotal.totalKills;
             tourneyTeamStatsItem['TotalDeaths'] = sqlTeamStatsTotal.totalDeaths;
             tourneyTeamStatsItem['TotalAssists'] = sqlTeamStatsTotal.totalAssists;
+            tourneyTeamStatsItem['TotalTeamKillsAtEarly'] = sqlTeamStatsTotal.totalKillsAtEarly;
+            tourneyTeamStatsItem['TotalTeamKillsAtMid'] = sqlTeamStatsTotal.totalKillsAtMid;
             tourneyTeamStatsItem['TotalTowersTaken'] = sqlTeamStatsTotal.totalTeamTowers;
             tourneyTeamStatsItem['TotalTowersLost'] = sqlTeamStatsTotal.totalEnemyTowers;
             tourneyTeamStatsItem['TotalDragonsTaken'] = sqlTeamStatsTotal.totalTeamDragons;
@@ -754,6 +761,7 @@ export const updateTeamStatsLog = (teamPId, tournamentPId) => {
             tourneyTeamStatsItem['TotalControlWardsBought'] = sqlTeamStatsTotal.totalControlWardsBought;
             tourneyTeamStatsItem['TotalWardsCleared'] = sqlTeamStatsTotal.totalWardsCleared;
             tourneyTeamStatsItem['TotalEnemyWardsPlaced'] = sqlTeamStatsTotal.totalEnemyWardsPlaced;
+            teamDbObject['StatsLog'][tournamentPId] = tourneyTeamStatsItem;
             // #endregion
 
             /*  

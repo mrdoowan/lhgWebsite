@@ -50,13 +50,22 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // If version is blank, grab most recent DDragon Version.
-export default function ChampionSquare({ id, patch='', version='', withName=false, vertical=false, num=0, width="30", height="30", }) {
+export default function ChampionSquare({ 
+    id,
+    patch=null,
+    version=null,
+    withName=false,
+    vertical=false,
+    num=0,
+    width="30",
+    height="30",
+}) {
     const classes = useStyles();
 
-    let urlId = getChampUrlId(id);
-    let name = getChampName(id);
-    let ddragonVersion = (patch === '') ? 
-        ((version === '') ? getCurrentVersion() : version) : 
+    const urlId = getChampUrlId(id);
+    const name = getChampName(id);
+    const ddragonVersion = (!patch) ? 
+        ((!version) ? getCurrentVersion() : version) : 
         getVersionByPatch(patch);
     let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
 
@@ -97,5 +106,12 @@ function getCurrentVersion() {
 }
 
 function getVersionByPatch(patch) {
-    return Versions[0]; // TODO: grab DDragon version based on patch
+    if (patch) {
+        for (const DDragonVersion of Versions) {
+            if (DDragonVersion.includes(patch)) {
+                return DDragonVersion;
+            }
+        }
+    }
+    return Versions[0]; // Default latest patch
 }

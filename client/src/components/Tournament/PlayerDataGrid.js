@@ -22,8 +22,36 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function PlayerDataGrid({ players }) {
+export default function PlayerDataGrid({ 
+    players,
+    seasonShortName
+}) {
     const classes = useStyles();
+
+    const filterBuilderPopupPosition = {
+        of: window,
+        at: 'top',
+        my: 'top',
+        offset: { y: 50 }
+    };
+    
+    const fixedPoint = (num) => {
+        return {
+            type: 'fixedPoint',
+            precision: num,
+        }
+    }
+    
+    const fixedPercent = () => {
+        return {
+            type: 'percent',
+            precision: 2,
+        }
+    }
+    
+    const playerLink = (data) => {
+        return <Link to={`/profile/${data.value}/games/${seasonShortName}`}>{data.value}</Link>
+    }
 
     return (
         <Grid container spacing={3}>
@@ -44,7 +72,7 @@ export default function PlayerDataGrid({ players }) {
 
                     <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={playerLink} />
                     <Column dataField="Role" alignment="center" width={100} fixed={true} />
-                    <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" />
+                    <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" fixed={true} />
                     <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
                     <Column dataField="Kda" alignment="center" dataType="number" caption="KDA" format={fixedPoint(2)} />
                     <Column dataField="TotalKills" alignment="center" dataType="number" caption="Kills" />
@@ -53,6 +81,10 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="AverageKills" alignment="center" dataType="number" caption="AVG Kills" format={fixedPoint(1)} />
                     <Column dataField="AverageDeaths" alignment="center" dataType="number" caption="AVG Deaths" format={fixedPoint(1)} />
                     <Column dataField="AverageAssists" alignment="center" dataType="number" caption="AVG Assists" format={fixedPoint(1)} />
+                    <Column dataField="AverageKillsAssistsAtEarly" alignment="center" dataType="number" caption="AVG K+A@15" format={fixedPoint(1)} />
+                    <Column dataField="AverageKillsAssistsAtMid" alignment="center" dataType="number" caption="AVG K+A@25" format={fixedPoint(1)} />
+                    <Column dataField="KillPctAtEarly" alignment="center" dataType="number" caption="K/P% @15" format={fixedPercent()} />
+                    <Column dataField="KillPctAtMid" alignment="center" dataType="number" caption="K/P% @25" format={fixedPercent()} />
                     <Column dataField="KillPct" alignment="center" dataType="number" caption="K/P%" format={fixedPercent()} />
                     <Column dataField="DeathPct" alignment="center" dataType="number" caption="Death%" format={fixedPercent()} />
                     <Column dataField="FirstBloodPct" alignment="center" dataType="number" caption="FB%" format={fixedPercent()} />
@@ -61,6 +93,8 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="VisionScorePct" alignment="center" dataType="number" caption="VS%" format={fixedPercent()} />
                     <Column dataField="GoldPerMinute" alignment="center" dataType="number" caption="GOLD/MIN" format={fixedPoint(2)} />
                     <Column dataField="DamagePerMinute" alignment="center" dataType="number" caption="DMG/MIN" format={fixedPoint(2)} />
+                    <Column dataField="DamagePerMinuteStdDev" alignment="center" dataType="number" caption="STDEV DPM" format={fixedPoint(2)} />
+                    <Column dataField="AverageDpmDiff" alignment="center" dataType="number" caption="DPM Diff" format={fixedPoint(2)} />
                     <Column dataField="DamagePerGold" alignment="center" dataType="number" caption="DMG/GOLD" format={fixedPoint(4)} />
                     <Column dataField="CreepScorePerMinute" alignment="center" dataType="number" caption="CS/MIN" format={fixedPoint(2)} />
                     <Column dataField="VisionScorePerMinute" alignment="center" dataType="number" caption="VS/MIN" format={fixedPoint(2)} />
@@ -71,6 +105,7 @@ export default function PlayerDataGrid({ players }) {
                     <Column dataField="AverageCsDiffMid" alignment="center" dataType="number" caption="AVG CSD@25" format={fixedPoint(1)} />
                     <Column dataField="AverageGoldDiffEarly" alignment="center" dataType="number" caption="AVG GD@15" format={fixedPoint(0)} />
                     <Column dataField="AverageGoldDiffMid" alignment="center" dataType="number" caption="AVG GD@25" format={fixedPoint(0)} />
+                    <Column dataField="AverageGoldDiffEarlyToMid" alignment="center" dataType="number" caption="GD15->25" format={fixedPoint(0)} />
                     <Column dataField="AverageXpDiffEarly" alignment="center" dataType="number" caption="AVG XPD@15" format={fixedPoint(0)} />
                     <Column dataField="AverageXpDiffMid" alignment="center" dataType="number" caption="AVG XPD@25" format={fixedPoint(0)} />
                     <Column dataField="AverageCsAtEarly" alignment="center" dataType="number" caption="AVG CS@15" format={fixedPoint(1)} />
@@ -89,29 +124,4 @@ export default function PlayerDataGrid({ players }) {
             </Grid>
         </Grid>
     )
-}
-
-const filterBuilderPopupPosition = {
-    of: window,
-    at: 'top',
-    my: 'top',
-    offset: { y: 50 }
-};
-
-function fixedPoint(num) {
-    return {
-        type: 'fixedPoint',
-        precision: num,
-    }
-}
-
-function fixedPercent() {
-    return {
-        type: 'percent',
-        precision: 2,
-    }
-}
-
-function playerLink(data) {
-    return <Link to={`/profile/${data.value}/games`}>{data.value}</Link>
 }
