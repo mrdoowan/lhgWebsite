@@ -27,6 +27,7 @@ import {
 
 import ChampionSquare from '../ChampionSquare';
 import ItemSquare from '../ItemSquare';
+import SpellSquare from '../SpellSquare';
 
 const StyledTableCellBlue = withStyles((theme) => ({
     head: {
@@ -105,7 +106,7 @@ export default function MatchSummary({ match }) {
                     <h1>Winner: {winningTeam}</h1>
                 </Grid>
                 <Grid item xs={6}>
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} className={classes.paper}>
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                             <TableRow>
@@ -123,7 +124,10 @@ export default function MatchSummary({ match }) {
                                         <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
                                         <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
                                     </TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        <SpellSquare id={player.Spell1Id} key={player.Spell1Id} width='40' height='40'></SpellSquare>
+                                        <SpellSquare id={player.Spell2Id} key={player.Spell2Id} width='40' height='40'></SpellSquare>
+                                    </TableCell>
                                     <TableCell>
                                         {player.ItemsFinal.map((itemId, index) => (
                                             <ItemSquare id={itemId} key={`${index}+${itemId}`} width='40' height='40'></ItemSquare>
@@ -139,7 +143,7 @@ export default function MatchSummary({ match }) {
                     </TableContainer>
                 </Grid>
                 <Grid item xs={6}>
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} className={classes.paper}>
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                             <TableRow>
@@ -157,7 +161,10 @@ export default function MatchSummary({ match }) {
                                         <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
                                         <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
                                     </TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        <SpellSquare id={player.Spell1Id} key={player.Spell1Id} width='40' height='40'></SpellSquare>
+                                        <SpellSquare id={player.Spell2Id} key={player.Spell2Id} width='40' height='40'></SpellSquare>
+                                    </TableCell>
                                     <TableCell>
                                         {player.ItemsFinal.map((itemId, index) => (
                                             <ItemSquare id={itemId} key={`${index}+${itemId}`} width='40' height='40'></ItemSquare>

@@ -4,7 +4,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 // Static
 import { Versions } from '../static/Versions';
-import { ChampById } from '../static/ChampById';
+import { SummonerSpellById } from '../static/SummonerSpellById';
 
 const useStyles = makeStyles((theme) => ({
     tableName: {
@@ -61,12 +61,14 @@ export default function SpellSquare({
     height="30",
 }) {
     const classes = useStyles();
+    
+    const urlId = getSpellUrlId(id);
 
     const ddragonVersion = (!patch) ? 
         ((!version) ? getCurrentVersion() : version) : 
         getVersionByPatch(patch);
 
-    let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${id}.png`;
+    let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${urlId}.png`;
 
     return (withName) ? (
         <div>
@@ -95,4 +97,13 @@ function getVersionByPatch(patch) {
         }
     }
     return Versions[0]; // Default latest patch
+}
+
+function getSpellUrlId(id) {
+    if (!(id in SummonerSpellById)) {
+        return id;
+    }
+    else {
+        return SummonerSpellById[id]['id'];
+    }
 }
