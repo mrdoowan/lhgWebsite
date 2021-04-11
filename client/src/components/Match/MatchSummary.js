@@ -3,6 +3,7 @@ import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -20,8 +21,12 @@ import {
     Title,
     Subtitle,
     Tooltip,
-    CommonAxisSettings
+    CommonAxisSettings,
+    Font
   } from 'devextreme-react/chart';
+
+import ChampionSquare from '../ChampionSquare';
+import ItemSquare from '../ItemSquare';
 
 const StyledTableCellBlue = withStyles((theme) => ({
     head: {
@@ -79,16 +84,26 @@ export default function MatchSummary({ match }) {
         goldChartData.push(obj);
     }
 
+    let argumentAxisSettings = {
+        color: '#000000'
+    };
+
     let valueAxisSettings = {
+        color: '#000000',
         visualRange: {
             startValue: maxGoldDiff * -1 * 1.02,
             endValue: maxGoldDiff * 1.02
         }
     };
 
+    let winningTeam = match.Teams['100'].Win === true ? match.Teams['100'].TeamName : match.Teams['200'].TeamName;
+
     return (
         <div>
             <Grid container spacing={3}>
+                <Grid item xs={12}>
+                    <h1>Winner: {winningTeam}</h1>
+                </Grid>
                 <Grid item xs={6}>
                     <TableContainer component={Paper}>
                         <Table className={classes.table} aria-label="simple table">
@@ -104,9 +119,16 @@ export default function MatchSummary({ match }) {
                             <TableBody>
                                 {Object.entries(match.Teams['100'].Players).map(([playerNum, player]) => (
                                 <TableRow key={playerNum}>
-                                    <TableCell><a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a></TableCell>
+                                    <TableCell>
+                                        <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
+                                        <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
+                                    </TableCell>
                                     <TableCell></TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        {player.ItemsFinal.map((itemId, index) => (
+                                            <ItemSquare id={itemId} key={`${index}+${itemId}`} width='40' height='40'></ItemSquare>
+                                        ))}
+                                    </TableCell>
                                     <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
                                     <TableCell>{player.CreepScore}</TableCell>
                                 </TableRow>
@@ -131,9 +153,16 @@ export default function MatchSummary({ match }) {
                             <TableBody>
                                 {Object.entries(match.Teams['200'].Players).map(([playerNum, player]) => (
                                 <TableRow key={playerNum}>
-                                    <TableCell><a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a></TableCell>
+                                    <TableCell>
+                                        <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
+                                        <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
+                                    </TableCell>
                                     <TableCell></TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        {player.ItemsFinal.map((itemId, index) => (
+                                            <ItemSquare id={itemId} key={`${index}+${itemId}`} width='40' height='40'></ItemSquare>
+                                        ))}
+                                    </TableCell>
                                     <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
                                     <TableCell>{player.CreepScore}</TableCell>
                                 </TableRow>
@@ -143,14 +172,19 @@ export default function MatchSummary({ match }) {
                     </TableContainer>
                 </Grid>
             </Grid>
-            <Grid item xs={12}>
-                <Chart palette="DarkViolet" dataSource={goldChartData} valueAxis={valueAxisSettings}>
-                    <CommonSeriesSettings argumentField="minute" type="line" />
-                    <Series key="goldDiff" valueField="goldDiff" />
-                    <Title text="Gold Difference Over Time"></Title>
-                    <Tooltip enabled={true} />
-                </Chart>
-            </Grid>
+            <Box paddingTop={3}>
+                <Paper elevation={3}>
+                    <Chart dataSource={goldChartData} argumentAxis={argumentAxisSettings} valueAxis={valueAxisSettings}>
+                        <CommonSeriesSettings argumentField="minute" type="line" />
+                        <Series key="goldDiff" valueField="goldDiff" />
+                        <Title text="Gold Difference Over Time">
+                            <Font color="black"></Font>
+                        </Title>
+                        <Tooltip enabled={true} />
+                        <Legend visible={false}></Legend>
+                    </Chart>
+                </Paper>
+            </Box>
         </div>
     )
 }
