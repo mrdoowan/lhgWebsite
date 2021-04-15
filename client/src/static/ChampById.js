@@ -616,5 +616,9 @@ export const ChampById = {
     "876": {
         "id": "Lillia",
         "name": "Lillia"
+    },
+    "887": {
+        "id": "Gwen",
+        "name": "Gwen"
     }
 }
