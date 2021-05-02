@@ -1,6 +1,7 @@
 // https://ddragon.leagueoflegends.com/api/versions.json
 
 export const Versions = [
+    "11.9.1",
     "11.8.1",
     "11.7.1",
     "11.6.1",
