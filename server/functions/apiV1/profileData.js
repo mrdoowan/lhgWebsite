@@ -32,9 +32,8 @@ import {
     getTournamentShortName,
 } from './tournamentData';
 import { getTeamName } from './teamData';
-import { REDIS_OPTIONS } from '../../services/constants';
 
-const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(REDIS_OPTIONS) : redis.createClient(process.env.REDIS_PORT);
+const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
  * Returns ProfilePId 'string' from ProfileName

@@ -60,11 +60,3 @@ export const PARTITION_KEY_MAP = {
     [DYNAMODB_TABLENAMES.TEAMNAMEMAP]: 'TeamName',
     [DYNAMODB_TABLENAMES.TOURNAMENT]: 'TournamentPId',
 }
-
-export const REDIS_OPTIONS = {
-    host: process.env.REDIS_HOST,
-    user: process.env.REDIS_USER,
-    port: process.env.REDIS_PORT,
-    url: process.env.REDIS_URL,
-    password: process.env.REDIS_PASSWORD,
-}
