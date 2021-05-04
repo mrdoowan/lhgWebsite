@@ -1,6 +1,5 @@
 /*  Declaring npm modules */
 const redis = require('redis');
-const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
 import {
@@ -39,7 +38,9 @@ import {
     GLOBAL_CONSTS,
 } from './dependencies/global';
 import { checkRdsStatus } from './dependencies/awsRdsHelper';
-import { AWS_RDS_STATUS } from '../../services/constants';
+import { AWS_RDS_STATUS, REDIS_OPTIONS } from '../../services/constants';
+
+const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(REDIS_OPTIONS) : redis.createClient(process.env.REDIS_PORT);
 
 /**
  * Get the data of a specific Match from DynamoDb
