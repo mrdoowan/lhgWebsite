@@ -165,7 +165,7 @@ export default function MatchSummary({ match }) {
             red: parseFloat(match.Teams['200'].Players['8'].GoldPct) * 100
         },
         {
-            lane: 'ADC',
+            lane: 'Bottom',
             blue: parseFloat(match.Teams['100'].Players['4'].GoldPct) * 100,
             red: parseFloat(match.Teams['200'].Players['9'].GoldPct) * 100
         },
