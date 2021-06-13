@@ -47,6 +47,14 @@ const StyledTableCellRed = withStyles((theme) => ({
     }
 }))(TableCell);
 
+const BLUE_TEAM = "100";
+const RED_TEAM = "200";
+const ROLE_TOP = "TOP";
+const ROLE_BOT = "BOTTOM";
+const ROLE_SUP = "SUPPORT";
+const ROLE_MID = "MIDDLE";
+const ROLE_JUN = "JUNGLE";
+
 const useStyles = makeStyles((theme) => ({
     paper: {
         height: "100%",
@@ -66,43 +74,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MatchSummary({ match }) {
     const classes = useStyles();
-    console.log(match);
 
-    // used for the gold data
-    // the graphs are typically a gold difference at a point in time
-    // so our x-axis will be the minute and the y-axis the blue-red calc
-    let goldChartData = [];
-    let maxGoldDiff = 0;
+    const blueTeamName = match.Teams[BLUE_TEAM].TeamName;
+    const redTeamName = match.Teams[RED_TEAM].TeamName;
 
-    for (const i in match.Timeline) {
-        let obj = {
-            minute: match.Timeline[i].MinuteStamp,
-            goldDiff: (match.Timeline[i].BlueTeamGold - match.Timeline[i].RedTeamGold)
-        };
-
-        if (Math.abs(obj.goldDiff) > maxGoldDiff) {
-            maxGoldDiff = Math.abs(obj.goldDiff);
-        }
-
-        goldChartData.push(obj);
-    }
-
-    let argumentAxisSettings = {
-        color: '#000000'
-    };
-
-    let valueAxisSettings = {
-        color: '#000000',
-        visualRange: {
-            startValue: maxGoldDiff * -1 * 1.02,
-            endValue: maxGoldDiff * 1.02
-        }
-    };
-
-    let blueTeamName = match.Teams['100'].TeamName;
-    let redTeamName = match.Teams['200'].TeamName;
-
-    let winningTeam = match.Teams['100'].Win === true ? blueTeamName : redTeamName;
+    let winningTeam = match.Teams[BLUE_TEAM].Win === true ? blueTeamName : redTeamName;
 
     // Vision
     let visionData = [];
@@ -118,108 +94,112 @@ export default function MatchSummary({ match }) {
         visionData.push(obj);
     }
 
+    // get player stats by role
+    let blueRoles = {};
+    let redRoles = {};
+
+    for (const [key, value] of Object.entries(match.Teams[BLUE_TEAM].Players)) {
+        switch (value.Role.toUpperCase()) {
+            case ROLE_TOP:
+                blueRoles.ROLE_TOP = key;
+                break;
+            case ROLE_BOT:
+                blueRoles.ROLE_BOT = key;
+                break;
+            case ROLE_SUP:
+                blueRoles.ROLE_SUP = key;
+                break;
+            case ROLE_MID:
+                blueRoles.ROLE_MID = key;
+                break
+            case ROLE_JUN:
+                blueRoles.ROLE_JUN = key;
+                break;
+            default: 
+                break;
+        }
+    }
+
+    for (const [key, value] of Object.entries(match.Teams[RED_TEAM].Players)) {
+        switch (value.Role.toUpperCase()) {
+            case ROLE_TOP:
+                redRoles.ROLE_TOP = key;
+                break;
+            case ROLE_BOT:
+                redRoles.ROLE_BOT = key;
+                break;
+            case ROLE_SUP:
+                redRoles.ROLE_SUP = key;
+                break;
+            case ROLE_MID:
+                redRoles.ROLE_MID = key;
+                break
+            case ROLE_JUN:
+                redRoles.ROLE_JUN = key;
+                break;
+            default: 
+                break;
+        }
+    }
+
     // Damage Distribution
     let damageDistribution = [
         {
-            lane: 'Top',
-            blueDamage: parseFloat(match.Teams['100'].Players['1'].DamageDealtPct) * 100,
-            redDamage: parseFloat(match.Teams['200'].Players['6'].DamageDealtPct) * 100
+            lane: ROLE_TOP,
+            blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_TOP].DamageDealtPct) * 100,
+            redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_TOP].DamageDealtPct) * 100
         },
         {
-            lane: 'Jungle',
-            blueDamage: parseFloat(match.Teams['100'].Players['2'].DamageDealtPct) * 100,
-            redDamage: parseFloat(match.Teams['200'].Players['7'].DamageDealtPct) * 100
+            lane: ROLE_JUN,
+            blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_JUN].DamageDealtPct) * 100,
+            redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_JUN].DamageDealtPct) * 100
         },
         {
-            lane: 'Mid',
-            blueDamage: parseFloat(match.Teams['100'].Players['3'].DamageDealtPct) * 100,
-            redDamage: parseFloat(match.Teams['200'].Players['8'].DamageDealtPct) * 100
+            lane: ROLE_MID,
+            blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_MID].DamageDealtPct) * 100,
+            redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_MID].DamageDealtPct) * 100
         },
         {
-            lane: 'ADC',
-            blueDamage: parseFloat(match.Teams['100'].Players['4'].DamageDealtPct) * 100,
-            redDamage: parseFloat(match.Teams['200'].Players['9'].DamageDealtPct) * 100
+            lane: ROLE_BOT,
+            blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_BOT].DamageDealtPct) * 100,
+            redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_BOT].DamageDealtPct) * 100
         },
         {
-            lane: 'Support',
-            blueDamage: parseFloat(match.Teams['100'].Players['5'].DamageDealtPct) * 100,
-            redDamage: parseFloat(match.Teams['200'].Players['10'].DamageDealtPct) * 100
+            lane: ROLE_SUP,
+            blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_SUP].DamageDealtPct) * 100,
+            redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_SUP].DamageDealtPct) * 100
         },
     ];
 
     // Gold Distribution
     let goldDistribution = [
         {
-            lane: 'Top',
-            blue: parseFloat(match.Teams['100'].Players['1'].GoldPct) * 100,
-            red: parseFloat(match.Teams['200'].Players['6'].GoldPct) * 100
+            lane: ROLE_TOP,
+            blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_TOP].GoldPct) * 100,
+            red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_TOP].GoldPct) * 100
         },
         {
-            lane: 'Jungle',
-            blue: parseFloat(match.Teams['100'].Players['2'].GoldPct) * 100,
-            red: parseFloat(match.Teams['200'].Players['7'].GoldPct) * 100
+            lane: ROLE_JUN,
+            blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_JUN].GoldPct) * 100,
+            red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_JUN].GoldPct) * 100
         },
         {
-            lane: 'Mid',
-            blue: parseFloat(match.Teams['100'].Players['3'].GoldPct) * 100,
-            red: parseFloat(match.Teams['200'].Players['8'].GoldPct) * 100
+            lane: ROLE_MID,
+            blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_MID].GoldPct) * 100,
+            red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_MID].GoldPct) * 100
         },
         {
-            lane: 'Bottom',
-            blue: parseFloat(match.Teams['100'].Players['4'].GoldPct) * 100,
-            red: parseFloat(match.Teams['200'].Players['9'].GoldPct) * 100
+            lane: ROLE_BOT,
+            blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_BOT].GoldPct) * 100,
+            red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_BOT].GoldPct) * 100
         },
         {
-            lane: 'Support',
-            blue: parseFloat(match.Teams['100'].Players['5'].GoldPct) * 100,
-            red: parseFloat(match.Teams['200'].Players['10'].GoldPct) * 100
-        },
-    ];
-
-    let otherStats = [
-        {
-            name: 'End Gold',
-            blue: match.Teams['100'].TeamGold,
-            red: match.Teams['200'].TeamGold,
-        },
-        {
-            name: 'Total Kills',
-            blue: match.Teams['100'].TeamKills,
-            red: match.Teams['200'].TeamKills,
-        },
-        {
-            name: 'Total Deaths',
-            blue: match.Teams['100'].TeamDeaths,
-            red: match.Teams['200'].TeamDeaths,
-        },
-        {
-            name: 'Total Assists',
-            blue: match.Teams['100'].TeamAssists,
-            red: match.Teams['200'].TeamAssists,
-        },
-        {
-            name: 'Towers',
-            blue: match.Teams['100'].Towers,
-            red: match.Teams['200'].Towers,
-        },
-        {
-            name: 'Inhibitors',
-            blue: match.Teams['100'].Inhibitors,
-            red: match.Teams['200'].Inhibitors,
-        },
-        {
-            name: 'Vision Score',
-            blue: match.Teams['100'].TeamVisionScore,
-            red: match.Teams['200'].TeamVisionScore,
-        },
-        {
-            name: 'Damage Dealt',
-            blue: match.Teams['100'].TeamDamageDealt,
-            red: match.Teams['200'].TeamDamageDealt,
+            lane: ROLE_SUP,
+            blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_SUP].GoldPct) * 100,
+            red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_SUP].GoldPct) * 100
         },
     ];
     
-
     return (
         <div>
             <Grid container spacing={3}>
@@ -239,7 +219,7 @@ export default function MatchSummary({ match }) {
                             </TableRow>
                             </TableHead>
                             <TableBody>
-                                {Object.entries(match.Teams['100'].Players).map(([playerNum, player]) => (
+                                {Object.entries(match.Teams[BLUE_TEAM].Players).map(([playerNum, player]) => (
                                 <TableRow key={playerNum}>
                                     <TableCell>
                                         <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
@@ -276,7 +256,7 @@ export default function MatchSummary({ match }) {
                             </TableRow>
                             </TableHead>
                             <TableBody>
-                                {Object.entries(match.Teams['200'].Players).map(([playerNum, player]) => (
+                                {Object.entries(match.Teams[RED_TEAM].Players).map(([playerNum, player]) => (
                                 <TableRow key={playerNum}>
                                     <TableCell>
                                         <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
@@ -353,46 +333,7 @@ export default function MatchSummary({ match }) {
                         </Chart>
                     </Paper>
                 </Grid>
-
-                <Grid item xs={6}>
-                    <TableContainer component={Paper}>
-                        <Table className={classes.table} aria-label="simple table">
-                            <TableHead>
-                            <TableRow>
-                                <TableCell>Stats</TableCell>
-                                <TableCell>{blueTeamName}</TableCell>
-                                <TableCell>{redTeamName}</TableCell>
-                            </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {
-                                    otherStats.map(item =>
-                                        <TableRow key={item.name}>
-                                            <TableCell>{item.name}</TableCell>
-                                            <TableCell>{item.blue}</TableCell>
-                                            <TableCell>{item.red}</TableCell>
-                                        </TableRow>
-                                    )
-                                }
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Grid>
             </Grid>
-            {/* Going to move this to another tab soon */}
-            {/* <Box paddingTop={3}>
-                <Paper elevation={3}>
-                    <Chart dataSource={goldChartData} argumentAxis={argumentAxisSettings} valueAxis={valueAxisSettings}>
-                        <CommonSeriesSettings argumentField="minute" type="line" />
-                        <Series key="goldDiff" valueField="goldDiff" />
-                        <Title text="Gold Difference Over Time">
-                            <Font color="black"></Font>
-                        </Title>
-                        <Tooltip enabled={true} />
-                        <Legend visible={false}></Legend>
-                    </Chart>
-                </Paper>
-            </Box> */}
         </div>
     )
 }
