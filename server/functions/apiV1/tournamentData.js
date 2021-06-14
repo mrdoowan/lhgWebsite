@@ -1,6 +1,5 @@
 /*  Declaring npm modules */
 const redis = require('redis');
-const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
 import {
@@ -34,6 +33,8 @@ import {
     getTeamStatsByTourney,
 } from './teamData';
 import { createChampObject } from '../../services/ddragonChampion';
+
+const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
  * Get TournamentPId from DynamoDb

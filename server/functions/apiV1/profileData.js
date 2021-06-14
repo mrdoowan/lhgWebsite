@@ -1,6 +1,5 @@
 /*  Declaring npm modules */
 const redis = require('redis');
-const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
 import {
@@ -33,6 +32,8 @@ import {
     getTournamentShortName,
 } from './tournamentData';
 import { getTeamName } from './teamData';
+
+const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
  * Returns ProfilePId 'string' from ProfileName

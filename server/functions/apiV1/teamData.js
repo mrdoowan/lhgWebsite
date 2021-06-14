@@ -1,6 +1,5 @@
 /*  Declaring npm modules */
 const redis = require('redis');
-const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /*  Import dependency modules */
 import {
@@ -32,6 +31,8 @@ import {
     getTournamentShortName
 } from './tournamentData';
 import { getProfileName } from './profileData';
+
+const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
  * Get the TeamPId of its Name from DynamoDb
