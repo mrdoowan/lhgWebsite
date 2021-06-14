@@ -4,7 +4,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 // Static
 import { Versions } from '../static/Versions';
-import { ChampById } from '../static/ChampById';
 import NoImage from '../no-image.png';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,7 +67,7 @@ export default function ItemSquare({
         getVersionByPatch(patch);
 
     // since we can get itemIds that = 0, we want to render a blank square
-    if (id == 0) {
+    if (id === 0) {
         return (
             <img src={NoImage} className={classes.spacing} alt={id} width={width} height={height} />
         );

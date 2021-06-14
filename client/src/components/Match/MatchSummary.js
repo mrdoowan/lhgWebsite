@@ -3,7 +3,6 @@ import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,15 +12,15 @@ import TableRow from '@material-ui/core/TableRow';
 import {
     Chart,
     Series,
-    ArgumentAxis,
+    // ArgumentAxis,
     CommonSeriesSettings,
-    Export,
+    // Export,
     Legend,
-    Margin,
+    // Margin,
     Title,
-    Subtitle,
-    Tooltip,
-    CommonAxisSettings,
+    // Subtitle,
+    // Tooltip,
+    // CommonAxisSettings,
     Font,
     Label,
     Format
@@ -54,6 +53,8 @@ const ROLE_BOT = "BOTTOM";
 const ROLE_SUP = "SUPPORT";
 const ROLE_MID = "MIDDLE";
 const ROLE_JUN = "JUNGLE";
+const VICTORY = "VICTORY";
+const DEFEAT = "DEFEAT";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -78,25 +79,26 @@ export default function MatchSummary({ match }) {
     const blueTeamName = match.Teams[BLUE_TEAM].TeamName;
     const redTeamName = match.Teams[RED_TEAM].TeamName;
 
-    let winningTeam = match.Teams[BLUE_TEAM].Win === true ? blueTeamName : redTeamName;
+    const blueWinString = match.Teams[BLUE_TEAM].Win ? VICTORY : DEFEAT;
+    const redWinString = match.Teams[RED_TEAM].Win ? VICTORY : DEFEAT;
 
     // Vision
-    let visionData = [];
-
-    for (const t in match.Teams) {
-        const item = match.Teams[t];
-        const obj = {
-            team: item.TeamName,
-            wardsPlaced: item.TeamWardsPlaced,
-            wardsCleared: item.TeamWardsCleared
-        };
-
-        visionData.push(obj);
-    }
+    const visionData = [
+        {
+            visionType: 'Wards Placed',
+            blueVision: match.Teams[BLUE_TEAM].TeamWardsPlaced,
+            redVision: match.Teams[RED_TEAM].TeamWardsPlaced,
+        },
+        {
+            visionType: 'Wards Cleared',
+            blueVision: match.Teams[BLUE_TEAM].TeamWardsCleared,
+            redVision: match.Teams[RED_TEAM].TeamWardsCleared,
+        },
+    ];
 
     // get player stats by role
-    let blueRoles = {};
-    let redRoles = {};
+    const blueRoles = {};
+    const redRoles = {};
 
     for (const [key, value] of Object.entries(match.Teams[BLUE_TEAM].Players)) {
         switch (value.Role.toUpperCase()) {
@@ -143,7 +145,7 @@ export default function MatchSummary({ match }) {
     }
 
     // Damage Distribution
-    let damageDistribution = [
+    const damageDistribution = [
         {
             lane: ROLE_TOP,
             blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_TOP].DamageDealtPct) * 100,
@@ -172,7 +174,7 @@ export default function MatchSummary({ match }) {
     ];
 
     // Gold Distribution
-    let goldDistribution = [
+    const goldDistribution = [
         {
             lane: ROLE_TOP,
             blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_TOP].GoldPct) * 100,
@@ -203,15 +205,12 @@ export default function MatchSummary({ match }) {
     return (
         <div>
             <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <h1>Winner: {winningTeam}</h1>
-                </Grid>
                 <Grid item xs={6}>
                     <TableContainer component={Paper} className={classes.paper}>
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                             <TableRow>
-                                <StyledTableCellBlue>Player</StyledTableCellBlue>
+                                <StyledTableCellBlue>{blueWinString}</StyledTableCellBlue>
                                 <StyledTableCellBlue></StyledTableCellBlue>
                                 <StyledTableCellBlue></StyledTableCellBlue>
                                 <StyledTableCellBlue>K/D/A</StyledTableCellBlue>
@@ -248,7 +247,7 @@ export default function MatchSummary({ match }) {
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                             <TableRow>
-                                <StyledTableCellRed>Player</StyledTableCellRed>
+                                <StyledTableCellRed>{redWinString}</StyledTableCellRed>
                                 <StyledTableCellRed></StyledTableCellRed>
                                 <StyledTableCellRed></StyledTableCellRed>
                                 <StyledTableCellRed>K/D/A</StyledTableCellRed>
@@ -291,8 +290,8 @@ export default function MatchSummary({ match }) {
                             <Title text="Vision">
                                 <Font color="black"></Font>
                             </Title>
-                            <Series argumentField="team" valueField="wardsPlaced" name="Wards Placed" />
-                            <Series argumentField="team" valueField="wardsCleared" name="Wards Cleared" />
+                            <Series argumentField="visionType" valueField="blueVision" name={blueTeamName} />
+                            <Series argumentField="visionType" valueField="redVision" name={redTeamName} />
                             <Legend verticalAlignment="bottom" horizontalAlignment="center"></Legend>
                         </Chart>
                     </Paper>
