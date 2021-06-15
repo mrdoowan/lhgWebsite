@@ -210,7 +210,7 @@ export default function MatchSummary({ match }) {
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                             <TableRow>
-                                <StyledTableCellBlue>{blueWinString}</StyledTableCellBlue>
+                                <StyledTableCellBlue>{blueTeamName} [{blueWinString}]</StyledTableCellBlue>
                                 <StyledTableCellBlue></StyledTableCellBlue>
                                 <StyledTableCellBlue></StyledTableCellBlue>
                                 <StyledTableCellBlue>K/D/A</StyledTableCellBlue>
@@ -247,7 +247,7 @@ export default function MatchSummary({ match }) {
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
                             <TableRow>
-                                <StyledTableCellRed>{redWinString}</StyledTableCellRed>
+                                <StyledTableCellRed>{redTeamName} [{redWinString}]</StyledTableCellRed>
                                 <StyledTableCellRed></StyledTableCellRed>
                                 <StyledTableCellRed></StyledTableCellRed>
                                 <StyledTableCellRed>K/D/A</StyledTableCellRed>
