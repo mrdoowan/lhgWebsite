@@ -119,12 +119,11 @@ class NavBar extends Component {
             <AppBar>
                 <Toolbar className={classes.menu}>
                     <Button color="inherit" href="/" className={classes.menuFirstItem}>Home</Button>
-                    {/* <Button color="inherit" component={Link} to="/about">About</Button> */}
-                    <Button color="inherit" href="/leagues" className={classes.menuItem}>Leagues</Button>
+                    {/* 
                     <Button color="inherit" href="/season/w2021ul" className={classes.menuItem}>LHGUL</Button>
                     <Button color="inherit" href="/season/w2021pl" className={classes.menuItem}>LHGPL</Button>
-                    <Button color="inherit" href="/season/w2021al" className={classes.menuItem}>LHGAL</Button>
-                    {/* <Button color="inherit" component={Link} to="/schedule">Schedule</Button> */}
+                    <Button color="inherit" href="/season/w2021al" className={classes.menuItem}>LHGAL</Button> 
+                    */}
                     <div className={classes.searchBar}>
                         <DropdownButton title={this.state.dropDownValue} id="NavBarSearch">
                             {this.itemList.map((item) => (
