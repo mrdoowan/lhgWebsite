@@ -1,6 +1,10 @@
 {
   "name": "lhg_server",
   "version": "0.1.9",
+  "engine": {
+    "node": "12.x",
+    "npm": "7.x"
+  },
   "description": "Prototype for Doowan Stats website",
   "main": "server.js",
   "scripts": {
