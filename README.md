@@ -1,4 +1,4 @@
-# LHG Website Client & Server
+# Doowan Stats Client & Server
 
 The following need to be installed into Linux (sudo apt update):
 + npm

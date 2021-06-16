@@ -18,7 +18,7 @@ import { getLeagues } from '../../functions/apiV1/seasonData';
 
 /**
  * @route   GET api/leagues/v1
- * @desc    List all the Leagues in LHG
+ * @desc    List all the Leagues
  * @access  Public
  */
 leagueV1Routes.get('/', (req, res) => {
