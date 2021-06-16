@@ -82,6 +82,8 @@ export default function MatchSummary({ match }) {
     const blueWinString = match.Teams[BLUE_TEAM].Win ? VICTORY : DEFEAT;
     const redWinString = match.Teams[RED_TEAM].Win ? VICTORY : DEFEAT;
 
+    const patch = match.GamePatchVersion;
+
     // Vision
     const visionData = [
         {
@@ -221,16 +223,16 @@ export default function MatchSummary({ match }) {
                                 {Object.entries(match.Teams[BLUE_TEAM].Players).map(([playerNum, player]) => (
                                 <TableRow key={playerNum}>
                                     <TableCell>
-                                        <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
+                                        <ChampionSquare id={player.ChampId} patch={patch} width='40' height='40'></ChampionSquare>
                                         <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
                                     </TableCell>
                                     <TableCell>
-                                        <SpellSquare id={player.Spell1Id} key={player.Spell1Id} width='40' height='40'></SpellSquare>
-                                        <SpellSquare id={player.Spell2Id} key={player.Spell2Id} width='40' height='40'></SpellSquare>
+                                        <SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width='40' height='40'></SpellSquare>
+                                        <SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width='40' height='40'></SpellSquare>
                                     </TableCell>
                                     <TableCell>
                                         {player.ItemsFinal.map((itemId, index) => (
-                                            <ItemSquare id={itemId} key={`${index}+${itemId}`} width='40' height='40'></ItemSquare>
+                                            <ItemSquare id={itemId} key={`${index}+${itemId}`} patch={patch} width='40' height='40'></ItemSquare>
                                         ))}
                                     </TableCell>
                                     <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
@@ -258,16 +260,16 @@ export default function MatchSummary({ match }) {
                                 {Object.entries(match.Teams[RED_TEAM].Players).map(([playerNum, player]) => (
                                 <TableRow key={playerNum}>
                                     <TableCell>
-                                        <ChampionSquare id={player.ChampId} width='40' height='40'></ChampionSquare>
+                                        <ChampionSquare id={player.ChampId} patch={patch} width='40' height='40'></ChampionSquare>
                                         <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
                                     </TableCell>
                                     <TableCell>
-                                        <SpellSquare id={player.Spell1Id} key={player.Spell1Id} width='40' height='40'></SpellSquare>
-                                        <SpellSquare id={player.Spell2Id} key={player.Spell2Id} width='40' height='40'></SpellSquare>
+                                        <SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width='40' height='40'></SpellSquare>
+                                        <SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width='40' height='40'></SpellSquare>
                                     </TableCell>
                                     <TableCell>
                                         {player.ItemsFinal.map((itemId, index) => (
-                                            <ItemSquare id={itemId} key={`${index}+${itemId}`} width='40' height='40'></ItemSquare>
+                                            <ItemSquare id={itemId} key={`${index}+${itemId}`} patch={patch} width='40' height='40'></ItemSquare>
                                         ))}
                                     </TableCell>
                                     <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
