@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Component
 import HelmetComponent from '../Helmet/HelmetComponent';
+import LeagueTable from './LeagueTable';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -39,21 +40,31 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function HomeComponent() {
+export default function HomeComponent({ leagueData }) {
     const classes = useStyles();
 
     return (<div>
         <HelmetComponent
-            description="The stats website for leagues hosted by Doowan"
+            description="Stats website for LoL tournaments by Doowan"
         />
         <Grid container spacing={3}>
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
-                    <h1 className={classes.title}><u>Stats Website for Leagues Hosted by Doowan</u></h1><br />
+                    <h1 className={classes.title}><u>Stats Website for LoL tournaments by Doowan</u></h1><br />
                     <p>
-                        (Description of myself)
+                        Hello players (and recruiters who found this website through my resume or LinkedIn).
+                    </p>
+                    <p>
+                        This MERN full stack website was designed with the goal to provide competitive players a resource to scout 
+                        teams and analyze their own performance. This resource is meant to fit my customers first mentality, and provide 
+                        an experience to players that will advance competition and improvement. The entire website was designed by me, with the beginning 
+                        of additional help from a few developers. If you are interested in helping to develop this website further, please contact
+                        me on Discord at doowan#8888.
                     </p>
                 </Paper>
+            </Grid>
+            <Grid item xs={12}>
+                <LeagueTable seasonList={leagueData} />
             </Grid>
         </Grid>
     </div>);

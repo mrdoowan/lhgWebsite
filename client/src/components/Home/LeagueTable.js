@@ -9,8 +9,6 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-// Component
-import HelmetComponent from '../Helmet/HelmetComponent';
 // Images
 import GoldEmblem from '../../static/Emblem_Gold.png';
 import PlatinumEmblem from '../../static/Emblem_Platinum.png';
@@ -80,10 +78,6 @@ export default function LeagueTable(props) {
     const goldImage = <img src={GoldEmblem} alt='Uncapped' width="50" height="50" />;
     
     return (<div>
-        <HelmetComponent
-            title="Leagues List"
-            description={`Past Leagues held in LHG: ${seasonList.Leagues.map(a => a.SeasonTime).join(", ")}`}
-        />
         <TableContainer component={Paper}>
             <Table className={classes.table} aria-label="customized table">
                 <TableHead>

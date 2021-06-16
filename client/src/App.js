@@ -4,10 +4,9 @@ import './App.css';
 // Components
 import NavBar from "./components/NavBar";
 // Pages
-import { homeBase } from "./pages/Home";
+import { HomePage } from "./pages/Home";
 import login from "./pages/Login";
 import about from "./pages/About";
-import { leagues } from "./pages/League";
 import schedule from "./pages/Schedule";
 import { error404 } from "./pages/Error";
 import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/Season';
@@ -38,9 +37,8 @@ class App extends Component {
             <div className="container-wrap">
                 <Switch>
                     { /* Home Page and Basic Nav */ }
-                    <Route path="/" component={homeBase} exact/>
+                    <Route path="/" component={HomePage} exact/>
                     <Route path="/about" component={about} exact/>
-                    <Route path="/leagues" component={leagues} exact/>
                     <Route path="/schedule" component={schedule} exact/>
                     <Route path="/login" component={login} exact/>
 

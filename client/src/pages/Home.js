@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 // Components
 import HomeComponent from '../components/Home/HomeComponent';
@@ -6,19 +6,6 @@ import Markup from '../components/Markup';
 import Error from '../components/ErrorComponent';
 
 // {MAIN}/
-export class homeBase extends Component {
-
-    componentDidMount() {
-
-    }
-
-    render() {
-        return (<div>
-            <HomeComponent />
-        </div>);
-    }
-}
-
 export const HomePage = () => {
     // Init State
     const [leagueData, setLeagueData] = useState(null);
@@ -33,9 +20,9 @@ export const HomePage = () => {
         }).catch((err) => {
             setStatusCode(err.response.status);
         });
-    });
+    }, []);
 
-    const homeComponent = null;
+    const homeComponent = <HomeComponent leagueData={leagueData} />;
 
     return ((statusCode !== null && statusCode !== 200) ? 
         (<Error code={statusCode} page="Match" />) : 
