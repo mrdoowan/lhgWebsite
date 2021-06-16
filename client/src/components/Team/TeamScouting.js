@@ -96,26 +96,26 @@ export default function TeamScouting({ scouting }) {
     const { BannedAgainstTeam, BannedByTeam, GamesPlayed, PlayerLog } = scouting;
 
     // Sort object by Most banned to Least banned
-    let bansAgainstTeamKeys = Object.keys(BannedAgainstTeam).sort((a,b) => { return BannedAgainstTeam[b] - BannedAgainstTeam[a] });
-    let bansByTeamKeys = Object.keys(BannedByTeam).sort((a,b) => { return BannedByTeam[b] - BannedByTeam[a] });
+    const bansAgainstTeamKeys = Object.keys(BannedAgainstTeam).sort((a,b) => { return BannedAgainstTeam[b] - BannedAgainstTeam[a] });
+    const bansByTeamKeys = Object.keys(BannedByTeam).sort((a,b) => { return BannedByTeam[b] - BannedByTeam[a] });
 
-    let champsBanAgainst = (
+    const champsBanAgainst = (
         bansAgainstTeamKeys.map((Id) => (<ChampionSquare key={Id} id={Id} vertical={true} num={BannedAgainstTeam[Id]} />))
     );
-    let champsBanBy = (
+    const champsBanBy = (
         bansByTeamKeys.map((Id) => (<ChampionSquare key={Id} id={Id} vertical={true} num={BannedByTeam[Id]} />))
     );
 
-    let playerList = [];
+    const playerList = [];
     for (let i = 0; i < Object.keys(PlayerLog).length; ++i) {
-        let role = Object.keys(PlayerLog)[i];
+        const role = Object.keys(PlayerLog)[i];
         for (let j = 0; j < Object.values(PlayerLog[role]).length; ++j) {
-            let playerObject = Object.values(PlayerLog[role])[j];
+            const playerObject = Object.values(PlayerLog[role])[j];
             playerObject['Role'] = role;
             playerList.push(playerObject);
         }
     }
-    let sortedPlayerList = playerList.sort((a,b) => { return b.GamesPlayed - a.GamesPlayed });
+    const sortedPlayerList = playerList.sort((a,b) => { return b.GamesPlayed - a.GamesPlayed });
 
     return (
         <Paper variant="outlined" square className={classes.paper}>
@@ -184,10 +184,10 @@ export default function TeamScouting({ scouting }) {
 }
 
 function sortPlayedChamps(champsObject) {
-    let champList = [];
+    const champList = [];
     for (let i = 0; i < Object.keys(champsObject).length; ++i) {
         var Id = Object.keys(champsObject)[i];
-        let champStats = champsObject[Id];
+        const champStats = champsObject[Id];
         champStats['ChampId'] = Id;
         champList.push(champStats);
     }

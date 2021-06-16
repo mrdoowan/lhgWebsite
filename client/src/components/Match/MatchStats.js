@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchStats({ match }) {
     const classes = useStyles();
 
-    console.log(match);
+    // console.log(match);
 
     return (
         <div>
@@ -57,7 +57,7 @@ export default function MatchStats({ match }) {
                                     <TableCell>{player.CreepScore}</TableCell>
                                 </TableRow>
                                 ))}
-                                
+
                             </TableBody>
                         </Table>
                     </TableContainer>

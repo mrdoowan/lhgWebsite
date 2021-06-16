@@ -24,8 +24,8 @@ const useStyles = makeStyles((theme) => ({
 // If the data is empty, display a Component indicating
 export default function DataWrapper({ data, component, emptyMessage }) {
     const classes = useStyles();
-    
-    let emptyComponent = (
+
+    const emptyComponent = (
         <div className={classes.root}>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
@@ -37,7 +37,7 @@ export default function DataWrapper({ data, component, emptyMessage }) {
         </div>
     )
 
-    let finalMarkup = (Object.keys(data).length === 0) ? 
+    const finalMarkup = (Object.keys(data).length === 0) ?
         (emptyComponent) : (component);
 
     return (

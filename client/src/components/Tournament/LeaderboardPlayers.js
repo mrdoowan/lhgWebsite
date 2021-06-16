@@ -99,11 +99,11 @@ export default function LeaderboardPlayers({ playerRecords }) {
      * @param {object} classes  Material-UI styles
      */
     const thisTeam = (item, classes) => {
-        let teamName = (item.Side === 'Blue') ? item.BlueTeamName :
+        const teamName = (item.Side === 'Blue') ? item.BlueTeamName :
             (item.Side === 'Red') ? item.RedTeamName : null;
-        let shortName = (item.Side === 'Blue') ? item.BlueTeamShortName : 
+        const shortName = (item.Side === 'Blue') ? item.BlueTeamShortName :
             (item.Side === 'Red') ? item.RedTeamShortName : null;
-        
+
         return (<React.Fragment>[<Link className={classes.link} to={`/team/${teamName}`}>{shortName}</Link>]</React.Fragment>);
     }
 
@@ -113,7 +113,7 @@ export default function LeaderboardPlayers({ playerRecords }) {
      * @param {object} classes  Material-UI styles
      */
     const enemyTeam = (item, classes) => {
-        let shortName = (item.Side === 'Blue') ? item.RedTeamShortName : 
+        const shortName = (item.Side === 'Blue') ? item.RedTeamShortName :
             (item.Side === 'Red') ? item.BlueTeamShortName : null;
 
         return (<React.Fragment>(<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {shortName}</Link>)</React.Fragment>);

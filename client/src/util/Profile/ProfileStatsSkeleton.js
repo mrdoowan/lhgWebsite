@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function ProfileStatsSkeleton({ info, stats }) {
     const classes = useStyles();
 
-    let headerComponent = (<ProfileHeader info={info} type={"Stats"} />);
-    let statsComponent = (<ProfileStats stats={stats} />);
-    
-    let headerEmpty = "There is no Information logged for this Player.";
-    let statsEmpty = "There are no Stats logged for this Player.";
+    const headerComponent = (<ProfileHeader info={info} type={"Stats"} />);
+    const statsComponent = (<ProfileStats stats={stats} />);
+
+    const headerEmpty = "There is no Information logged for this Player.";
+    const statsEmpty = "There are no Stats logged for this Player.";
 
     return (
         <div className={classes.root}>

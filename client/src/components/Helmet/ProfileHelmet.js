@@ -4,17 +4,31 @@ import HelmetComponent from './HelmetComponent';
 
 export default function ProfileHelmet({ info, games, stats }) {
     // Meta Tags
-    const metaTitle = `${info.ProfileName} - ${
-        (info && games) ? "Player Game Log" :
-        (info && stats) ? "Player Stats" :
-        "Player Summary"
-    }`;
+    let metaSubtitle = "";
+	let metaDescription = "";
 
-    const metaDescription = (info && games && Object.keys(games).length > 0) ? (
-        `${Object.keys(games.Matches).length} game${(Object.keys(games.Matches).length) ? 's' : ''} played in the ${games.SeasonName}`
-    ) : (info && stats && Object.keys(stats).length > 0) ? (
-        `Stats in the ${stats.TournamentName} with ${Object.keys(stats.RoleStats).length} role${(Object.keys(stats.RoleStats).length > 1) ? 's' : ''}: ${Object.keys(stats.RoleStats).join(", ")}`
-    ) : ("Player Information");
+    if (info && games) {
+        metaSubtitle = "Player Game Log";
+
+		if (Object.keys(games).length > 0) {
+			const gamesString = (Object.keys(games.Matches).length) ? "games" : "game";
+			metaDescription = `${Object.keys(games.Matches).length} ${gamesString} played in the ${games.SeasonName}`;
+		}
+    }
+    else if (info && stats) {
+        metaSubtitle = "Player Stats";
+
+		if (Object.keys(stats).length > 0) {
+			const rolesString = (Object.keys(stats.RoleStats).length > 1) ? "roles" : "role";
+			metaDescription = `Stats in the ${stats.TournamentName} with ${Object.keys(stats.RoleStats).length} ${rolesString}: ${Object.keys(stats.RoleStats).join(", ")}`;
+		}
+    }
+    else {
+        metaSubtitle = "Player Summary";
+		metaDescription = "Player Information";
+    }
+
+	const metaTitle = `${info.ProfileName} - ${metaSubtitle}`;
 
     return (
         <HelmetComponent

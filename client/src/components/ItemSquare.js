@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // If version is blank, grab most recent DDragon Version.
-export default function ItemSquare({ 
+export default function ItemSquare({
     id,
     patch=null,
     version=null,
@@ -62,8 +62,8 @@ export default function ItemSquare({
 }) {
     const classes = useStyles();
 
-    const ddragonVersion = (!patch) ? 
-        ((!version) ? getCurrentVersion() : version) : 
+    const ddragonVersion = (!patch) ?
+        ((!version) ? getCurrentVersion() : version) :
         getVersionByPatch(patch);
 
     // since we can get itemIds that = 0, we want to render a blank square
@@ -73,7 +73,7 @@ export default function ItemSquare({
         );
     }
     else {
-        let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${id}.png`;
+        const url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${id}.png`;
 
         return (withName) ? (
             <div>

@@ -19,12 +19,12 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyBaseSkeleton({info, stats, lb}) {
     const classes = useStyles();
 
-    let headerComponent = (<TourneyHeader info={info} type='Tournament' />);
-    let statsComponent = (<TourneyStats stats={stats} />);
-    let gameComponent = (<LeaderboardGames gameRecords={lb.GameRecords} />);
-    let playerLBComponent = (<LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} />);
-    let teamLBComponent = (<LeaderboardTeams teamRecords={lb.TeamSingleRecords} />);
-    let lbComponents = (
+    const headerComponent = (<TourneyHeader info={info} type='Tournament' />);
+    const statsComponent = (<TourneyStats stats={stats} />);
+    const gameComponent = (<LeaderboardGames gameRecords={lb.GameRecords} />);
+    const playerLBComponent = (<LeaderboardPlayers playerRecords={lb.PlayerSingleRecords} />);
+    const teamLBComponent = (<LeaderboardTeams teamRecords={lb.TeamSingleRecords} />);
+    const lbComponents = (
         <div>
             {gameComponent}
             {playerLBComponent}
@@ -32,9 +32,9 @@ export default function TourneyBaseSkeleton({info, stats, lb}) {
         </div>
     );
 
-    let headerEmpty = "There is no Information logged for this Tournament.";
-    let statsEmpty = "There are no Stats logged for this Tournament.";
-    let lbEmpty = "There are no Leaderboards logged for this Tournament.";
+    const headerEmpty = "There is no Information logged for this Tournament.";
+    const statsEmpty = "There are no Stats logged for this Tournament.";
+    const lbEmpty = "There are no Leaderboards logged for this Tournament.";
 
     return (
         <div className={classes.root}>

@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SeasonHeader({ info }) {
     const classes = useStyles();
 
-    let seasonBaseMarkup = info ? (
+    const seasonBaseMarkup = info ? (
         <div>
             <div className={classes.titleMain}>{info.SeasonName}</div>
             <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Stats</Link></p>

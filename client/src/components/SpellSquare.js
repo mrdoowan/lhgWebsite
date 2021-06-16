@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // If version is blank, grab most recent DDragon Version.
-export default function SpellSquare({ 
+export default function SpellSquare({
     id,
     patch=null,
     version=null,
@@ -61,14 +61,14 @@ export default function SpellSquare({
     height="30",
 }) {
     const classes = useStyles();
-    
+
     const urlId = getSpellUrlId(id);
 
-    const ddragonVersion = (!patch) ? 
-        ((!version) ? getCurrentVersion() : version) : 
+    const ddragonVersion = (!patch) ?
+        ((!version) ? getCurrentVersion() : version) :
         getVersionByPatch(patch);
 
-    let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${urlId}.png`;
+    const url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${urlId}.png`;
 
     return (withName) ? (
         <div>

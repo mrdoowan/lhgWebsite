@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchBuildsSkeleton({ match }) {
     const classes = useStyles();
 
-    let headerComponent = (<MatchHeader match={match} type="Builds" />);
-    let buildsComponent = (<MatchBuilds match={match} />);
-    
-    let infoEmpty = "There is no Information logged for this Match.";
-    let buildsEmpty = "There are no Builds logged for this Match.";
+    const headerComponent = (<MatchHeader match={match} type="Builds" />);
+    const buildsComponent = (<MatchBuilds match={match} />);
+
+    const infoEmpty = "There is no Information logged for this Match.";
+    const buildsEmpty = "There are no Builds logged for this Match.";
 
     return (
         <div className={classes.root}>

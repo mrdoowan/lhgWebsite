@@ -82,8 +82,8 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
         setValue(newValue);
     };
 
-    let scoutingComponent = (<TeamScouting scouting={scouting} />);
-    let gamesComponent = (<TeamGameLog games={games} />);
+    const scoutingComponent = (<TeamScouting scouting={scouting} />);
+    const gamesComponent = (<TeamGameLog games={games} />);
 
     return (<div>
         <Grid container spacing={3}>
@@ -96,8 +96,8 @@ export default function TeamGamesWrapper({ info, scouting, games }) {
                                     <Link to={`/season/${games.SeasonShortName}`} className={classes.link}><b>{games.SeasonName} Season</b></Link>
                                 </td>
                                 <td className={classes.colDragdown}>
-                                <Dragdown 
-                                    list={info.SeasonList} 
+                                <Dragdown
+                                    list={info.SeasonList}
                                     basePath={`/team/${info.TeamName}/games`}
                                     type="Teams"
                                     title={games.SeasonTime}

@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function ProfileGamesSkeleton({ info, games }) {
     const classes = useStyles();
 
-    let headerComponent = (<ProfileHeader info={info} type={"Games"} />);
-    let gamesComponent = (<ProfileGames info={info} games={games} />);
-    
-    let headerEmpty = "There is no Information logged for this Player.";
-    let gamesEmpty = "There are no Games logged for this Player.";
+    const headerComponent = (<ProfileHeader info={info} type={"Games"} />);
+    const gamesComponent = (<ProfileGames info={info} games={games} />);
+
+    const headerEmpty = "There is no Information logged for this Player.";
+    const gamesEmpty = "There are no Games logged for this Player.";
 
     return (
         <div className={classes.root}>

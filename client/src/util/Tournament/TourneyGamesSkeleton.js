@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyGamesSkeleton({ info, games }) {
     const classes = useStyles();
 
-    let headerComponent = (<TourneyHeader info={info} type='Games' />);
-    let gamesComponent = (<TourneyGames games={games} />);
+    const headerComponent = (<TourneyHeader info={info} type='Games' />);
+    const gamesComponent = (<TourneyGames games={games} />);
 
-    let headerEmpty = "There is no Information logged for this Tournament.";
-    let gamesEmpty = "There are no Games logged for this Tournament.";
+    const headerEmpty = "There is no Information logged for this Tournament.";
+    const gamesEmpty = "There are no Games logged for this Tournament.";
 
     return (
         <div className={classes.root}>

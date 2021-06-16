@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyChampsSkeleton({info, pb}) {
     const classes = useStyles();
 
-    let headerComponent = (<TourneyHeader info={info} type='Champs' />);
-    let pickBansComponent = (<ChampsDataGrid pickbans={pb} />);
+    const headerComponent = (<TourneyHeader info={info} type='Champs' />);
+    const pickBansComponent = (<ChampsDataGrid pickbans={pb} />);
 
-    let headerEmpty = "There is no Information logged for this Tournament.";
-    let pickBansEmpty = "There are no Pick / Ban Stats logged for this Tournament.";
+    const headerEmpty = "There is no Information logged for this Tournament.";
+    const pickBansEmpty = "There are no Pick / Ban Stats logged for this Tournament.";
 
     return (
         <div className={classes.root}>

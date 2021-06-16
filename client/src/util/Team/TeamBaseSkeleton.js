@@ -16,10 +16,10 @@ const useStyles = makeStyles((theme) => ({
 export default function TeamBaseSkeleton({ info }) {
     const classes = useStyles();
 
-    let headerComponent = (<TeamHeader info={info} type={"Team"} />);
-    let infoComponent = (<TeamInfo info={info} />);
-    
-    let headerEmpty = "There is no Information logged for this Team.";
+    const headerComponent = (<TeamHeader info={info} type={"Team"} />);
+    const infoComponent = (<TeamInfo info={info} />);
+
+    const headerEmpty = "There is no Information logged for this Team.";
 
     return (
         <div className={classes.root}>

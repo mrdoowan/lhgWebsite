@@ -21,11 +21,11 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyPlayersSkeleton({info, players}) {
     const classes = useStyles();
 
-    let headerComponent = (<TourneyHeader info={info} type='Players' />);
-    let playersComponent = (<PlayerDataGrid players={players} seasonShortName={info.SeasonShortName} />);
+    const headerComponent = (<TourneyHeader info={info} type='Players' />);
+    const playersComponent = (<PlayerDataGrid players={players} seasonShortName={info.SeasonShortName} />);
 
-    let headerEmpty = "There is no Information logged for this Tournament.";
-    let playersEmpty = "There are no Player Stats logged for this Tournament.";
+    const headerEmpty = "There is no Information logged for this Tournament.";
+    const playersEmpty = "There are no Player Stats logged for this Tournament.";
 
     return (
         <div className={classes.root}>

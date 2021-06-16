@@ -59,11 +59,11 @@ export default function LeaderboardTeams({ teamRecords }) {
     const classes = useStyles();
     const titles = {
         'TeamTopBaronPowerPlay': "Highest Baron Power Play",
-        'TeamEarliestTower': "Earliest Tower", 
+        'TeamEarliestTower': "Earliest Tower",
     };
 
     const recordString = (type, item) => {
-        let tsSeconds = Math.floor(item.Timestamp / 1000);
+        const tsSeconds = Math.floor(item.Timestamp / 1000);
         switch (type) {
             case 'TeamTopBaronPowerPlay':
                 return (<React.Fragment><b>+{item.BaronPowerPlay.toLocaleString()} Power Play</b> - Taken at {getTimeString(tsSeconds)}</React.Fragment>);
@@ -73,7 +73,7 @@ export default function LeaderboardTeams({ teamRecords }) {
                 return '';
         }
     }
-    
+
     const opposingTeam = (item) => {
         return (item.TeamName === item.BlueTeamName) ? item.RedTeamShortName : item.BlueTeamShortName;
     }

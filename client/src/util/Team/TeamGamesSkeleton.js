@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function TeamGamesSkeleton({ info, scouting, games }) {
     const classes = useStyles();
 
-    let headerComponent = (<TeamHeader info={info} type='Games' />);
-    let gamesWrapperComponent = (<TeamGamesWrapper info={info} scouting={scouting} games={games} />);
+    const headerComponent = (<TeamHeader info={info} type='Games' />);
+    const gamesWrapperComponent = (<TeamGamesWrapper info={info} scouting={scouting} games={games} />);
 
-    let headerEmpty = "There is no Information logged for this Team.";
-    let gamesEmpty = "There are no Games logged for this Team.";
+    const headerEmpty = "There is no Information logged for this Team.";
+    const gamesEmpty = "There are no Games logged for this Team.";
 
     return (
         <div className={classes.root}>

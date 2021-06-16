@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // If version is blank, grab most recent DDragon Version.
-export default function ChampionSquare({ 
+export default function ChampionSquare({
     id,
     patch=null,
     version=null,
@@ -64,10 +64,10 @@ export default function ChampionSquare({
 
     const urlId = getChampUrlId(id);
     const name = getChampName(id);
-    const ddragonVersion = (!patch) ? 
-        ((!version) ? getCurrentVersion() : version) : 
+    const ddragonVersion = (!patch) ?
+        ((!version) ? getCurrentVersion() : version) :
         getVersionByPatch(patch);
-    let url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
+    const url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
 
     return (withName) ? (
         <div>

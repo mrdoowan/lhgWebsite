@@ -28,12 +28,12 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyHeader({ info, type }) {
     const classes = useStyles();
 
-    let titleMarkUp = (
+    const titleMarkUp = (
         <div className={classes.titleMain}>
             <Link className={classes.link} to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {tourneyTypeString(info.TournamentType)}
         </div>
     );
-    let tourneyBar = ( <TourneyTab shortName={info.TournamentShortName} type={type}/> );
+    const tourneyBar = ( <TourneyTab shortName={info.TournamentShortName} type={type}/> );
 
     return (
         <div>
@@ -50,7 +50,7 @@ export default function TourneyHeader({ info, type }) {
 }
 
 function tourneyTypeString(str) {
-    return (str === 'Regular') ? 
+    return (str === 'Regular') ?
         "Regular Season" :
         "Playoffs";
 }

@@ -32,11 +32,11 @@ export class profileBase extends Component {
     render() {
         const { info, statusCode } = this.state;
 
-        let component = (<ProfileBaseSkeleton info={info} />);
+        const component = (<ProfileBaseSkeleton info={info} />);
 
         return (
             (statusCode != null && statusCode !== 200) ?
-            (<Error code={statusCode} page="Profile" />) : 
+            (<Error code={statusCode} page="Profile" />) :
             (<Markup data={info} dataComponent={component} code={statusCode} />)
         )
     }
@@ -93,11 +93,11 @@ export class profileGames extends Component {
     render() {
         const { info, games, statusCode } = this.state;
 
-        let component = (<ProfileGamesSkeleton info={info} games={games} />);
+        const component = (<ProfileGamesSkeleton info={info} games={games} />);
 
         return (
             (statusCode != null && statusCode !== 200) ?
-            (<Error code={statusCode} page="Profile" />) : 
+            (<Error code={statusCode} page="Profile" />) :
             (<Markup data={info && games} dataComponent={component} code={statusCode} />)
         )
     }
@@ -153,17 +153,17 @@ export class profileStats extends Component {
             this.setState({ statusCode: err.response.status })
         });
         }
-       
+
     }
 
     render() {
         const { stats, info, statusCode } = this.state;
 
-        let component = (<ProfileStatsSkeleton info={info} stats={stats} />);
+        const component = (<ProfileStatsSkeleton info={info} stats={stats} />);
 
         return (
             (statusCode != null && statusCode !== 200) ?
-            (<Error code={statusCode} page="Profile" />) : 
+            (<Error code={statusCode} page="Profile" />) :
             (<Markup data={info && stats} dataComponent={component} code={statusCode} />)
         )
     }

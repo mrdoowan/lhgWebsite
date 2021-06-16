@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchTimelineSkeleton({ match }) {
     const classes = useStyles();
 
-    let headerComponent = (<MatchHeader match={match} type="Timeline" />);
-    let timelineComponent = (<MatchTimeline match={match} />);
-    
-    let infoEmpty = "There is no Information logged for this Match.";
-    let timelineEmpty = "There is no Timeline logged for this Match.";
+    const headerComponent = (<MatchHeader match={match} type="Timeline" />);
+    const timelineComponent = (<MatchTimeline match={match} />);
+
+    const infoEmpty = "There is no Information logged for this Match.";
+    const timelineEmpty = "There is no Timeline logged for this Match.";
 
     return (
         <div className={classes.root}>

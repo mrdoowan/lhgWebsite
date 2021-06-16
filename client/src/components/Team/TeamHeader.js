@@ -22,13 +22,13 @@ const useStyles = makeStyles((theme) => ({
 export default function TeamHeader({ info, type }) {
     const classes = useStyles();
 
-    let titleMarkUp = (
+    const titleMarkUp = (
         <div className={classes.title}>
             <p>{info.TeamName}</p>
         </div>
     );
-    let teamBar = ( <TeamTab name={info.TeamName} type={type} /> );
-    
+    const teamBar = ( <TeamTab name={info.TeamName} type={type} /> );
+
     return (
         <div>
             <Grid container spacing={3}>

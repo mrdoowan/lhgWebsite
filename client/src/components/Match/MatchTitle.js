@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
     },
     season: {
-        padding: theme.spacing(1),  
+        padding: theme.spacing(1),
         fontWeight: 'bold',
     },
     blueTeam: {
@@ -23,11 +23,11 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchTitle({ match }) {
     const classes = useStyles();
 
-    let blueName = match.Teams["100"].TeamName;
-    let redName = match.Teams["200"].TeamName;
+    const blueName = match.Teams["100"].TeamName;
+    const redName = match.Teams["200"].TeamName;
 
-    let blueTeamLink = (<Link className={classes.blueTeam} to={`/team/${blueName}`}>{blueName}</Link>);
-    let redTeamLink = (<Link className={classes.redTeam} to={`/team/${redName}`}>{redName}</Link>);
+    const blueTeamLink = (<Link className={classes.blueTeam} to={`/team/${blueName}`}>{blueName}</Link>);
+    const redTeamLink = (<Link className={classes.redTeam} to={`/team/${redName}`}>{redName}</Link>);
 
     return (
         <div>

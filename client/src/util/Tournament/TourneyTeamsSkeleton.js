@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
 export default function TourneyTeamsSkeleton({info, teams}) {
     const classes = useStyles();
 
-    let headerComponent = (<TourneyHeader info={info} type='Teams' />);
-    let teamsComponent = (<TeamDataGrid teams={teams} seasonShortName={info.SeasonShortName} />);
+    const headerComponent = (<TourneyHeader info={info} type='Teams' />);
+    const teamsComponent = (<TeamDataGrid teams={teams} seasonShortName={info.SeasonShortName} />);
 
-    let headerEmpty = "There is no Information logged for this Tournament.";
-    let teamsEmpty = "There are no Team Stats logged for this Tournament.";
+    const headerEmpty = "There is no Information logged for this Tournament.";
+    const teamsEmpty = "There are no Team Stats logged for this Tournament.";
 
     return (
         <div className={classes.root}>

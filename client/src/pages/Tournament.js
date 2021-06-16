@@ -58,9 +58,9 @@ export class tournamentBase extends Component {
     render() {
         const { info, stats, leaderboards, statusCode } = this.state;
 
-        let component = (<TourneyBaseSkeleton info={info} stats={stats} lb={leaderboards} />);
+        const component = (<TourneyBaseSkeleton info={info} stats={stats} lb={leaderboards} />);
 
-        return ((statusCode != null && statusCode !== 200) ? 
+        return ((statusCode != null && statusCode !== 200) ?
             (<Error code={statusCode} page="Tournament" />) :
             (<Markup data={info && stats && leaderboards} dataComponent={component} code={statusCode} />)
         )
@@ -102,9 +102,9 @@ export class tournamentPlayers extends Component {
     render() {
         const { info, players, statusCode } = this.state;
 
-        let component = (<TourneyPlayersSkeleton info={info} players={players} />);
+        const component = (<TourneyPlayersSkeleton info={info} players={players} />);
 
-        return ((statusCode != null && statusCode !== 200) ? 
+        return ((statusCode != null && statusCode !== 200) ?
             (<Error code={statusCode} page="Tournament" />) :
             (<Markup data={info && players} dataComponent={component} code={statusCode} />)
         )
@@ -146,9 +146,9 @@ export class tournamentTeams extends Component {
     render() {
         const { info, teams, statusCode } = this.state;
 
-        let component = (<TourneyTeamsSkeleton info={info} teams={teams} />);
+        const component = (<TourneyTeamsSkeleton info={info} teams={teams} />);
 
-        return ((statusCode != null && statusCode !== 200) ? 
+        return ((statusCode != null && statusCode !== 200) ?
             (<Error code={statusCode} page="Tournament" />) :
             (<Markup data={info && teams} dataComponent={component} code={statusCode} />)
         )
@@ -190,9 +190,9 @@ export class tournamentPickBans extends Component {
     render() {
         const { info, pickBans, statusCode } = this.state;
 
-        let component = (<TourneyChampsSkeleton info={info} pb={pickBans} />);
+        const component = (<TourneyChampsSkeleton info={info} pb={pickBans} />);
 
-        return ((statusCode != null && statusCode !== 200) ? 
+        return ((statusCode != null && statusCode !== 200) ?
             (<Error code={statusCode} page="Tournament" />) :
             (<Markup data={info && pickBans} dataComponent={component} code={statusCode} />)
         )
@@ -234,9 +234,9 @@ export class tournamentGames extends Component {
     render() {
         const { info, games, statusCode } = this.state;
 
-        let component = (<TourneyGamesSkeleton info={info} games={games} />);
+        const component = (<TourneyGamesSkeleton info={info} games={games} />);
 
-        return ((statusCode != null && statusCode !== 200) ? 
+        return ((statusCode != null && statusCode !== 200) ?
             (<Error code={statusCode} page="Tournament" />) :
             (<Markup data={info && games} dataComponent={component} code={statusCode} />)
         )
@@ -356,8 +356,8 @@ export const TournamentUpdatePage = (props) => {
             setStatusCode(res.status);
             setGameNumber(res.data.gamesNum);
             setLoading(!isAllUpdated());
-        }).catch((err) => { 
-            console.error(err); 
+        }).catch((err) => {
+            console.error(err);
             setStatusCode(err.response.status);
             setGameNumber(null);
             setLoading(false);
@@ -372,14 +372,14 @@ export const TournamentUpdatePage = (props) => {
         gameNumber={gameNumber}
         handleUpdateTournament={handleTournamentUpdate}
     />
-    
+
     return (
-        (statusCode !== 200 && !statusCode) ? 
-        (<Error code={statusCode} page="Tournament" />) : 
-        (<Markup 
+        (statusCode !== 200 && !statusCode) ?
+        (<Error code={statusCode} page="Tournament" />) :
+        (<Markup
             data={infoData}
-            dataComponent={tournamentUpdateComponent} 
-            code={statusCode} 
+            dataComponent={tournamentUpdateComponent}
+            code={statusCode}
         />)
     );
 }

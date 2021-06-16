@@ -22,13 +22,13 @@ const useStyles = makeStyles((theme) => ({
 export default function ProfileHeader({ info, type }) {
     const classes = useStyles();
 
-    let titleMarkUp = (
+    const titleMarkUp = (
         <div className={classes.title}>
             <p>{info.ProfileName}</p>
         </div>
     );
-    let profileBar = ( <ProfileTab name={info.ProfileName} type={type} /> );
-    
+    const profileBar = ( <ProfileTab name={info.ProfileName} type={type} /> );
+
     return (
         <div>
             <Grid container spacing={3}>

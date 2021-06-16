@@ -23,9 +23,9 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchHeader({ match, type }) {
     const classes = useStyles();
 
-    let titleComponent = ( <MatchTitle match={match} /> );
-    let matchBar = ( <MatchTab id={match.MatchPId} type={type} /> );
-    
+    const titleComponent = ( <MatchTitle match={match} /> );
+    const matchBar = ( <MatchTab id={match.MatchPId} type={type} /> );
+
     return (
         <div>
             <Grid container spacing={3}>
