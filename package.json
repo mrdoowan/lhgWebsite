@@ -1,7 +1,7 @@
 {
-  "name": "lhg_server",
+  "name": "doowanstats_server",
   "version": "0.1.9",
-  "description": "Prototype for LHG website",
+  "description": "Prototype for Doowan Stats website",
   "main": "server.js",
   "scripts": {
     "server": "nodemon --exec babel-node ./server/server.js --require dotenv/config",
