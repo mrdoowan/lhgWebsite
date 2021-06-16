@@ -13,7 +13,7 @@ import {
 import { mySqlInsertQuery } from '../dependencies/mySqlHelper';
 
 /**
- * Takes the LHG Match object and inserts into LHG's MySQL tables
+ * Takes the Match object and inserts into the MySQL tables
  * @param {object} matchDbObject 
  * @param {object} matchSubmitObject 
  */
