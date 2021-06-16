@@ -11,6 +11,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 // Component
 import HelmetComponent from '../Helmet/HelmetComponent';
+// Images
+import GoldEmblem from '../../static/Emblem_Gold.png';
+import PlatinumEmblem from '../../static/Emblem_Platinum.png';
+import DiamondEmblem from '../../static/Emblem_Diamond.png';
+import ChallengerEmblem from '../../static/Emblem_Challenger.png';
 
 const StyledTableCell = withStyles((theme) => ({
     head: {
@@ -39,7 +44,6 @@ const useStyles = makeStyles({
     },
     header: {
         fontSize: 'large',
-        fontWeight: 'blue',
     },
     link: {
         color: 'blue',
@@ -69,6 +73,11 @@ function SeasonTableCell({ list }) {
 export default function LeagueTable(props) {
     const classes = useStyles();
     const { seasonList } = props;
+
+    const challengerImage = <img src={ChallengerEmblem} alt='Uncapped' width="50" height="50" />;
+    const diamondImage = <img src={DiamondEmblem} alt='Uncapped' width="50" height="50" />;
+    const platinumImage = <img src={PlatinumEmblem} alt='Uncapped' width="50" height="50" />;
+    const goldImage = <img src={GoldEmblem} alt='Uncapped' width="50" height="50" />;
     
     return (<div>
         <HelmetComponent
@@ -79,11 +88,11 @@ export default function LeagueTable(props) {
             <Table className={classes.table} aria-label="customized table">
                 <TableHead>
                     <TableRow>
-                        <StyledTableCell className={classes.header} align="center">Season</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">Uncapped</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">Diamond</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">Platinum</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">Gold</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center"><u>Split</u></StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">{challengerImage}</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">{diamondImage}</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">{platinumImage}</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">{goldImage}</StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
