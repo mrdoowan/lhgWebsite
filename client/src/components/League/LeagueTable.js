@@ -46,14 +46,23 @@ const useStyles = makeStyles({
     },
 });
 
-function SeasonTableCell({ item }) {
+function SeasonTableCell({ list }) {
     const classes = useStyles();
 
-    if (!item) {
+    if (!list) {
         return (<StyledTableCell align="center"></StyledTableCell>);
     }
     else {
-        return (<StyledTableCell align="center"><Link className={classes.link} to={`/season/${item.ShortName}`}>{item.LeagueType}</Link></StyledTableCell>);
+        return (<StyledTableCell align="center">{
+            list.map((leagueObject) => {
+                return (
+                    <React.Fragment>
+                        <Link className={classes.link} to={`/season/${leagueObject.ShortName}`}>{leagueObject.LeagueType}</Link><br />
+                    </React.Fragment>
+                );
+            })}
+            </StyledTableCell>
+        );
     }
 }
 
@@ -71,20 +80,20 @@ export default function LeagueTable(props) {
                 <TableHead>
                     <TableRow>
                         <StyledTableCell className={classes.header} align="center">Season</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">LHGCL</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">LHGUL</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">LHGPL</StyledTableCell>
-                        <StyledTableCell className={classes.header} align="center">LHGAL</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">Uncapped</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">Diamond</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">Platinum</StyledTableCell>
+                        <StyledTableCell className={classes.header} align="center">Gold</StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                 {seasonList.Leagues.map((season) => (
                     <StyledTableRow key={season.SeasonTime}>
                         <StyledTableCell component="th" scope="row" align="center"><b>{season.SeasonTime}</b></StyledTableCell>
-                        <SeasonTableCell item={season.LHGCL} />
-                        <SeasonTableCell item={season.LHGUL} />
-                        <SeasonTableCell item={season.LHGPL} />
-                        <SeasonTableCell item={season.LHGAL} />
+                        <SeasonTableCell list={season.Uncapped} />
+                        <SeasonTableCell list={season.Diamond} />
+                        <SeasonTableCell list={season.Platinum} />
+                        <SeasonTableCell list={season.Gold} />
                     </StyledTableRow>
                 ))}
                 </TableBody>
