@@ -58,8 +58,8 @@ class login extends Component {
 
         return (<div>
             <Helmet>
-                <title>Login - LHG Competitive Leagues</title>
-                <meta name="description" content="Login to LHG Competitive Leagues" />
+                <title>Login - Doowan Stats</title>
+                <meta name="description" content="Admin Login to Doowan Stats" />
             </Helmet>
             <Grid container spacing={3}>
                 <Grid item xs={12}>

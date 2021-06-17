@@ -1,7 +1,11 @@
 {
   "name": "lhg_server",
   "version": "0.1.9",
-  "description": "Prototype for LHG website",
+  "engines": {
+    "node": "12.x",
+    "npm": "7.x"
+  },
+  "description": "Prototype for Doowan Stats website",
   "main": "server.js",
   "scripts": {
     "server": "nodemon --exec babel-node ./server/server.js --require dotenv/config",
@@ -11,7 +15,7 @@
     "build-server": "babel -d ./build ./server -s",
     "build": "npm run clean && npm run build-server",
     "start": "node build/server.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm run build && npm install --prefix client && npm run build --prefix client",
+	"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm run build && npm cache clean --force && npm install --prefix client && npm run build --prefix client",
 	"test-client": "sonarlint --src 'client/src/**'",
 	"test-server": "sonarlint --src 'server/**'"
   },

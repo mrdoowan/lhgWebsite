@@ -1,6 +1,10 @@
 {
   "name": "lhg_client",
   "version": "0.1.6",
+  "engines": {
+    "node": "12.x",
+    "npm": "7.x"
+  },
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",

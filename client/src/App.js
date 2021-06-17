@@ -4,11 +4,8 @@ import './App.css';
 // Components
 import NavBar from "./components/NavBar";
 // Pages
-import { homeBase } from "./pages/Home";
+import { HomePage } from "./pages/Home";
 import login from "./pages/Login";
-import about from "./pages/About";
-import { leagues } from "./pages/League";
-import schedule from "./pages/Schedule";
 import { error404 } from "./pages/Error";
 import { seasonBase, seasonRoster, seasonRegular, seasonPlayoffs } from './pages/Season';
 import { tournamentBase, tournamentPlayers, tournamentTeams, tournamentPickBans, tournamentGames, TournamentUpdatePage } from './pages/Tournament';
@@ -38,10 +35,7 @@ class App extends Component {
             <div className="container-wrap">
                 <Switch>
                     { /* Home Page and Basic Nav */ }
-                    <Route path="/" component={homeBase} exact/>
-                    <Route path="/about" component={about} exact/>
-                    <Route path="/leagues" component={leagues} exact/>
-                    <Route path="/schedule" component={schedule} exact/>
+                    <Route path="/" component={HomePage} exact/>
                     <Route path="/login" component={login} exact/>
 
                     { /* Season Links */ }
@@ -84,7 +78,7 @@ class App extends Component {
                     { /* ERROR 404: Path does not exist */ }
                     <Route component={error404} />
                 </Switch>
-                <div className="footer">"LHG Competitive Leagues is not affiliated with or sponsored by Riot Games, Inc. or LoLEsports."</div>
+                <div className="footer">"Doowan Stats is not affiliated with or sponsored by Riot Games, Inc. or LoLEsports."</div>
             </div>
         </ThemeProvider>);
     }

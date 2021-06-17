@@ -550,7 +550,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         catch (err) {
             reject({
                 error: err,
-                message: `Function "convertRiotToLhgObject" Failed`,
+                message: `Function "createDbMatchObject" Failed`,
             });
         }
     });

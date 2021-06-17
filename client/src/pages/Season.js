@@ -46,7 +46,7 @@ export const seasonRoster = (props) => {
 
     return (
         <div className="body">
-            <p>LHG Shortname Tournament: {shortName} [ROSTER]</p>
+            <p>Shortname Tournament: {shortName} [ROSTER]</p>
         </div>
     );
 };
@@ -57,7 +57,7 @@ export const seasonRegular = (props) => {
 
     return (
         <div className="body">
-            <p>LHG Shortname Tournament: {shortName} [REGULAR SEASON]</p>
+            <p>Shortname Tournament: {shortName} [REGULAR SEASON]</p>
         </div>
     );
 };
@@ -68,7 +68,7 @@ export const seasonPlayoffs = (props) => {
 
     return (
         <div className="body">
-            <p>LHG Shortname Tournament: {shortName} [PLAYOFFS]</p>
+            <p>Shortname Tournament: {shortName} [PLAYOFFS]</p>
         </div>
     );
 };

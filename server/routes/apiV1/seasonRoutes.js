@@ -34,7 +34,7 @@ import { authenticateJWT } from './dependencies/jwtHelper';
 
 /**
  * @route   GET api/season/v1/information/name/:seasonShortName
- * @desc    List all the Leagues in LHG
+ * @desc    Gets the info from that season
  * @access  Public
  */
 seasonV1Routes.get('/information/name/:seasonShortName', (req, res) => {

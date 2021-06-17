@@ -129,7 +129,7 @@ export const getSeasonTabName = (seasonId) => {
 }
 
 /**
- * For leagues page
+ * For Leagues table component
  */
 export const getLeagues = () => {
     return new Promise(function(resolve, reject) {
@@ -137,21 +137,28 @@ export const getLeagues = () => {
             if (err) { console.error(err); reject(err); return; }
             else if (data != null) { resolve(JSON.parse(data)); return; }
             try {
-                let seasonList = await dynamoDbScanTable('Season', ['Information']);
+                const seasonList = await dynamoDbScanTable('Season', ['Information']);
                 if (seasonList != null) {
-                    let leagueObject = {};
-                    seasonList.map((seasonInfoDb) => {
-                        const { SeasonTime, DateOpened, LeagueCode, LeagueType, SeasonShortName } = seasonInfoDb['Information'];
+                    const leagueObject = {};
+                    seasonList.map((seasonInfoObject) => {
+                        const { SeasonTime, DateOpened, LeagueCode, LeagueRank, LeagueType, SeasonShortName } = seasonInfoObject.Information;
                         if (!(SeasonTime in leagueObject)) {
-                            leagueObject[SeasonTime] = { 'SeasonTime': SeasonTime }
+                            leagueObject[SeasonTime] = { 
+                                'SeasonTime': SeasonTime,
+                                'Date': DateOpened
+                            };
                         }
-                        leagueObject[SeasonTime]['Date'] = DateOpened;
-                        leagueObject[SeasonTime][LeagueCode] = {};
-                        leagueObject[SeasonTime][LeagueCode]['LeagueType'] = LeagueType;
-                        leagueObject[SeasonTime][LeagueCode]['LeagueCode'] = LeagueCode;
-                        leagueObject[SeasonTime][LeagueCode]['ShortName'] = SeasonShortName;
+                        if (!(LeagueRank in leagueObject[SeasonTime])) {
+                            leagueObject[SeasonTime][LeagueRank] = [];
+                        }
+                        leagueObject[SeasonTime][LeagueRank].push({
+                            'LeagueType': LeagueType,
+                            'LeagueCode': LeagueCode,
+                            'LeagueRank': LeagueRank,
+                            'ShortName': SeasonShortName,
+                        });
                     });
-                    let returnObject = {};
+                    const returnObject = {};
                     returnObject['Leagues'] = Object.values(leagueObject).sort((a, b) => (a.Date < b.Date) ? 1 : -1);
                     cache.set(CACHE_KEYS.LEAGUE_KEY, JSON.stringify(returnObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
                     resolve(returnObject);
