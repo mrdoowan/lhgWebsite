@@ -7,7 +7,7 @@ import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileInfo from '../../components/Profile/ProfileInfo';
 import ProfileHelmet from '../../components/Helmet/ProfileHelmet';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     root: {
         flexGrow: 1,
     },

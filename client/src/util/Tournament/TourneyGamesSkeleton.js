@@ -7,7 +7,7 @@ import TourneyHeader from '../../components/Tournament/TourneyHeader';
 import TourneyGames from '../../components/Tournament/TourneyGames';
 import TournamentHelmet from '../../components/Helmet/TournamentHelmet';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     root: {
         flexGrow: 1,
     },

@@ -128,6 +128,10 @@ export default function TourneyGames({ games }) {
 }
 
 function teamName(classes, name, blueWin) {
-    if (blueWin) return (<Link className={classes.win} to={`/team/${name}`}>{name}</Link>);
-    else return (<Link className={classes.lose} to={`/team/${name}`}>{name}</Link>);
+    if (blueWin) {
+		return (<Link className={classes.win} to={`/team/${name}`}>{name}</Link>);
+	}
+    else {
+		return (<Link className={classes.lose} to={`/team/${name}`}>{name}</Link>);
+	}
 }

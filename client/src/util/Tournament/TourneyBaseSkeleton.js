@@ -10,7 +10,7 @@ import LeaderboardPlayers from '../../components/Tournament/LeaderboardPlayers';
 import LeaderboardTeams from '../../components/Tournament/LeaderboardTeams';
 import TournamentHelmet from '../../components/Helmet/TournamentHelmet';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     root: {
         flexGrow: 1,
     },

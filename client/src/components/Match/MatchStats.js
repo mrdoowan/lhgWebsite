@@ -30,8 +30,6 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchStats({ match }) {
     const classes = useStyles();
 
-    // console.log(match);
-
     return (
         <div>
             <Grid container spacing={3}>

@@ -7,7 +7,7 @@ import MatchHeader from '../../components/Match/MatchHeader';
 import MatchTimeline from '../../components/Match/MatchTimeline';
 import MatchHelmet from '../../components/Helmet/MatchHelmet';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     root: {
         flexGrow: 1,
     },
