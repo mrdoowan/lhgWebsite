@@ -8,97 +8,99 @@ import Grid from '@material-ui/core/Grid';
 import { getTimeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        height: "100%",
-        padding: theme.spacing(1),
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "top",
-        color: theme.palette.text.primary,
-        background: '#A9A9A9',
-    },
-    titleOutside: {
-        fontWeight: 'bold',
-        textDecoration: 'underline',
-        padding: theme.spacing(2),
-        fontSize: 'x-large',
-    },
-    title: {
-        fontWeight: 'bold',
-        textDecoration: 'underline',
-        padding: theme.spacing(2),
-        fontSize: 'large',
-    },
-    columnNum: {
-        width: "3%",
-        textAlign: 'right',
-        paddingLeft: theme.spacing(0.5),
-        paddingRight: theme.spacing(0.5),
-    },
-    columnName: {
-        width: "35%",
-        textAlign: 'left',
-        verticalAlign: 'middle',
-        wordWrap: 'break-word',
-    },
-    columnData: {
-        width: "62%",
-        padding: '5px 20px 5px 20px',
-        textAlign: 'left',
-        wordWrap: 'break-word',
-    },
-    row: {
-        padding: theme.spacing(1),
-    },
-    link: {
-        color: 'blue',
-    }
+  paper: {
+    height: '100%',
+    padding: theme.spacing(1),
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'top',
+    color: theme.palette.text.primary,
+    background: '#A9A9A9',
+  },
+  titleOutside: {
+    fontWeight: 'bold',
+    textDecoration: 'underline',
+    padding: theme.spacing(2),
+    fontSize: 'x-large',
+  },
+  title: {
+    fontWeight: 'bold',
+    textDecoration: 'underline',
+    padding: theme.spacing(2),
+    fontSize: 'large',
+  },
+  columnNum: {
+    width: '3%',
+    textAlign: 'right',
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
+  },
+  columnName: {
+    width: '35%',
+    textAlign: 'left',
+    verticalAlign: 'middle',
+    wordWrap: 'break-word',
+  },
+  columnData: {
+    width: '62%',
+    padding: '5px 20px 5px 20px',
+    textAlign: 'left',
+    wordWrap: 'break-word',
+  },
+  row: {
+    padding: theme.spacing(1),
+  },
+  link: {
+    color: 'blue',
+  },
 }));
 
 export default function LeaderboardTeams({ teamRecords }) {
-    const classes = useStyles();
-    const titles = {
-        'TeamTopBaronPowerPlay': "Highest Baron Power Play",
-        'TeamEarliestTower': "Earliest Tower",
-    };
+  const classes = useStyles();
+  const titles = {
+    TeamTopBaronPowerPlay: 'Highest Baron Power Play',
+    TeamEarliestTower: 'Earliest Tower',
+  };
 
-    const recordString = (type, item) => {
-        const tsSeconds = Math.floor(item.Timestamp / 1000);
-        switch (type) {
-            case 'TeamTopBaronPowerPlay':
-                return (<React.Fragment><b>+{item.BaronPowerPlay.toLocaleString()} Power Play</b> - Taken at {getTimeString(tsSeconds)}</React.Fragment>);
-            case 'TeamEarliestTower':
-                return (<React.Fragment><b>Taken at {getTimeString(tsSeconds)}</b> - {item.Lane} {item.TowerType} Tower</React.Fragment>);
-            default:
-                return '';
-        }
+  const recordString = (type, item) => {
+    const tsSeconds = Math.floor(item.Timestamp / 1000);
+    switch (type) {
+      case 'TeamTopBaronPowerPlay':
+        return (<React.Fragment><b>+{item.BaronPowerPlay.toLocaleString()} Power Play</b> - Taken at {getTimeString(tsSeconds)}</React.Fragment>);
+      case 'TeamEarliestTower':
+        return (<React.Fragment><b>Taken at {getTimeString(tsSeconds)}</b> - {item.Lane} {item.TowerType} Tower</React.Fragment>);
+      default:
+        return '';
     }
+  };
 
-    const opposingTeam = (item) => {
-        return (item.TeamName === item.BlueTeamName) ? item.RedTeamShortName : item.BlueTeamShortName;
-    }
+  const opposingTeam = (item) => {
+    return (item.TeamName === item.BlueTeamName) ? item.RedTeamShortName : item.BlueTeamShortName;
+  };
 
-    return (<div>
-        <div className={classes.titleOutside}>Team Leaderboards</div>
-        <Grid container spacing={3}>
-            {Object.keys(teamRecords).map((recordType) => (
-                <Grid key={recordType} item xs={6}>
-                    <Paper className={classes.paper}>
-                        <div className={classes.title}>{titles[recordType]}</div>
-                        <table>
-                            <tbody>
-                            {teamRecords[recordType].map((item, i) => (
-                                <tr key={i} className={classes.row}>
-                                    <td className={classes.columnNum}>{i + 1})</td>
-                                    <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
-                                    <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item)}</Link>)</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </Paper>
-                </Grid>
-            ))}
-        </Grid>
-    </div>)
+  return (
+    <div>
+      <div className={classes.titleOutside}>Team Leaderboards</div>
+      <Grid container spacing={3}>
+        {Object.keys(teamRecords).map((recordType) => (
+          <Grid key={recordType} item xs={6}>
+            <Paper className={classes.paper}>
+              <div className={classes.title}>{titles[recordType]}</div>
+              <table>
+                <tbody>
+                  {teamRecords[recordType].map((item, i) => (
+                    <tr key={i} className={classes.row}>
+                      <td className={classes.columnNum}>{i + 1})</td>
+                      <td className={classes.columnName}><Link className={classes.link} to={`/team/${item.TeamName}`}>{item.TeamName}</Link></td>
+                      <td className={classes.columnData}>{recordString(recordType, item)} (<Link className={classes.link} to={`/match/${item.MatchPId}`}>vs. {opposingTeam(item)}</Link>)</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </div>
+  );
 }

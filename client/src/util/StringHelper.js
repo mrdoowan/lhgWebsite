@@ -2,17 +2,13 @@
 import { unix as _unix } from 'moment-timezone';
 
 // Helper Functions
-const pad = (num) => {
-    return ("0"+num).slice(-2);
-}
+const pad = (num) => (`0${num}`).slice(-2);
 
 /**
  * Turns number of seconds into a string (600 -> 10:00)
  * @param {number} seconds
  */
-export const getTimeString = (seconds) => {
-    return Math.floor(seconds / 60) + ':' + pad(Math.floor(seconds % 60));
-}
+export const getTimeString = (seconds) => `${Math.floor(seconds / 60)}:${pad(Math.floor(seconds % 60))}`;
 
 /**
  * Converts unix value into a Date (i.e. 01/01/2020)
@@ -20,6 +16,4 @@ export const getTimeString = (seconds) => {
  * @param {string} format       Default is 'MM/DD/YYYY'
  * @param {string} timeZone     Default is 'EST'
  */
-export const getDateString = (unix, format='MM/DD/YYYY', timeZone='EST') => {
-    return _unix(unix).tz(timeZone).format(format);
-}
+export const getDateString = (unix, format = 'MM/DD/YYYY', timeZone = 'EST') => _unix(unix).tz(timeZone).format(format);
