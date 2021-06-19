@@ -3,7 +3,7 @@ const AWS = require('aws-sdk'); // Interfacing with DynamoDB
 import { unix as _unix } from 'moment-timezone';
 import { getDateString } from './global';
 import {
-    PARTITION_KEY_MAP,
+  PARTITION_KEY_MAP,
 } from '../../../services/constants';
 
 /*  Configurations of npm modules */
@@ -11,8 +11,8 @@ AWS.config.update({ region: 'us-east-2' });
 const dynamoDb = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 const dynamoDBClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-/*  'false' to add to test DB. */	
-/*  'true' to add to production DB. */	
+/*  'false' to add to test DB. */
+/*  'true' to add to production DB. */
 const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV === 'production');
 
 /**
@@ -21,30 +21,30 @@ const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV
  * @param {*} keyName               Specific item to look for
  */
 export const dynamoDbGetItem = (tableName, keyName) => {
-    const partitionKey = PARTITION_KEY_MAP[tableName];
-    const params = {
-        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
-        Key: {
-            [partitionKey]: keyName
+  const partitionKey = PARTITION_KEY_MAP[tableName];
+  const params = {
+    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    Key: {
+      [partitionKey]: keyName
+    }
+  };
+  return new Promise(function (resolve, reject) {
+    try {
+      dynamoDBClient.get(params, function (err, data) {
+        if (err) {
+          reject(err);
         }
-    };
-    return new Promise(function(resolve, reject) {
-        try {
-            dynamoDBClient.get(params, function(err, data) {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyName}' from Table '${tableName}'`);
-                    resolve(data['Item']);
-                }
-            });
+        else {
+          console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Get Item '${keyName}' from Table '${tableName}'`);
+          resolve(data['Item']);
         }
-        catch (error) {
-            console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyName}'.`)
-            reject(error);
-        }
-    });
+      });
+    }
+    catch (error) {
+      console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - getItemInDynamoDB '${tableName}' Promise rejected with Item '${keyName}'.`)
+      reject(error);
+    }
+  });
 }
 
 /**
@@ -54,22 +54,22 @@ export const dynamoDbGetItem = (tableName, keyName) => {
  * @param {*} keyItem           Only used for debugging purposes
  */
 export const dynamoDbPutItem = (tableName, items, keyItem) => {
-    const params = {
-        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
-        Item: items
-    };
-    return new Promise(function(resolve, reject) {
-        dynamoDBClient.put(params, function(err, data) {
-            if (err) {
-                console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - putItemInDynamoDB '${tableName}' Promise rejected.`);
-                reject(err);
-            }
-            else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyItem}' into '${tableName}' Table!"`);
-                resolve(data);
-            }
-        });
+  const params = {
+    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    Item: items
+  };
+  return new Promise(function (resolve, reject) {
+    dynamoDBClient.put(params, function (err, data) {
+      if (err) {
+        console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - putItemInDynamoDB '${tableName}' Promise rejected.`);
+        reject(err);
+      }
+      else {
+        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyItem}' into '${tableName}' Table!"`);
+        resolve(data);
+      }
     });
+  });
 }
 
 /**
@@ -81,28 +81,28 @@ export const dynamoDbPutItem = (tableName, items, keyItem) => {
  * @param {Object} valueObject      Map of Values (i.e. { ':data': (DATA) })
  */
 export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, valueObject) => {
-    const partitionKey = PARTITION_KEY_MAP[tableName];
-    const params = {
-        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
-        Key: {
-            [partitionKey]: keyName
-        },
-        UpdateExpression: updateExp,
-        ExpressionAttributeNames: keyObject,
-        ExpressionAttributeValues: valueObject
-    };
-    return new Promise(function(resolve, reject) {
-        dynamoDBClient.update(params, function(err, data) {
-            if (err) {
-                console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - updateItemInDynamoDB '${tableName}' Promise rejected.`);
-                reject(err); 
-            }
-            else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Update Item '${keyName}' in Table '${tableName}'`);
-                resolve(data);
-            }
-        });
+  const partitionKey = PARTITION_KEY_MAP[tableName];
+  const params = {
+    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    Key: {
+      [partitionKey]: keyName
+    },
+    UpdateExpression: updateExp,
+    ExpressionAttributeNames: keyObject,
+    ExpressionAttributeValues: valueObject
+  };
+  return new Promise(function (resolve, reject) {
+    dynamoDBClient.update(params, function (err, data) {
+      if (err) {
+        console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - updateItemInDynamoDB '${tableName}' Promise rejected.`);
+        reject(err);
+      }
+      else {
+        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Update Item '${keyName}' in Table '${tableName}'`);
+        resolve(data);
+      }
     });
+  });
 }
 
 /**
@@ -114,34 +114,34 @@ export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, val
  * @param {List} getAttributes      Root Item to get
  * @param {string} attributeName    Criteria Column Name (to refine search/condition)
  * @param {string} attributeValue   Root value for attributeName
- */ 
-export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=null, attributeValue=null) => {
-    const params = {
-        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
-    };
-    if (getAttributes.length > 0) {
-        params['ProjectionExpression'] = getAttributes.join();
+ */
+export const dynamoDbScanTable = (tableName, getAttributes = [], attributeName = null, attributeValue = null) => {
+  const params = {
+    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+  };
+  if (getAttributes.length > 0) {
+    params['ProjectionExpression'] = getAttributes.join();
+  }
+  if (attributeName != null && attributeValue != null) {
+    params['FilterExpression'] = attributeName + " = :val";
+    params['ExpressionAttributeValues'] = { ':val': attributeValue }
+  }
+  return new Promise(async function (resolve, reject) {
+    try {
+      let scanResults = [];
+      let data;
+      do {
+        data = await dynamoDBClient.scan(params).promise();
+        data.Items.forEach((item) => scanResults.push(item));
+        params.ExclusiveStartKey = data.LastEvaluatedKey;
+        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Scan operation on Table '${tableName}' LastEvaluatedKey: '${data.LastEvaluatedKey}'`);
+      } while (typeof data.LastEvaluatedKey != "undefined");
+      resolve(scanResults);
     }
-    if (attributeName != null && attributeValue != null) {
-        params['FilterExpression'] = attributeName + " = :val";
-        params['ExpressionAttributeValues'] = { ':val': attributeValue }
+    catch (err) {
+      reject(err);
     }
-    return new Promise(async function(resolve, reject) {
-        try {
-            let scanResults = [];
-            let data;
-            do{
-                data = await dynamoDBClient.scan(params).promise();
-                data.Items.forEach((item) => scanResults.push(item));
-                params.ExclusiveStartKey  = data.LastEvaluatedKey;
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Scan operation on Table '${tableName}' LastEvaluatedKey: '${data.LastEvaluatedKey}'`);
-            }while(typeof data.LastEvaluatedKey != "undefined");
-            resolve(scanResults);
-        }
-        catch (err) {
-            reject(err);
-        }
-    });
+  });
 }
 
 /**
@@ -150,25 +150,25 @@ export const dynamoDbScanTable = (tableName, getAttributes=[], attributeName=nul
  * @param {*} keyName               Value of Partition Key to remove
  */
 export const dynamoDbDeleteItem = (tableName, keyName) => {
-    const partitionKey = PARTITION_KEY_MAP[tableName];
-    const params = {
-        TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
-        Key: {
-            [partitionKey]: keyName,
-        }
+  const partitionKey = PARTITION_KEY_MAP[tableName];
+  const params = {
+    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    Key: {
+      [partitionKey]: keyName,
     }
-    return new Promise(function(resolve, reject) {
-        dynamoDBClient.delete(params, function(err, data) {
-            if (err) {
-                console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - deleteItemInDynamoDB Promise rejected.`);
-                reject(err); 
-            }
-            else {
-                console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${keyName}' in Table '${tableName}'`);
-                resolve(data);
-            }
-        })
-    });
+  }
+  return new Promise(function (resolve, reject) {
+    dynamoDBClient.delete(params, function (err, data) {
+      if (err) {
+        console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - deleteItemInDynamoDB Promise rejected.`);
+        reject(err);
+      }
+      else {
+        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Deleted Item '${keyName}' in Table '${tableName}'`);
+        resolve(data);
+      }
+    })
+  });
 }
 
 /**
@@ -176,21 +176,21 @@ export const dynamoDbDeleteItem = (tableName, keyName) => {
  * @param {string} tableName 
  */
 export const dynamoDbCreateBackup = (tableName) => {
-    const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD');
-    const params = {
-        BackupName: `${dateString}_${tableName}`,
-        TableName: tableName,
-    };
-    return new Promise(function(resolve, reject) {
-        dynamoDb.createBackup(params, function(err, data) {
-            if (err) {
-                console.error(`ERROR - dynamoDbCreateBackup Promise rejected.`);
-                reject(err); 
-            }
-            else {
-                console.log(`Dynamo DB: Creating backup Table '${tableName}'`);
-                resolve(data);
-            }
-        });
+  const dateString = getDateString((Date.now() / 1000), 'YYYY-MM-DD');
+  const params = {
+    BackupName: `${dateString}_${tableName}`,
+    TableName: tableName,
+  };
+  return new Promise(function (resolve, reject) {
+    dynamoDb.createBackup(params, function (err, data) {
+      if (err) {
+        console.error(`ERROR - dynamoDbCreateBackup Promise rejected.`);
+        reject(err);
+      }
+      else {
+        console.log(`Dynamo DB: Creating backup Table '${tableName}'`);
+        resolve(data);
+      }
     });
+  });
 }
