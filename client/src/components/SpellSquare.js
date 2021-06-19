@@ -3,8 +3,8 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import { Versions } from '../static/Versions';
-import { SummonerSpellById } from '../static/SummonerSpellById';
+import Versions from '../static/Versions';
+import SummonerSpellById from '../static/SummonerSpellById';
 
 const useStyles = makeStyles((theme) => ({
   tableName: {

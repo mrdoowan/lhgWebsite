@@ -6,9 +6,9 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 // Components
 import NavBar from './components/NavBar';
 // Pages
-import { HomePage } from './pages/Home';
+import HomePage from './pages/Home';
 import login from './pages/Login';
-import { error404 } from './pages/Error';
+import error404 from './pages/Error';
 import {
   seasonBase,
   seasonRoster,

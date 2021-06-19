@@ -3,8 +3,8 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import { Versions } from '../static/Versions';
-import { ChampById } from '../static/ChampById';
+import Versions from '../static/Versions';
+import ChampById from '../static/ChampById';
 
 const useStyles = makeStyles((theme) => ({
   tableName: {

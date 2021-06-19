@@ -191,7 +191,7 @@ function sortPlayedChamps(champsObject) {
   const champList = [];
 	for (let i of Object.keys(champsObject)) {
 		const champId = Object.keys(champsObject)[i];
-		const champStats = champsObject[Id];
+		const champStats = champsObject[champId];
       champStats['ChampId'] = champId;
       champList.push(champStats);
 	}

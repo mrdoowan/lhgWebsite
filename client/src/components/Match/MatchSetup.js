@@ -400,7 +400,7 @@ export default function MatchSetup({ setupData }) {
    * @param {object} classes
    */
   const bansTableFields = (banList, color, classes) => {
-    (
+    return (
       <table>
         <tbody>
           <tr key={`${color}TeamBanImages`}>

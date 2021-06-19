@@ -3,7 +3,7 @@ import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import { Versions } from '../static/Versions';
+import Versions from '../static/Versions';
 import NoImage from '../static/no-image.png';
 
 const useStyles = makeStyles((theme) => ({
