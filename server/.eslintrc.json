@@ -1,0 +1,18 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true
+    },
+    "extends": [
+        "airbnb"
+    ],
+    "parserOptions": {
+        "ecmaFeatures": {},
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "plugins": [],
+    "rules": {
+        "linebreak-style": ["off"]
+    }
+}

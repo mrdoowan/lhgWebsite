@@ -7,25 +7,25 @@ import ProfileHeader from '../../components/Profile/ProfileHeader';
 import ProfileInfo from '../../components/Profile/ProfileInfo';
 import ProfileHelmet from '../../components/Helmet/ProfileHelmet';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
+const useStyles = makeStyles(() => ({
+  root: {
+    flexGrow: 1,
+  },
 }));
 
 export default function ProfileBaseSkeleton({ info }) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    let headerComponent = (<ProfileHeader info={info} type={"Player"} />);
-    let infoComponent = (<ProfileInfo info={info} />);
-    
-    let headerEmpty = "There is no Information logged for this Player.";
+  const headerComponent = (<ProfileHeader info={info} type={"Player"} />);
+  const infoComponent = (<ProfileInfo info={info} />);
 
-    return (
-        <div className={classes.root}>
-            <ProfileHelmet info={info} />
-            <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
-            <DataWrapper data={info} component={infoComponent} emptyMessage={headerEmpty} />
-        </div>
-    )
+  const headerEmpty = 'There is no Information logged for this Player.';
+
+  return (
+    <div className={classes.root}>
+      <ProfileHelmet info={info} />
+      <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
+      <DataWrapper data={info} component={infoComponent} emptyMessage={headerEmpty} />
+    </div>
+  );
 }

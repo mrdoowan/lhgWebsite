@@ -11,58 +11,55 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        height: "100%",
-        padding: theme.spacing(1),
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        color: theme.palette.text.primary,
-        background: '#A9A9A9',
-    },
-    title: {
-        padding: theme.spacing(2),
-        'text-decoration': 'bold',
-        fontSize: 'large',
-    },
+  paper: {
+    height: '100%',
+    padding: theme.spacing(1),
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    color: theme.palette.text.primary,
+    background: '#A9A9A9',
+  },
+  title: {
+    padding: theme.spacing(2),
+    'text-decoration': 'bold',
+    fontSize: 'large',
+  },
 }));
 
 export default function MatchStats({ match }) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    console.log(match);
-
-    return (
-        <div>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <TableContainer component={Paper}>
-                    <Table className={classes.table} aria-label="simple table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Player</TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell>K/D/A</TableCell>
-                                    <TableCell>CS</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {Object.entries(match.Teams['100'].Players).map(([playerNum, player]) => (
-                                <TableRow key={playerNum}>
-                                    <TableCell><a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
-                                    <TableCell>{player.CreepScore}</TableCell>
-                                </TableRow>
-                                ))}
-                                
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Grid>
-            </Grid>
-        </div>
-    )
+  return (
+    <div>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <TableContainer component={Paper}>
+            <Table className={classes.table} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Player</TableCell>
+                  <TableCell />
+                  <TableCell />
+                  <TableCell>K/D/A</TableCell>
+                  <TableCell>CS</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.entries(match.Teams['100'].Players).map(([playerNum, player]) => (
+                  <TableRow key={playerNum}>
+                    <TableCell><a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a></TableCell>
+                    <TableCell />
+                    <TableCell />
+                    <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
+                    <TableCell>{player.CreepScore}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
+    </div>
+  );
 }

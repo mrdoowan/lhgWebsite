@@ -15,7 +15,9 @@
     "build-server": "babel -d ./build ./server -s",
     "build": "npm run clean && npm run build-server",
     "start": "node build/server.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm run build && npm cache clean --force && npm install --prefix client && npm run build --prefix client"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm run build && npm cache clean --force && npm install --prefix client && npm run build --prefix client",
+    "eslint-client": "eslint \"client/src/**/*.js\"",
+    "eslint-server": "eslint \"server/**/*.js\""
   },
   "author": "mrdoowan",
   "license": "MIT",
@@ -46,6 +48,12 @@
     "@babel/runtime-corejs3": "^7.12.18",
     "babel-core": "^7.0.0-bridge.0",
     "concurrently": "^5.3.0",
-    "nodemon": "^2.0.7"
+    "eslint": "^6.6.0",
+    "nodemon": "^2.0.7",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.2.0"
   }
 }

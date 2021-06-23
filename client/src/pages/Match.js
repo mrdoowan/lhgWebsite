@@ -13,181 +13,181 @@ import MatchSetupListSkeleton from '../util/Match/MatchSetupListSkeleton';
 
 // {MAIN}/match/:matchPId
 export class matchBase extends Component {
-    state = {
-        match: null,
-        statusCode: null,
-    }
+  state = {
+    match: null,
+    statusCode: null,
+  }
 
-    componentDidMount() {
-        const { match: { params } } = this.props;
+  componentDidMount() {
+    const { match: { params } } = this.props;
 
-        axios.get(`/api/match/v1/data/${params.matchPId}`)
-        .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ match: res.data });
-        }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
-    }
+    axios.get(`/api/match/v1/data/${params.matchPId}`)
+      .then((res) => {
+        if (this.statusCode === 200 || this.statusCode == null) {
+          this.setState({ statusCode: res.status });
+        }
+        this.setState({ match: res.data });
+      }).catch((err) => {
+        this.setState({ statusCode: err.response.status })
+      });
+  }
 
-    render() {
-        const { match, statusCode } = this.state;
+  render() {
+    const { match, statusCode } = this.state;
 
-        let matchComponent = <MatchBaseSkeleton match={match} />
+    const matchComponent = <MatchBaseSkeleton match={match} />
 
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Match" />) :
-            (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
-        );
-    }
+    return ((statusCode != null && statusCode !== 200) ?
+      (<Error code={statusCode} page="Match" />) :
+      (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
+    );
+  }
 }
 
 // {MAIN}/match/:matchPId/stats
 export class matchStats extends Component {
-    state = {
-        match: null,
-        statusCode: null,
-    }
+  state = {
+    match: null,
+    statusCode: null,
+  }
 
-    componentDidMount() {
-        const { match: { params } } = this.props;
-        
-        axios.get(`/api/match/v1/data/${params.matchPId}`)
-        .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ match: res.data });
-        }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
-    }
+  componentDidMount() {
+    const { match: { params } } = this.props;
 
-    render() {
-        const { match, statusCode } = this.state;
+    axios.get(`/api/match/v1/data/${params.matchPId}`)
+      .then((res) => {
+        if (this.statusCode === 200 || this.statusCode == null) {
+          this.setState({ statusCode: res.status });
+        }
+        this.setState({ match: res.data });
+      }).catch((err) => {
+        this.setState({ statusCode: err.response.status })
+      });
+  }
 
-        let matchComponent = <MatchStatsSkeleton match={match} />
+  render() {
+    const { match, statusCode } = this.state;
 
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Match" />) :
-            (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
-        );
-    }
+    const matchComponent = <MatchStatsSkeleton match={match} />
+
+    return ((statusCode != null && statusCode !== 200) ?
+      (<Error code={statusCode} page="Match" />) :
+      (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
+    );
+  }
 }
 
 // {MAIN}/match/:matchPId/timeline
 export class matchTimeline extends Component {
-    state = {
-        match: null,
-        statusCode: null,
-    }
+  state = {
+    match: null,
+    statusCode: null,
+  }
 
-    componentDidMount() {
-        const { match: { params } } = this.props;
+  componentDidMount() {
+    const { match: { params } } = this.props;
 
-        axios.get(`/api/match/v1/data/${params.matchPId}`)
-        .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ match: res.data });
-        }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
-    }
+    axios.get(`/api/match/v1/data/${params.matchPId}`)
+      .then((res) => {
+        if (this.statusCode === 200 || this.statusCode == null) {
+          this.setState({ statusCode: res.status });
+        }
+        this.setState({ match: res.data });
+      }).catch((err) => {
+        this.setState({ statusCode: err.response.status })
+      });
+  }
 
-    render() {
-        const { match, statusCode } = this.state;
+  render() {
+    const { match, statusCode } = this.state;
 
-        let matchComponent = <MatchTimelineSkeleton match={match} />
+    const matchComponent = <MatchTimelineSkeleton match={match} />
 
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Match" />) :
-            (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
-        );
-    }
+    return ((statusCode != null && statusCode !== 200) ?
+      (<Error code={statusCode} page="Match" />) :
+      (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
+    );
+  }
 }
 
 // {MAIN}/match/:matchPId/builds
 export class matchBuilds extends Component {
-    state = {
-        match: null,
-        statusCode: null,
-    }
+  state = {
+    match: null,
+    statusCode: null,
+  }
 
-    componentDidMount() {
-        const { match: { params } } = this.props;
+  componentDidMount() {
+    const { match: { params } } = this.props;
 
-        axios.get(`/api/match/v1/data/${params.matchPId}`)
-        .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ match: res.data });
-        }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
-    }
+    axios.get(`/api/match/v1/data/${params.matchPId}`)
+      .then((res) => {
+        if (this.statusCode === 200 || this.statusCode == null) {
+          this.setState({ statusCode: res.status });
+        }
+        this.setState({ match: res.data });
+      }).catch((err) => {
+        this.setState({ statusCode: err.response.status })
+      });
+  }
 
-    render() {
-        const { match, statusCode } = this.state;
+  render() {
+    const { match, statusCode } = this.state;
 
-        let matchComponent = <MatchBuildsSkeleton match={match} />
+    const matchComponent = <MatchBuildsSkeleton match={match} />
 
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Match" />) :
-            (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
-        );
-    }
+    return ((statusCode != null && statusCode !== 200) ?
+      (<Error code={statusCode} page="Match" />) :
+      (<Markup data={match} dataComponent={matchComponent} code={statusCode} />)
+    );
+  }
 }
 
 export const MatchSetupPage = (props) => {
-    // Init State
-    const [matchSetupData, setMatchSetupData] = useState(null);
-    const [statusCode, setStatusCode] = useState(null);
-    const { match: { params } } = props;
+  // Init State
+  const [matchSetupData, setMatchSetupData] = useState(null);
+  const [statusCode, setStatusCode] = useState(null);
+  const { match: { params } } = props;
 
-    // Mount Component
-    useEffect(() => {
-        axios.get(`/api/match/v1/setup/data/${params.matchPId}`)
-        .then((res) => {
-            setStatusCode(res.status);
-            setMatchSetupData(res.data);
-        }).catch((err) => {
-            setStatusCode(err.response.status);
-        });
-    }, [params]);
+  // Mount Component
+  useEffect(() => {
+    axios.get(`/api/match/v1/setup/data/${params.matchPId}`)
+      .then((res) => {
+        setStatusCode(res.status);
+        setMatchSetupData(res.data);
+      }).catch((err) => {
+        setStatusCode(err.response.status);
+      });
+  }, [params]);
 
-    const matchSetupComponent = <MatchSetupSkeleton setupData={matchSetupData} />
+  const matchSetupComponent = <MatchSetupSkeleton setupData={matchSetupData} />
 
-    return ((statusCode !== null && statusCode !== 200) ? 
-        (<Error code={statusCode} page="Match" />) : 
-        (<Markup data={matchSetupData} dataComponent={matchSetupComponent} code={statusCode} />)
-    );
+  return ((statusCode !== null && statusCode !== 200) ?
+    (<Error code={statusCode} page="Match" />) :
+    (<Markup data={matchSetupData} dataComponent={matchSetupComponent} code={statusCode} />)
+  );
 };
 
 export const MatchSetupListPage = () => {
-    // Init State
-    const [matchSetupListData, setMatchSetupListData] = useState(null);
-    const [statusCode, setStatusCode] = useState(null);
-    
-    // Mount Component
-    useEffect(() => {
-        axios.get(`/api/match/v1/setup/list`)
-        .then((res) => {
-            setStatusCode(res.status);
-            setMatchSetupListData(res.data);
-        }).catch((err) => {
-            setStatusCode(err.response.status);
-        });
-    }, []);
+  // Init State
+  const [matchSetupListData, setMatchSetupListData] = useState(null);
+  const [statusCode, setStatusCode] = useState(null);
 
-    const matchSetupListComponent = <MatchSetupListSkeleton setupListData={matchSetupListData} />
+  // Mount Component
+  useEffect(() => {
+    axios.get(`/api/match/v1/setup/list`)
+      .then((res) => {
+        setStatusCode(res.status);
+        setMatchSetupListData(res.data);
+      }).catch((err) => {
+        setStatusCode(err.response.status);
+      });
+  }, []);
 
-    return ((statusCode !== null && statusCode !== 200) ?
-        (<Error code={statusCode} page="Match" />) :
-        (<Markup data={matchSetupListData} dataComponent={matchSetupListComponent} code={statusCode} />)
-    );
+  const matchSetupListComponent = <MatchSetupListSkeleton setupListData={matchSetupListData} />
+
+  return ((statusCode !== null && statusCode !== 200) ?
+    (<Error code={statusCode} page="Match" />) :
+    (<Markup data={matchSetupListData} dataComponent={matchSetupListComponent} code={statusCode} />)
+  );
 }

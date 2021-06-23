@@ -6,66 +6,67 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        '& > *': {
-            margin: theme.spacing(1),
-        },
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    '& > *': {
+      margin: theme.spacing(1),
     },
-    alignItemsAndJustifyContent: {
-        width: 500,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: 'auto',
-    },
+  },
+  alignItemsAndJustifyContent: {
+    width: 500,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 'auto',
+  },
 }));
 
 export default function TourneyTab({ shortName, type }) {
-    const classes = useStyles();
-    const tabList = [ 
-        { 
-            text: 'Tournament',
-            url: '',
-        },
-        {
-            text: 'Players',
-            url: '/players',
-        },
-        {
-            text: 'Teams',
-            url: '/teams',
-        },
-        {
-            text: 'Champs',
-            url: '/pickbans',
-        },
-        {
-            text: 'Games',
-            url: '/games',
-        }
-    ];
+  const classes = useStyles();
+  const tabList = [
+    {
+      text: 'Tournament',
+      url: '',
+    },
+    {
+      text: 'Players',
+      url: '/players',
+    },
+    {
+      text: 'Teams',
+      url: '/teams',
+    },
+    {
+      text: 'Champs',
+      url: '/pickbans',
+    },
+    {
+      text: 'Games',
+      url: '/games',
+    }
+  ];
 
-    return (
-        <div className={classes.root}>
-            <ButtonGroup>
-            {tabList.map((tab) => (
-                <Button 
-                    key={tab.text.toLowerCase()} 
-                    variant="contained" 
-                    color={isPrimary(type, tab.text)} 
-                    component={Link} 
-                    to={`/tournament/${shortName}${tab.url}`}>
-                    {tab.text}
-                </Button>
-            ))}
-            </ButtonGroup>
-        </div>
-    );
+  return (
+    <div className={classes.root}>
+      <ButtonGroup>
+        {tabList.map((tab) => (
+          <Button
+            key={tab.text.toLowerCase()}
+            variant="contained"
+            color={isPrimary(type, tab.text)}
+            component={Link}
+            to={`/tournament/${shortName}${tab.url}`}
+          >
+            {tab.text}
+          </Button>
+        ))}
+      </ButtonGroup>
+    </div>
+  );
 }
 
 function isPrimary(type, text) {
-    return (type === text) ? 'primary' : 'secondary';
+  return (type === text) ? 'primary' : 'secondary';
 }

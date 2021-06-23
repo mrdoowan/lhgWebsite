@@ -9,66 +9,66 @@ import Error from '../components/ErrorComponent';
 
 // {MAIN}/season/:seasonShortName
 export class seasonBase extends Component {
-    state = {
-        season: null,
-        statusCode: null,
-    }
+  state = {
+    season: null,
+    statusCode: null,
+  }
 
-    componentDidMount() {
-        const { match: { params } } = this.props;
+  componentDidMount() {
+    const { match: { params } } = this.props;
 
-        axios.get(`/api/season/v1/information/name/${params.seasonShortName}`)
-        .then((res) => {
-            if (this.statusCode === 200 || this.statusCode == null) {
-                this.setState({ statusCode: res.status });
-            }
-            this.setState({ season: res.data });
-        }).catch((err) => {
-            this.setState({ statusCode: err.response.status })
-        });
-    }
+    axios.get(`/api/season/v1/information/name/${params.seasonShortName}`)
+      .then((res) => {
+        if (this.statusCode === 200 || this.statusCode == null) {
+          this.setState({ statusCode: res.status });
+        }
+        this.setState({ season: res.data });
+      }).catch((err) => {
+        this.setState({ statusCode: err.response.status })
+      });
+  }
 
-    render() {
-        const { season, statusCode } = this.state;
+  render() {
+    const { season, statusCode } = this.state;
 
-        let component = (<SeasonHeader info={season} />);
+    const component = (<SeasonHeader info={season} />);
 
-        return ((statusCode != null && statusCode !== 200) ? 
-            (<Error code={statusCode} page="Season" />) :
-            (<Markup data={season} dataComponent={component} code={statusCode} />)
-        );
-    }
+    return ((statusCode != null && statusCode !== 200) ?
+      (<Error code={statusCode} page="Season" />) :
+      (<Markup data={season} dataComponent={component} code={statusCode} />)
+    );
+  }
 }
 
 // {MAIN}/tournament/<tournamentShortName>/roster
 export const seasonRoster = (props) => {
-    const shortName = props.match.params.seasonShortName;
+  const shortName = props.match.params.seasonShortName;
 
-    return (
-        <div className="body">
-            <p>Shortname Tournament: {shortName} [ROSTER]</p>
-        </div>
-    );
+  return (
+    <div className="body">
+      <p>Shortname Tournament: {shortName} [ROSTER]</p>
+    </div>
+  );
 };
 
 // {MAIN}/tournament/<tournamentShortName>/regular
 export const seasonRegular = (props) => {
-    const shortName = props.match.params.seasonShortName;
+  const shortName = props.match.params.seasonShortName;
 
-    return (
-        <div className="body">
-            <p>Shortname Tournament: {shortName} [REGULAR SEASON]</p>
-        </div>
-    );
+  return (
+    <div className="body">
+      <p>Shortname Tournament: {shortName} [REGULAR SEASON]</p>
+    </div>
+  );
 };
 
 // {MAIN}/tournament/<tournamentShortName>/playoffs
 export const seasonPlayoffs = (props) => {
-    const shortName = props.match.params.seasonShortName;
+  const shortName = props.match.params.seasonShortName;
 
-    return (
-        <div className="body">
-            <p>Shortname Tournament: {shortName} [PLAYOFFS]</p>
-        </div>
-    );
+  return (
+    <div className="body">
+      <p>Shortname Tournament: {shortName} [PLAYOFFS]</p>
+    </div>
+  );
 };

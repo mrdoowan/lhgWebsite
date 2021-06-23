@@ -44,44 +44,44 @@ app.use('/api/staff/v1', staffV1Routes);
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
-    // Set static folder
-    app.use(express.static('client/build'));
+  // Set static folder
+  app.use(express.static('client/build'));
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
-    });
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+  });
 }
 
 // Check if the MySQL Db is "Available". If so, stop the instance.
 const checkRdsStatusFunction = () => {
-    checkRdsStatus(RDS_TYPE.PROD).then((status) => {
-        console.log(`Current AWS RDS Production status: '${status}'`);
-        if (status === AWS_RDS_STATUS.AVAILABLE) {
-            stopRdsInstance(RDS_TYPE.PROD).then(() => {
-                console.log(`Stopping AWS RDS Production instance`);
-            }).catch((err) => {
-                console.error(err, err.stack);
-            });
-        }
-    });
-    checkRdsStatus(RDS_TYPE.TEST).then((status) => {
-        console.log(`Current AWS RDS Test status: '${status}'`);
-        if (status === AWS_RDS_STATUS.AVAILABLE) {
-            stopRdsInstance(RDS_TYPE.TEST).then(() => {
-                console.log(`Stopping AWS RDS Test instance`);
-            }).catch((err) => {
-                console.error(err, err.stack);
-            });
-        }
-    });
+  checkRdsStatus(RDS_TYPE.PROD).then((status) => {
+    console.log(`Current AWS RDS Production status: '${status}'`);
+    if (status === AWS_RDS_STATUS.AVAILABLE) {
+      stopRdsInstance(RDS_TYPE.PROD).then(() => {
+        console.log(`Stopping AWS RDS Production instance`);
+      }).catch((err) => {
+        console.error(err, err.stack);
+      });
+    }
+  });
+  checkRdsStatus(RDS_TYPE.TEST).then((status) => {
+    console.log(`Current AWS RDS Test status: '${status}'`);
+    if (status === AWS_RDS_STATUS.AVAILABLE) {
+      stopRdsInstance(RDS_TYPE.TEST).then(() => {
+        console.log(`Stopping AWS RDS Test instance`);
+      }).catch((err) => {
+        console.error(err, err.stack);
+      });
+    }
+  });
 }
 // Create DynamoDb backups once per week
 const createDynamoDbBackups = () => {
-    Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
-        dynamoDbCreateBackup(tableName).then(() => {}).catch((err) => {
-            console.error(err, err.stack);
-        });
+  Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
+    dynamoDbCreateBackup(tableName).then(() => { }).catch((err) => {
+      console.error(err, err.stack);
     });
+  });
 }
 // Check Rds availability daily at 3amEST, 10amEST, 9pmEST
 const TZ_STRING = 'America/New_York';
@@ -109,7 +109,7 @@ schedule.scheduleJob(rule4, createDynamoDbBackups);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
-console.log((process.env.TEST_DB === 'false' || process.env.NODE_ENV === 'production') ? 
-    "Connected to DB Production endpoints!" : 
-    "Connected to DB Test endpoints."
+console.log((process.env.TEST_DB === 'false' || process.env.NODE_ENV === 'production') ?
+  "Connected to DB Production endpoints!" :
+  "Connected to DB Test endpoints."
 );

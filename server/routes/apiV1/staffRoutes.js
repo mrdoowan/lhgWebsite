@@ -26,9 +26,9 @@ import { authenticateJWT } from './dependencies/jwtHelper';
 //     "moderator": true
 // }
 staffV1Routes.put('/add', authenticateJWT, (req, res) => {
-    putNewStaff(req.body).then((response) => {
-        return res.status(200).json(response);
-    }).catch((err) => error500sServerError(err, res, "PUT Profile Add Staff Error."));
+  putNewStaff(req.body).then((response) => {
+    return res.status(200).json(response);
+  }).catch((err) => error500sServerError(err, res, "PUT Profile Add Staff Error."));
 });
 
 /**

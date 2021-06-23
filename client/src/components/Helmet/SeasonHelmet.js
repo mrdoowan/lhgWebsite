@@ -3,14 +3,13 @@ import React from 'react';
 import HelmetComponent from './HelmetComponent';
 
 export default function SeasonHelmet({ info }) {
+  const metaTitle = info.SeasonName;
+  const metaDescription = `Information for the ${info.SeasonName}`;
 
-    const metaTitle = info.SeasonName;
-    const metaDescription = `Information for the ${info.SeasonName}`;
-
-    return (
-        <HelmetComponent
-            title={metaTitle}
-            description={metaDescription}
-        />
-    );
+  return (
+    <HelmetComponent
+      title={metaTitle}
+      description={metaDescription}
+    />
+  );
 }
