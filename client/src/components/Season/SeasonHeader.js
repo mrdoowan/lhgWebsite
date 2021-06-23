@@ -32,11 +32,16 @@ const useStyles = makeStyles((theme) => ({
 export default function SeasonHeader({ info }) {
   const classes = useStyles();
 
+  const regTournamentLink = (info.TournamentPIds.RegTournamentShortName) ? 
+    <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Stats</Link></p> : null;
+  const postTournamentLink = (info.TournamentPIds.PostTournamentShortName) ? 
+    <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Playoffs Stats</Link></p> : null;
+
   const seasonBaseMarkup = info ? (
     <div>
       <div className={classes.titleMain}>{info.SeasonName}</div>
-      <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.RegTournamentShortName}`}>Regular Season Stats</Link></p>
-      <p><Link className={classes.link} to={`/tournament/${info.TournamentPIds.PostTournamentShortName}`}>Playoffs Stats</Link></p>
+      {regTournamentLink}
+      {postTournamentLink}
     </div>
   ) : (<div />);
 

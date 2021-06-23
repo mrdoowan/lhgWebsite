@@ -185,8 +185,12 @@ export const getSeasonInformation = (seasonId) => {
       try {
         let seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
         if (seasonInfoJson != null) {
-          seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
-          seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
+          if (seasonInfoJson['TournamentPIds']['RegTournamentPId']) {
+            seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
+          }
+          if (seasonInfoJson['TournamentPIds']['PostTournamentPId']) {
+            seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
+          }
           if ('FinalStandings' in seasonInfoJson) {
             for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
               let teamObject = seasonInfoJson['FinalStandings'][i];
