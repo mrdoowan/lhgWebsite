@@ -111,7 +111,7 @@ export default function ChampionSquare({
     getVersionByPatch(patch);
   const urlImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
 
-  const imgComponent = (!urlId) ? 
+  const imgComponent = (!urlId || !ddragonVersion) ? 
     <img src={NoImage} className={classes.spacing} alt={urlId} width={width} height={height} /> : 
     <img src={urlImg} className={classes.spacing} alt={urlId} width={width} height={height} />
 
