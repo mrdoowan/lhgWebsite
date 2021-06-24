@@ -62,8 +62,8 @@ export const PARTITION_KEY_MAP = {
 }
 
 export const MISC_KEYS = {
-  CHAMP_IDS = 'ChampByIds',
-  MATCH_SETUP_IDS = 'MatchSetupIds',
-  SPELL_IDS = 'SummonerSpellById',
-  VERSIONS = 'Versions',
+  CHAMP_IDS: 'ChampByIds',
+  MATCH_SETUP_IDS: 'MatchSetupIds',
+  SPELL_IDS: 'SummonerSpellById',
+  VERSIONS: 'Versions',
 }

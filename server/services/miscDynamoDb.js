@@ -29,7 +29,7 @@ const callMiscDynamoDb = (dynamoDbKey) => {
       try {
         const dynamoJson = await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, dynamoDbKey);
         cache.set(getCacheKey[dynamoDbKey], JSON.stringify(dynamoJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION)
-        return dynamoJson;
+        resolve(dynamoJson);
       }
       catch (err) {
         console.error(error); 
