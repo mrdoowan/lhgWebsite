@@ -27,7 +27,8 @@ const callMiscDynamoDb = (dynamoDbKey) => {
       if (err) { console.error(err); reject(err); }
       else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        const dynamoJson = await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, dynamoDbKey);
+        let dynamoJson = await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, dynamoDbKey);
+        if (dynamoDbKey === MISC_KEYS.VERSIONS) { dynamoJson = dynamoJson['VersionList'] }
         cache.set(getCacheKey[dynamoDbKey], JSON.stringify(dynamoJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION)
         resolve(dynamoJson);
       }
