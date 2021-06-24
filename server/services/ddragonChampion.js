@@ -54,7 +54,7 @@ export const createChampObject = (patch = null) => {
     axios.get(`http://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/champion.json`)
       .then((res) => {
         const { data } = res.data;
-        let champByKey = {};
+        const champByKey = {};
         for (const value of Object.values(data)) {
           champByKey[value.key] = {
             id: value.id,
