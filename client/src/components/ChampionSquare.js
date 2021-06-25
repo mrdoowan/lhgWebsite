@@ -64,11 +64,11 @@ export default function ChampionSquare({
   height = 30,
 }) {
   const [versionList, setVersionList] = useState(null);
-  const [champByIds, setchampByIds] = useState(null);
+  const [champByIds, setChampByIds] = useState(null);
   const classes = useStyles();
   useEffect(() => {
     getVersionList().then((data) => { setVersionList(data); });
-    getChampIds().then((data) => { setchampByIds(data); });
+    getChampIds().then((data) => { setChampByIds(data); });
   }, []);
 
   const getChampUrlId = (id) => {

@@ -94,7 +94,7 @@ export default function ItemSquare({
 
   return (withName) ? (
     <div>
-      {imgComponent} ITEMNAME
+      {imgComponent} ITEM_NAME
     </div>
   ) : (vertical) ? (
     <div className={classes.spacing}>
