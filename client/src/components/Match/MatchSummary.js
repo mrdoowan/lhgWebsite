@@ -24,14 +24,6 @@ import ChampionSquare from '../ChampionSquare';
 import ItemSquare from '../ItemSquare';
 import SpellSquare from '../SpellSquare';
 
-const StyledTableCellBlue = withStyles((theme) => ({
-  head: {
-    backgroundColor: '#1241CE',
-    color: theme.palette.common.white,
-    fontSize: 20,
-  },
-}))(TableCell);
-
 const StyledTableCellRed = withStyles((theme) => ({
   head: {
     backgroundColor: '#CB2C31',
@@ -65,6 +57,16 @@ const useStyles = makeStyles((theme) => ({
     'text-decoration': 'bold',
     fontSize: 'large',
   },
+  blueHeader: {
+    backgroundColor: '#1241CE',
+    color: theme.palette.common.white,
+    fontSize: 20,
+  },
+  redHeader: {
+    backgroundColor: '#CB2C31',
+    color: theme.palette.common.white,
+    fontSize: 20,
+  }
 }));
 
 export default function MatchSummary({ match }) {
@@ -198,6 +200,10 @@ export default function MatchSummary({ match }) {
     },
   ];
 
+  const itemComponent = () => {
+    
+  }
+
   return (
     <div>
       <Grid container spacing={3}>
@@ -206,11 +212,9 @@ export default function MatchSummary({ match }) {
             <Table className={classes.table} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <StyledTableCellBlue>{blueTeamName} [{blueWinString}]</StyledTableCellBlue>
-                  <StyledTableCellBlue />
-                  <StyledTableCellBlue />
-                  <StyledTableCellBlue>K/D/A</StyledTableCellBlue>
-                  <StyledTableCellBlue>CS</StyledTableCellBlue>
+                  <TableCell className={classes.blueHeader} colSpan={3}>{blueTeamName} [{blueWinString}]</TableCell>
+                  <TableCell className={classes.blueHeader}>K/D/A</TableCell>
+                  <TableCell className={classes.blueHeader}>CS</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
