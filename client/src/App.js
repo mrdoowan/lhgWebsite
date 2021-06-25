@@ -105,7 +105,11 @@ class App extends Component {
           { /* ERROR 404: Path does not exist */}
           <Route component={error404} />
         </Switch>
-        <div className="footer">"Doowan Stats is not affiliated with or sponsored by Riot Games, Inc. or LoLEsports."</div>
+        <div className="footer">
+          "Doowan Stats isn't endorsed by Riot Games and doesn't reflect the views or opinions 
+          of Riot Games or anyone officially involved in producing or managing Riot Games properties. 
+          Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc."
+        </div>
       </div>
     </ThemeProvider>);
   }
