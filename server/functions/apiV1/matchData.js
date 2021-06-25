@@ -38,6 +38,10 @@ import {
   GLOBAL_CONSTS,
 } from './dependencies/global';
 import { checkRdsStatus } from './dependencies/awsRdsHelper';
+import { 
+  DYNAMODB_TABLENAMES,
+  MISC_KEYS
+} from '../../services/constants';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -132,7 +136,7 @@ export const getMatchSetup = (id) => {
 export const getMatchSetupList = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      const matchIdList = (await dynamoDbGetItem('Miscellaneous', 'MatchSetupIds'))['MatchSetupIdList'];
+      const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS,))['MatchSetupIdList'];
       resolve(matchIdList);
     }
     catch (error) { console.error(error); reject(error); }
@@ -255,14 +259,14 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         }
       );
 
-      // Push into 'Miscellaneous' DynamoDb
+      // Push into Miscellaneous DynamoDb
       const setupIdList = await getMatchSetupList();
       setupIdList.push(matchId)
       const newDbItem = {
-        Key: 'MatchSetupIds',
+        Key: MISC_KEYS.MATCH_SETUP_IDS,
         MatchSetupIdList: setupIdList
       };
-      await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+      await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS,);
 
       resolve({
         response: `New Setup for Match ID '${matchId}' successfully created.`,
@@ -447,14 +451,14 @@ export const deleteMatchData = (matchId) => {
       // Check if it's just a Setup Match table.
       const setupFlag = !!matchData.Setup;
       if (matchData.Setup) {
-        // Remove from 'Miscellaneous' Table
+        // Remove from Miscellaneous Table
         let setupIdList = await getMatchSetupList();
         setupIdList = setupIdList.filter(id => id !== matchId);
         const newDbItem = {
-          Key: 'MatchSetupIds',
+          Key: MISC_KEYS.MATCH_SETUP_IDS,
           MatchSetupIdList: setupIdList
         };
-        await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+        await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
 
         // 3) 
         await dynamoDbDeleteItem('Matches', matchId);

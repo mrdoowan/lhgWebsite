@@ -1,10 +1,13 @@
 // npm modules
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import Versions from '../static/Versions';
-import ChampById from '../static/ChampById';
+import NoImage from '../static/no-image.png';
+import {
+  getChampIds,
+  getVersionList
+} from '../service/StaticCalls';
 
 const useStyles = makeStyles((theme) => ({
   tableName: {
@@ -60,55 +63,70 @@ export default function ChampionSquare({
   width = 30,
   height = 30,
 }) {
+  const [versionList, setVersionList] = useState(null);
+  const [champByIds, setChampByIds] = useState(null);
   const classes = useStyles();
+  useEffect(() => {
+    getVersionList().then((data) => { setVersionList(data); });
+    getChampIds().then((data) => { setChampByIds(data); });
+  }, []);
+
+  const getChampUrlId = (id) => {
+    if (!champByIds) return null;
+    if (!(id in champByIds)) {
+      return id;
+    }
+  
+    return champByIds[id]['id'];
+  }
+  
+  const getChampName = (id) => {
+    if (!champByIds) return null;
+    if (!(id in champByIds)) {
+      return id;
+    }
+    return champByIds[id]['name'];
+  }
+  
+  const getCurrentVersion = () => {
+    return (versionList) ? versionList[0] : null;
+  }
+  
+  const getVersionByPatch = (patch) => {
+    if (!versionList) return null;
+    if (patch) {
+      for (const DDragonVersion of versionList) {
+        if (DDragonVersion.includes(patch)) {
+          return DDragonVersion;
+        }
+      }
+    }
+    return versionList[0]; // Default latest patch
+  }
 
   const urlId = getChampUrlId(id);
   const name = getChampName(id);
   const ddragonVersion = (!patch) ?
     ((!version) ? getCurrentVersion() : version) :
     getVersionByPatch(patch);
-  const url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
+  const urlImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
+
+  const imgComponent = (!urlId || !ddragonVersion) ? 
+    <img src={NoImage} className={classes.spacing} alt={urlId} width={width} height={height} /> : 
+    <img src={urlImg} className={classes.spacing} alt={urlId} width={width} height={height} />
 
   return (withName) ? (
     <div>
-      <React.Fragment><img className={classes.spacing} src={url} alt={urlId} width={width} height={height} /> {name}</React.Fragment>
+      {imgComponent} {name}
     </div>
   ) : (vertical) ? (
     <div className={classes.spacing}>
-      <img className={classes.spacing} src={url} alt={urlId} width={width} height={height} /><br />
+      {imgComponent}<br />
       {num}
     </div>
   ) : (
-    <img className={classes.spacing} src={url} alt={urlId} width={width} height={height} />
+    <span>
+      {imgComponent}
+    </span>
   );
-}
-
-function getChampUrlId(id) {
-  if (!(id in ChampById)) {
-    return id;
-  }
-
-  return ChampById[id]['id'];
-}
-
-function getChampName(id) {
-  if (!(id in ChampById)) {
-    return id;
-  }
-  return ChampById[id]['name'];
-}
-
-function getCurrentVersion() {
-  return Versions[0];
-}
-
-function getVersionByPatch(patch) {
-  if (patch) {
-    for (const DDragonVersion of Versions) {
-      if (DDragonVersion.includes(patch)) {
-        return DDragonVersion;
-      }
-    }
-  }
-  return Versions[0]; // Default latest patch
 }

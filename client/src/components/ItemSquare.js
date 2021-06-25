@@ -1,9 +1,9 @@
 // npm modules
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import Versions from '../static/Versions';
+import { getVersionList } from '../service/StaticCalls';
 import NoImage from '../static/no-image.png';
 
 const useStyles = makeStyles((theme) => ({
@@ -60,46 +60,50 @@ export default function ItemSquare({
   width = 30,
   height = 30,
 }) {
+  const [versionList, setVersionList] = useState(null);
   const classes = useStyles();
+  useEffect(() => {
+    getVersionList().then((data) => { setVersionList(data); });
+  }, []);
+
+  const getCurrentVersion = () => {
+    return (versionList) ? versionList[0] : null;
+  }
+  
+  const getVersionByPatch = (patch) => {
+    if (!versionList) return null;
+    if (patch) {
+      for (const DDragonVersion of versionList) {
+        if (DDragonVersion.includes(patch)) {
+          return DDragonVersion;
+        }
+      }
+    }
+    return versionList[0]; // Default latest patch
+  }
 
   const ddragonVersion = (!patch) ?
     ((!version) ? getCurrentVersion() : version) :
     getVersionByPatch(patch);
 
+  const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${id}.png`;
   // since we can get itemIds that = 0, we want to render a blank square
-  if (id === 0) {
-    return (
-      <img src={NoImage} className={classes.spacing} alt={id} width={width} height={height} />
-    );
-  }
-
-  const url = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${id}.png`;
+  const imgComponent = (!id || !ddragonVersion || id === 0) ? 
+    <img src={NoImage} className={classes.spacing} alt={id} width={width} height={height} /> : 
+    <img className={classes.spacing} src={imgUrl} alt={id} width={width} height={height} />;
 
   return (withName) ? (
     <div>
-      <React.Fragment><img className={classes.spacing} src={url} alt={id} width={width} height={height} />ITEMNAME</React.Fragment>
+      {imgComponent} ITEM_NAME
     </div>
   ) : (vertical) ? (
     <div className={classes.spacing}>
-      <img className={classes.spacing} src={url} alt={id} width={width} height={height} /><br />
+      {imgComponent}<br />
       {num}
     </div>
   ) : (
-    <img className={classes.spacing} src={url} alt={id} width={width} height={height} />
+    <span>
+      {imgComponent}
+    </span>
   );
-}
-
-function getCurrentVersion() {
-  return Versions[0];
-}
-
-function getVersionByPatch(patch) {
-  if (patch) {
-    for (const DDragonVersion of Versions) {
-      if (DDragonVersion.includes(patch)) {
-        return DDragonVersion;
-      }
-    }
-  }
-  return Versions[0]; // Default latest patch
 }

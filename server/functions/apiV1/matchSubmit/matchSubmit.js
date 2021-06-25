@@ -8,6 +8,8 @@ import { checkRdsStatus } from '../dependencies/awsRdsHelper';
 import { dynamoDbGetItem, dynamoDbPutItem } from '../dependencies/dynamoDbHelper';
 import {
   AWS_RDS_STATUS,
+  DYNAMODB_TABLENAMES,
+  MISC_KEYS,
   TEAM_STRING,
 } from '../../../services/constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
@@ -54,14 +56,14 @@ export const submitMatchSetup = (id) => {
       await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);
       await dynamoDbPutItem('Matches', newMatchDbObject, id);
 
-      // Delete from MatchSetup list in the 'Miscellaneous' DynamoDb table.
+      // Delete from MatchSetup list in the Miscellaneous DynamoDb table.
       const setupIdList = await getMatchSetupList();
       const newSetupIdList = setupIdList.filter(e => e !== id);
       const newDbItem = {
-        Key: 'MatchSetupIds',
+        Key: MISC_KEYS.MATCH_SETUP_IDS,
         MatchSetupIdList: newSetupIdList
       };
-      await dynamoDbPutItem('Miscellaneous', newDbItem, 'MatchSetupIds');
+      await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
 
       resolve(newMatchDbObject);
     }
