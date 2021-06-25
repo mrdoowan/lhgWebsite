@@ -108,11 +108,8 @@ export default function TeamScouting({ scouting }) {
 
   const playerList = [];
 
-	for (let i of Object.keys(PlayerLog)) {
-		const role = Object.keys(PlayerLog)[i];
-
-		for (let j of Object.values(PlayerLog[role])) {
-			const playerObject = Object.values(PlayerLog[role])[j];
+	for (const role of Object.keys(PlayerLog)) {
+		for (const playerObject of Object.values(PlayerLog[role])) {
 			playerObject['Role'] = role;
       playerList.push(playerObject);
 		}
@@ -189,8 +186,7 @@ export default function TeamScouting({ scouting }) {
 
 function sortPlayedChamps(champsObject) {
   const champList = [];
-	for (let i of Object.keys(champsObject)) {
-		const champId = Object.keys(champsObject)[i];
+	for (const champId of Object.keys(champsObject)) {
 		const champStats = champsObject[champId];
       champStats['ChampId'] = champId;
       champList.push(champStats);
