@@ -200,8 +200,10 @@ export default function MatchSummary({ match }) {
     },
   ];
 
-  const itemComponent = () => {
-    
+  const itemComponent = (itemsList) => {
+    <table>
+      
+    </table>
   }
 
   return (
