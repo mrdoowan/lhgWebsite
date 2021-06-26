@@ -3,12 +3,12 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+// import Table from '@material-ui/core/Table';
+// import TableBody from '@material-ui/core/TableBody';
+// import TableCell from '@material-ui/core/TableCell';
+// import TableContainer from '@material-ui/core/TableContainer';
+// import TableHead from '@material-ui/core/TableHead';
+// import TableRow from '@material-ui/core/TableRow';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -33,7 +33,12 @@ export default function MatchStats({ match }) {
   return (
     <div>
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Grid item xs={12}>
+          <Paper className={classes.paper}>
+            <p className={classes.title}>Match Stats Coming Soon!</p>
+          </Paper>
+        </Grid>
+        {/* <Grid item xs={12}>
           <TableContainer component={Paper}>
             <Table className={classes.table} aria-label="simple table">
               <TableHead>
@@ -58,7 +63,7 @@ export default function MatchStats({ match }) {
               </TableBody>
             </Table>
           </TableContainer>
-        </Grid>
+        </Grid> */}
       </Grid>
     </div>
   );
