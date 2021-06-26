@@ -4,6 +4,16 @@ import _ from '../env';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 // Import Routes
+import { 
+  AWS_RDS_STATUS,
+  DYNAMODB_TABLENAMES,
+  RDS_TYPE
+} from './services/constants';
+import {
+  checkRdsStatus,
+  stopRdsInstance
+} from './functions/apiV1/dependencies/awsRdsHelper';
+import { dynamoDbCreateBackup } from './functions/apiV1/dependencies/dynamoDbHelper';
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
 import seasonV1Routes from './routes/apiV1/seasonRoutes.js';
@@ -12,9 +22,7 @@ import profileV1Routes from './routes/apiV1/profileRoutes.js';
 import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
-import { AWS_RDS_STATUS, DYNAMODB_TABLENAMES, RDS_TYPE } from './services/constants';
-import { checkRdsStatus, stopRdsInstance } from './functions/apiV1/dependencies/awsRdsHelper';
-import { dynamoDbCreateBackup } from './functions/apiV1/dependencies/dynamoDbHelper';
+import serviceV1Routes from './routes/apiV1/serviceRoutes';
 
 /*  Declaring npm modules */
 const express = require('express');
@@ -41,47 +49,48 @@ app.use('/api/profile/v1', profileV1Routes);
 app.use('/api/team/v1', teamV1Routes);
 app.use('/api/match/v1', matchV1Routes);
 app.use('/api/staff/v1', staffV1Routes);
+app.use('/api/service/v1', serviceV1Routes);
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
-    // Set static folder
-    app.use(express.static('client/build'));
+  // Set static folder
+  app.use(express.static('client/build'));
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
-    });
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+  });
 }
 
 // Check if the MySQL Db is "Available". If so, stop the instance.
 const checkRdsStatusFunction = () => {
-    checkRdsStatus(RDS_TYPE.PROD).then((status) => {
-        console.log(`Current AWS RDS Production status: '${status}'`);
-        if (status === AWS_RDS_STATUS.AVAILABLE) {
-            stopRdsInstance(RDS_TYPE.PROD).then(() => {
-                console.log(`Stopping AWS RDS Production instance`);
-            }).catch((err) => {
-                console.error(err, err.stack);
-            });
-        }
-    });
-    checkRdsStatus(RDS_TYPE.TEST).then((status) => {
-        console.log(`Current AWS RDS Test status: '${status}'`);
-        if (status === AWS_RDS_STATUS.AVAILABLE) {
-            stopRdsInstance(RDS_TYPE.TEST).then(() => {
-                console.log(`Stopping AWS RDS Test instance`);
-            }).catch((err) => {
-                console.error(err, err.stack);
-            });
-        }
-    });
+  checkRdsStatus(RDS_TYPE.PROD).then((status) => {
+    console.log(`Current AWS RDS Production status: '${status}'`);
+    if (status === AWS_RDS_STATUS.AVAILABLE) {
+      stopRdsInstance(RDS_TYPE.PROD).then(() => {
+        console.log(`Stopping AWS RDS Production instance`);
+      }).catch((err) => {
+        console.error(err, err.stack);
+      });
+    }
+  });
+  checkRdsStatus(RDS_TYPE.TEST).then((status) => {
+    console.log(`Current AWS RDS Test status: '${status}'`);
+    if (status === AWS_RDS_STATUS.AVAILABLE) {
+      stopRdsInstance(RDS_TYPE.TEST).then(() => {
+        console.log(`Stopping AWS RDS Test instance`);
+      }).catch((err) => {
+        console.error(err, err.stack);
+      });
+    }
+  });
 }
 // Create DynamoDb backups once per week
 const createDynamoDbBackups = () => {
-    Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
-        dynamoDbCreateBackup(tableName).then(() => {}).catch((err) => {
-            console.error(err, err.stack);
-        });
+  Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
+    dynamoDbCreateBackup(tableName).then(() => { }).catch((err) => {
+      console.error(err, err.stack);
     });
+  });
 }
 // Check Rds availability daily at 3amEST, 10amEST, 9pmEST
 const TZ_STRING = 'America/New_York';
@@ -109,7 +118,7 @@ schedule.scheduleJob(rule4, createDynamoDbBackups);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
-console.log((process.env.TEST_DB === 'false' || process.env.NODE_ENV === 'production') ? 
-    "Connected to DB Production endpoints!" : 
-    "Connected to DB Test endpoints."
+console.log((process.env.TEST_DB === 'false' || process.env.NODE_ENV === 'production') ?
+  "Connected to DB Production endpoints!" :
+  "Connected to DB Test endpoints."
 );

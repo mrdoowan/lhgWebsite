@@ -5,32 +5,34 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        height: "100%",
-        padding: theme.spacing(1),
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        color: theme.palette.text.primary,
-        background: '#A9A9A9',
-    },
-    title: {
-        marginTop: theme.spacing(2),
-        textDecoration: 'bold',
-        fontSize: 'large',
-    },
+  paper: {
+    height: '100%',
+    padding: theme.spacing(1),
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    color: theme.palette.text.primary,
+    background: '#A9A9A9',
+  },
+  title: {
+    marginTop: theme.spacing(2),
+    textDecoration: 'bold',
+    fontSize: 'large',
+  },
 }));
 
 export default function ProfileInfo({ info }) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    return (<div>
-        <Grid container spacing={3}>
-            <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                    <p className={classes.title}>Player Information Coming Soon!</p>
-                </Paper>
-            </Grid>
+  return (
+    <div>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Paper className={classes.paper}>
+            <p className={classes.title}>Player Information Coming Soon!</p>
+          </Paper>
         </Grid>
-    </div>)
+      </Grid>
+    </div>
+  );
 }

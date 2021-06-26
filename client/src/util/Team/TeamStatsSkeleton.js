@@ -7,26 +7,26 @@ import TeamHeader from '../../components/Team/TeamHeader';
 import TeamStats from '../../components/Team/TeamStats';
 import TeamHelmet from '../../components/Helmet/TeamHelmet';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
+const useStyles = makeStyles(() => ({
+  root: {
+    flexGrow: 1,
+  },
 }));
 
 export default function TeamStatsSkeleton({ info, stats }) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    let headerComponent = (<TeamHeader info={info} type='Stats' />);
-    let statsComponent = (<TeamStats info={info} stats={stats} />);
+  const headerComponent = (<TeamHeader info={info} type="Stats" />);
+  const statsComponent = (<TeamStats info={info} stats={stats} />);
 
-    let headerEmpty = "There is no Information logged for this Team.";
-    let statsEmpty = "There are no Stats logged for this Team."
+  const headerEmpty = 'There is no Information logged for this Team.';
+  const statsEmpty = 'There are no Stats logged for this Team.';
 
-    return (
-        <div className={classes.root}>
-            <TeamHelmet info={info} stats={stats} />
-            <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
-            <DataWrapper data={stats} component={statsComponent} emptyMessage={statsEmpty} />
-        </div>
-    )
+  return (
+    <div className={classes.root}>
+      <TeamHelmet info={info} stats={stats} />
+      <DataWrapper data={info} component={headerComponent} emptyMessage={headerEmpty} />
+      <DataWrapper data={stats} component={statsComponent} emptyMessage={statsEmpty} />
+    </div>
+  );
 }

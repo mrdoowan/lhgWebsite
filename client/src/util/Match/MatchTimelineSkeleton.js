@@ -7,26 +7,26 @@ import MatchHeader from '../../components/Match/MatchHeader';
 import MatchTimeline from '../../components/Match/MatchTimeline';
 import MatchHelmet from '../../components/Helmet/MatchHelmet';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
+const useStyles = makeStyles(() => ({
+  root: {
+    flexGrow: 1,
+  },
 }));
 
 export default function MatchTimelineSkeleton({ match }) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    let headerComponent = (<MatchHeader match={match} type="Timeline" />);
-    let timelineComponent = (<MatchTimeline match={match} />);
-    
-    let infoEmpty = "There is no Information logged for this Match.";
-    let timelineEmpty = "There is no Timeline logged for this Match.";
+  const headerComponent = (<MatchHeader match={match} type="Timeline" />);
+  const timelineComponent = (<MatchTimeline match={match} />);
 
-    return (
-        <div className={classes.root}>
-            <MatchHelmet match={match} type="Timeline" />
-            <DataWrapper data={match} component={headerComponent} emptyMessage={infoEmpty} />
-            <DataWrapper data={match} component={timelineComponent} emptyMessage={timelineEmpty} />
-        </div>
-    )
+  const infoEmpty = 'There is no Information logged for this Match.';
+  const timelineEmpty = 'There is no Timeline logged for this Match.';
+
+  return (
+    <div className={classes.root}>
+      <MatchHelmet match={match} type="Timeline" />
+      <DataWrapper data={match} component={headerComponent} emptyMessage={infoEmpty} />
+      <DataWrapper data={match} component={timelineComponent} emptyMessage={timelineEmpty} />
+    </div>
+  );
 }

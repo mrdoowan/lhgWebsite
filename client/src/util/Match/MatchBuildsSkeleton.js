@@ -7,26 +7,26 @@ import MatchHeader from '../../components/Match/MatchHeader';
 import MatchBuilds from '../../components/Match/MatchBuilds';
 import MatchHelmet from '../../components/Helmet/MatchHelmet';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
+const useStyles = makeStyles(() => ({
+  root: {
+    flexGrow: 1,
+  },
 }));
 
 export default function MatchBuildsSkeleton({ match }) {
-    const classes = useStyles();
+  const classes = useStyles();
 
-    let headerComponent = (<MatchHeader match={match} type="Builds" />);
-    let buildsComponent = (<MatchBuilds match={match} />);
-    
-    let infoEmpty = "There is no Information logged for this Match.";
-    let buildsEmpty = "There are no Builds logged for this Match.";
+  const headerComponent = (<MatchHeader match={match} type="Builds" />);
+  const buildsComponent = (<MatchBuilds match={match} />);
 
-    return (
-        <div className={classes.root}>
-            <MatchHelmet match={match} type="Builds" />
-            <DataWrapper data={match} component={headerComponent} emptyMessage={infoEmpty} />
-            <DataWrapper data={match} component={buildsComponent} emptyMessage={buildsEmpty} />
-        </div>
-    )
+  const infoEmpty = 'There is no Information logged for this Match.';
+  const buildsEmpty = 'There are no Builds logged for this Match.';
+
+  return (
+    <div className={classes.root}>
+      <MatchHelmet match={match} type="Builds" />
+      <DataWrapper data={match} component={headerComponent} emptyMessage={infoEmpty} />
+      <DataWrapper data={match} component={buildsComponent} emptyMessage={buildsEmpty} />
+    </div>
+  );
 }
