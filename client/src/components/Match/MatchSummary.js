@@ -24,14 +24,6 @@ import ChampionSquare from '../ChampionSquare';
 import ItemSquare from '../ItemSquare';
 import SpellSquare from '../SpellSquare';
 
-const StyledTableCellRed = withStyles((theme) => ({
-  head: {
-    backgroundColor: '#CB2C31',
-    color: theme.palette.common.white,
-    fontSize: 20,
-  },
-}))(TableCell);
-
 const BLUE_TEAM = '100';
 const RED_TEAM = '200';
 const ROLE_TOP = 'TOP';
@@ -273,8 +265,9 @@ export default function MatchSummary({ match }) {
           <TableHead>
             <TableRow>
               <TableCell className={colorHeader} colSpan={3}>{teamTitle}</TableCell>
-              <TableCell className={colorHeader}>K/D/A</TableCell>
-              <TableCell className={colorHeader}>CS</TableCell>
+              <TableCell className={colorHeader} align="center">K/D/A</TableCell>
+              <TableCell className={colorHeader} align="center">CS</TableCell>
+              <TableCell className={colorHeader} align="center">Gold</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -291,8 +284,9 @@ export default function MatchSummary({ match }) {
                 <TableCell>
                   {itemListComponent(player.ItemsFinal)}
                 </TableCell>
-                <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
-                <TableCell>{player.CreepScore}</TableCell>
+                <TableCell align="center">{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
+                <TableCell align="center">{player.CreepScore}</TableCell>
+                <TableCell align="center">{player.Gold}</TableCell>
               </TableRow>
             ))}
           </TableBody>
