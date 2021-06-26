@@ -1,6 +1,6 @@
 import React from 'react';
 // MUI
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';

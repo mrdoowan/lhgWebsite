@@ -33,7 +33,12 @@ export default function MatchStats({ match }) {
   return (
     <div>
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Grid item xs={12}>
+          <Paper className={classes.paper}>
+            <p className={classes.title}>Match Stats Coming Soon!</p>
+          </Paper>
+        </Grid>
+        {/* <Grid item xs={12}>
           <TableContainer component={Paper}>
             <Table className={classes.table} aria-label="simple table">
               <TableHead>
@@ -58,7 +63,7 @@ export default function MatchStats({ match }) {
               </TableBody>
             </Table>
           </TableContainer>
-        </Grid>
+        </Grid> */}
       </Grid>
     </div>
   );
