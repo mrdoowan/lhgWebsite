@@ -66,6 +66,26 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#CB2C31',
     color: theme.palette.common.white,
     fontSize: 20,
+  },
+  spellColumn: {
+    minWidth: '115px',
+  },
+  itemWrapper: {
+    display: 'flex',
+    width: '160px',
+  },
+  itemRow: {
+    display: 'flex',
+  },
+  mainItems: {
+    width: '75%'
+  },
+  trinketItem: {
+    width: '25%',
+    margin: 'auto 0',
+  },
+  singleItem: {
+    width: '33.33333%'
   }
 }));
 
@@ -200,84 +220,95 @@ export default function MatchSummary({ match }) {
     },
   ];
 
-  const itemComponent = (itemsList) => {
-    <table>
-      
-    </table>
+  /**
+   * @param {array} itemsList 
+   * @returns JSX Element of the Item layout
+   */
+  const itemListComponent = (itemsList) => {
+    const getItemSquare = (index) => {
+      if (index < itemsList.length) {
+        const itemId = itemsList[index];
+        return <ItemSquare id={itemId} key={`${index}+${itemId}`} patch={patch} width="40" height="40" />
+      }
+      else {
+        return <ItemSquare id={0} key={`${index}+null`} patch={patch} width="40" height="40" />
+      }
+    }
+
+    return (
+      <div className={classes.itemWrapper}>
+        <span className={classes.mainItems}>
+          <div className={classes.itemRow}>
+            <span className={classes.singleItem}>{getItemSquare(0)}</span>
+            <span className={classes.singleItem}>{getItemSquare(1)}</span>
+            <span className={classes.singleItem}>{getItemSquare(2)}</span>
+          </div>
+          <div className={classes.itemRow}>
+            <span className={classes.singleItem}>{getItemSquare(3)}</span>
+            <span className={classes.singleItem}>{getItemSquare(4)}</span>
+            <span className={classes.singleItem}>{getItemSquare(5)}</span>
+          </div>
+        </span>
+        <span className={classes.trinketItem}>
+          <div className={classes.singleItem}>{getItemSquare(6)}</div>
+        </span>
+      </div>
+    );
+  }
+
+  /**
+   * @param {number} teamColor  BLUE_TEAM or RED_TEAM
+   * @returns JSX Element of the Team Table
+   */
+  const teamTableComponent = (teamColor) => {
+    const colorHeader = (teamColor === BLUE_TEAM) ? 
+      classes.blueHeader : classes.redHeader;
+    const teamTitle = (teamColor === BLUE_TEAM) ? 
+      `${blueTeamName} [${blueWinString}]` :
+      `${redTeamName} [${redWinString}]`;
+
+    return (
+      <TableContainer component={Paper} className={classes.paper}>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell className={colorHeader} colSpan={3}>{teamTitle}</TableCell>
+              <TableCell className={colorHeader}>K/D/A</TableCell>
+              <TableCell className={colorHeader}>CS</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Object.entries(match.Teams[teamColor].Players).map(([playerNum, player]) => (
+              <TableRow key={playerNum}>
+                <TableCell>
+                  <ChampionSquare id={player.ChampId} patch={patch} width="40" height="40" />
+                  <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
+                </TableCell>
+                <TableCell className={classes.spellColumn}>
+                  <SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width="40" height="40" />
+                  <SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width="40" height="40" />
+                </TableCell>
+                <TableCell>
+                  {itemListComponent(player.ItemsFinal)}
+                </TableCell>
+                <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
+                <TableCell>{player.CreepScore}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
   }
 
   return (
     <div>
       <Grid container spacing={3}>
         <Grid item xs={6}>
-          <TableContainer component={Paper} className={classes.paper}>
-            <Table className={classes.table} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className={classes.blueHeader} colSpan={3}>{blueTeamName} [{blueWinString}]</TableCell>
-                  <TableCell className={classes.blueHeader}>K/D/A</TableCell>
-                  <TableCell className={classes.blueHeader}>CS</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Object.entries(match.Teams[BLUE_TEAM].Players).map(([playerNum, player]) => (
-                  <TableRow key={playerNum}>
-                    <TableCell>
-                      <ChampionSquare id={player.ChampId} patch={patch} width="40" height="40" />
-                      <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
-                    </TableCell>
-                    <TableCell>
-                      <SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width="40" height="40" />
-                      <SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width="40" height="40" />
-                    </TableCell>
-                    <TableCell>
-                      {player.ItemsFinal.map((itemId, index) => (
-                        <ItemSquare id={itemId} key={`${index}+${itemId}`} patch={patch} width="40" height="40" />
-                      ))}
-                    </TableCell>
-                    <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
-                    <TableCell>{player.CreepScore}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {teamTableComponent(BLUE_TEAM)}
         </Grid>
         <Grid item xs={6}>
-          <TableContainer component={Paper} className={classes.paper}>
-            <Table className={classes.table} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <StyledTableCellRed>{redTeamName} [{redWinString}]</StyledTableCellRed>
-                  <StyledTableCellRed />
-                  <StyledTableCellRed />
-                  <StyledTableCellRed>K/D/A</StyledTableCellRed>
-                  <StyledTableCellRed>CS</StyledTableCellRed>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Object.entries(match.Teams[RED_TEAM].Players).map(([playerNum, player]) => (
-                  <TableRow key={playerNum}>
-                    <TableCell>
-                      <ChampionSquare id={player.ChampId} patch={patch} width="40" height="40" />
-                      <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
-                    </TableCell>
-                    <TableCell>
-                      <SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width="40" height="40" />
-                      <SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width="40" height="40" />
-                    </TableCell>
-                    <TableCell>
-                      {player.ItemsFinal.map((itemId, index) => (
-                        <ItemSquare id={itemId} key={`${index}+${itemId}`} patch={patch} width="40" height="40" />
-                      ))}
-                    </TableCell>
-                    <TableCell>{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
-                    <TableCell>{player.CreepScore}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {teamTableComponent(RED_TEAM)}
         </Grid>
 
         <Grid item xs={6}>
