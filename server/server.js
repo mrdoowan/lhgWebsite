@@ -61,7 +61,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Check if the MySQL Db is "Available". If so, stop the instance.
+// Task 1: Check if the MySQL Db is "Available". If so, stop the instance.
 const checkRdsStatusFunction = () => {
   checkRdsStatus(RDS_TYPE.PROD).then((status) => {
     console.log(`Current AWS RDS Production status: '${status}'`);
@@ -84,14 +84,6 @@ const checkRdsStatusFunction = () => {
     }
   });
 }
-// Create DynamoDb backups once per week
-const createDynamoDbBackups = () => {
-  Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
-    dynamoDbCreateBackup(tableName).then(() => { }).catch((err) => {
-      console.error(err, err.stack);
-    });
-  });
-}
 // Check Rds availability daily at 3amEST, 10amEST, 9pmEST
 const TZ_STRING = 'America/New_York';
 const rule1 = new schedule.RecurrenceRule();
@@ -109,12 +101,29 @@ rule3.tz = TZ_STRING;
 schedule.scheduleJob(rule1, checkRdsStatusFunction);
 schedule.scheduleJob(rule2, checkRdsStatusFunction);
 schedule.scheduleJob(rule3, checkRdsStatusFunction);
+
+// Task 2: Create DynamoDb backups once per week
+const createDynamoDbBackups = () => {
+  Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
+    dynamoDbCreateBackup(tableName).then(() => { }).catch((err) => {
+      console.error(err, err.stack);
+    });
+  });
+}
 // Create DynamoDb Backups: Once every week on Sunday
 const rule4 = new schedule.RecurrenceRule();
 rule4.dayOfWeek = 0;
 rule4.hour = 0;
 rule4.minute = 1;
 schedule.scheduleJob(rule4, createDynamoDbBackups);
+
+// Task 3: Create DynamoDb Test Tables from the backups
+const createDynamoDbTestTables = async () => {
+  // Call each table synchronously since DynamoDb's restoreTableFromBackup can only handle 4 fxns at once
+  for (const tableName of DYNAMODB_TABLENAMES) {
+
+  }
+}
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));

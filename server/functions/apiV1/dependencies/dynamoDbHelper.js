@@ -194,3 +194,13 @@ export const dynamoDbCreateBackup = (tableName) => {
     });
   });
 }
+
+export const dynamoDbCreateTestsDb = (tableName) => {
+  // Delete `Test-${tableName}` through the deleteTable operation
+  // 
+
+  // List the Backups within the last week
+
+    // Within the for loop, get each backup's ARN and restore
+    // Has to be done 1 by 1 because AWS doesn't allow multiple concurrent restores
+}
