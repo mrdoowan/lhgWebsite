@@ -92,14 +92,14 @@ const createDynamoDbBackups = () => {
     });
   });
 }
-// Check Rds availability daily at 3amEST, 10amEST, 9pmEST
+// Check Rds availability daily at 3amEST, 9amEST, 9pmEST
 const TZ_STRING = 'America/New_York';
 const rule1 = new schedule.RecurrenceRule();
 rule1.hour = 3;
 rule1.minute = 0;
 rule1.tz = TZ_STRING;
 const rule2 = new schedule.RecurrenceRule();
-rule2.hour = 10;
+rule2.hour = 9;
 rule2.minute = 0;
 rule2.tz = TZ_STRING;
 const rule3 = new schedule.RecurrenceRule();
