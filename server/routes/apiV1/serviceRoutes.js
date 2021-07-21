@@ -25,7 +25,6 @@ import {
  * @access  Public
  */
  serviceV1Routes.get('/champs', (req, res) => {
-  console.log("GET Request Service Champ Ids.");
   getChampIds().then((data) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Service ChampIds Error."));
@@ -37,7 +36,6 @@ import {
  * @access  Public
  */
  serviceV1Routes.get('/spells', (req, res) => {
-  console.log("GET Request Service Spell Ids.");
   getSummonerSpellIds().then((data) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Service SpellIds Error."));
@@ -49,7 +47,6 @@ import {
  * @access  Public
  */
  serviceV1Routes.get('/versions', (req, res) => {
-  console.log("GET Request Service Versions.");
   getVersions().then((data) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Service Versions Error."));
