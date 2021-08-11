@@ -13,7 +13,10 @@ import {
   checkRdsStatus,
   stopRdsInstance
 } from './functions/apiV1/dependencies/awsRdsHelper';
-import { dynamoDbCreateBackup } from './functions/apiV1/dependencies/dynamoDbHelper';
+import { 
+  dynamoDbCreateBackup,
+  dynamoDbCreateTestTable
+} from './functions/apiV1/dependencies/dynamoDbHelper';
 import authV1Routes from './routes/apiV1/authRoutes.js';
 import leagueV1Routes from './routes/apiV1/leagueRoutes.js';
 import seasonV1Routes from './routes/apiV1/seasonRoutes.js';
@@ -102,7 +105,7 @@ schedule.scheduleJob(rule1, checkRdsStatusFunction);
 schedule.scheduleJob(rule2, checkRdsStatusFunction);
 schedule.scheduleJob(rule3, checkRdsStatusFunction);
 
-// Task 2: Create DynamoDb backups once per week
+// Task 2: Create DynamoDb backups once per week on Saturday
 const createDynamoDbBackups = () => {
   Object.values(DYNAMODB_TABLENAMES).forEach((tableName) => {
     dynamoDbCreateBackup(tableName).then(() => { }).catch((err) => {
@@ -110,20 +113,27 @@ const createDynamoDbBackups = () => {
     });
   });
 }
-// Create DynamoDb Backups: Once every week on Sunday
 const rule4 = new schedule.RecurrenceRule();
-rule4.dayOfWeek = 0;
+rule4.dayOfWeek = 6;
 rule4.hour = 0;
 rule4.minute = 1;
 schedule.scheduleJob(rule4, createDynamoDbBackups);
 
-// Task 3: Create DynamoDb Test Tables from the backups
+// Task 3: Create DynamoDb Test Tables from the backups once every month (on the 1st)
 const createDynamoDbTestTables = async () => {
   // Call each table synchronously since DynamoDb's restoreTableFromBackup can only handle 4 fxns at once
-  for (const tableName of DYNAMODB_TABLENAMES) {
-
+  console.log("Restoring backups as Test Tables.");
+  for (const tableName of Object.values(DYNAMODB_TABLENAMES)) {
+    await dynamoDbCreateTestTable(tableName);
   }
+  console.log("Test Table restoration completed.");
 }
+const rule5 = new schedule.RecurrenceRule();
+rule5.date = 1;
+rule5.dayOfWeek = 0;
+rule5.hour = 0;
+rule5.minute = 1;
+schedule.scheduleJob(rule5, createDynamoDbTestTables);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
