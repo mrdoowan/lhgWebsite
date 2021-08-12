@@ -194,3 +194,82 @@ export const dynamoDbCreateBackup = (tableName) => {
     });
   });
 }
+
+/**
+ * 
+ * @param {string} tableName 
+ * @returns Promise
+ */
+export const dynamoDbCreateTestTable = (tableName) => {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); // 1 week ago
+  const listBackupsParams = {
+    TableName: tableName,
+    TimeRangeLowerBound: oneWeekAgo,
+  };
+  const testTableName = `Test-${tableName}`;
+  return new Promise((resolve, reject) => {
+    dynamoDb.listBackups(listBackupsParams, async (err, data) => {
+      if (err) {
+        console.error(`ERROR - dynamoDbCreateTestTable '${tableName}' Promise rejected. DynamoDb listBackups failed.`);
+        reject(err);
+        return;
+      }
+      const { BackupSummaries } = data;
+      if (BackupSummaries.length > 0) {
+        const backupTable = BackupSummaries[0];
+        // dynamoDb.deleteTable of `Test-${tableName}`
+        const targetTableParams = {
+          TableName: testTableName,
+        };
+        dynamoDb.deleteTable(targetTableParams, (err, data) => {
+          if (err) {
+            console.error(`ERROR - dynamoDbCreateTestTable '${tableName}' Promise rejected. DynamoDb deleteTable failed.`);
+            reject(err);
+            return;
+          }
+          console.log(`Deleting '${testTableName}' table.`);
+          dynamoDb.waitFor('tableNotExists', targetTableParams, (err, data) => {
+            if (err) {
+              console.error(`ERROR - dynamoDbCreateTestTable '${tableName}' Promise rejected. DynamoDb waitFor failed.`);
+              reject(err);
+              return;
+            }
+            console.log(`Table '${testTableName}' deleted.`);
+            // dynamoDb.restoreTableFromBackup ARN and rename with `Test-${tableName}`
+            const restoreTableParams = {
+              BackupArn: backupTable.BackupArn,
+              TargetTableName: testTableName,
+              ProvisionedThroughputOverride: {
+                ReadCapacityUnits: 1,
+                WriteCapacityUnits: 1,
+              },
+            }
+            console.log(`Restoring Table '${testTableName}'`);
+            dynamoDb.restoreTableFromBackup(restoreTableParams, async (err, data) => {
+              if (err) {
+                console.error(`ERROR - dynamoDbCreateTestTable '${tableName}' Promise rejected. DynamoDb restoreTableFromBackup failed.`)
+                reject(err);
+                return;
+              }
+              dynamoDb.waitFor('tableExists', targetTableParams, (err, data) => {
+                if (err) {
+                  console.error(`ERROR - dynamoDbCreateTestTable '${tableName}' Promise rejected. DynamoDb waitFor failed.`);
+                  reject(err);
+                  return;
+                }
+                console.log(`Table '${testTableName}' restored.`);
+                resolve(`Table '${testTableName}' restored from backup.`);
+              }); 
+            });
+          });
+        });
+      }
+      else {
+        const errMsg = `ERROR - Could not find '${tableName}' backups within the last week.`;
+        console.error(errMsg);
+        reject({ error: errMsg });
+      }
+    });
+  });
+}
