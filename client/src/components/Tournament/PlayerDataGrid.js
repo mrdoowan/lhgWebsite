@@ -67,6 +67,15 @@ export default function PlayerDataGrid({
     return data.TeamNameObject.TeamShortName;
   }
 
+  const sortByKda = (data) => {
+    if (data.Kda === "Perfect") {
+      return Number.POSITIVE_INFINITY;
+    }
+    else {
+      return parseFloat(data.Kda);
+    }
+  }
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -89,7 +98,7 @@ export default function PlayerDataGrid({
             <Column dataField="Role" alignment="center" width={100} fixed={true} />
             <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" fixed={true} />
             <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
-            <Column dataField="Kda" alignment="center" dataType="number" caption="KDA" format={fixedPoint(2)} />
+            <Column dataField="Kda" alignment="center" dataType="number" caption="KDA" calculateSortValue={sortByKda} format={fixedPoint(2)} />
             <Column dataField="TotalKills" alignment="center" dataType="number" caption="Kills" />
             <Column dataField="TotalDeaths" alignment="center" dataType="number" caption="Deaths" />
             <Column dataField="TotalAssists" alignment="center" dataType="number" caption="Assists" />
