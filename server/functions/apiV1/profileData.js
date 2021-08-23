@@ -793,6 +793,9 @@ export const updateProfileStatsLog = (profilePId, tournamentPId) => {
         }
         // Get from sProc
         const statsRoleItem = statsLogProfileItem[role];
+        const playerMostRecentTeamSProcData = await mySqlCallSProc('playerMostRecentMatchByRoleTournamentId', 
+          profilePId, tournamentPId, role);
+        statsRoleItem['MostRecentTeamPId'] = playerMostRecentTeamSProcData[0].teamPId;
         statsRoleItem['GamesPlayed'] = playerStatsTotalRow.gamesPlayed;
         statsRoleItem['GamesPlayedOverEarly'] = playerStatsTotalRow.gamesPlayedOverEarly;
         statsRoleItem['GamesPlayedOverMid'] = playerStatsTotalRow.gamesPlayedOverMid;
