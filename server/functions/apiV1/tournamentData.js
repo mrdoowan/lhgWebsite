@@ -240,6 +240,10 @@ export const getTournamentPlayerStats = (tournamentPId) => {
                 return new Promise(async (resolveObject) => {
                   const statsObject = profileStatsLog.RoleStats[role];
                   statsObject.ProfileName = await getProfileName(profileHId);
+                  statsObject.TeamNameObject = {
+                    TeamName: await getTeamName(statsObject.MostRecentTeamHId),
+                    TeamShortName: await getTeamShortName(statsObject.MostRecentTeamHId)
+                  }
                   statsObject.Role = role;
                   resolveObject(statsObject);
                 });
