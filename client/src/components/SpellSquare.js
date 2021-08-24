@@ -5,8 +5,8 @@ import { makeStyles } from '@material-ui/core/styles';
 // Static
 import NoImage from '../static/no-image.png';
 import {
-  getCurrentVersion,
   getSpellUrlId,
+  getCurrentVersion,
   getVersionByPatch,
 } from '../service/StaticCalls';
 

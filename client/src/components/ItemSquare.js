@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import { getCurrentVersion, getVersionByPatch, getVersionList } from '../service/StaticCalls';
+import { 
+  getCurrentVersion,
+  getVersionByPatch,
+} from '../service/StaticCalls';
 import NoImage from '../static/no-image.png';
 
 const useStyles = makeStyles((theme) => ({
