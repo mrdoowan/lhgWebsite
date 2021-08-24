@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
-import { getVersionList } from '../service/StaticCalls';
+import { getCurrentVersion, getVersionByPatch, getVersionList } from '../service/StaticCalls';
 import NoImage from '../static/no-image.png';
 
 const useStyles = makeStyles((theme) => ({
@@ -60,32 +60,15 @@ export default function ItemSquare({
   width = 30,
   height = 30,
 }) {
-  const [versionList, setVersionList] = useState(null);
-  const classes = useStyles();
+  const [currentVersion, setCurrentVersion] = useState(null);
+  const [patchVersion, setPatchVersion] = useState(null);
   useEffect(() => {
-    getVersionList().then((data) => { setVersionList(data); });
+    getCurrentVersion().then((data) => { setCurrentVersion(data); });
+    getVersionByPatch(patch).then((data) => { setPatchVersion(data); });
   }, []);
+  const classes = useStyles();
 
-  const getCurrentVersion = () => {
-    return (versionList) ? versionList[0] : null;
-  }
-  
-  const getVersionByPatch = (patch) => {
-    if (!versionList) return null;
-    if (patch) {
-      for (const DDragonVersion of versionList) {
-        if (DDragonVersion.includes(patch)) {
-          return DDragonVersion;
-        }
-      }
-    }
-    return versionList[0]; // Default latest patch
-  }
-
-  const ddragonVersion = (!patch) ?
-    ((!version) ? getCurrentVersion() : version) :
-    getVersionByPatch(patch);
-
+  const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;
   const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${id}.png`;
   // since we can get itemIds that = 0, we want to render a blank square
   const imgComponent = (!id || !ddragonVersion || id === 0) ? 
