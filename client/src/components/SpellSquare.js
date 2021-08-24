@@ -71,7 +71,7 @@ export default function SpellSquare({
     getSpellUrlId(id).then((data) => { setUrlId(data); });
     getCurrentVersion().then((data) => { setCurrentVersion(data); });
     getVersionByPatch(patch).then((data) => { setPatchVersion(data); });
-  }, []);
+  }, [id, patch]);
   const classes = useStyles();
 
   const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;

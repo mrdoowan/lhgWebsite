@@ -74,7 +74,7 @@ export default function ChampionSquare({
     getChampName(id).then((data) => { setName(data); });
     getCurrentVersion().then((data) => { setCurrentVersion(data); });
     getVersionByPatch(patch).then((data) => { setPatchVersion(data); });
-  }, []);
+  }, [id, patch]);
   const classes = useStyles();
 
   const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;
