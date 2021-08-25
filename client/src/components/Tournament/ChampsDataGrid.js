@@ -34,7 +34,14 @@ const useStyles = makeStyles((theme) => ({
 export default function ChampsDataGrid({ pickbans }) {
   const classes = useStyles();
 
-  const champCell = (data) => (<ChampionSquare id={data.value} patch={pickbans.MostRecentPatch} withName={true} />);
+  const champCellRender = (data) => {
+    const { ChampNameObject } = data.data;
+    return <ChampionSquare id={ChampNameObject.Id} patch={pickbans.MostRecentPatch} withName={true} />;
+  }
+
+  const sortByChampName = (data) => {
+    return data.ChampNameObject.Name;
+  }
 
   const fixedPercent = () => {
     return {
@@ -71,7 +78,8 @@ export default function ChampsDataGrid({ pickbans }) {
             <Scrolling columnRenderingMode="virtual" />
             <Paging enabled={false} />
 
-            <Column dataField="Id" caption="Champ" width={150} fixed={true} cellRender={champCell} />
+            <Column dataField="ChampNameObject" caption="Champ" width={150} fixed={true} dataType="string" 
+              calculateSortValue={sortByChampName} calculateCellValue={sortByChampName} cellRender={champCellRender} />
             <Column dataField="Presence" alignment="center" dataType="number" caption="Presence" format={fixedPercent()} cssClass="myClass" />
             <Column dataField="TimesPicked" alignment="center" dataType="number" caption="Picks" cssClass="myClass" />
             <Column dataField="TimesBanned" alignment="center" dataType="number" caption="Bans" cssClass="myClass" />

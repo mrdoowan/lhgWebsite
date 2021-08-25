@@ -32,7 +32,10 @@ import {
   getTeamShortName,
   getTeamStatsByTourney,
 } from './teamData';
-import { createChampObject } from '../../services/ddragonChampion';
+import { 
+  createChampObject, 
+  getChampName 
+} from '../../services/ddragonChampion';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -312,8 +315,8 @@ export const getTournamentPickBans = (tournamentPId) => {
       if (err) { console(err); reject(err); return; }
       else if (data != null) { resolve(JSON.parse(data)); return; }
       try {
-        let tourneyJson = (await dynamoDbGetItem('Tournament', tournamentPId));
-        let pickBansJson = {}
+        const tourneyJson = (await dynamoDbGetItem('Tournament', tournamentPId));
+        const pickBansJson = {}
         if (tourneyJson.PickBans) {
           const pbList = [];
           const numberGames = tourneyJson.TourneyStats?.NumberGames;
@@ -321,9 +324,13 @@ export const getTournamentPickBans = (tournamentPId) => {
           pickBansJson['MostRecentPatch'] = tourneyJson.Information?.MostRecentPatch;
           let numberChampsWithPresence = 0;
           for (let i = 0; i < Object.keys(tourneyJson['PickBans']).length; ++i) {
-            let champId = Object.keys(tourneyJson['PickBans'])[i];
-            let champObject = tourneyJson['PickBans'][champId];
+            const champId = Object.keys(tourneyJson['PickBans'])[i];
+            const champObject = tourneyJson['PickBans'][champId];
             champObject['Id'] = champId;
+            champObject['ChampNameObject'] = {
+              Id: champId,
+              Name: await getChampName(champId),
+            };
             champObject['TimesPicked'] = champObject['BluePicks'] + champObject['RedPicks'];
             champObject['TimesBanned'] = champObject['BlueBans'] + champObject['RedBans'];
             const presence = champObject['TimesPicked'] + champObject['TimesBanned'];

@@ -36,7 +36,7 @@ export const CACHE_KEYS = {
   TEAM_STATS_PREFIX: 'TStats-',               // Key: TeamId-TourneyId
   MATCH_PREFIX: 'Match-',                     // Key: MatchId
   LATEST_PATCH: 'LatestPatch',                // 
-  CHAMP_OBJECT: 'ChampObject',                // 
+  CHAMP_OBJECT: 'ChampObject-',               // Key: Patch
   CHAMP_IDS: 'ChampIds',
   SPELL_IDS: 'SpellIds',
   VERSIONS: 'Versions',
