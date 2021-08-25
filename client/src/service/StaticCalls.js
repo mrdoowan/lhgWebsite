@@ -5,18 +5,18 @@ const CHAMPS = 'champs';
 const SPELLS = 'spells';
 const VERSIONS = 'versions';
 
+const sessionKey = {
+  [CHAMPS]: 'doowanstats_champIds',
+  [SPELLS]: 'doowanstats_spellIds',
+  [VERSIONS]: 'doowanstats_versions',
+}
+
 /**
  * Helper function to call GET request of static data
  * @param {string} apiType  API URL call in string
  * @returns Promise
  */
-const getStaticData = (apiType) => {
-  const sessionKey = {
-    [CHAMPS]: 'doowanstats_champIds',
-    [SPELLS]: 'doowanstats_spellIds',
-    [VERSIONS]: 'doowanstats_versions',
-  }
-
+const setSessionData = (apiType) => {
   return new Promise((resolve, reject) => {
     const data = JSON.parse(window.sessionStorage.getItem(sessionKey[apiType]));
 
@@ -37,11 +37,46 @@ const getStaticData = (apiType) => {
 
 /**
  * 
+ * @param {string} apiType 
+ * @returns Object
+ */
+const getSessionData = (apiType) => {
+  return JSON.parse(window.sessionStorage.getItem(sessionKey[apiType]));
+}
+
+/**
+ * Sets session data for the map object of Champs
+ * @returns void
+ */
+export const setSessionDataChamps = () => {
+  setSessionData(VERSIONS);
+  setSessionData(CHAMPS);
+}
+
+/**
+ * Sets session data for the map object of Spells
+ * @returns void
+ */
+export const setSessionDataSpells = () => {
+  setSessionData(VERSIONS);
+  setSessionData(SPELLS);
+}
+
+/**
+ * Sets session data for list of Versions
+ * @returns void
+ */
+export const setSessionDataVersions = () => {
+  setSessionData(VERSIONS);
+}
+
+/**
+ * 
  * @param {number} id
  * @returns Promise
  */
-export const getChampUrlId = async (id) => {
-  const champByIds = await getStaticData(CHAMPS);
+export const getChampUrlId = (id) => {
+  const champByIds = getSessionData(CHAMPS);
 
   if (!champByIds) return null;
   if (!(id in champByIds)) {
@@ -55,8 +90,8 @@ export const getChampUrlId = async (id) => {
  * @param {number} id
  * @returns Promise
  */
-export const getChampName = async (id) => {
-  const champByIds = await getStaticData(CHAMPS);
+export const getChampName = (id) => {
+  const champByIds = getSessionData(CHAMPS);
 
   if (!champByIds) return null;
   if (!(id in champByIds)) {
@@ -70,8 +105,8 @@ export const getChampName = async (id) => {
  * @param {number} id 
  * @returns Promise
  */
-export const getSpellUrlId = async (id) => {
-  const spellByIds = await getStaticData(SPELLS);
+export const getSpellUrlId = (id) => {
+  const spellByIds = getSessionData(SPELLS);
 
   if (!spellByIds) { return null; }
   if (!(id in spellByIds)) {
@@ -84,8 +119,8 @@ export const getSpellUrlId = async (id) => {
  * 
  * @returns Promise
  */
-export const getCurrentVersion = async () => {
-  const versionList = await getStaticData(VERSIONS);
+export const getCurrentVersion = () => {
+  const versionList = getSessionData(VERSIONS);
 
   return (versionList) ? versionList[0] : null;
 }
@@ -95,8 +130,8 @@ export const getCurrentVersion = async () => {
  * @param {string} patch 
  * @returns Promise
  */
-export const getVersionByPatch = async (patch) => {
-  const versionList = await getStaticData(VERSIONS);
+export const getVersionByPatch = (patch) => {
+  const versionList = getSessionData(VERSIONS);
 
   if (!versionList) return null;
   if (patch) {

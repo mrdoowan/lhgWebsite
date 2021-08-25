@@ -63,14 +63,10 @@ export default function ItemSquare({
   width = 30,
   height = 30,
 }) {
-  const [currentVersion, setCurrentVersion] = useState(null);
-  const [patchVersion, setPatchVersion] = useState(null);
-  useEffect(() => {
-    getCurrentVersion().then((data) => { setCurrentVersion(data); });
-    getVersionByPatch(patch).then((data) => { setPatchVersion(data); });
-  }, [patch]);
   const classes = useStyles();
 
+  const currentVersion = getCurrentVersion();
+  const patchVersion = getVersionByPatch(patch);
   const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;
   const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${id}.png`;
   // since we can get itemIds that = 0, we want to render a blank square

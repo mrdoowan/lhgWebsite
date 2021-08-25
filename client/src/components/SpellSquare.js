@@ -64,16 +64,11 @@ export default function SpellSquare({
   width = 30,
   height = 30,
 }) {
-  const [urlId, setUrlId] = useState(null);
-  const [currentVersion, setCurrentVersion] = useState(null);
-  const [patchVersion, setPatchVersion] = useState(null);
-  useEffect(() => {
-    getSpellUrlId(id).then((data) => { setUrlId(data); });
-    getCurrentVersion().then((data) => { setCurrentVersion(data); });
-    getVersionByPatch(patch).then((data) => { setPatchVersion(data); });
-  }, [id, patch]);
   const classes = useStyles();
 
+  const urlId = getSpellUrlId(id);
+  const currentVersion = getCurrentVersion();
+  const patchVersion = getVersionByPatch(patch);
   const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;
   const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${urlId}.png`;
 
