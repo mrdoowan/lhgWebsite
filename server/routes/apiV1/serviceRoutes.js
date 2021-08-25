@@ -6,9 +6,9 @@ import {
 } from './dependencies/handlers';
 /*  Import helper Data function modules */
 import {
-  getChampIds,
-  getSummonerSpellIds,
-  getVersions
+  getChampIdObject,
+  getSpellIdObject,
+  getVersionList,
 } from '../../services/miscDynamoDb';
 
 /*  
@@ -25,7 +25,7 @@ import {
  * @access  Public
  */
  serviceV1Routes.get('/champs', (req, res) => {
-  getChampIds().then((data) => {
+  getChampIdObject().then((data) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Service ChampIds Error."));
 });
@@ -36,7 +36,7 @@ import {
  * @access  Public
  */
  serviceV1Routes.get('/spells', (req, res) => {
-  getSummonerSpellIds().then((data) => {
+  getSpellIdObject().then((data) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Service SpellIds Error."));
 });
@@ -47,7 +47,7 @@ import {
  * @access  Public
  */
  serviceV1Routes.get('/versions', (req, res) => {
-  getVersions().then((data) => {
+  getVersionList().then((data) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Service Versions Error."));
 });
