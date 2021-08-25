@@ -5,7 +5,10 @@ import { createDbMatchObject } from './createMatchObject';
 import { getProfilePIdByName } from '../profileData';
 import { getTeamPIdByName } from '../teamData';
 import { checkRdsStatus } from '../dependencies/awsRdsHelper';
-import { dynamoDbGetItem, dynamoDbPutItem } from '../dependencies/dynamoDbHelper';
+import { 
+  dynamoDbGetItem,
+  dynamoDbPutItem
+} from '../dependencies/dynamoDbHelper';
 import {
   AWS_RDS_STATUS,
   DYNAMODB_TABLENAMES,
@@ -14,7 +17,7 @@ import {
 } from '../../../services/constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
 import { getMatchSetupList } from '../matchData';
-import { createChampObject } from '../../../services/ddragonChampion';
+import { getChampIdObject } from '../../../services/miscDynamoDb';
 
 /**
  * Takes the Setup of matchId 
@@ -81,7 +84,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
   return new Promise(async (resolve, reject) => {
     try {
       const validateList = [];
-      const champObject = await createChampObject();
+      const champObject = await getChampIdObject();
 
       // Check all the bans that they are actual champIds
       const checkBans = async (color, banList) => {

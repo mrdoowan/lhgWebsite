@@ -9,53 +9,18 @@ import { getDDragonVersion } from "./ddragonVersion"
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
- * @param {string} key      The id of each Champion (i.e. '1' is Annie)
- */
-export const getChampUrlId = (key) => {
-  return new Promise((resolve, reject) => {
-    createChampObject().then((champObject) => {
-      if (!(key in champObject)) {
-        resolve(key);
-      }
-      else {
-        resolve(champObject[key]['id']);
-      }
-    }).catch((err) => {
-      reject(err);
-    });
-  });
-}
-
-/**
- * @param {string} key      The id of each Champion (i.e. '1' is Annie)
- */
-export const getChampName = (key) => {
-  return new Promise((resolve, reject) => {
-    createChampObject().then((champObject) => {
-      if (!(key in champObject)) {
-        resolve(key);
-      }
-      else {
-        resolve(champObject[key]['name']);
-      }
-    }).catch((err) => {
-      reject(err);
-    });
-  });
-}
-
-/**
- * Creates an object of Champions with the following property as an example
+ * Creates an object of Champions from DDragon with the following property as an example
  * {
  *   '1': {
  *     "id": "Annie",
  *     "name": "Annie"
  *   }
  * }
+ * Unlike the misc DB, this creates a list of champions based on the Patch
  * @param {string} patch        Can be 'null' for latest
  * @returns Promise<object>
  */
-export const createChampObject = (patch = null) => {
+export const createChampObjectFromDdragon = (patch = null) => {
   const cacheKey = `${CACHE_KEYS.CHAMP_OBJECT}${patch}`;
   return new Promise((resolve, reject) => {
     cache.get(cacheKey, async (err, data) => {

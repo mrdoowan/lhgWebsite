@@ -33,9 +33,11 @@ import {
   getTeamStatsByTourney,
 } from './teamData';
 import { 
-  createChampObject, 
-  getChampName 
+  createChampObjectFromDdragon 
 } from '../../services/ddragonChampion';
+import { 
+  getServerChampName
+} from '../../services/miscDynamoDb';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -329,7 +331,7 @@ export const getTournamentPickBans = (tournamentPId) => {
             champObject['Id'] = champId;
             champObject['ChampNameObject'] = {
               Id: champId,
-              Name: await getChampName(champId),
+              Name: await getServerChampName(champId),
             };
             champObject['TimesPicked'] = champObject['BluePicks'] + champObject['RedPicks'];
             champObject['TimesBanned'] = champObject['BlueBans'] + champObject['RedBans'];
@@ -728,7 +730,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
  */
 function initPickBansObject(patch) {
   return new Promise((resolve, reject) => {
-    createChampObject(patch).then((champObject) => {
+    createChampObjectFromDdragon(patch).then((champObject) => {
       const newPickBansObject = {};
       for (const champId in champObject) {
         newPickBansObject[champId] = {

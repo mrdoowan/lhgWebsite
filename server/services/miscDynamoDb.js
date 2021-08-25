@@ -44,22 +44,58 @@ const callMiscDynamoDb = (dynamoDbKey) => {
  * Calls the DynamoDb stored static data ChampIds
  * @returns object
  */
-export const getChampIds = () => {
+export const getChampIdObject = () => {
   return callMiscDynamoDb(MISC_KEYS.CHAMP_IDS);
+}
+
+/**
+ * @param {string} key      The id of each Champion (i.e. '1' is Annie)
+ */
+ export const getServerChampUrlId = (key) => {
+  return new Promise((resolve, reject) => {
+    getChampIdObject().then((champObject) => {
+      if (!(key in champObject)) {
+        resolve(key);
+      }
+      else {
+        resolve(champObject[key]['id']);
+      }
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+/**
+ * @param {string} key      The id of each Champion (i.e. '1' is Annie)
+ */
+export const getServerChampName = (key) => {
+  return new Promise((resolve, reject) => {
+    getChampIdObject().then((champObject) => {
+      if (!(key in champObject)) {
+        resolve(key);
+      }
+      else {
+        resolve(champObject[key]['name']);
+      }
+    }).catch((err) => {
+      reject(err);
+    });
+  });
 }
 
 /**
  * Calls the DynamoDb stored static data SummonerSpellIds
  * @returns object
  */
-export const getSummonerSpellIds = () => {
+export const getSpellIdObject = () => {
   return callMiscDynamoDb(MISC_KEYS.SPELL_IDS);
 }
 
 /**
  * Calls the DynamoDb stored static data Versions.json
- * @returns object
+ * @returns array
  */
-export const getVersions = () => {
+export const getVersionList = () => {
   return callMiscDynamoDb(MISC_KEYS.VERSIONS);
 }
