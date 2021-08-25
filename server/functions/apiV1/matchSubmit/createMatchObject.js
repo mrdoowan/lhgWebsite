@@ -4,7 +4,7 @@ import {
   MINUTE,
   BARON_DURATION,
 } from '../../../services/constants';
-import { getDDragonVersion } from '../../../services/ddragonVersion';
+import { getDdragonVersion } from '../../../services/miscDynamoDb';
 import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
 import {
   getProfileHashId,
@@ -54,7 +54,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       matchObject['GameDuration'] = matchDataRiotJson.gameDuration;
       const patch = await getPatch(matchDataRiotJson.gameVersion);
       matchObject['GamePatchVersion'] = patch;
-      matchObject['DDragonVersion'] = await getDDragonVersion(patch);
+      matchObject['DDragonVersion'] = await getDdragonVersion(patch);
 
       // #region 2.1) - Teams+Players
       const teamItems = {}; // teamId (100 or 200) -> teamData {}

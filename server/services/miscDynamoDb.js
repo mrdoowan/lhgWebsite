@@ -99,3 +99,26 @@ export const getSpellIdObject = () => {
 export const getVersionList = () => {
   return callMiscDynamoDb(MISC_KEYS.VERSIONS);
 }
+
+/**
+ * 
+ * @param {string} patch 
+ * @returns string
+ */
+ export const getDdragonVersion = (patch) => {
+  return new Promise((resolve, reject) => {
+    getVersionList().then((versionList) => {
+      if (patch) {
+        for (const DDragonVersion of versionList) {
+          if (DDragonVersion.includes(patch)) {
+            resolve(DDragonVersion);
+            return;
+          }
+        }
+      }
+      resolve(versionList[0]);    // Return latest as default
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}

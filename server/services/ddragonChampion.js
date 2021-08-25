@@ -4,7 +4,7 @@ const redis = require('redis');
 import axios from "axios"
 import { CACHE_KEYS } from "../functions/apiV1/dependencies/cacheKeys";
 import { GLOBAL_CONSTS } from "../functions/apiV1/dependencies/global";
-import { getDDragonVersion } from "./ddragonVersion"
+import { getDdragonVersion } from "./miscDynamoDb";
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -26,7 +26,7 @@ export const createChampObjectFromDdragon = (patch = null) => {
     cache.get(cacheKey, async (err, data) => {
       if (err) { console(err); reject(err); return; }
       else if (data) { resolve(JSON.parse(data)); return; }
-      const ddragonVersion = await getDDragonVersion(patch);
+      const ddragonVersion = await getDdragonVersion(patch);
       axios.get(`http://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/en_US/champion.json`)
       .then((res) => {
         const { data } = res.data;
