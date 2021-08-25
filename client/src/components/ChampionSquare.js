@@ -1,5 +1,5 @@
 // npm modules
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
@@ -69,6 +69,8 @@ export default function ChampionSquare({
 
   const urlId = getChampUrlId(id);
   const name = getChampName(id);
+  const currentVersion = getCurrentVersion();
+  const patchVersion = getVersionByPatch(patch);
   const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;
   const urlImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
 

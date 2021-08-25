@@ -45,11 +45,22 @@ const getSessionData = (apiType) => {
 }
 
 /**
+ * 
+ * @returns boolean
+ */
+export const isSessionDataLoaded = () => {
+  return (
+    JSON.parse(window.sessionStorage.getItem(CHAMPS)) &&
+    JSON.parse(window.sessionStorage.getItem(SPELLS)) &&
+    JSON.parse(window.sessionStorage.getItem(VERSIONS))
+  );
+}
+
+/**
  * Sets session data for the map object of Champs
  * @returns void
  */
 export const setSessionDataChamps = () => {
-  setSessionData(VERSIONS);
   setSessionData(CHAMPS);
 }
 
@@ -58,7 +69,6 @@ export const setSessionDataChamps = () => {
  * @returns void
  */
 export const setSessionDataSpells = () => {
-  setSessionData(VERSIONS);
   setSessionData(SPELLS);
 }
 
