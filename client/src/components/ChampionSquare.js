@@ -1,12 +1,14 @@
 // npm modules
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 // Static
 import NoImage from '../static/no-image.png';
 import {
-  getChampIds,
-  getVersionList
+  getChampName,
+  getChampUrlId,
+  getCurrentVersion,
+  getVersionByPatch,
 } from '../service/StaticCalls';
 
 const useStyles = makeStyles((theme) => ({
@@ -63,52 +65,13 @@ export default function ChampionSquare({
   width = 30,
   height = 30,
 }) {
-  const [versionList, setVersionList] = useState(null);
-  const [champByIds, setChampByIds] = useState(null);
   const classes = useStyles();
-  useEffect(() => {
-    getVersionList().then((data) => { setVersionList(data); });
-    getChampIds().then((data) => { setChampByIds(data); });
-  }, []);
-
-  const getChampUrlId = (id) => {
-    if (!champByIds) return null;
-    if (!(id in champByIds)) {
-      return id;
-    }
-  
-    return champByIds[id]['id'];
-  }
-  
-  const getChampName = (id) => {
-    if (!champByIds) return null;
-    if (!(id in champByIds)) {
-      return id;
-    }
-    return champByIds[id]['name'];
-  }
-  
-  const getCurrentVersion = () => {
-    return (versionList) ? versionList[0] : null;
-  }
-  
-  const getVersionByPatch = (patch) => {
-    if (!versionList) return null;
-    if (patch) {
-      for (const DDragonVersion of versionList) {
-        if (DDragonVersion.includes(patch)) {
-          return DDragonVersion;
-        }
-      }
-    }
-    return versionList[0]; // Default latest patch
-  }
 
   const urlId = getChampUrlId(id);
   const name = getChampName(id);
-  const ddragonVersion = (!patch) ?
-    ((!version) ? getCurrentVersion() : version) :
-    getVersionByPatch(patch);
+  const currentVersion = getCurrentVersion();
+  const patchVersion = getVersionByPatch(patch);
+  const ddragonVersion = (!patch) ? ((!version) ? currentVersion : version) : patchVersion;
   const urlImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${urlId}.png`;
 
   const imgComponent = (!urlId || !ddragonVersion) ? 
