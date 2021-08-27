@@ -22,14 +22,16 @@ import {
 import ChampionSquare from '../ChampionSquare';
 import ItemSquare from '../ItemSquare';
 import SpellSquare from '../SpellSquare';
+import KillsImg from '../../static/Scoreboardicon_Kills.png';
+import GoldImg from '../../static/Scoreboardicon_Gold.png';
 
 const BLUE_TEAM = '100';
 const RED_TEAM = '200';
-const ROLE_TOP = 'TOP';
-const ROLE_BOT = 'BOTTOM';
-const ROLE_SUP = 'SUPPORT';
-const ROLE_MID = 'MIDDLE';
-const ROLE_JUN = 'JUNGLE';
+const ROLE_TOP = 'Top';
+const ROLE_BOT = 'Bottom';
+const ROLE_SUP = 'Support';
+const ROLE_MID = 'Middle';
+const ROLE_JUN = 'Jungle';
 const VICTORY = 'VICTORY';
 const DEFEAT = 'DEFEAT';
 
@@ -50,19 +52,20 @@ const useStyles = makeStyles((theme) => ({
   },
   blueHeader: {
     backgroundColor: '#1241CE',
-    color: theme.palette.common.white,
+    color: 'white',
     fontSize: 20,
   },
   redHeader: {
     backgroundColor: '#CB2C31',
-    color: theme.palette.common.white,
+    color: 'white',
     fontSize: 20,
   },
-  cellRow: {
-    padding: '16px 16px 16px 0',
-  },
-  champWrapper: {
+  blueChampWrapper: {
     display: 'flex',
+  },
+  redChampWrapper: {
+    display: 'flex',
+    justifyContent: 'flex-end',
   },
   champColumn: {
     maxWidth: '84px',
@@ -90,6 +93,13 @@ const useStyles = makeStyles((theme) => ({
   },
   singleItem: {
     width: '33.33333%'
+  },
+  largeCell: {
+    fontSize: 'large',
+    border: '1px solid gray',
+  },
+  borderCell: {
+    border: '1px solid gray',
   },
 }));
 
@@ -119,25 +129,27 @@ export default function MatchSummary({ match }) {
   ];
 
   // get player stats by role
-  const blueRoles = {};
-  const redRoles = {};
+  // Key: Role 'string'
+  // Value: participantId
+  const blueRolesMap = {};
+  const redRolesMap = {};
 
   for (const [key, value] of Object.entries(match.Teams[BLUE_TEAM].Players)) {
-    switch (value.Role.toUpperCase()) {
+    switch (value.Role) {
       case ROLE_TOP:
-        blueRoles.ROLE_TOP = key;
+        blueRolesMap[ROLE_TOP] = key;
         break;
       case ROLE_BOT:
-        blueRoles.ROLE_BOT = key;
+        blueRolesMap[ROLE_BOT] = key;
         break;
       case ROLE_SUP:
-        blueRoles.ROLE_SUP = key;
+        blueRolesMap[ROLE_SUP] = key;
         break;
       case ROLE_MID:
-        blueRoles.ROLE_MID = key;
+        blueRolesMap[ROLE_MID] = key;
         break
       case ROLE_JUN:
-        blueRoles.ROLE_JUN = key;
+        blueRolesMap[ROLE_JUN] = key;
         break;
       default: 
         break;
@@ -145,21 +157,21 @@ export default function MatchSummary({ match }) {
   }
 
   for (const [key, value] of Object.entries(match.Teams[RED_TEAM].Players)) {
-    switch (value.Role.toUpperCase()) {
+    switch (value.Role) {
       case ROLE_TOP:
-        redRoles.ROLE_TOP = key;
+        redRolesMap[ROLE_TOP] = key;
         break;
       case ROLE_BOT:
-        redRoles.ROLE_BOT = key;
+        redRolesMap[ROLE_BOT] = key;
         break;
       case ROLE_SUP:
-        redRoles.ROLE_SUP = key;
+        redRolesMap[ROLE_SUP] = key;
         break;
       case ROLE_MID:
-        redRoles.ROLE_MID = key;
+        redRolesMap[ROLE_MID] = key;
         break
       case ROLE_JUN:
-        redRoles.ROLE_JUN = key;
+        redRolesMap[ROLE_JUN] = key;
         break;
       default: 
         break;
@@ -170,28 +182,28 @@ export default function MatchSummary({ match }) {
   const damageDistribution = [
     {
       lane: ROLE_TOP,
-      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_TOP].DamageDealtPct) * 100,
-      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_TOP].DamageDealtPct) * 100,
+      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_TOP]].DamageDealtPct) * 100,
+      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_TOP]].DamageDealtPct) * 100,
     },
     {
       lane: ROLE_JUN,
-      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_JUN].DamageDealtPct) * 100,
-      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_JUN].DamageDealtPct) * 100,
+      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_JUN]].DamageDealtPct) * 100,
+      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_JUN]].DamageDealtPct) * 100,
     },
     {
       lane: ROLE_MID,
-      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_MID].DamageDealtPct) * 100,
-      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_MID].DamageDealtPct) * 100,
+      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_MID]].DamageDealtPct) * 100,
+      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_MID]].DamageDealtPct) * 100,
     },
     {
       lane: ROLE_BOT,
-      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_BOT].DamageDealtPct) * 100,
-      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_BOT].DamageDealtPct) * 100,
+      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_BOT]].DamageDealtPct) * 100,
+      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_BOT]].DamageDealtPct) * 100,
     },
     {
       lane: ROLE_SUP,
-      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_SUP].DamageDealtPct) * 100,
-      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_SUP].DamageDealtPct) * 100,
+      blueDamage: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_SUP]].DamageDealtPct) * 100,
+      redDamage: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_SUP]].DamageDealtPct) * 100,
     },
   ];
 
@@ -199,36 +211,96 @@ export default function MatchSummary({ match }) {
   const goldDistribution = [
     {
       lane: ROLE_TOP,
-      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_TOP].GoldPct) * 100,
-      red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_TOP].GoldPct) * 100
+      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_TOP]].GoldPct) * 100,
+      red: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_TOP]].GoldPct) * 100
     },
     {
       lane: ROLE_JUN,
-      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_JUN].GoldPct) * 100,
-      red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_JUN].GoldPct) * 100
+      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_JUN]].GoldPct) * 100,
+      red: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_JUN]].GoldPct) * 100
     },
     {
       lane: ROLE_MID,
-      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_MID].GoldPct) * 100,
-      red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_MID].GoldPct) * 100
+      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_MID]].GoldPct) * 100,
+      red: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_MID]].GoldPct) * 100
     },
     {
       lane: ROLE_BOT,
-      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_BOT].GoldPct) * 100,
-      red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_BOT].GoldPct) * 100
+      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_BOT]].GoldPct) * 100,
+      red: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_BOT]].GoldPct) * 100
     },
     {
       lane: ROLE_SUP,
-      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRoles.ROLE_SUP].GoldPct) * 100,
-      red: parseFloat(match.Teams[RED_TEAM].Players[redRoles.ROLE_SUP].GoldPct) * 100
+      blue: parseFloat(match.Teams[BLUE_TEAM].Players[blueRolesMap[ROLE_SUP]].GoldPct) * 100,
+      red: parseFloat(match.Teams[RED_TEAM].Players[redRolesMap[ROLE_SUP]].GoldPct) * 100
     },
   ];
 
   /**
+   * 
+   * @param {number} gold 
+   * @returns {string} Gold in string value (i.e. 10,123 -> 10.1k)
+   */
+  const simpleGoldString = (gold) => {
+    const thousands = parseInt(gold / 1000);
+    let hundreds = parseInt((gold % 1000) / 100);
+    const tens = parseInt(gold / 10);
+    if (tens >= 5) { hundreds++; } // Round up
+    return `${thousands}.${hundreds}k`;
+  }
+
+  const blueTeamData = match.Teams[BLUE_TEAM];
+  const redTeamData = match.Teams[RED_TEAM];
+  const thisTeamData = (teamColor) => {
+    return match.Teams[teamColor];
+  }
+  const thisPlayerData = (teamColor, role) => {
+    const thisRolesMap = (teamColor === BLUE_TEAM) ? blueRolesMap : redRolesMap;
+    return match.Teams[teamColor].Players[thisRolesMap[role]];
+  }
+  const roleArray = [ ROLE_TOP, ROLE_JUN, ROLE_MID, ROLE_BOT, ROLE_SUP ];
+
+  const colorHeader = (teamColor) => { 
+    return (teamColor === BLUE_TEAM) ? classes.blueHeader : classes.redHeader;
+  }
+  const teamTitle = (teamColor) =>  {
+    return (teamColor === BLUE_TEAM) ? `${blueTeamName} [${blueWinString}]` : `[${redWinString}] ${redTeamName}`;
+  }
+  const killsIcon = <img src={KillsImg} alt="killLogo" width="30" height="30" />;
+  const goldIcon = <img src={GoldImg} alt="goldLogo" width="30" height="30" />;
+  const bansComponent = (teamColor) => {
+    return <React.Fragment>
+      <b>Bans: </b>
+      {thisTeamData(teamColor).Bans.map((banId) => (
+        <span key={`blueBanId${banId}`}><ChampionSquare id={banId} patch={patch} width="40" height="40" /></span>
+      ))}
+    </React.Fragment>;
+  }
+  const champComponent = (teamColor, role) => {
+    return <span className={classes.champColumn}>
+      <ChampionSquare id={thisPlayerData(teamColor, role).ChampId} patch={patch} width="80" height="80" />
+    </span>;
+  };
+  const spellComponent = (teamColor, role) => {
+    const playerData = thisPlayerData(teamColor, role);
+    return <span className={classes.spellColumn}>
+      <div><SpellSquare id={playerData.Spell1Id} key={playerData.Spell1Id} patch={patch} width="40" height="40" /></div>
+      <div><SpellSquare id={playerData.Spell2Id} key={playerData.Spell2Id} patch={patch} width="40" height="40" /></div>
+    </span>;
+  }
+  const nameComponent = (teamColor, role) => {
+    const playerData = thisPlayerData(teamColor, role);
+    return <span className={classes.nameColumn}>
+      <a href={`/profile/${playerData.ProfileName}/games/${match.SeasonShortName}`}><b>{playerData.ProfileName}</b></a>
+    </span>;
+  }
+  /**
    * @param {array} itemsList 
    * @returns JSX Element of the Item layout
    */
-  const itemListComponent = (itemsList) => {
+  const itemListComponent = (teamColor, role) => {
+    const itemsList = thisPlayerData(teamColor, role).ItemsFinal;
+
     const getItemSquare = (index) => {
       if (index < itemsList.length) {
         const itemId = itemsList[index];
@@ -259,76 +331,82 @@ export default function MatchSummary({ match }) {
       </div>
     );
   }
-
-  /**
-   * @param {number} teamColor  BLUE_TEAM or RED_TEAM
-   * @returns JSX Element of the Team Table
-   */
-  const teamTableComponent = (teamColor) => {
-    const colorHeader = (teamColor === BLUE_TEAM) ? 
-      classes.blueHeader : classes.redHeader;
-    const teamTitle = (teamColor === BLUE_TEAM) ? 
-      `${blueTeamName} [${blueWinString}]` :
-      `${redTeamName} [${redWinString}]`;
-
-    return (
-      <TableContainer component={Paper} className={classes.paper}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell className={colorHeader} colSpan={2}>{teamTitle}</TableCell>
-              <TableCell className={colorHeader} align="center">K/D/A</TableCell>
-              <TableCell className={colorHeader} align="center">CS</TableCell>
-              <TableCell className={colorHeader} align="center">Gold</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(match.Teams[teamColor].Players).map(([playerNum, player]) => (
-              <TableRow key={`${teamColor}Player${playerNum}`}>
-                <TableCell className={classes.cellRow}>
-                  <div className={classes.champWrapper}>
-                    <span className={classes.champColumn}>
-                      <ChampionSquare id={player.ChampId} patch={patch} width="80" height="80" />
-                    </span>
-                    <span className={classes.spellColumn}>
-                      <div><SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width="40" height="40" /></div>
-                      <div><SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width="40" height="40" /></div>
-                    </span>
-                    <span className={classes.nameColumn}>
-                      <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}><b>{player.ProfileName}</b></a>
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {itemListComponent(player.ItemsFinal)}
-                </TableCell>
-                <TableCell align="center">{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
-                <TableCell align="center">{player.CreepScore}</TableCell>
-                <TableCell align="center">{player.Gold.toLocaleString()}</TableCell>
-              </TableRow>
-            ))}
-            <TableRow>
-              <TableCell className={classes.cellRow} colSpan={5}>
-                <b>Bans: </b>
-                {match.Teams[teamColor].Bans.map((banId) => (
-                  <span key={`${teamColor}banId${banId}`}><ChampionSquare id={banId} patch={patch} width="40" height="40" /></span>
-                ))}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
-    );
+  const kdaTableCell = (teamColor, role) => {
+    const playerData = thisPlayerData(teamColor, role);
+    return <TableCell className={classes.largeCell} align="center">{playerData.Kills}/{playerData.Deaths}/{playerData.Assists}</TableCell>;
+  }
+  const csTableCell = (teamColor, role) => {
+    const playerData = thisPlayerData(teamColor, role);
+    return <TableCell className={classes.largeCell} align="center">{playerData.CreepScore}</TableCell>;
+  }
+  const goldTableCell = (teamColor, role) => {
+    const playerData = thisPlayerData(teamColor, role);
+    return <TableCell className={classes.largeCell} align="center">{simpleGoldString(playerData.Gold)}</TableCell>;
   }
 
   return (
     <div>
       <Grid container spacing={3}>
-        <Grid item xs={6}>
-          {teamTableComponent(BLUE_TEAM)}
-        </Grid>
-        <Grid item xs={6}>
-          {teamTableComponent(RED_TEAM)}
+        <Grid item xs={12}>
+          <TableContainer component={Paper} className={classes.paper}>
+            <Table className={classes.table} aria-label="simple table">
+              <TableHead className={classes.blueBorder}>
+                <TableRow>
+                  <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2}>{teamTitle(BLUE_TEAM)}</TableCell>
+                  <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2} align="center">{goldIcon} {simpleGoldString(blueTeamData.TeamGold)}</TableCell>
+                  <TableCell className={colorHeader(BLUE_TEAM)} align="right"><div>{blueTeamData.TeamKills}</div></TableCell>
+                  <TableCell align="center"><div>{killsIcon}</div></TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)}><div>{redTeamData.TeamKills}</div></TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="center">{goldIcon} {simpleGoldString(redTeamData.TeamGold)}</TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="right">{teamTitle(RED_TEAM)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2}>
+                    {bansComponent(BLUE_TEAM)}
+                  </TableCell>
+                  <TableCell className={colorHeader(BLUE_TEAM)} align="center">K/D/A</TableCell>
+                  <TableCell className={colorHeader(BLUE_TEAM)} align="center">CS</TableCell>
+                  <TableCell className={colorHeader(BLUE_TEAM)} align="center">Gold</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)} align="center">Gold</TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)} align="center">CS</TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)} align="center">K/D/A</TableCell>
+                  <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="right">
+                    {bansComponent(RED_TEAM)}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {roleArray.map((roleString) => (
+                  <TableRow key={`player${roleString}`}>
+                    <TableCell className={classes.borderCell}>
+                      <div className={classes.blueChampWrapper}>
+                        {champComponent(BLUE_TEAM, roleString)}
+                        {spellComponent(BLUE_TEAM, roleString)}
+                        {nameComponent(BLUE_TEAM, roleString)}
+                      </div>
+                    </TableCell>
+                    <TableCell className={classes.borderCell}>{itemListComponent(BLUE_TEAM, roleString)}</TableCell>
+                    {kdaTableCell(BLUE_TEAM, roleString)}
+                    {csTableCell(BLUE_TEAM, roleString)}
+                    {goldTableCell(BLUE_TEAM, roleString)}
+                    <TableCell className={classes.largeCell} align="center"><b>{roleString}</b></TableCell>
+                    {goldTableCell(RED_TEAM, roleString)}
+                    {csTableCell(RED_TEAM, roleString)}
+                    {kdaTableCell(RED_TEAM, roleString)}
+                    <TableCell className={classes.borderCell}>{itemListComponent(RED_TEAM, roleString)}</TableCell>
+                    <TableCell className={classes.borderCell} align="right">
+                      <div className={classes.redChampWrapper}>
+                        {nameComponent(RED_TEAM, roleString)}
+                        {spellComponent(RED_TEAM, roleString)}
+                        {champComponent(RED_TEAM, roleString)}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
 
         <Grid item xs={6}>
