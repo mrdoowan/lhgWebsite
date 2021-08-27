@@ -58,8 +58,9 @@ export default function PlayerDataGrid({
   };
   
   const teamLink = (data) => {
-    const teamName = data.value.TeamName;
-    const teamShortName = data.value.TeamShortName;
+    const { data: { TeamNameObject } } = data;
+    const teamName = TeamNameObject.TeamName;
+    const teamShortName = TeamNameObject.TeamShortName;
     return <Link to={`/team/${teamName}/games/${seasonShortName}`} className={classes.teamName}>{teamShortName}</Link>
   }
 
@@ -94,7 +95,8 @@ export default function PlayerDataGrid({
             <Paging enabled={false} />
 
             <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={playerLink} />
-            <Column dataField="TeamNameObject" caption="Team" alignment="center" width={50} calculateSortValue={sortByShortTeamName} fixed={true} cellRender={teamLink} />
+            <Column dataField="TeamNameObject" caption="Team" alignment="center" width={50} dataType="string" 
+              calculateSortValue={sortByShortTeamName} calculateCellValue={sortByShortTeamName} fixed={true} cellRender={teamLink} />
             <Column dataField="Role" alignment="center" width={100} fixed={true} />
             <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" fixed={true} />
             <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
