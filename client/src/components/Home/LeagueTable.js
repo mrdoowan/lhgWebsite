@@ -60,7 +60,7 @@ function SeasonTableCell({ list }) {
   return (
     <StyledTableCell align="center">
       {list.map((leagueObject) => (
-        <React.Fragment>
+        <React.Fragment key={`${leagueObject.ShortName}-${leagueObject.LeagueType}`}>
           <Link className={classes.link} to={`/season/${leagueObject.ShortName}`}>{leagueObject.LeagueType}</Link><br />
         </React.Fragment>
       ))}
@@ -73,9 +73,9 @@ export default function LeagueTable(props) {
   const { seasonList } = props;
 
   const challengerImage = <img src={ChallengerEmblem} alt="Uncapped" width="50" height="50" />;
-  const diamondImage = <img src={DiamondEmblem} alt="Uncapped" width="50" height="50" />;
-  const platinumImage = <img src={PlatinumEmblem} alt="Uncapped" width="50" height="50" />;
-  const goldImage = <img src={GoldEmblem} alt="Uncapped" width="50" height="50" />;
+  const diamondImage = <img src={DiamondEmblem} alt="Diamond" width="50" height="50" />;
+  const platinumImage = <img src={PlatinumEmblem} alt="Platinum" width="50" height="50" />;
+  const goldImage = <img src={GoldEmblem} alt="Gold" width="50" height="50" />;
 
   return (
     <div>
