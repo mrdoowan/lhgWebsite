@@ -19,7 +19,6 @@ import {
   Label,
   Format,
 } from 'devextreme-react/chart';
-
 import ChampionSquare from '../ChampionSquare';
 import ItemSquare from '../ItemSquare';
 import SpellSquare from '../SpellSquare';
@@ -59,8 +58,21 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     fontSize: 20,
   },
+  cellRow: {
+    padding: '16px 16px 16px 0',
+  },
+  champWrapper: {
+    display: 'flex',
+  },
+  champColumn: {
+    maxWidth: '84px',
+  },
   spellColumn: {
-    minWidth: '115px',
+    maxWidth: '44px',
+  },
+  nameColumn: {
+    margin: 'auto 8px',
+    color: 'blue',
   },
   itemWrapper: {
     display: 'flex',
@@ -78,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
   },
   singleItem: {
     width: '33.33333%'
-  }
+  },
 }));
 
 export default function MatchSummary({ match }) {
@@ -264,7 +276,7 @@ export default function MatchSummary({ match }) {
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell className={colorHeader} colSpan={3}>{teamTitle}</TableCell>
+              <TableCell className={colorHeader} colSpan={2}>{teamTitle}</TableCell>
               <TableCell className={colorHeader} align="center">K/D/A</TableCell>
               <TableCell className={colorHeader} align="center">CS</TableCell>
               <TableCell className={colorHeader} align="center">Gold</TableCell>
@@ -272,23 +284,37 @@ export default function MatchSummary({ match }) {
           </TableHead>
           <TableBody>
             {Object.entries(match.Teams[teamColor].Players).map(([playerNum, player]) => (
-              <TableRow key={playerNum}>
-                <TableCell>
-                  <ChampionSquare id={player.ChampId} patch={patch} width="40" height="40" />
-                  <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}>{player.ProfileName}</a>
-                </TableCell>
-                <TableCell className={classes.spellColumn}>
-                  <SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width="40" height="40" />
-                  <SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width="40" height="40" />
+              <TableRow key={`${teamColor}Player${playerNum}`}>
+                <TableCell className={classes.cellRow}>
+                  <div className={classes.champWrapper}>
+                    <span className={classes.champColumn}>
+                      <ChampionSquare id={player.ChampId} patch={patch} width="80" height="80" />
+                    </span>
+                    <span className={classes.spellColumn}>
+                      <div><SpellSquare id={player.Spell1Id} key={player.Spell1Id} patch={patch} width="40" height="40" /></div>
+                      <div><SpellSquare id={player.Spell2Id} key={player.Spell2Id} patch={patch} width="40" height="40" /></div>
+                    </span>
+                    <span className={classes.nameColumn}>
+                      <a href={`/profile/${player.ProfileName}/games/${match.SeasonShortName}`}><b>{player.ProfileName}</b></a>
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell>
                   {itemListComponent(player.ItemsFinal)}
                 </TableCell>
                 <TableCell align="center">{player.Kills}/{player.Deaths}/{player.Assists}</TableCell>
                 <TableCell align="center">{player.CreepScore}</TableCell>
-                <TableCell align="center">{player.Gold}</TableCell>
+                <TableCell align="center">{player.Gold.toLocaleString()}</TableCell>
               </TableRow>
             ))}
+            <TableRow>
+              <TableCell className={classes.cellRow} colSpan={5}>
+                <b>Bans: </b>
+                {match.Teams[teamColor].Bans.map((banId) => (
+                  <span key={`${teamColor}banId${banId}`}><ChampionSquare id={banId} patch={patch} width="40" height="40" /></span>
+                ))}
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>
