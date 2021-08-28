@@ -35,6 +35,12 @@ const ROLE_JUN = 'Jungle';
 const VICTORY = 'VICTORY';
 const DEFEAT = 'DEFEAT';
 
+const BLUE_HEX = '#1241CE';
+const RED_HEX = '#CB2C31';
+const BORDER_LEFT = `5px solid ${BLUE_HEX}`;
+const BORDER_RIGHT = `5px solid ${RED_HEX}`;
+const BORDER_GRAY = '1px solid gray';
+
 const useStyles = makeStyles((theme) => ({
   paper: {
     height: '100%',
@@ -50,15 +56,27 @@ const useStyles = makeStyles((theme) => ({
     'text-decoration': 'bold',
     fontSize: 'large',
   },
+  headerBorder: {
+    borderLeft: BORDER_LEFT,
+    borderRight: BORDER_RIGHT,
+  },
   blueHeader: {
-    backgroundColor: '#1241CE',
+    backgroundColor: BLUE_HEX,
     color: 'white',
     fontSize: 20,
   },
   redHeader: {
-    backgroundColor: '#CB2C31',
+    backgroundColor: RED_HEX,
     color: 'white',
     fontSize: 20,
+  },
+  blueBorderCell: {
+    borderLeft: BORDER_LEFT,
+    borderBottom: BORDER_GRAY
+  },
+  redBorderCell: {
+    borderRight: BORDER_RIGHT,
+    borderBottom: BORDER_GRAY
   },
   blueChampWrapper: {
     display: 'flex',
@@ -96,11 +114,15 @@ const useStyles = makeStyles((theme) => ({
   },
   largeCell: {
     fontSize: 'large',
-    border: '1px solid gray',
+    border: BORDER_GRAY,
   },
   borderCell: {
-    border: '1px solid gray',
+    border: BORDER_GRAY,
   },
+  noBorder: {
+    fontSize: 'large',
+    borderStyle: 'none',
+  }
 }));
 
 export default function MatchSummary({ match }) {
@@ -135,20 +157,20 @@ export default function MatchSummary({ match }) {
   const redRolesMap = {};
 
   for (const [key, value] of Object.entries(match.Teams[BLUE_TEAM].Players)) {
-    switch (value.Role) {
-      case ROLE_TOP:
+    switch (value.Role.toUpperCase()) {
+      case ROLE_TOP.toUpperCase():
         blueRolesMap[ROLE_TOP] = key;
         break;
-      case ROLE_BOT:
+      case ROLE_BOT.toUpperCase():
         blueRolesMap[ROLE_BOT] = key;
         break;
-      case ROLE_SUP:
+      case ROLE_SUP.toUpperCase():
         blueRolesMap[ROLE_SUP] = key;
         break;
-      case ROLE_MID:
+      case ROLE_MID.toUpperCase():
         blueRolesMap[ROLE_MID] = key;
         break
-      case ROLE_JUN:
+      case ROLE_JUN.toUpperCase():
         blueRolesMap[ROLE_JUN] = key;
         break;
       default: 
@@ -157,20 +179,20 @@ export default function MatchSummary({ match }) {
   }
 
   for (const [key, value] of Object.entries(match.Teams[RED_TEAM].Players)) {
-    switch (value.Role) {
-      case ROLE_TOP:
+    switch (value.Role.toUpperCase()) {
+      case ROLE_TOP.toUpperCase():
         redRolesMap[ROLE_TOP] = key;
         break;
-      case ROLE_BOT:
+      case ROLE_BOT.toUpperCase():
         redRolesMap[ROLE_BOT] = key;
         break;
-      case ROLE_SUP:
+      case ROLE_SUP.toUpperCase():
         redRolesMap[ROLE_SUP] = key;
         break;
-      case ROLE_MID:
+      case ROLE_MID.toUpperCase():
         redRolesMap[ROLE_MID] = key;
         break
-      case ROLE_JUN:
+      case ROLE_JUN.toUpperCase():
         redRolesMap[ROLE_JUN] = key;
         break;
       default: 
@@ -242,10 +264,16 @@ export default function MatchSummary({ match }) {
    * @returns {string} Gold in string value (i.e. 10,123 -> 10.1k)
    */
   const simpleGoldString = (gold) => {
-    const thousands = parseInt(gold / 1000);
+    let thousands = parseInt(gold / 1000);
     let hundreds = parseInt((gold % 1000) / 100);
     const tens = parseInt(gold / 10);
-    if (tens >= 5) { hundreds++; } // Round up
+    if (tens >= 5) { 
+      hundreds++;
+      if (hundreds === 10) {
+        hundreds = 0;
+        thousands++;
+      }
+    } // Round up
     return `${thousands}.${hundreds}k`;
   }
 
@@ -333,15 +361,15 @@ export default function MatchSummary({ match }) {
   }
   const kdaTableCell = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
-    return <TableCell className={classes.largeCell} align="center">{playerData.Kills}/{playerData.Deaths}/{playerData.Assists}</TableCell>;
+    return <TableCell className={classes.borderCell} align="center">{playerData.Kills}/{playerData.Deaths}/{playerData.Assists}</TableCell>;
   }
   const csTableCell = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
-    return <TableCell className={classes.largeCell} align="center">{playerData.CreepScore}</TableCell>;
+    return <TableCell className={classes.borderCell} align="center">{playerData.CreepScore}</TableCell>;
   }
   const goldTableCell = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
-    return <TableCell className={classes.largeCell} align="center">{simpleGoldString(playerData.Gold)}</TableCell>;
+    return <TableCell className={classes.borderCell} align="center">{simpleGoldString(playerData.Gold)}</TableCell>;
   }
 
   return (
@@ -349,25 +377,25 @@ export default function MatchSummary({ match }) {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <TableContainer component={Paper} className={classes.paper}>
-            <Table className={classes.table} aria-label="simple table">
-              <TableHead className={classes.blueBorder}>
-                <TableRow>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow className={classes.headerBorder}>
                   <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2}>{teamTitle(BLUE_TEAM)}</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2} align="center">{goldIcon} {simpleGoldString(blueTeamData.TeamGold)}</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="right"><div>{blueTeamData.TeamKills}</div></TableCell>
-                  <TableCell align="center"><div>{killsIcon}</div></TableCell>
+                  <TableCell className={classes.noBorder} align="center"><div>{killsIcon}</div></TableCell>
                   <TableCell className={colorHeader(RED_TEAM)}><div>{redTeamData.TeamKills}</div></TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="center">{goldIcon} {simpleGoldString(redTeamData.TeamGold)}</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="right">{teamTitle(RED_TEAM)}</TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow className={classes.headerBorder}>
                   <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2}>
                     {bansComponent(BLUE_TEAM)}
                   </TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">K/D/A</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">CS</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">Gold</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell className={classes.noBorder}></TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">Gold</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">CS</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">K/D/A</TableCell>
@@ -379,7 +407,7 @@ export default function MatchSummary({ match }) {
               <TableBody>
                 {roleArray.map((roleString) => (
                   <TableRow key={`player${roleString}`}>
-                    <TableCell className={classes.borderCell}>
+                    <TableCell className={classes.blueBorderCell}>
                       <div className={classes.blueChampWrapper}>
                         {champComponent(BLUE_TEAM, roleString)}
                         {spellComponent(BLUE_TEAM, roleString)}
@@ -390,12 +418,12 @@ export default function MatchSummary({ match }) {
                     {kdaTableCell(BLUE_TEAM, roleString)}
                     {csTableCell(BLUE_TEAM, roleString)}
                     {goldTableCell(BLUE_TEAM, roleString)}
-                    <TableCell className={classes.largeCell} align="center"><b>{roleString}</b></TableCell>
+                    <TableCell className={classes.noBorder} align="center"><b>{roleString}</b></TableCell>
                     {goldTableCell(RED_TEAM, roleString)}
                     {csTableCell(RED_TEAM, roleString)}
                     {kdaTableCell(RED_TEAM, roleString)}
                     <TableCell className={classes.borderCell}>{itemListComponent(RED_TEAM, roleString)}</TableCell>
-                    <TableCell className={classes.borderCell} align="right">
+                    <TableCell className={classes.redBorderCell} align="right">
                       <div className={classes.redChampWrapper}>
                         {nameComponent(RED_TEAM, roleString)}
                         {spellComponent(RED_TEAM, roleString)}
