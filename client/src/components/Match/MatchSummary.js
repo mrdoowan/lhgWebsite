@@ -266,8 +266,8 @@ export default function MatchSummary({ match }) {
   const simpleGoldString = (gold) => {
     let thousands = parseInt(gold / 1000);
     let hundreds = parseInt((gold % 1000) / 100);
-    const tens = parseInt(gold / 10);
-    if (tens >= 5) { 
+    const tens = parseInt(gold % 100);
+    if (tens >= 50) { 
       hundreds++;
       if (hundreds === 10) {
         hundreds = 0;
