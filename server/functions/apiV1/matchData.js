@@ -65,6 +65,7 @@ export const getMatchData = (id) => {
         matchObject['SeasonName'] = await getSeasonName(seasonPId);
         const tourneyPId = matchObject['TournamentPId'];
         matchObject['TournamentShortName'] = await getTournamentShortName(tourneyPId);
+        matchObject['TournamentTabName'] = await getTournamentTabName(tourneyPId);
         matchObject['TournamentType'] = await getTournamentType(tourneyPId);
         const gameDurationMinute = matchObject['GameDuration'] / 60;
         for (const teamObject of Object.values(matchObject.Teams)) {

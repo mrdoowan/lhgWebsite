@@ -35,7 +35,7 @@ export default function MatchTitle({ match }) {
   return (
     <div>
       <p className={classes.title}>{blueTeamLink} VS {redTeamLink}</p>
-      <p className={classes.season}>{seasonLink} {tourneyLink}</p>
+      <p className={classes.season}>{seasonLink} {tourneyLink} (Patch {match.GamePatchVersion})</p>
     </div>
   );
 }

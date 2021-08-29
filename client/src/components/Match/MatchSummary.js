@@ -19,6 +19,7 @@ import {
   Label,
   Format,
 } from 'devextreme-react/chart';
+import { getTimeString } from '../../util/StringHelper';
 import ChampionSquare from '../ChampionSquare';
 import ItemSquare from '../ItemSquare';
 import SpellSquare from '../SpellSquare';
@@ -287,7 +288,6 @@ export default function MatchSummary({ match }) {
     return match.Teams[teamColor].Players[thisRolesMap[role]];
   }
   const roleArray = [ ROLE_TOP, ROLE_JUN, ROLE_MID, ROLE_BOT, ROLE_SUP ];
-
   const colorHeader = (teamColor) => { 
     return (teamColor === BLUE_TEAM) ? classes.blueHeader : classes.redHeader;
   }
@@ -395,7 +395,7 @@ export default function MatchSummary({ match }) {
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">K/D/A</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">CS</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">Gold</TableCell>
-                  <TableCell className={classes.noBorder}></TableCell>
+                  <TableCell className={classes.noBorder} align="center">{getTimeString(match.GameDuration)}</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">Gold</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">CS</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">K/D/A</TableCell>
