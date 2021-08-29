@@ -71,13 +71,9 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     fontSize: 20,
   },
-  blueBorderCell: {
-    borderLeft: BORDER_LEFT,
-    borderBottom: BORDER_GRAY
-  },
-  redBorderCell: {
-    borderRight: BORDER_RIGHT,
-    borderBottom: BORDER_GRAY
+  noBorderHeader: {
+    fontSize: 'large',
+    borderStyle: 'none',
   },
   blueChampWrapper: {
     display: 'flex',
@@ -113,17 +109,29 @@ const useStyles = makeStyles((theme) => ({
   singleItem: {
     width: '33.33333%'
   },
-  largeCell: {
-    fontSize: 'large',
-    border: BORDER_GRAY,
+  blueBorderCell: {
+    borderLeft: BORDER_LEFT,
+    borderBottom: BORDER_GRAY,
+    width: '14%',
   },
-  borderCell: {
-    border: BORDER_GRAY,
+  redBorderCell: {
+    borderRight: BORDER_RIGHT,
+    borderBottom: BORDER_GRAY,
+    width: '14%',
   },
-  noBorder: {
+  itemsCell: {
+    border: BORDER_GRAY,
+    width: '14%',
+  },
+  statsCell: {
+    border: BORDER_GRAY,
+    width: '6%',
+  },
+  roleCell: {
     fontSize: 'large',
     borderStyle: 'none',
-  }
+    width: '8%',
+  },
 }));
 
 export default function MatchSummary({ match }) {
@@ -361,15 +369,15 @@ export default function MatchSummary({ match }) {
   }
   const kdaTableCell = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
-    return <TableCell className={classes.borderCell} align="center">{playerData.Kills}/{playerData.Deaths}/{playerData.Assists}</TableCell>;
+    return <TableCell className={classes.statsCell} align="center">{playerData.Kills}/{playerData.Deaths}/{playerData.Assists}</TableCell>;
   }
   const csTableCell = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
-    return <TableCell className={classes.borderCell} align="center">{playerData.CreepScore}</TableCell>;
+    return <TableCell className={classes.statsCell} align="center">{playerData.CreepScore}</TableCell>;
   }
   const goldTableCell = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
-    return <TableCell className={classes.borderCell} align="center">{simpleGoldString(playerData.Gold)}</TableCell>;
+    return <TableCell className={classes.statsCell} align="center">{simpleGoldString(playerData.Gold)}</TableCell>;
   }
 
   return (
@@ -383,7 +391,7 @@ export default function MatchSummary({ match }) {
                   <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2}>{teamTitle(BLUE_TEAM)}</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} colSpan={2} align="center">{goldIcon} {simpleGoldString(blueTeamData.TeamGold)}</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="right"><div>{blueTeamData.TeamKills}</div></TableCell>
-                  <TableCell className={classes.noBorder} align="center"><div>{killsIcon}</div></TableCell>
+                  <TableCell className={classes.noBorderHeader} align="center"><div>{killsIcon}</div></TableCell>
                   <TableCell className={colorHeader(RED_TEAM)}><div>{redTeamData.TeamKills}</div></TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="center">{goldIcon} {simpleGoldString(redTeamData.TeamGold)}</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} colSpan={2} align="right">{teamTitle(RED_TEAM)}</TableCell>
@@ -395,7 +403,7 @@ export default function MatchSummary({ match }) {
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">K/D/A</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">CS</TableCell>
                   <TableCell className={colorHeader(BLUE_TEAM)} align="center">Gold</TableCell>
-                  <TableCell className={classes.noBorder} align="center">{getTimeString(match.GameDuration)}</TableCell>
+                  <TableCell className={classes.noBorderHeader} align="center">{getTimeString(match.GameDuration)}</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">Gold</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">CS</TableCell>
                   <TableCell className={colorHeader(RED_TEAM)} align="center">K/D/A</TableCell>
@@ -414,15 +422,15 @@ export default function MatchSummary({ match }) {
                         {nameComponent(BLUE_TEAM, roleString)}
                       </div>
                     </TableCell>
-                    <TableCell className={classes.borderCell}>{itemListComponent(BLUE_TEAM, roleString)}</TableCell>
+                    <TableCell className={classes.itemsCell}>{itemListComponent(BLUE_TEAM, roleString)}</TableCell>
                     {kdaTableCell(BLUE_TEAM, roleString)}
                     {csTableCell(BLUE_TEAM, roleString)}
                     {goldTableCell(BLUE_TEAM, roleString)}
-                    <TableCell className={classes.noBorder} align="center"><b>{roleString}</b></TableCell>
+                    <TableCell className={classes.roleCell} align="center"><b>{roleString}</b></TableCell>
                     {goldTableCell(RED_TEAM, roleString)}
                     {csTableCell(RED_TEAM, roleString)}
                     {kdaTableCell(RED_TEAM, roleString)}
-                    <TableCell className={classes.borderCell}>{itemListComponent(RED_TEAM, roleString)}</TableCell>
+                    <TableCell className={classes.itemsCell}>{itemListComponent(RED_TEAM, roleString)}</TableCell>
                     <TableCell className={classes.redBorderCell} align="right">
                       <div className={classes.redChampWrapper}>
                         {nameComponent(RED_TEAM, roleString)}
