@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
+import { getTourneyTypeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -28,11 +29,13 @@ export default function MatchTitle({ match }) {
 
   const blueTeamLink = (<Link className={classes.blueTeam} to={`/team/${blueName}`}>{blueName}</Link>);
   const redTeamLink = (<Link className={classes.redTeam} to={`/team/${redName}`}>{redName}</Link>);
+  const seasonLink = (<Link to={`/season/${match.SeasonShortName}`}>{match.SeasonName}</Link>);
+  const tourneyLink = (<Link to={`/tournament/${match.TournamentShortName}`}>{getTourneyTypeString(match.TournamentType)}</Link>)
 
   return (
     <div>
       <p className={classes.title}>{blueTeamLink} VS {redTeamLink}</p>
-      <p className={classes.season}><Link to={`/season/${match.SeasonShortName}`}>{match.SeasonName}</Link></p>
+      <p className={classes.season}>{seasonLink} {tourneyLink} (Patch {match.GamePatchVersion})</p>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 // Components
 import TourneyTab from './TourneyTab';
+import { getTourneyTypeString } from '../../util/StringHelper';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -30,7 +31,7 @@ export default function TourneyHeader({ info, type }) {
 
   const titleMarkUp = (
     <div className={classes.titleMain}>
-      <Link className={classes.link} to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {tourneyTypeString(info.TournamentType)}
+      <Link className={classes.link} to={`/season/${info.SeasonShortName}`}>{info.SeasonName}</Link> {getTourneyTypeString(info.TournamentType)}
     </div>
   );
   const tourneyBar = (<TourneyTab shortName={info.TournamentShortName} type={type} />);
@@ -47,10 +48,4 @@ export default function TourneyHeader({ info, type }) {
       </Grid>
     </div>
   );
-}
-
-function tourneyTypeString(str) {
-  return (str === 'Regular')
-    ? 'Regular Season'
-    : 'Playoffs';
 }

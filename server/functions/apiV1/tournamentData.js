@@ -123,6 +123,24 @@ export const getTournamentTabName = (tournamentPId) => {
   });
 }
 
+// Get TournamentTabName from DynamoDb
+export const getTournamentType = (tournamentPId) => {
+  const cacheKey = CACHE_KEYS.TN_TYPE_PREFIX + tournamentPId;
+  return new Promise(function (resolve, reject) {
+    cache.get(cacheKey, (err, data) => {
+      if (err) { console(err); reject(err); return; }
+      else if (data) { resolve(data); return; }
+      dynamoDbGetItem('Tournament', tournamentPId)
+        .then((obj) => {
+          if (!obj) { resolve(null); return; } // Not Found
+          const type = obj['Information']['TournamentType'];
+          cache.set(cacheKey, type);
+          resolve(type);
+        }).catch((ex) => { console.error(ex); reject(ex); });
+    });
+  });
+}
+
 /**
  * 
  * @param {number} tournamentPId 

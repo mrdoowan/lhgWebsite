@@ -22,16 +22,13 @@ const useStyles = makeStyles((theme) => ({
 export default function MatchHeader({ match, type }) {
   const classes = useStyles();
 
-  const titleComponent = (<MatchTitle match={match} />);
-  const matchBar = (<MatchTab id={match.MatchPId} type={type} />);
-
   return (
     <div>
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
-            {titleComponent}
-            {matchBar}
+            <MatchTitle match={match} />
+            <MatchTab id={match.MatchPId} type={type} />
           </Paper>
         </Grid>
       </Grid>
