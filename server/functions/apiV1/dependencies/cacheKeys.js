@@ -21,6 +21,7 @@ export const CACHE_KEYS = {
   TN_PICKBANS_PREFIX: 'TnPB-',                // Key: TourneyId
   TN_GAMES_PREFIX: 'TnGames-',                // Key: TourneyId
   TN_TAB_PREFIX: 'TnTab-',                    // Key: TourneyId
+  TN_TYPE_PREFIX: 'TnType-',                  // Key: TourneyId
   PROFILE_NAME_PREFIX: 'PName-',              // Key: ProfileId
   PROFILE_PID_BYNAME_PREFIX: 'PPId-',         // Key: ProfileName
   PROFILE_INFO_PREFIX: 'PInfo-',              // Key: ProfileId

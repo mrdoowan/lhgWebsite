@@ -21,6 +21,7 @@ import {
   getTournamentName,
   getTournamentShortName,
   getTournamentTabName,
+  getTournamentType,
 } from './tournamentData';
 import {
   getProfileName,
@@ -64,8 +65,7 @@ export const getMatchData = (id) => {
         matchObject['SeasonName'] = await getSeasonName(seasonPId);
         const tourneyPId = matchObject['TournamentPId'];
         matchObject['TournamentShortName'] = await getTournamentShortName(tourneyPId);
-        matchObject['TournamentName'] = await getTournamentName(tourneyPId);
-        matchObject['TournamentTabName'] = await getTournamentTabName(tourneyPId);
+        matchObject['TournamentType'] = await getTournamentType(tourneyPId);
         const gameDurationMinute = matchObject['GameDuration'] / 60;
         for (const teamObject of Object.values(matchObject.Teams)) {
           teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);

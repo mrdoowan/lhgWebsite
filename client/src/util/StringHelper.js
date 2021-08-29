@@ -17,3 +17,14 @@ export const getTimeString = (seconds) => `${Math.floor(seconds / 60)}:${pad(Mat
  * @param {string} timeZone     Default is 'EST'
  */
 export const getDateString = (unix, format = 'MM/DD/YYYY', timeZone = 'EST') => _unix(unix).tz(timeZone).format(format);
+
+/**
+ * 
+ * @param {string} type
+ * @return {string} 
+ */
+export const getTourneyTypeString = (type) => {
+  return (type === 'Regular')
+    ? 'Regular Season'
+    : 'Playoffs';
+}
