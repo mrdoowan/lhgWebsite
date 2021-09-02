@@ -27,7 +27,8 @@ export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
 
 /**
  * (AWS Lambda function)
- * Calls Riot API and gets the Match Data of the input Match ID
+ * DEPRECATED SINCE SEPTEMBER 6TH 2021
+ * Calls Riot API and gets MatchV4 Data of the input Match ID
  * Returns the request object of Match with items "Data" and "Timeline"
  * @param {string} matchId
  */

@@ -19,6 +19,7 @@ import {
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 import { authenticateJWT } from './dependencies/jwtHelper';
+import { getRiotMatchV5Dto } from '../../functions/apiV1/dependencies/riotEndpoints';
 
 /*  
     ----------------------
@@ -41,6 +42,20 @@ matchV1Routes.get('/data/:matchId', (req, res) => {
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Match Data Error."));
 });
+
+/**
+ * @route   GET api/match/v1/data/matchV5/:matchId
+ * @desc    Get Match Data
+ * @access  Private (TEST ONLY TEMPORARY)
+ */
+matchV1Routes.get('/data/matchV5/:matchId', (req, res) => {
+  const { matchId } = req.params;
+
+  getRiotMatchV5Dto(matchId).then((data) => {
+    if (!data) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
+    return res200sOK(res, req, data);
+  }).catch((err) => error500sServerError(err, res, "GET Riot MatchV5 DTO Error."));
+})
 
 /**
  * @route   GET api/match/v1/setup/data/:matchId
