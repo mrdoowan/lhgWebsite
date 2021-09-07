@@ -173,9 +173,9 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             const playerRunes = {}
             const riotPerksDto = riotParticipantStatsDto.perks;
             const { statsPerks } = riotPerksDto;
-            playerRunes['ShardSlot0Id'] = statsPerks.defense;
+            playerRunes['ShardSlot0Id'] = statsPerks.offense;
             playerRunes['ShardSlot1Id'] = statsPerks.flex;
-            playerRunes['ShardSlot2Id'] = statsPerks.offense;
+            playerRunes['ShardSlot2Id'] = statsPerks.defense;
             playerRunes['PrimaryPathId'] = riotParticipantStatsDto.perkPrimaryStyle;
             playerRunes['PrimaryKeystoneId'] = riotParticipantStatsDto.perk0;
             playerRunes['PrimarySlot0Var1'] = riotParticipantStatsDto.perk0Var1;
