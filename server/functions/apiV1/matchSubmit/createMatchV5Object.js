@@ -123,8 +123,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             partIdByTeamIdAndRole[teamId][champRole] = partId;
             playerData['ChampLevel'] = riotParticipantStatsDto.champLevel;
             playerData['ChampId'] = riotParticipantDto.championId;
-            playerData['Spell1Id'] = riotParticipantDto.spell1Id;
-            playerData['Spell2Id'] = riotParticipantDto.spell2Id;
+            playerData['Spell1Id'] = riotParticipantDto.summoner1Id;
+            playerData['Spell2Id'] = riotParticipantDto.summoner2Id;
             playerData['Kills'] = riotParticipantStatsDto.kills;
             teamKills += riotParticipantStatsDto.kills;
             playerData['Deaths'] = riotParticipantStatsDto.deaths;
@@ -171,6 +171,11 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['ItemBuild'] = {}; // Logic in Timeline
             // Runes
             const playerRunes = {}
+            const riotPerksDto = riotParticipantStatsDto.perks;
+            const { statsPerks } = riotPerksDto;
+            playerRunes['ShardSlot0Id'] = statsPerks.defense;
+            playerRunes['ShardSlot1Id'] = statsPerks.flex;
+            playerRunes['ShardSlot2Id'] = statsPerks.offense;
             playerRunes['PrimaryPathId'] = riotParticipantStatsDto.perkPrimaryStyle;
             playerRunes['PrimaryKeystoneId'] = riotParticipantStatsDto.perk0;
             playerRunes['PrimarySlot0Var1'] = riotParticipantStatsDto.perk0Var1;
@@ -196,9 +201,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerRunes['SecondarySlot2Var1'] = riotParticipantStatsDto.perk5Var1;
             playerRunes['SecondarySlot2Var2'] = riotParticipantStatsDto.perk5Var2;
             playerRunes['SecondarySlot2Var3'] = riotParticipantStatsDto.perk5Var3;
-            playerRunes['ShardSlot0Id'] = riotParticipantStatsDto.statPerk0;
-            playerRunes['ShardSlot1Id'] = riotParticipantStatsDto.statPerk1;
-            playerRunes['ShardSlot2Id'] = riotParticipantStatsDto.statPerk2;
             playerData['Runes'] = playerRunes;
             playerData['SkillOrder'] = []; // Logic will be done in Timeline
             // Add to playerItem. Phew
