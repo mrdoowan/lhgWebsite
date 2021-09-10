@@ -176,31 +176,35 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerRunes['ShardSlot0Id'] = statsPerks.offense;
             playerRunes['ShardSlot1Id'] = statsPerks.flex;
             playerRunes['ShardSlot2Id'] = statsPerks.defense;
-            playerRunes['PrimaryPathId'] = riotParticipantStatsDto.perkPrimaryStyle;
-            playerRunes['PrimaryKeystoneId'] = riotParticipantStatsDto.perk0;
-            playerRunes['PrimarySlot0Var1'] = riotParticipantStatsDto.perk0Var1;
-            playerRunes['PrimarySlot0Var2'] = riotParticipantStatsDto.perk0Var2;
-            playerRunes['PrimarySlot0Var3'] = riotParticipantStatsDto.perk0Var3;
-            playerRunes['PrimarySlot1Id'] = riotParticipantStatsDto.perk1;
-            playerRunes['PrimarySlot1Var1'] = riotParticipantStatsDto.perk1Var1;
-            playerRunes['PrimarySlot1Var2'] = riotParticipantStatsDto.perk1Var2;
-            playerRunes['PrimarySlot1Var3'] = riotParticipantStatsDto.perk1Var3;
-            playerRunes['PrimarySlot2Id'] = riotParticipantStatsDto.perk2;
-            playerRunes['PrimarySlot2Var1'] = riotParticipantStatsDto.perk2Var1;
-            playerRunes['PrimarySlot2Var2'] = riotParticipantStatsDto.perk2Var2;
-            playerRunes['PrimarySlot2Var3'] = riotParticipantStatsDto.perk2Var3;
-            playerRunes['PrimarySlot3Id'] = riotParticipantStatsDto.perk3;
-            playerRunes['PrimarySlot3Var1'] = riotParticipantStatsDto.perk3Var1;
-            playerRunes['PrimarySlot3Var2'] = riotParticipantStatsDto.perk3Var2;
-            playerRunes['PrimarySlot3Var3'] = riotParticipantStatsDto.perk3Var3;
-            playerRunes['SecondarySlot1Id'] = riotParticipantStatsDto.perk4;
-            playerRunes['SecondarySlot1Var1'] = riotParticipantStatsDto.perk4Var1;
-            playerRunes['SecondarySlot1Var2'] = riotParticipantStatsDto.perk4Var2;
-            playerRunes['SecondarySlot1Var3'] = riotParticipantStatsDto.perk4Var3;
-            playerRunes['SecondarySlot2Id'] = riotParticipantStatsDto.perk5;
-            playerRunes['SecondarySlot2Var1'] = riotParticipantStatsDto.perk5Var1;
-            playerRunes['SecondarySlot2Var2'] = riotParticipantStatsDto.perk5Var2;
-            playerRunes['SecondarySlot2Var3'] = riotParticipantStatsDto.perk5Var3;
+            const { styles } = riotPerksDto; // Should just an array of 2
+            for (const styleDto of styles) {
+              // A little scuffed because this is how I originally set with v4
+              if (styleDto.description === 'primaryStyle') {
+                playerRunes['PrimaryPathId'] = styleDto.style;
+                for (let i = 0; i < styleDto.selections.length; ++i) {
+                  const selection = styleDto.selections[i];
+                  if (i === 0) {
+                    playerRunes['PrimaryKeystoneId'] = selection.perk;
+                  }
+                  else {
+                    playerRunes[`PrimarySlot${i}Id`] = selection.perk;
+                  }
+                  playerRunes[`PrimarySlot${i}Var1`] = selection.var1;
+                  playerRunes[`PrimarySlot${i}Var2`] = selection.var2;
+                  playerRunes[`PrimarySlot${i}Var3`] = selection.var3;
+                }
+              }
+              else if (styleDto.description === 'subStyle') {
+                playerRunes['SecondaryPathId'] = styleDto.style;
+                for (let i = 0; i < styleDto.selections.length; ++i) {
+                  const selection = styleDto.selections[i];
+                  playerRunes[`SecondarySlot${i+1}Id`] = selection.perk;
+                  playerRunes[`SecondarySlot${i+1}Var1`] = selection.var1;
+                  playerRunes[`SecondarySlot${i+1}Var2`] = selection.var2;
+                  playerRunes[`SecondarySlot${i+1}Var3`] = selection.var3;
+                }
+              }
+            }
             playerData['Runes'] = playerRunes;
             playerData['SkillOrder'] = []; // Logic will be done in Timeline
             // Add to playerItem. Phew
