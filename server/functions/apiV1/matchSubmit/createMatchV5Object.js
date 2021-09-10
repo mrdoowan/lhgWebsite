@@ -126,8 +126,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             partIdByTeamIdAndRole[teamId][champRole] = partId;
             playerData['ChampLevel'] = riotParticipantStatsDto.champLevel;
             playerData['ChampId'] = riotParticipantDto.championId;
-            playerData['Spell1Id'] = riotParticipantDto.summoner1Id;
-            playerData['Spell2Id'] = riotParticipantDto.summoner2Id;
+            playerData['Summoner1Id'] = riotParticipantDto.summoner1Id;
+            playerData['Summoner2Id'] = riotParticipantDto.summoner2Id;
+            playerData['Summoner1Casts'] = riotParticipantDto.summoner1Casts;
+            playerData['Summoner2Casts'] = riotParticipantDto.summoner2Casts;
+            playerData['Spell1Casts'] = riotParticipantDto.spell1Casts;
+            playerData['Spell2Casts'] = riotParticipantDto.spell2Casts;
+            playerData['Spell3Casts'] = riotParticipantDto.spell3Casts;
+            playerData['Spell4Casts'] = riotParticipantDto.spell4Casts;
             playerData['Kills'] = riotParticipantStatsDto.kills;
             teamKills += riotParticipantStatsDto.kills;
             playerData['Deaths'] = riotParticipantStatsDto.deaths;
@@ -145,8 +151,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             const totalCS = riotParticipantStatsDto.neutralMinionsKilled + riotParticipantStatsDto.totalMinionsKilled;
             playerData['CreepScore'] = totalCS;
             teamCreepScore += totalCS;
-            playerData['CsInTeamJungle'] = riotParticipantStatsDto.neutralMinionsKilledTeamJungle;
-            playerData['CsInEnemyJungle'] = riotParticipantStatsDto.neutralMinionsKilledEnemyJungle;
             playerData['VisionScore'] = riotParticipantStatsDto.visionScore;
             teamVisionScore += riotParticipantStatsDto.visionScore;
             playerData['WardsPlaced'] = riotParticipantStatsDto.wardsPlaced;
@@ -166,11 +170,16 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['DoubleKills'] = riotParticipantStatsDto.doubleKills - riotParticipantStatsDto.tripleKills;
             playerData['DamageToTurrets'] = riotParticipantStatsDto.damageDealtToTurrets;
             playerData['DamageToObjectives'] = riotParticipantStatsDto.damageDealtToObjectives;
+            playerData['BountyLevel'] = riotParticipantDto.bountyLevel;
             playerData['TotalHeal'] = riotParticipantStatsDto.totalHeal;
             playerData['TimeCrowdControl'] = riotParticipantStatsDto.timeCCingOthers;
+            playerData['TotalHealsOnTeammates'] = riotParticipantStatsDto.totalHealOnTeammates;
+            playerData['TotalDamageShieldedOnTeammates'] = riotParticipantDto.totalDamageShieldedOnTeammates;
+            playerData['TotalTimeSpentDead'] = riotParticipantDto.totalTimeSpentDead;
+            playerData['ItemsPurchased'] = riotParticipantDto.itemsPurchased;
             playerData['ItemsFinal'] = [riotParticipantStatsDto.item0, riotParticipantStatsDto.item1,
-            riotParticipantStatsDto.item2, riotParticipantStatsDto.item3, riotParticipantStatsDto.item4,
-            riotParticipantStatsDto.item5, riotParticipantStatsDto.item6];
+              riotParticipantStatsDto.item2, riotParticipantStatsDto.item3, riotParticipantStatsDto.item4,
+              riotParticipantStatsDto.item5, riotParticipantStatsDto.item6];
             playerData['ItemBuild'] = {}; // Logic in Timeline
             // Runes
             const playerRunes = {}
