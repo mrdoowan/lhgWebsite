@@ -19,6 +19,8 @@ import {
   getRiotMatchV5TimelineDto 
 } from '../dependencies/riotEndpoints';
 
+const MINUTE_SECONDS = 60;
+
 /**
  * Creates object tailored for database
  * @param {string} matchId 
@@ -57,7 +59,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       matchObject['SeasonPId'] = matchSetupObject['SeasonPId'];
       matchObject['TournamentPId'] = matchSetupObject['TournamentPId'];
       matchObject['DatePlayed'] = riotMatchDto.gameCreation;
-      matchObject['GameDuration'] = riotMatchDto.gameDuration;
+      const gameDuration = processGameDuration(riotMatchDto.participants);
+      matchObject['GameDuration'] = gameDuration;
       const patch = await getPatch(riotMatchDto.gameVersion);
       matchObject['GamePatchVersion'] = patch;
       matchObject['DDragonVersion'] = await getDdragonVersion(patch);
@@ -135,7 +138,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             teamGold += riotParticipantStatsDto.goldEarned;
             playerData['TotalDamageDealt'] = riotParticipantStatsDto.totalDamageDealtToChampions;
             teamDamageDealt += riotParticipantStatsDto.totalDamageDealtToChampions;
-            playerData['DamagePerMinute'] = parseFloat((riotParticipantStatsDto.totalDamageDealtToChampions / (riotMatchDto.gameDuration / 60)).toFixed(2));
+            playerData['DamagePerMinute'] = parseFloat((riotParticipantStatsDto.totalDamageDealtToChampions / (gameDuration / MINUTE_SECONDS)).toFixed(2));
             playerData['PhysicalDamageDealt'] = riotParticipantStatsDto.physicalDamageDealtToChampions;
             playerData['MagicDamageDealt'] = riotParticipantStatsDto.magicDamageDealtToChampions;
             playerData['TrueDamageDealt'] = riotParticipantStatsDto.trueDamageDealtToChampions;
@@ -222,12 +225,12 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         teamData['TeamControlWardsBought'] = teamControlWardsBought;
         teamData['TeamWardsCleared'] = teamWardsCleared;
         teamData['Players'] = {};   // Merge after
-        if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+        if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
           teamData['CsAtEarly'] = 0;      // Logic in Timeline
           teamData['GoldAtEarly'] = 0;    // Logic in Timeline
           teamData['XpAtEarly'] = 0;      // Logic in Timeline
         }
-        if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+        if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
           teamData['CsAtMid'] = 0;        // Logic in Timeline
           teamData['GoldAtMid'] = 0;      // Logic in Timeline
           teamData['XpAtMid'] = 0;        // Logic in Timeline
@@ -270,8 +273,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             redTeamGold += riotParticipantFrameDto.totalGold;
           }
           // playerData: EARLY_MINUTE and MID_MINUTE
-          if ((minute === MINUTE.EARLY && riotMatchDto.gameDuration >= MINUTE.EARLY * 60) ||
-            (minute === MINUTE.MID && riotMatchDto.gameDuration >= MINUTE.MID * 60)) {
+          if ((minute === MINUTE.EARLY && gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) ||
+            (minute === MINUTE.MID && gameDuration >= MINUTE.MID * MINUTE_SECONDS)) {
             const type = (minute === MINUTE.EARLY) ? "Early" : "Mid";
             playerItems[participantId]['GoldAt' + type] = riotParticipantFrameDto.totalGold;
             teamItems[thisTeamId]['GoldAt' + type] += riotParticipantFrameDto.totalGold;
@@ -451,17 +454,17 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
 
       // Assign Kills and Assists at Early/Mid
       for (const participantId in teamIdByPartId) {
-        if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+        if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
           playerItems[participantId]['KillsAtEarly'] = playerKillsAtEarly[participantId];
           playerItems[participantId]['AssistsAtEarly'] = playerAssistsAtEarly[participantId];
         }
-        if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+        if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
           playerItems[participantId]['KillsAtMid'] = playerKillsAtMid[participantId];
           playerItems[participantId]['AssistsAtMid'] = playerAssistsAtMid[participantId];
         }
       }
       // Calculate Diff@Early and Mid for Teams
-      if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+      if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
         teamItems[TEAM_ID.BLUE]['KillsAtEarly'] = blueKillsAtEarly;
         teamItems[TEAM_ID.RED]['KillsAtEarly'] = redKillsAtEarly;
         const blueKillsDiffEarly = blueKillsAtEarly - redKillsAtEarly;
@@ -477,7 +480,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         teamItems[TEAM_ID.BLUE]['XpDiffEarly'] = blueTeamXpDiffEarly;
         teamItems[TEAM_ID.RED]['XpDiffEarly'] = (blueTeamXpDiffEarly === 0) ? 0 : (blueTeamXpDiffEarly * -1);
       }
-      if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+      if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
         teamItems[TEAM_ID.BLUE]['KillsAtMid'] = blueKillsAtMid;
         teamItems[TEAM_ID.RED]['KillsAtMid'] = redKillsAtMid;
         const blueKillsDiffMid = blueKillsAtMid - redKillsAtMid;
@@ -515,7 +518,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       for (const role in partIdByTeamIdAndRole[TEAM_ID.BLUE]) {
         const bluePartId = partIdByTeamIdAndRole[TEAM_ID.BLUE][role];
         const redPartId = partIdByTeamIdAndRole[TEAM_ID.RED][role];
-        if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+        if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
           const bluePlayerGoldDiffEarly = playerItems[bluePartId].GoldAtEarly - playerItems[redPartId].GoldAtEarly;
           playerItems[bluePartId]['GoldDiffEarly'] = bluePlayerGoldDiffEarly;
           playerItems[redPartId]['GoldDiffEarly'] = (bluePlayerGoldDiffEarly === 0) ? 0 : (bluePlayerGoldDiffEarly * -1);
@@ -529,7 +532,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           playerItems[bluePartId]['JungleCsDiffEarly'] = bluePlayerJgCsDiffEarly;
           playerItems[redPartId]['JungleCsDiffEarly'] = (bluePlayerJgCsDiffEarly === 0) ? 0 : (bluePlayerJgCsDiffEarly * -1);
         }
-        if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+        if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
           const bluePlayerGoldDiffMid = playerItems[bluePartId].GoldAtMid - playerItems[redPartId].GoldAtMid;
           playerItems[bluePartId]['GoldDiffMid'] = bluePlayerGoldDiffMid;
           playerItems[redPartId]['GoldDiffMid'] = (bluePlayerGoldDiffMid === 0) ? 0 : (bluePlayerGoldDiffMid * -1);
@@ -568,11 +571,26 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
   });
 }
 
+// -------------- FUNCTIONS
+
+/**
+ * Gets the accurate GameDuration in seconds.
+ * @param {Array} participantArray
+ * @return {number}
+ */
+const processGameDuration = (participantArray) => {
+  const maxValue = 0;
+  for (const participantDto of participantArray) {
+    maxValue = Math.max(maxValue, participantDto.timePlayed);
+  }
+  return maxValue;
+}
+
 /**
  * Takes riotMatchObject's game version (i.e. "10.20.337.6704") and only looks at the Major.Minor (returns "10.20")
  * @param {string} patchStr 
  */
-function getPatch(patchStr) {
+const getPatch = (patchStr) => {
   return new Promise((resolve, reject) => {
     try {
       const patchArr = patchStr.split('.');
@@ -588,7 +606,7 @@ function getPatch(patchStr) {
  * Ever since Patch 9.23, baron duration is 3 minutes. Before then, it used to be 3.5 minutes.
  * @param {string} thisPatch    patch in string format (i.e. "10.20")
  */
-function updateBaronDuration(thisPatch) {
+const updateBaronDuration = (thisPatch) => {
   return (isPatch1LaterThanPatch2(thisPatch, BARON_DURATION.PATCH_CHANGE)) ?
     BARON_DURATION.CURRENT : BARON_DURATION.OLD;
 }
@@ -599,15 +617,15 @@ function updateBaronDuration(thisPatch) {
  * @param {Array} timelineList      List of events from the Riot Timeline API Request
  * @param {string} teamId           "100" == Blue, "200" == Red
  */
-function teamGoldAtTimeStamp(timestamp, timelineList, teamId) {
-  const timeStampMinute = Math.floor(timestamp / 60);
-  const timeStampSeconds = timestamp % 60;
+const teamGoldAtTimeStamp = (timestamp, timelineList, teamId) => {
+  const timeStampMinute = Math.floor(timestamp / MINUTE_SECONDS);
+  const timeStampSeconds = timestamp % MINUTE_SECONDS;
   if ((timeStampMinute + 1) >= timelineList.length) { return null; }
 
   // Take team gold at marked minute, and from minute + 1. Average them.
   const teamGoldAtMinute = (teamId == TEAM_ID.BLUE) ? timelineList[timeStampMinute]['BlueTeamGold'] : timelineList[timeStampMinute]['RedTeamGold'];
   const teamGoldAtMinutePlus1 = (teamId == TEAM_ID.BLUE) ? timelineList[timeStampMinute + 1]['BlueTeamGold'] : timelineList[timeStampMinute + 1]['RedTeamGold'];
-  const goldPerSecond = (teamGoldAtMinutePlus1 - teamGoldAtMinute) / 60;
+  const goldPerSecond = (teamGoldAtMinutePlus1 - teamGoldAtMinute) / MINUTE_SECONDS;
   return (teamGoldAtMinute + Math.floor((goldPerSecond * timeStampSeconds)));
 }
 
@@ -618,7 +636,7 @@ function teamGoldAtTimeStamp(timestamp, timelineList, teamId) {
  * @param {Array} timelineList                  List of events from the Riot Timeline API Request
  * @param {string} patch                        Patch of what the event took place in
  */
-function computeBaronPowerPlay(baronObjectiveMinuteIndices, timelineList, patch) {
+const computeBaronPowerPlay = (baronObjectiveMinuteIndices, timelineList, patch) => {
   return new Promise(function (resolve, reject) {
     try {
       const baronDuration = updateBaronDuration(patch); // in seconds
