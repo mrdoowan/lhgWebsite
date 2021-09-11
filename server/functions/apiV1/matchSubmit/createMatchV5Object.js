@@ -20,6 +20,8 @@ import {
 } from '../dependencies/riotEndpoints';
 
 const MINUTE_SECONDS = 60;
+const EARLY_TIME = "Early";
+const MID_TIME = "Mid";
 
 /**
  * Creates object tailored for database
@@ -64,8 +66,9 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       const patch = await getPatch(riotMatchDto.gameVersion);
       matchObject['GamePatchVersion'] = patch;
       matchObject['DDragonVersion'] = await getDdragonVersion(patch);
+      matchObject['TournamentCode'] = riotMatchDto.tournamentCode;
 
-      // #region 2.1) - Teams+Players
+      // #region 2.1) - MatchV5 Endpoint
       const teamItems = {}; // teamId (100 or 200) -> teamData {}
       const playerItems = {}; // participantId -> playerData {}
       // We will merge these two Items at 2.3)
@@ -87,11 +90,18 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         else {
           teamData['Win'] = false;
         }
-        teamData['Towers'] = riotTeamDto.towerKills;
-        teamData['Inhibitors'] = riotTeamDto.inhibitorKills;
-        teamData['Barons'] = riotTeamDto.baronKills;
+        const { objectives } = riotTeamDto;
+        teamData['Towers'] = objectives.towers.kills;
+        teamData['FirstTower'] = objectives.towers.first;
+        teamData['Inhibitors'] = objectives.inhibitor.kills;
+        teamData['FirstInhibitor'] = objectives.inhibitor.first;
+        teamData['Barons'] = objectives.baron.kills;
+        teamData['FirstBaron'] = objectives.baron.first;
+        teamData['RiftHeralds'] = objectives.riftHerald.kills;
+        teamData['FirstRiftHerald'] = objectives.riftHerald.first;
+        teamData['TeamKills'] = objectives.champion.kills;
+        teamData['FirstBlood'] = objectives.champion.first;
         teamData['Dragons'] = []; // Will be built upon in Timeline
-        teamData['Heralds'] = riotTeamDto.riftHeraldKills;
         // Bans
         if (teamId == TEAM_ID.BLUE) {
           teamData['Bans'] = matchTeamsSetupObject['BlueTeam']['Bans'];
@@ -100,9 +110,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           teamData['Bans'] = matchTeamsSetupObject['RedTeam']['Bans'];
         }
         // ----------
-        teamData['FirstTower'] = riotTeamDto.firstTower;
-        teamData['FirstBlood'] = riotTeamDto.firstBlood;
-        let teamKills = 0;
         let teamAssists = 0;
         let teamDeaths = 0;
         let teamGold = 0;
@@ -135,7 +142,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['Spell3Casts'] = riotParticipantDto.spell3Casts;
             playerData['Spell4Casts'] = riotParticipantDto.spell4Casts;
             playerData['Kills'] = riotParticipantStatsDto.kills;
-            teamKills += riotParticipantStatsDto.kills;
             playerData['Deaths'] = riotParticipantStatsDto.deaths;
             teamDeaths += riotParticipantStatsDto.deaths;
             playerData['Assists'] = riotParticipantStatsDto.assists;
@@ -159,8 +165,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             teamControlWardsBought += riotParticipantStatsDto.visionWardsBoughtInGame;
             playerData['WardsCleared'] = riotParticipantStatsDto.wardsKilled;
             teamWardsCleared += riotParticipantStatsDto.wardsKilled;
-            playerData['FirstBloodKill'] = false; // Logic in Timeline
-            playerData['FirstBloodAssist'] = false; // Logic in Timeline
+            playerData['FirstBloodKill'] = riotParticipantStatsDto.firstBloodKill;
+            playerData['FirstBloodAssist'] = riotParticipantStatsDto.firstBloodAssist;
             playerData['FirstBloodVictim'] = false; // Logic in Timeline
             playerData['FirstTower'] = (riotParticipantStatsDto.firstTowerKill || riotParticipantStatsDto.firstTowerAssist);
             playerData['SoloKills'] = 0; // Logic in Timeline
@@ -223,7 +229,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerItems[riotParticipantDto.participantId] = playerData;
           }
         }
-        teamData['TeamKills'] = teamKills;
         teamData['TeamDeaths'] = teamDeaths;
         teamData['TeamAssists'] = teamAssists;
         teamData['TeamGold'] = teamGold;
@@ -248,7 +253,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       }
       //#endregion
 
-      // #region 2.2) - Timeline
+      // #region 2.2) - MatchV5 Timeline Endpoint
       // Each index represents the minute
       const timelineList = [];
       let blueKillsAtEarly = 0;
@@ -284,15 +289,15 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           // playerData: EARLY_MINUTE and MID_MINUTE
           if ((minute === MINUTE.EARLY && gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) ||
             (minute === MINUTE.MID && gameDuration >= MINUTE.MID * MINUTE_SECONDS)) {
-            const type = (minute === MINUTE.EARLY) ? "Early" : "Mid";
-            playerItems[participantId]['GoldAt' + type] = riotParticipantFrameDto.totalGold;
-            teamItems[thisTeamId]['GoldAt' + type] += riotParticipantFrameDto.totalGold;
+            const type = (minute === MINUTE.EARLY) ? EARLY_TIME : MID_TIME;
+            playerItems[participantId][`GoldAt${type}`] = riotParticipantFrameDto.totalGold;
+            teamItems[thisTeamId][`GoldAt${type}`] += riotParticipantFrameDto.totalGold;
             const playerCsAt = riotParticipantFrameDto.minionsKilled + riotParticipantFrameDto.jungleMinionsKilled;
-            playerItems[participantId]['CsAt' + type] = playerCsAt;
-            teamItems[thisTeamId]['CsAt' + type] += playerCsAt;
-            playerItems[participantId]['XpAt' + type] = riotParticipantFrameDto.xp;
-            teamItems[thisTeamId]['XpAt' + type] += riotParticipantFrameDto.xp;
-            playerItems[participantId]['JungleCsAt' + type] = riotParticipantFrameDto.jungleMinionsKilled;
+            playerItems[participantId][`CsAt${type}`] = playerCsAt;
+            teamItems[thisTeamId][`CsAt${type}`] += playerCsAt;
+            playerItems[participantId][`XpAt${type}`] = riotParticipantFrameDto.xp;
+            teamItems[thisTeamId][`XpAt${type}`] += riotParticipantFrameDto.xp;
+            playerItems[participantId][`JungleCsAt${type}`] = riotParticipantFrameDto.jungleMinionsKilled;
           }
         }
         minuteTimelineItem['MinuteStamp'] = minute;
@@ -310,14 +315,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             eventItem['KillerId'] = riotEventDto.killerId;
             if (riotEventDto.monsterType === 'DRAGON') {
               eventItem['EventType'] = 'Dragon';
-              const getDragonString = {
+              const DRAGON_STRING_MAP = {
                 'AIR_DRAGON': 'Cloud',
                 'FIRE_DRAGON': 'Infernal',
                 'EARTH_DRAGON': 'Mountain',
                 'WATER_DRAGON': 'Ocean',
                 'ELDER_DRAGON': 'Elder'
               };
-              const dragonString = getDragonString[riotEventDto.monsterSubType];
+              const dragonString = DRAGON_STRING_MAP[riotEventDto.monsterSubType];
               eventItem['EventCategory'] = dragonString;
               // playerData: Dragon types
               teamItems[teamId]['Dragons'].push(dragonString);
@@ -343,21 +348,21 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             if (riotEventDto.assistingParticipantIds.length > 0) {
               eventItem['AssistIds'] = riotEventDto.assistingParticipantIds;
             }
-            const getLaneString = {
+            const LANE_STRING_MAP = {
               'TOP_LANE': 'Top',
               'MID_LANE': 'Middle',
               'BOT_LANE': 'Bottom'
             };
-            eventItem['Lane'] = getLaneString[riotEventDto.laneType];
+            eventItem['Lane'] = LANE_STRING_MAP[riotEventDto.laneType];
             if (riotEventDto.buildingType === 'TOWER_BUILDING') {
               eventItem['EventType'] = 'Tower';
-              let getTowerType = {
+              const TOWER_TYPE_MAP = {
                 'OUTER_TURRET': 'Outer',
                 'INNER_TURRET': 'Inner',
                 'BASE_TURRET': 'Base',
                 'NEXUS_TURRET': 'Nexus'
               };
-              eventItem['EventCategory'] = getTowerType[riotEventDto.towerType];
+              eventItem['EventCategory'] = TOWER_TYPE_MAP[riotEventDto.towerType];
             }
             else if (riotEventDto.buildingType === 'INHIBITOR_BUILDING') {
               eventItem['EventType'] = 'Inhibitor';
