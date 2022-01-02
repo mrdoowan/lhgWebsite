@@ -19,6 +19,10 @@ import {
   getRiotMatchV5TimelineDto 
 } from '../dependencies/riotEndpoints';
 
+const MINUTE_SECONDS = 60;
+const EARLY_TIME = "Early";
+const MID_TIME = "Mid";
+
 /**
  * Creates object tailored for database
  * @param {string} matchId 
@@ -57,12 +61,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       matchObject['SeasonPId'] = matchSetupObject['SeasonPId'];
       matchObject['TournamentPId'] = matchSetupObject['TournamentPId'];
       matchObject['DatePlayed'] = riotMatchDto.gameCreation;
-      matchObject['GameDuration'] = riotMatchDto.gameDuration;
+      const gameDuration = processGameDuration(riotMatchDto.participants);
+      matchObject['GameDuration'] = gameDuration;
       const patch = await getPatch(riotMatchDto.gameVersion);
       matchObject['GamePatchVersion'] = patch;
       matchObject['DDragonVersion'] = await getDdragonVersion(patch);
+      matchObject['TournamentCode'] = riotMatchDto.tournamentCode;
 
-      // #region 2.1) - Teams+Players
+      // #region 2.1) - MatchV5 Endpoint
       const teamItems = {}; // teamId (100 or 200) -> teamData {}
       const playerItems = {}; // participantId -> playerData {}
       // We will merge these two Items at 2.3)
@@ -84,11 +90,18 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         else {
           teamData['Win'] = false;
         }
-        teamData['Towers'] = riotTeamDto.towerKills;
-        teamData['Inhibitors'] = riotTeamDto.inhibitorKills;
-        teamData['Barons'] = riotTeamDto.baronKills;
+        const { objectives } = riotTeamDto;
+        teamData['Towers'] = objectives.towers.kills;
+        teamData['FirstTower'] = objectives.towers.first;
+        teamData['Inhibitors'] = objectives.inhibitor.kills;
+        teamData['FirstInhibitor'] = objectives.inhibitor.first;
+        teamData['Barons'] = objectives.baron.kills;
+        teamData['FirstBaron'] = objectives.baron.first;
+        teamData['RiftHeralds'] = objectives.riftHerald.kills;
+        teamData['FirstRiftHerald'] = objectives.riftHerald.first;
+        teamData['TeamKills'] = objectives.champion.kills;
+        teamData['FirstBlood'] = objectives.champion.first;
         teamData['Dragons'] = []; // Will be built upon in Timeline
-        teamData['Heralds'] = riotTeamDto.riftHeraldKills;
         // Bans
         if (teamId == TEAM_ID.BLUE) {
           teamData['Bans'] = matchTeamsSetupObject['BlueTeam']['Bans'];
@@ -97,9 +110,6 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           teamData['Bans'] = matchTeamsSetupObject['RedTeam']['Bans'];
         }
         // ----------
-        teamData['FirstTower'] = riotTeamDto.firstTower;
-        teamData['FirstBlood'] = riotTeamDto.firstBlood;
-        let teamKills = 0;
         let teamAssists = 0;
         let teamDeaths = 0;
         let teamGold = 0;
@@ -123,10 +133,15 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             partIdByTeamIdAndRole[teamId][champRole] = partId;
             playerData['ChampLevel'] = riotParticipantStatsDto.champLevel;
             playerData['ChampId'] = riotParticipantDto.championId;
-            playerData['Spell1Id'] = riotParticipantDto.summoner1Id;
-            playerData['Spell2Id'] = riotParticipantDto.summoner2Id;
+            playerData['Summoner1Id'] = riotParticipantDto.summoner1Id;
+            playerData['Summoner2Id'] = riotParticipantDto.summoner2Id;
+            playerData['Summoner1Casts'] = riotParticipantDto.summoner1Casts;
+            playerData['Summoner2Casts'] = riotParticipantDto.summoner2Casts;
+            playerData['Spell1Casts'] = riotParticipantDto.spell1Casts;
+            playerData['Spell2Casts'] = riotParticipantDto.spell2Casts;
+            playerData['Spell3Casts'] = riotParticipantDto.spell3Casts;
+            playerData['Spell4Casts'] = riotParticipantDto.spell4Casts;
             playerData['Kills'] = riotParticipantStatsDto.kills;
-            teamKills += riotParticipantStatsDto.kills;
             playerData['Deaths'] = riotParticipantStatsDto.deaths;
             teamDeaths += riotParticipantStatsDto.deaths;
             playerData['Assists'] = riotParticipantStatsDto.assists;
@@ -135,15 +150,13 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             teamGold += riotParticipantStatsDto.goldEarned;
             playerData['TotalDamageDealt'] = riotParticipantStatsDto.totalDamageDealtToChampions;
             teamDamageDealt += riotParticipantStatsDto.totalDamageDealtToChampions;
-            playerData['DamagePerMinute'] = parseFloat((riotParticipantStatsDto.totalDamageDealtToChampions / (riotMatchDto.gameDuration / 60)).toFixed(2));
+            playerData['DamagePerMinute'] = parseFloat((riotParticipantStatsDto.totalDamageDealtToChampions / (gameDuration / MINUTE_SECONDS)).toFixed(2));
             playerData['PhysicalDamageDealt'] = riotParticipantStatsDto.physicalDamageDealtToChampions;
             playerData['MagicDamageDealt'] = riotParticipantStatsDto.magicDamageDealtToChampions;
             playerData['TrueDamageDealt'] = riotParticipantStatsDto.trueDamageDealtToChampions;
             const totalCS = riotParticipantStatsDto.neutralMinionsKilled + riotParticipantStatsDto.totalMinionsKilled;
             playerData['CreepScore'] = totalCS;
             teamCreepScore += totalCS;
-            playerData['CsInTeamJungle'] = riotParticipantStatsDto.neutralMinionsKilledTeamJungle;
-            playerData['CsInEnemyJungle'] = riotParticipantStatsDto.neutralMinionsKilledEnemyJungle;
             playerData['VisionScore'] = riotParticipantStatsDto.visionScore;
             teamVisionScore += riotParticipantStatsDto.visionScore;
             playerData['WardsPlaced'] = riotParticipantStatsDto.wardsPlaced;
@@ -152,8 +165,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             teamControlWardsBought += riotParticipantStatsDto.visionWardsBoughtInGame;
             playerData['WardsCleared'] = riotParticipantStatsDto.wardsKilled;
             teamWardsCleared += riotParticipantStatsDto.wardsKilled;
-            playerData['FirstBloodKill'] = false; // Logic in Timeline
-            playerData['FirstBloodAssist'] = false; // Logic in Timeline
+            playerData['FirstBloodKill'] = riotParticipantStatsDto.firstBloodKill;
+            playerData['FirstBloodAssist'] = riotParticipantStatsDto.firstBloodAssist;
             playerData['FirstBloodVictim'] = false; // Logic in Timeline
             playerData['FirstTower'] = (riotParticipantStatsDto.firstTowerKill || riotParticipantStatsDto.firstTowerAssist);
             playerData['SoloKills'] = 0; // Logic in Timeline
@@ -163,11 +176,16 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['DoubleKills'] = riotParticipantStatsDto.doubleKills - riotParticipantStatsDto.tripleKills;
             playerData['DamageToTurrets'] = riotParticipantStatsDto.damageDealtToTurrets;
             playerData['DamageToObjectives'] = riotParticipantStatsDto.damageDealtToObjectives;
+            playerData['BountyLevel'] = riotParticipantDto.bountyLevel;
             playerData['TotalHeal'] = riotParticipantStatsDto.totalHeal;
             playerData['TimeCrowdControl'] = riotParticipantStatsDto.timeCCingOthers;
+            playerData['TotalHealsOnTeammates'] = riotParticipantStatsDto.totalHealOnTeammates;
+            playerData['TotalDamageShieldedOnTeammates'] = riotParticipantDto.totalDamageShieldedOnTeammates;
+            playerData['TotalTimeSpentDead'] = riotParticipantDto.totalTimeSpentDead;
+            playerData['ItemsPurchased'] = riotParticipantDto.itemsPurchased;
             playerData['ItemsFinal'] = [riotParticipantStatsDto.item0, riotParticipantStatsDto.item1,
-            riotParticipantStatsDto.item2, riotParticipantStatsDto.item3, riotParticipantStatsDto.item4,
-            riotParticipantStatsDto.item5, riotParticipantStatsDto.item6];
+              riotParticipantStatsDto.item2, riotParticipantStatsDto.item3, riotParticipantStatsDto.item4,
+              riotParticipantStatsDto.item5, riotParticipantStatsDto.item6];
             playerData['ItemBuild'] = {}; // Logic in Timeline
             // Runes
             const playerRunes = {}
@@ -176,38 +194,41 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerRunes['ShardSlot0Id'] = statsPerks.offense;
             playerRunes['ShardSlot1Id'] = statsPerks.flex;
             playerRunes['ShardSlot2Id'] = statsPerks.defense;
-            playerRunes['PrimaryPathId'] = riotParticipantStatsDto.perkPrimaryStyle;
-            playerRunes['PrimaryKeystoneId'] = riotParticipantStatsDto.perk0;
-            playerRunes['PrimarySlot0Var1'] = riotParticipantStatsDto.perk0Var1;
-            playerRunes['PrimarySlot0Var2'] = riotParticipantStatsDto.perk0Var2;
-            playerRunes['PrimarySlot0Var3'] = riotParticipantStatsDto.perk0Var3;
-            playerRunes['PrimarySlot1Id'] = riotParticipantStatsDto.perk1;
-            playerRunes['PrimarySlot1Var1'] = riotParticipantStatsDto.perk1Var1;
-            playerRunes['PrimarySlot1Var2'] = riotParticipantStatsDto.perk1Var2;
-            playerRunes['PrimarySlot1Var3'] = riotParticipantStatsDto.perk1Var3;
-            playerRunes['PrimarySlot2Id'] = riotParticipantStatsDto.perk2;
-            playerRunes['PrimarySlot2Var1'] = riotParticipantStatsDto.perk2Var1;
-            playerRunes['PrimarySlot2Var2'] = riotParticipantStatsDto.perk2Var2;
-            playerRunes['PrimarySlot2Var3'] = riotParticipantStatsDto.perk2Var3;
-            playerRunes['PrimarySlot3Id'] = riotParticipantStatsDto.perk3;
-            playerRunes['PrimarySlot3Var1'] = riotParticipantStatsDto.perk3Var1;
-            playerRunes['PrimarySlot3Var2'] = riotParticipantStatsDto.perk3Var2;
-            playerRunes['PrimarySlot3Var3'] = riotParticipantStatsDto.perk3Var3;
-            playerRunes['SecondarySlot1Id'] = riotParticipantStatsDto.perk4;
-            playerRunes['SecondarySlot1Var1'] = riotParticipantStatsDto.perk4Var1;
-            playerRunes['SecondarySlot1Var2'] = riotParticipantStatsDto.perk4Var2;
-            playerRunes['SecondarySlot1Var3'] = riotParticipantStatsDto.perk4Var3;
-            playerRunes['SecondarySlot2Id'] = riotParticipantStatsDto.perk5;
-            playerRunes['SecondarySlot2Var1'] = riotParticipantStatsDto.perk5Var1;
-            playerRunes['SecondarySlot2Var2'] = riotParticipantStatsDto.perk5Var2;
-            playerRunes['SecondarySlot2Var3'] = riotParticipantStatsDto.perk5Var3;
+            const { styles } = riotPerksDto; // Should just an array of 2
+            for (const styleDto of styles) {
+              // A little scuffed because this is how I originally set with v4
+              if (styleDto.description === 'primaryStyle') {
+                playerRunes['PrimaryPathId'] = styleDto.style;
+                for (let i = 0; i < styleDto.selections.length; ++i) {
+                  const selection = styleDto.selections[i];
+                  if (i === 0) {
+                    playerRunes['PrimaryKeystoneId'] = selection.perk;
+                  }
+                  else {
+                    playerRunes[`PrimarySlot${i}Id`] = selection.perk;
+                  }
+                  playerRunes[`PrimarySlot${i}Var1`] = selection.var1;
+                  playerRunes[`PrimarySlot${i}Var2`] = selection.var2;
+                  playerRunes[`PrimarySlot${i}Var3`] = selection.var3;
+                }
+              }
+              else if (styleDto.description === 'subStyle') {
+                playerRunes['SecondaryPathId'] = styleDto.style;
+                for (let i = 0; i < styleDto.selections.length; ++i) {
+                  const selection = styleDto.selections[i];
+                  playerRunes[`SecondarySlot${i+1}Id`] = selection.perk;
+                  playerRunes[`SecondarySlot${i+1}Var1`] = selection.var1;
+                  playerRunes[`SecondarySlot${i+1}Var2`] = selection.var2;
+                  playerRunes[`SecondarySlot${i+1}Var3`] = selection.var3;
+                }
+              }
+            }
             playerData['Runes'] = playerRunes;
             playerData['SkillOrder'] = []; // Logic will be done in Timeline
             // Add to playerItem. Phew
             playerItems[riotParticipantDto.participantId] = playerData;
           }
         }
-        teamData['TeamKills'] = teamKills;
         teamData['TeamDeaths'] = teamDeaths;
         teamData['TeamAssists'] = teamAssists;
         teamData['TeamGold'] = teamGold;
@@ -218,12 +239,12 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         teamData['TeamControlWardsBought'] = teamControlWardsBought;
         teamData['TeamWardsCleared'] = teamWardsCleared;
         teamData['Players'] = {};   // Merge after
-        if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+        if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
           teamData['CsAtEarly'] = 0;      // Logic in Timeline
           teamData['GoldAtEarly'] = 0;    // Logic in Timeline
           teamData['XpAtEarly'] = 0;      // Logic in Timeline
         }
-        if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+        if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
           teamData['CsAtMid'] = 0;        // Logic in Timeline
           teamData['GoldAtMid'] = 0;      // Logic in Timeline
           teamData['XpAtMid'] = 0;        // Logic in Timeline
@@ -232,7 +253,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       }
       //#endregion
 
-      // #region 2.2) - Timeline
+      // #region 2.2) - MatchV5 Timeline Endpoint
       // Each index represents the minute
       const timelineList = [];
       let blueKillsAtEarly = 0;
@@ -266,17 +287,17 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             redTeamGold += riotParticipantFrameDto.totalGold;
           }
           // playerData: EARLY_MINUTE and MID_MINUTE
-          if ((minute === MINUTE.EARLY && riotMatchDto.gameDuration >= MINUTE.EARLY * 60) ||
-            (minute === MINUTE.MID && riotMatchDto.gameDuration >= MINUTE.MID * 60)) {
-            const type = (minute === MINUTE.EARLY) ? "Early" : "Mid";
-            playerItems[participantId]['GoldAt' + type] = riotParticipantFrameDto.totalGold;
-            teamItems[thisTeamId]['GoldAt' + type] += riotParticipantFrameDto.totalGold;
+          if ((minute === MINUTE.EARLY && gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) ||
+            (minute === MINUTE.MID && gameDuration >= MINUTE.MID * MINUTE_SECONDS)) {
+            const type = (minute === MINUTE.EARLY) ? EARLY_TIME : MID_TIME;
+            playerItems[participantId][`GoldAt${type}`] = riotParticipantFrameDto.totalGold;
+            teamItems[thisTeamId][`GoldAt${type}`] += riotParticipantFrameDto.totalGold;
             const playerCsAt = riotParticipantFrameDto.minionsKilled + riotParticipantFrameDto.jungleMinionsKilled;
-            playerItems[participantId]['CsAt' + type] = playerCsAt;
-            teamItems[thisTeamId]['CsAt' + type] += playerCsAt;
-            playerItems[participantId]['XpAt' + type] = riotParticipantFrameDto.xp;
-            teamItems[thisTeamId]['XpAt' + type] += riotParticipantFrameDto.xp;
-            playerItems[participantId]['JungleCsAt' + type] = riotParticipantFrameDto.jungleMinionsKilled;
+            playerItems[participantId][`CsAt${type}`] = playerCsAt;
+            teamItems[thisTeamId][`CsAt${type}`] += playerCsAt;
+            playerItems[participantId][`XpAt${type}`] = riotParticipantFrameDto.xp;
+            teamItems[thisTeamId][`XpAt${type}`] += riotParticipantFrameDto.xp;
+            playerItems[participantId][`JungleCsAt${type}`] = riotParticipantFrameDto.jungleMinionsKilled;
           }
         }
         minuteTimelineItem['MinuteStamp'] = minute;
@@ -294,14 +315,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             eventItem['KillerId'] = riotEventDto.killerId;
             if (riotEventDto.monsterType === 'DRAGON') {
               eventItem['EventType'] = 'Dragon';
-              const getDragonString = {
+              const DRAGON_STRING_MAP = {
                 'AIR_DRAGON': 'Cloud',
                 'FIRE_DRAGON': 'Infernal',
                 'EARTH_DRAGON': 'Mountain',
                 'WATER_DRAGON': 'Ocean',
                 'ELDER_DRAGON': 'Elder'
               };
-              const dragonString = getDragonString[riotEventDto.monsterSubType];
+              const dragonString = DRAGON_STRING_MAP[riotEventDto.monsterSubType];
               eventItem['EventCategory'] = dragonString;
               // playerData: Dragon types
               teamItems[teamId]['Dragons'].push(dragonString);
@@ -327,21 +348,21 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             if (riotEventDto.assistingParticipantIds.length > 0) {
               eventItem['AssistIds'] = riotEventDto.assistingParticipantIds;
             }
-            const getLaneString = {
+            const LANE_STRING_MAP = {
               'TOP_LANE': 'Top',
               'MID_LANE': 'Middle',
               'BOT_LANE': 'Bottom'
             };
-            eventItem['Lane'] = getLaneString[riotEventDto.laneType];
+            eventItem['Lane'] = LANE_STRING_MAP[riotEventDto.laneType];
             if (riotEventDto.buildingType === 'TOWER_BUILDING') {
               eventItem['EventType'] = 'Tower';
-              let getTowerType = {
+              const TOWER_TYPE_MAP = {
                 'OUTER_TURRET': 'Outer',
                 'INNER_TURRET': 'Inner',
                 'BASE_TURRET': 'Base',
                 'NEXUS_TURRET': 'Nexus'
               };
-              eventItem['EventCategory'] = getTowerType[riotEventDto.towerType];
+              eventItem['EventCategory'] = TOWER_TYPE_MAP[riotEventDto.towerType];
             }
             else if (riotEventDto.buildingType === 'INHIBITOR_BUILDING') {
               eventItem['EventType'] = 'Inhibitor';
@@ -447,17 +468,17 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
 
       // Assign Kills and Assists at Early/Mid
       for (const participantId in teamIdByPartId) {
-        if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+        if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
           playerItems[participantId]['KillsAtEarly'] = playerKillsAtEarly[participantId];
           playerItems[participantId]['AssistsAtEarly'] = playerAssistsAtEarly[participantId];
         }
-        if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+        if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
           playerItems[participantId]['KillsAtMid'] = playerKillsAtMid[participantId];
           playerItems[participantId]['AssistsAtMid'] = playerAssistsAtMid[participantId];
         }
       }
       // Calculate Diff@Early and Mid for Teams
-      if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+      if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
         teamItems[TEAM_ID.BLUE]['KillsAtEarly'] = blueKillsAtEarly;
         teamItems[TEAM_ID.RED]['KillsAtEarly'] = redKillsAtEarly;
         const blueKillsDiffEarly = blueKillsAtEarly - redKillsAtEarly;
@@ -473,7 +494,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         teamItems[TEAM_ID.BLUE]['XpDiffEarly'] = blueTeamXpDiffEarly;
         teamItems[TEAM_ID.RED]['XpDiffEarly'] = (blueTeamXpDiffEarly === 0) ? 0 : (blueTeamXpDiffEarly * -1);
       }
-      if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+      if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
         teamItems[TEAM_ID.BLUE]['KillsAtMid'] = blueKillsAtMid;
         teamItems[TEAM_ID.RED]['KillsAtMid'] = redKillsAtMid;
         const blueKillsDiffMid = blueKillsAtMid - redKillsAtMid;
@@ -511,7 +532,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       for (const role in partIdByTeamIdAndRole[TEAM_ID.BLUE]) {
         const bluePartId = partIdByTeamIdAndRole[TEAM_ID.BLUE][role];
         const redPartId = partIdByTeamIdAndRole[TEAM_ID.RED][role];
-        if (riotMatchDto.gameDuration >= MINUTE.EARLY * 60) {
+        if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
           const bluePlayerGoldDiffEarly = playerItems[bluePartId].GoldAtEarly - playerItems[redPartId].GoldAtEarly;
           playerItems[bluePartId]['GoldDiffEarly'] = bluePlayerGoldDiffEarly;
           playerItems[redPartId]['GoldDiffEarly'] = (bluePlayerGoldDiffEarly === 0) ? 0 : (bluePlayerGoldDiffEarly * -1);
@@ -525,7 +546,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           playerItems[bluePartId]['JungleCsDiffEarly'] = bluePlayerJgCsDiffEarly;
           playerItems[redPartId]['JungleCsDiffEarly'] = (bluePlayerJgCsDiffEarly === 0) ? 0 : (bluePlayerJgCsDiffEarly * -1);
         }
-        if (riotMatchDto.gameDuration >= MINUTE.MID * 60) {
+        if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
           const bluePlayerGoldDiffMid = playerItems[bluePartId].GoldAtMid - playerItems[redPartId].GoldAtMid;
           playerItems[bluePartId]['GoldDiffMid'] = bluePlayerGoldDiffMid;
           playerItems[redPartId]['GoldDiffMid'] = (bluePlayerGoldDiffMid === 0) ? 0 : (bluePlayerGoldDiffMid * -1);
@@ -564,11 +585,26 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
   });
 }
 
+// -------------- FUNCTIONS
+
+/**
+ * Gets the accurate GameDuration in seconds.
+ * @param {Array} participantArray
+ * @return {number}
+ */
+const processGameDuration = (participantArray) => {
+  const maxValue = 0;
+  for (const participantDto of participantArray) {
+    maxValue = Math.max(maxValue, participantDto.timePlayed);
+  }
+  return maxValue;
+}
+
 /**
  * Takes riotMatchObject's game version (i.e. "10.20.337.6704") and only looks at the Major.Minor (returns "10.20")
  * @param {string} patchStr 
  */
-function getPatch(patchStr) {
+const getPatch = (patchStr) => {
   return new Promise((resolve, reject) => {
     try {
       const patchArr = patchStr.split('.');
@@ -584,7 +620,7 @@ function getPatch(patchStr) {
  * Ever since Patch 9.23, baron duration is 3 minutes. Before then, it used to be 3.5 minutes.
  * @param {string} thisPatch    patch in string format (i.e. "10.20")
  */
-function updateBaronDuration(thisPatch) {
+const updateBaronDuration = (thisPatch) => {
   return (isPatch1LaterThanPatch2(thisPatch, BARON_DURATION.PATCH_CHANGE)) ?
     BARON_DURATION.CURRENT : BARON_DURATION.OLD;
 }
@@ -595,15 +631,15 @@ function updateBaronDuration(thisPatch) {
  * @param {Array} timelineList      List of events from the Riot Timeline API Request
  * @param {string} teamId           "100" == Blue, "200" == Red
  */
-function teamGoldAtTimeStamp(timestamp, timelineList, teamId) {
-  const timeStampMinute = Math.floor(timestamp / 60);
-  const timeStampSeconds = timestamp % 60;
+const teamGoldAtTimeStamp = (timestamp, timelineList, teamId) => {
+  const timeStampMinute = Math.floor(timestamp / MINUTE_SECONDS);
+  const timeStampSeconds = timestamp % MINUTE_SECONDS;
   if ((timeStampMinute + 1) >= timelineList.length) { return null; }
 
   // Take team gold at marked minute, and from minute + 1. Average them.
   const teamGoldAtMinute = (teamId == TEAM_ID.BLUE) ? timelineList[timeStampMinute]['BlueTeamGold'] : timelineList[timeStampMinute]['RedTeamGold'];
   const teamGoldAtMinutePlus1 = (teamId == TEAM_ID.BLUE) ? timelineList[timeStampMinute + 1]['BlueTeamGold'] : timelineList[timeStampMinute + 1]['RedTeamGold'];
-  const goldPerSecond = (teamGoldAtMinutePlus1 - teamGoldAtMinute) / 60;
+  const goldPerSecond = (teamGoldAtMinutePlus1 - teamGoldAtMinute) / MINUTE_SECONDS;
   return (teamGoldAtMinute + Math.floor((goldPerSecond * timeStampSeconds)));
 }
 
@@ -614,7 +650,7 @@ function teamGoldAtTimeStamp(timestamp, timelineList, teamId) {
  * @param {Array} timelineList                  List of events from the Riot Timeline API Request
  * @param {string} patch                        Patch of what the event took place in
  */
-function computeBaronPowerPlay(baronObjectiveMinuteIndices, timelineList, patch) {
+const computeBaronPowerPlay = (baronObjectiveMinuteIndices, timelineList, patch) => {
   return new Promise(function (resolve, reject) {
     try {
       const baronDuration = updateBaronDuration(patch); // in seconds
