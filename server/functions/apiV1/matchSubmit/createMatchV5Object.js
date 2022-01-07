@@ -69,8 +69,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       matchObject['TournamentCode'] = riotMatchDto.tournamentCode;
 
       // #region 2.1) - MatchV5 Endpoint
-      const teamItems = {}; // teamId (100 or 200) -> teamData {}
-      const playerItems = {}; // participantId -> playerData {}
+      const teamObjects = {}; // teamId (100 or 200) -> teamData {}
+      const playerObjects = {}; // participantId -> playerData {}
       // We will merge these two Items at 2.3)
       const teamIdByPartId = {}; // Mapping participantId -> teamId in timeline
       const partIdByTeamIdAndRole = {};
@@ -226,7 +226,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['Runes'] = playerRunes;
             playerData['SkillOrder'] = []; // Logic will be done in Timeline
             // Add to playerItem. Phew
-            playerItems[riotParticipantDto.participantId] = playerData;
+            playerObjects[riotParticipantDto.participantId] = playerData;
           }
         }
         teamData['TeamDeaths'] = teamDeaths;
@@ -249,7 +249,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           teamData['GoldAtMid'] = 0;      // Logic in Timeline
           teamData['XpAtMid'] = 0;        // Logic in Timeline
         }
-        teamItems[riotTeamDto.teamId] = teamData;
+        teamObjects[riotTeamDto.teamId] = teamData;
       }
       //#endregion
 
@@ -290,14 +290,14 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           if ((minute === MINUTE.EARLY && gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) ||
             (minute === MINUTE.MID && gameDuration >= MINUTE.MID * MINUTE_SECONDS)) {
             const type = (minute === MINUTE.EARLY) ? EARLY_TIME : MID_TIME;
-            playerItems[participantId][`GoldAt${type}`] = riotParticipantFrameDto.totalGold;
-            teamItems[thisTeamId][`GoldAt${type}`] += riotParticipantFrameDto.totalGold;
+            playerObjects[participantId][`GoldAt${type}`] = riotParticipantFrameDto.totalGold;
+            teamObjects[thisTeamId][`GoldAt${type}`] += riotParticipantFrameDto.totalGold;
             const playerCsAt = riotParticipantFrameDto.minionsKilled + riotParticipantFrameDto.jungleMinionsKilled;
-            playerItems[participantId][`CsAt${type}`] = playerCsAt;
-            teamItems[thisTeamId][`CsAt${type}`] += playerCsAt;
-            playerItems[participantId][`XpAt${type}`] = riotParticipantFrameDto.xp;
-            teamItems[thisTeamId][`XpAt${type}`] += riotParticipantFrameDto.xp;
-            playerItems[participantId][`JungleCsAt${type}`] = riotParticipantFrameDto.jungleMinionsKilled;
+            playerObjects[participantId][`CsAt${type}`] = playerCsAt;
+            teamObjects[thisTeamId][`CsAt${type}`] += playerCsAt;
+            playerObjects[participantId][`XpAt${type}`] = riotParticipantFrameDto.xp;
+            teamObjects[thisTeamId][`XpAt${type}`] += riotParticipantFrameDto.xp;
+            playerObjects[participantId][`JungleCsAt${type}`] = riotParticipantFrameDto.jungleMinionsKilled;
           }
         }
         minuteTimelineItem['MinuteStamp'] = minute;
@@ -307,9 +307,18 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         const eventsList = [];
         for (const riotEventDto of riotFrameDto.events) {
           const eventItem = {};
-          // Only Tower, Inhibitor, Dragon, Baron, Herald, and Kills are added to eventData
+          /**
+           * Only the folloiwng are added to eventData:
+           * - Tower
+           * - Inhibitor
+           * - Dragon
+           * - Baron
+           * - Herald 
+           * - Kills
+           * - Turret Plate
+           */
           if (riotEventDto.type === 'ELITE_MONSTER_KILL') {
-            const teamId = teamIdByPartId[riotEventDto.killerId];
+            const teamId = teamIdByPartId[riotEventDto.killerTeamId];
             eventItem['TeamId'] = teamId;
             eventItem['Timestamp'] = riotEventDto.timestamp;
             eventItem['KillerId'] = riotEventDto.killerId;
@@ -325,7 +334,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
               const dragonString = DRAGON_STRING_MAP[riotEventDto.monsterSubType];
               eventItem['EventCategory'] = dragonString;
               // playerData: Dragon types
-              teamItems[teamId]['Dragons'].push(dragonString);
+              teamObjects[teamId]['Dragons'].push(dragonString);
             }
             else if (riotEventDto.monsterType === 'BARON_NASHOR') {
               eventItem['EventType'] = 'Baron';
@@ -385,18 +394,18 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             eventItem['EventType'] = 'Kill';
             // playerData: Solo Kills
             if (riotEventDto.assistingParticipantIds.length === 0 && killerId != 0) {
-              playerItems[killerId]['SoloKills']++;
+              playerObjects[killerId]['SoloKills']++;
             }
             else {
               eventItem['AssistIds'] = riotEventDto.assistingParticipantIds;
             }
             // playerData: First Blood
             if (!firstBloodFound && killerId != 0 && victimId != 0) {
-              playerItems[killerId]['FirstBloodKill'] = true;
+              playerObjects[killerId]['FirstBloodKill'] = true;
               riotEventDto.assistingParticipantIds.forEach(function (assistPId) {
-                playerItems[assistPId]['FirstBloodAssist'] = true;
+                playerObjects[assistPId]['FirstBloodAssist'] = true;
               });
-              playerItems[victimId]['FirstBloodVictim'] = true;
+              playerObjects[victimId]['FirstBloodVictim'] = true;
               firstBloodFound = true;
             }
             // playerData: KillsAtEarly/KillsAtMid
@@ -447,9 +456,31 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             const getSkillLetter = { '1': 'Q', '2': 'W', '3': 'E', '4': 'R' };
             const skillValue = riotEventDto.skillSlot;
             if (skillValue in getSkillLetter) {
-              playerItems[riotEventDto.participantId]['SkillOrder']
+              playerObjects[riotEventDto.participantId]['SkillOrder']
                 .push(getSkillLetter[riotEventDto.skillSlot]);
             }
+          }
+          else if (riotEventDto.type === 'TURRET_PLATE_DESTROYED') {
+            eventItem['EventType'] = 'Plate';
+            eventItem['TeamId'] = (riotEventDto.teamId == TEAM_ID.BLUE)
+              ? parseInt(TEAM_ID.RED) : parseInt(TEAM_ID.BLUE);
+            // FROM RIOT API, THE ABOVE IS TEAM_ID OF TOWER DESTROYED. NOT KILLED (which is what we intend)
+            eventItem['Timestamp'] = riotEventDto.timestamp;
+            eventItem['KillerId'] = riotEventDto.killerId;
+            const LANE_STRING_MAP = {
+              'TOP_LANE': 'Top',
+              'MID_LANE': 'Middle',
+              'BOT_LANE': 'Bottom'
+            };
+            eventItem['Lane'] = LANE_STRING_MAP[riotEventDto.laneType];
+          }
+          else if (riotEventDto.type === 'PAUSE_START') {
+            eventItem['EventType'] = 'Paused';
+            eventItem['Timestamp'] = riotEventDto.timestamp;
+          }
+          else if (riotEventDto.type === 'PAUSE_END') {
+            eventItem['EventType'] = 'Unpaused';
+            eventItem['Timestamp'] = riotEventDto.timestamp;
           }
           if (!(Object.keys(eventItem).length === 0 && eventItem.constructor === Object)) {
             // Javascript's stupid way of checking if an object is empty
@@ -469,46 +500,46 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       // Assign Kills and Assists at Early/Mid
       for (const participantId in teamIdByPartId) {
         if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
-          playerItems[participantId]['KillsAtEarly'] = playerKillsAtEarly[participantId];
-          playerItems[participantId]['AssistsAtEarly'] = playerAssistsAtEarly[participantId];
+          playerObjects[participantId]['KillsAtEarly'] = playerKillsAtEarly[participantId];
+          playerObjects[participantId]['AssistsAtEarly'] = playerAssistsAtEarly[participantId];
         }
         if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
-          playerItems[participantId]['KillsAtMid'] = playerKillsAtMid[participantId];
-          playerItems[participantId]['AssistsAtMid'] = playerAssistsAtMid[participantId];
+          playerObjects[participantId]['KillsAtMid'] = playerKillsAtMid[participantId];
+          playerObjects[participantId]['AssistsAtMid'] = playerAssistsAtMid[participantId];
         }
       }
       // Calculate Diff@Early and Mid for Teams
       if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
-        teamItems[TEAM_ID.BLUE]['KillsAtEarly'] = blueKillsAtEarly;
-        teamItems[TEAM_ID.RED]['KillsAtEarly'] = redKillsAtEarly;
+        teamObjects[TEAM_ID.BLUE]['KillsAtEarly'] = blueKillsAtEarly;
+        teamObjects[TEAM_ID.RED]['KillsAtEarly'] = redKillsAtEarly;
         const blueKillsDiffEarly = blueKillsAtEarly - redKillsAtEarly;
-        const blueTeamGoldDiffEarly = teamItems[TEAM_ID.BLUE]['GoldAtEarly'] - teamItems[TEAM_ID.RED]['GoldAtEarly'];
-        const blueTeamCsDiffEarly = teamItems[TEAM_ID.BLUE]['CsAtEarly'] - teamItems[TEAM_ID.RED]['CsAtEarly'];
-        const blueTeamXpDiffEarly = teamItems[TEAM_ID.BLUE]['XpAtEarly'] - teamItems[TEAM_ID.RED]['XpAtEarly'];
-        teamItems[TEAM_ID.BLUE]['KillsDiffEarly'] = blueKillsDiffEarly;
-        teamItems[TEAM_ID.RED]['KillsDiffEarly'] = (blueKillsDiffEarly === 0) ? 0 : (blueKillsDiffEarly * -1);
-        teamItems[TEAM_ID.BLUE]['GoldDiffEarly'] = blueTeamGoldDiffEarly;
-        teamItems[TEAM_ID.RED]['GoldDiffEarly'] = (blueTeamGoldDiffEarly === 0) ? 0 : (blueTeamGoldDiffEarly * -1);
-        teamItems[TEAM_ID.BLUE]['CsDiffEarly'] = blueTeamCsDiffEarly;
-        teamItems[TEAM_ID.RED]['CsDiffEarly'] = (blueTeamCsDiffEarly === 0) ? 0 : (blueTeamCsDiffEarly * -1);
-        teamItems[TEAM_ID.BLUE]['XpDiffEarly'] = blueTeamXpDiffEarly;
-        teamItems[TEAM_ID.RED]['XpDiffEarly'] = (blueTeamXpDiffEarly === 0) ? 0 : (blueTeamXpDiffEarly * -1);
+        const blueTeamGoldDiffEarly = teamObjects[TEAM_ID.BLUE]['GoldAtEarly'] - teamObjects[TEAM_ID.RED]['GoldAtEarly'];
+        const blueTeamCsDiffEarly = teamObjects[TEAM_ID.BLUE]['CsAtEarly'] - teamObjects[TEAM_ID.RED]['CsAtEarly'];
+        const blueTeamXpDiffEarly = teamObjects[TEAM_ID.BLUE]['XpAtEarly'] - teamObjects[TEAM_ID.RED]['XpAtEarly'];
+        teamObjects[TEAM_ID.BLUE]['KillsDiffEarly'] = blueKillsDiffEarly;
+        teamObjects[TEAM_ID.RED]['KillsDiffEarly'] = (blueKillsDiffEarly === 0) ? 0 : (blueKillsDiffEarly * -1);
+        teamObjects[TEAM_ID.BLUE]['GoldDiffEarly'] = blueTeamGoldDiffEarly;
+        teamObjects[TEAM_ID.RED]['GoldDiffEarly'] = (blueTeamGoldDiffEarly === 0) ? 0 : (blueTeamGoldDiffEarly * -1);
+        teamObjects[TEAM_ID.BLUE]['CsDiffEarly'] = blueTeamCsDiffEarly;
+        teamObjects[TEAM_ID.RED]['CsDiffEarly'] = (blueTeamCsDiffEarly === 0) ? 0 : (blueTeamCsDiffEarly * -1);
+        teamObjects[TEAM_ID.BLUE]['XpDiffEarly'] = blueTeamXpDiffEarly;
+        teamObjects[TEAM_ID.RED]['XpDiffEarly'] = (blueTeamXpDiffEarly === 0) ? 0 : (blueTeamXpDiffEarly * -1);
       }
       if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
-        teamItems[TEAM_ID.BLUE]['KillsAtMid'] = blueKillsAtMid;
-        teamItems[TEAM_ID.RED]['KillsAtMid'] = redKillsAtMid;
+        teamObjects[TEAM_ID.BLUE]['KillsAtMid'] = blueKillsAtMid;
+        teamObjects[TEAM_ID.RED]['KillsAtMid'] = redKillsAtMid;
         const blueKillsDiffMid = blueKillsAtMid - redKillsAtMid;
-        const blueTeamGoldDiffMid = teamItems[TEAM_ID.BLUE]['GoldAtMid'] - teamItems[TEAM_ID.RED]['GoldAtMid'];
-        const blueTeamCsDiffMid = teamItems[TEAM_ID.BLUE]['CsAtMid'] - teamItems[TEAM_ID.RED]['CsAtMid'];
-        const blueTeamXpDiffMid = teamItems[TEAM_ID.BLUE]['XpAtMid'] - teamItems[TEAM_ID.RED]['XpAtMid'];
-        teamItems[TEAM_ID.BLUE]['KillsDiffMid'] = blueKillsDiffMid;
-        teamItems[TEAM_ID.RED]['KillsDiffMid'] = (blueKillsDiffMid === 0) ? 0 : (blueKillsDiffMid * -1);
-        teamItems[TEAM_ID.BLUE]['GoldDiffMid'] = blueTeamGoldDiffMid;
-        teamItems[TEAM_ID.RED]['GoldDiffMid'] = (blueTeamGoldDiffMid === 0) ? 0 : (blueTeamGoldDiffMid * -1);
-        teamItems[TEAM_ID.BLUE]['CsDiffMid'] = blueTeamCsDiffMid;
-        teamItems[TEAM_ID.RED]['CsDiffMid'] = (blueTeamCsDiffMid === 0) ? 0 : (blueTeamCsDiffMid * -1);
-        teamItems[TEAM_ID.BLUE]['XpDiffMid'] = blueTeamXpDiffMid;
-        teamItems[TEAM_ID.RED]['XpDiffMid'] = (blueTeamXpDiffMid === 0) ? 0 : (blueTeamXpDiffMid * -1);
+        const blueTeamGoldDiffMid = teamObjects[TEAM_ID.BLUE]['GoldAtMid'] - teamObjects[TEAM_ID.RED]['GoldAtMid'];
+        const blueTeamCsDiffMid = teamObjects[TEAM_ID.BLUE]['CsAtMid'] - teamObjects[TEAM_ID.RED]['CsAtMid'];
+        const blueTeamXpDiffMid = teamObjects[TEAM_ID.BLUE]['XpAtMid'] - teamObjects[TEAM_ID.RED]['XpAtMid'];
+        teamObjects[TEAM_ID.BLUE]['KillsDiffMid'] = blueKillsDiffMid;
+        teamObjects[TEAM_ID.RED]['KillsDiffMid'] = (blueKillsDiffMid === 0) ? 0 : (blueKillsDiffMid * -1);
+        teamObjects[TEAM_ID.BLUE]['GoldDiffMid'] = blueTeamGoldDiffMid;
+        teamObjects[TEAM_ID.RED]['GoldDiffMid'] = (blueTeamGoldDiffMid === 0) ? 0 : (blueTeamGoldDiffMid * -1);
+        teamObjects[TEAM_ID.BLUE]['CsDiffMid'] = blueTeamCsDiffMid;
+        teamObjects[TEAM_ID.RED]['CsDiffMid'] = (blueTeamCsDiffMid === 0) ? 0 : (blueTeamCsDiffMid * -1);
+        teamObjects[TEAM_ID.BLUE]['XpDiffMid'] = blueTeamXpDiffMid;
+        teamObjects[TEAM_ID.RED]['XpDiffMid'] = (blueTeamXpDiffMid === 0) ? 0 : (blueTeamXpDiffMid * -1);
       }
       // playerData['ItemBuild']. Reformat allItemBuilds to have each minute as the key
       for (const participantId in allItemBuilds) {
@@ -526,52 +557,52 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             'Bought': itemEvent.Bought
           });
         });
-        playerItems[participantId]['ItemBuild'] = playerItemBuild;
+        playerObjects[participantId]['ItemBuild'] = playerItemBuild;
       }
       // Calculate Diff based on Roles for Players
       for (const role in partIdByTeamIdAndRole[TEAM_ID.BLUE]) {
         const bluePartId = partIdByTeamIdAndRole[TEAM_ID.BLUE][role];
         const redPartId = partIdByTeamIdAndRole[TEAM_ID.RED][role];
         if (gameDuration >= MINUTE.EARLY * MINUTE_SECONDS) {
-          const bluePlayerGoldDiffEarly = playerItems[bluePartId].GoldAtEarly - playerItems[redPartId].GoldAtEarly;
-          playerItems[bluePartId]['GoldDiffEarly'] = bluePlayerGoldDiffEarly;
-          playerItems[redPartId]['GoldDiffEarly'] = (bluePlayerGoldDiffEarly === 0) ? 0 : (bluePlayerGoldDiffEarly * -1);
-          const bluePlayerCsDiffEarly = playerItems[bluePartId].CsAtEarly - playerItems[redPartId].CsAtEarly;
-          playerItems[bluePartId]['CsDiffEarly'] = bluePlayerCsDiffEarly;
-          playerItems[redPartId]['CsDiffEarly'] = (bluePlayerCsDiffEarly === 0) ? 0 : (bluePlayerCsDiffEarly * -1);
-          const bluePlayerXpDiffEarly = playerItems[bluePartId].XpAtEarly - playerItems[redPartId].XpAtEarly;
-          playerItems[bluePartId]['XpDiffEarly'] = bluePlayerXpDiffEarly;
-          playerItems[redPartId]['XpDiffEarly'] = (bluePlayerXpDiffEarly === 0) ? 0 : (bluePlayerXpDiffEarly * -1);
-          const bluePlayerJgCsDiffEarly = playerItems[bluePartId].JungleCsAtEarly - playerItems[redPartId].JungleCsAtEarly;
-          playerItems[bluePartId]['JungleCsDiffEarly'] = bluePlayerJgCsDiffEarly;
-          playerItems[redPartId]['JungleCsDiffEarly'] = (bluePlayerJgCsDiffEarly === 0) ? 0 : (bluePlayerJgCsDiffEarly * -1);
+          const bluePlayerGoldDiffEarly = playerObjects[bluePartId].GoldAtEarly - playerObjects[redPartId].GoldAtEarly;
+          playerObjects[bluePartId]['GoldDiffEarly'] = bluePlayerGoldDiffEarly;
+          playerObjects[redPartId]['GoldDiffEarly'] = (bluePlayerGoldDiffEarly === 0) ? 0 : (bluePlayerGoldDiffEarly * -1);
+          const bluePlayerCsDiffEarly = playerObjects[bluePartId].CsAtEarly - playerObjects[redPartId].CsAtEarly;
+          playerObjects[bluePartId]['CsDiffEarly'] = bluePlayerCsDiffEarly;
+          playerObjects[redPartId]['CsDiffEarly'] = (bluePlayerCsDiffEarly === 0) ? 0 : (bluePlayerCsDiffEarly * -1);
+          const bluePlayerXpDiffEarly = playerObjects[bluePartId].XpAtEarly - playerObjects[redPartId].XpAtEarly;
+          playerObjects[bluePartId]['XpDiffEarly'] = bluePlayerXpDiffEarly;
+          playerObjects[redPartId]['XpDiffEarly'] = (bluePlayerXpDiffEarly === 0) ? 0 : (bluePlayerXpDiffEarly * -1);
+          const bluePlayerJgCsDiffEarly = playerObjects[bluePartId].JungleCsAtEarly - playerObjects[redPartId].JungleCsAtEarly;
+          playerObjects[bluePartId]['JungleCsDiffEarly'] = bluePlayerJgCsDiffEarly;
+          playerObjects[redPartId]['JungleCsDiffEarly'] = (bluePlayerJgCsDiffEarly === 0) ? 0 : (bluePlayerJgCsDiffEarly * -1);
         }
         if (gameDuration >= MINUTE.MID * MINUTE_SECONDS) {
-          const bluePlayerGoldDiffMid = playerItems[bluePartId].GoldAtMid - playerItems[redPartId].GoldAtMid;
-          playerItems[bluePartId]['GoldDiffMid'] = bluePlayerGoldDiffMid;
-          playerItems[redPartId]['GoldDiffMid'] = (bluePlayerGoldDiffMid === 0) ? 0 : (bluePlayerGoldDiffMid * -1);
-          const bluePlayerCsDiffMid = playerItems[bluePartId].CsAtMid - playerItems[redPartId].CsAtMid;
-          playerItems[bluePartId]['CsDiffMid'] = bluePlayerCsDiffMid;
-          playerItems[redPartId]['CsDiffMid'] = (bluePlayerCsDiffMid === 0) ? 0 : (bluePlayerCsDiffMid * -1);
-          const bluePlayerXpDiffMid = playerItems[bluePartId].XpAtMid - playerItems[redPartId].XpAtMid;
-          playerItems[bluePartId]['XpDiffMid'] = bluePlayerXpDiffMid;
-          playerItems[redPartId]['XpDiffMid'] = (bluePlayerXpDiffMid === 0) ? 0 : (bluePlayerXpDiffMid * -1);
-          const bluePlayerJgCsDiffMid = playerItems[bluePartId].JungleCsAtMid - playerItems[redPartId].JungleCsAtMid;
-          playerItems[bluePartId]['JungleCsDiffMid'] = bluePlayerJgCsDiffMid;
-          playerItems[redPartId]['JungleCsDiffMid'] = (bluePlayerJgCsDiffMid === 0) ? 0 : (bluePlayerJgCsDiffMid * -1);
+          const bluePlayerGoldDiffMid = playerObjects[bluePartId].GoldAtMid - playerObjects[redPartId].GoldAtMid;
+          playerObjects[bluePartId]['GoldDiffMid'] = bluePlayerGoldDiffMid;
+          playerObjects[redPartId]['GoldDiffMid'] = (bluePlayerGoldDiffMid === 0) ? 0 : (bluePlayerGoldDiffMid * -1);
+          const bluePlayerCsDiffMid = playerObjects[bluePartId].CsAtMid - playerObjects[redPartId].CsAtMid;
+          playerObjects[bluePartId]['CsDiffMid'] = bluePlayerCsDiffMid;
+          playerObjects[redPartId]['CsDiffMid'] = (bluePlayerCsDiffMid === 0) ? 0 : (bluePlayerCsDiffMid * -1);
+          const bluePlayerXpDiffMid = playerObjects[bluePartId].XpAtMid - playerObjects[redPartId].XpAtMid;
+          playerObjects[bluePartId]['XpDiffMid'] = bluePlayerXpDiffMid;
+          playerObjects[redPartId]['XpDiffMid'] = (bluePlayerXpDiffMid === 0) ? 0 : (bluePlayerXpDiffMid * -1);
+          const bluePlayerJgCsDiffMid = playerObjects[bluePartId].JungleCsAtMid - playerObjects[redPartId].JungleCsAtMid;
+          playerObjects[bluePartId]['JungleCsDiffMid'] = bluePlayerJgCsDiffMid;
+          playerObjects[redPartId]['JungleCsDiffMid'] = (bluePlayerJgCsDiffMid === 0) ? 0 : (bluePlayerJgCsDiffMid * -1);
         }
-        const damagePerMinuteDiff = parseFloat((playerItems[bluePartId].DamagePerMinute - playerItems[redPartId].DamagePerMinute).toFixed(2));
-        playerItems[bluePartId]['DamagePerMinuteDiff'] = damagePerMinuteDiff;
-        playerItems[redPartId]['DamagePerMinuteDiff'] = (damagePerMinuteDiff === 0) ? 0 : (damagePerMinuteDiff * -1);
+        const damagePerMinuteDiff = parseFloat((playerObjects[bluePartId].DamagePerMinute - playerObjects[redPartId].DamagePerMinute).toFixed(2));
+        playerObjects[bluePartId]['DamagePerMinuteDiff'] = damagePerMinuteDiff;
+        playerObjects[redPartId]['DamagePerMinuteDiff'] = (damagePerMinuteDiff === 0) ? 0 : (damagePerMinuteDiff * -1);
       }
       //#endregion
 
       // 2.3) - Merge teamItem + playerItem (especially with the Diffs)
-      for (const partId in playerItems) {
+      for (const partId in playerObjects) {
         const teamId = teamIdByPartId[partId];
-        teamItems[teamId]['Players'][partId] = playerItems[partId];
+        teamObjects[teamId]['Players'][partId] = playerObjects[partId];
       }
-      matchObject['Teams'] = teamItems;
+      matchObject['Teams'] = teamObjects;
 
       // Return the whole matchObject
       resolve(matchObject);
