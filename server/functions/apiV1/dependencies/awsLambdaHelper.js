@@ -1,6 +1,8 @@
-/*  Declaring AWS npm modules */
+/*  Declaring npm modules */
 const AWS = require('aws-sdk'); // Interfacing with our AWS Lambda functions
+const twisted = require("twisted");
 /*  Configurations of npm modules */
+const { Constants } = twisted;
 AWS.config.update({ region: 'us-east-2' });
 const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 
@@ -17,6 +19,7 @@ export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
     Payload: JSON.stringify({
       type: 'SUMMONER_DATA',
       summonerName: name,
+      region: Constants.Regions.AMERICA_NORTH
     }),
   };
   lambda.invoke(params, (err, data) => {
@@ -38,7 +41,8 @@ export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
     FunctionName: 'riotAPILambda',
     Payload: JSON.stringify({
       type: 'MATCH_DATA',
-      matchId,
+      matchId: matchId,
+      regionGroup: Constants.RegionGroups.AMERICAS,
     }),
   };
   lambda.invoke(params, (err, data) => {
@@ -59,7 +63,8 @@ export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject)
     FunctionName: 'riotAPILambda',
     Payload: JSON.stringify({
       type: 'SPECTATE_DATA',
-      summonerId,
+      summonerId: summonerId,
+      region: Constants.Regions.AMERICA_NORTH,
     }),
   };
   lambda.invoke(params, (err, data) => {

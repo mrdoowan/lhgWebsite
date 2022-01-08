@@ -19,6 +19,7 @@ import {
 } from '../dependencies/global';
 
 /**
+ * @deprecated since MatchV5 was released in October 2021
  * Creates object tailored for database
  * @param {string} matchId 
  * @param {object} matchSetupObject
