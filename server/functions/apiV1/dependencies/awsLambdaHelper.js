@@ -1,3 +1,5 @@
+import { GLOBAL_CONSTS } from '../dependencies/global';
+
 /*  Declaring npm modules */
 const AWS = require('aws-sdk'); // Interfacing with our AWS Lambda functions
 const twisted = require("twisted");
@@ -15,7 +17,7 @@ const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Summoner Id of '${name}'`);
   const params = {
-    FunctionName: 'riotAPILambda',
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'SUMMONER_DATA',
       summonerName: name,
@@ -38,7 +40,7 @@ export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
 export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Match Data and Timeline of Id '${matchId}'`);
   const params = {
-    FunctionName: 'riotAPILambda',
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'MATCH_DATA',
       matchId: matchId,
@@ -60,7 +62,7 @@ export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
 export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Spectate Data from Summoner Id '${summonerId}'`);
   const params = {
-    FunctionName: 'riotAPILambda',
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'SPECTATE_DATA',
       summonerId: summonerId,

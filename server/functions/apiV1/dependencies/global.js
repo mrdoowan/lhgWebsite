@@ -48,7 +48,8 @@ export const GLOBAL_CONSTS = {
   // Baron duration is 3 minutes after this patch, 3.5 minutes before it
   OLD_BARON_DURATION: 210, // in seconds
   CURRENT_BARON_DURATION: 180, // in seconds
-  LEADERBOARD_NUM: 5
+  LEADERBOARD_NUM: 5,
+  AWS_LAMBDA_NAME = 'twistedRiotApiLambda',
 }
 
 /**
