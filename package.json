@@ -32,6 +32,7 @@
     "express": "^4.17.1",
     "express-http-to-https": "^1.1.4",
     "hashids": "^2.2.8",
+    "jest": "^27.4.7",
     "jsonwebtoken": "^8.5.1",
     "moment-timezone": "^0.5.33",
     "mysql": "^2.18.1",

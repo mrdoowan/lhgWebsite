@@ -202,7 +202,7 @@ export const dynamoDbCreateBackup = (tableName) => {
  */
 export const dynamoDbCreateTestTable = (tableName) => {
   const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); // 1 week ago
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 8); // 1 week ago (+1 day)
   const listBackupsParams = {
     TableName: tableName,
     TimeRangeLowerBound: oneWeekAgo,

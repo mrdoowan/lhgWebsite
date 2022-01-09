@@ -43,7 +43,7 @@ export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
     FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'MATCH_DATA',
-      matchId: matchId,
+      matchId: `${Constants.Regions.AMERICA_NORTH}_${matchId}`,
       regionGroup: Constants.RegionGroups.AMERICAS,
     }),
   };

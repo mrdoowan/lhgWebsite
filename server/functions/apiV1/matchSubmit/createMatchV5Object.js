@@ -9,15 +9,12 @@ import {
   BARON_DURATION,
 } from '../../../services/constants';
 import { getDdragonVersion } from '../../../services/miscDynamoDb';
+import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
 import {
   getProfileHashId,
   getTeamHashId,
   isPatch1LaterThanPatch2
 } from '../dependencies/global';
-import { 
-  getRiotMatchV5Dto, 
-  getRiotMatchV5TimelineDto 
-} from '../dependencies/riotEndpoints';
 
 const MINUTE_SECONDS = 60;
 const EARLY_TIME = "Early";
@@ -32,10 +29,11 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Call Riot API
-      console.log(`Processing new match ID: ${matchSetupObject['RiotMatchId']}`);
+      console.log(`Processing new matchV5 ID: ${matchSetupObject['RiotMatchId']}`);
       const matchTeamsSetupObject = matchSetupObject['Teams'];
-      const riotMatchDto = (await getRiotMatchV5Dto(matchId)).info;
-      const riotMatchTimelineDto = (await getRiotMatchV5TimelineDto(matchId)).info;
+      const riotMatchObject = await getRiotMatchData(matchId);
+      const riotMatchDto = riotMatchObject['Data']['info'];
+      const riotMatchTimelineDto = riotMatchObject['Timeline']['info'];
 
       // ----- 1) Add onto matchObj of profileHId
       const profileObjByChampId = {}
@@ -91,8 +89,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           teamData['Win'] = false;
         }
         const { objectives } = riotTeamDto;
-        teamData['Towers'] = objectives.towers.kills;
-        teamData['FirstTower'] = objectives.towers.first;
+        teamData['Towers'] = objectives.tower.kills;
+        teamData['FirstTower'] = objectives.tower.first;
         teamData['Inhibitors'] = objectives.inhibitor.kills;
         teamData['FirstInhibitor'] = objectives.inhibitor.first;
         teamData['Barons'] = objectives.baron.kills;
@@ -124,14 +122,13 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           if (riotParticipantDto.teamId === teamId) {
             const partId = riotParticipantDto.participantId;
             teamIdByPartId[partId] = teamId;
-            const riotParticipantStatsDto = riotParticipantDto.stats;
             const profilePId = profileObjByChampId[riotParticipantDto.championId]['PId'];
             playerData['ProfileHId'] = getProfileHashId(profilePId);
             playerData['ParticipantId'] = partId;
             const champRole = profileObjByChampId[riotParticipantDto.championId]['Role'];
             playerData['Role'] = champRole;
             partIdByTeamIdAndRole[teamId][champRole] = partId;
-            playerData['ChampLevel'] = riotParticipantStatsDto.champLevel;
+            playerData['ChampLevel'] = riotParticipantDto.champLevel;
             playerData['ChampId'] = riotParticipantDto.championId;
             playerData['Summoner1Id'] = riotParticipantDto.summoner1Id;
             playerData['Summoner2Id'] = riotParticipantDto.summoner2Id;
@@ -141,59 +138,59 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['Spell2Casts'] = riotParticipantDto.spell2Casts;
             playerData['Spell3Casts'] = riotParticipantDto.spell3Casts;
             playerData['Spell4Casts'] = riotParticipantDto.spell4Casts;
-            playerData['Kills'] = riotParticipantStatsDto.kills;
-            playerData['Deaths'] = riotParticipantStatsDto.deaths;
-            teamDeaths += riotParticipantStatsDto.deaths;
-            playerData['Assists'] = riotParticipantStatsDto.assists;
-            teamAssists += riotParticipantStatsDto.assists;
-            playerData['Gold'] = riotParticipantStatsDto.goldEarned;
-            teamGold += riotParticipantStatsDto.goldEarned;
-            playerData['TotalDamageDealt'] = riotParticipantStatsDto.totalDamageDealtToChampions;
-            teamDamageDealt += riotParticipantStatsDto.totalDamageDealtToChampions;
-            playerData['DamagePerMinute'] = parseFloat((riotParticipantStatsDto.totalDamageDealtToChampions / (gameDuration / MINUTE_SECONDS)).toFixed(2));
-            playerData['PhysicalDamageDealt'] = riotParticipantStatsDto.physicalDamageDealtToChampions;
-            playerData['MagicDamageDealt'] = riotParticipantStatsDto.magicDamageDealtToChampions;
-            playerData['TrueDamageDealt'] = riotParticipantStatsDto.trueDamageDealtToChampions;
-            const totalCS = riotParticipantStatsDto.neutralMinionsKilled + riotParticipantStatsDto.totalMinionsKilled;
+            playerData['Kills'] = riotParticipantDto.kills;
+            playerData['Deaths'] = riotParticipantDto.deaths;
+            teamDeaths += riotParticipantDto.deaths;
+            playerData['Assists'] = riotParticipantDto.assists;
+            teamAssists += riotParticipantDto.assists;
+            playerData['Gold'] = riotParticipantDto.goldEarned;
+            teamGold += riotParticipantDto.goldEarned;
+            playerData['TotalDamageDealt'] = riotParticipantDto.totalDamageDealtToChampions;
+            teamDamageDealt += riotParticipantDto.totalDamageDealtToChampions;
+            playerData['DamagePerMinute'] = parseFloat((riotParticipantDto.totalDamageDealtToChampions / (gameDuration / MINUTE_SECONDS)).toFixed(2));
+            playerData['PhysicalDamageDealt'] = riotParticipantDto.physicalDamageDealtToChampions;
+            playerData['MagicDamageDealt'] = riotParticipantDto.magicDamageDealtToChampions;
+            playerData['TrueDamageDealt'] = riotParticipantDto.trueDamageDealtToChampions;
+            const totalCS = riotParticipantDto.neutralMinionsKilled + riotParticipantDto.totalMinionsKilled;
             playerData['CreepScore'] = totalCS;
             teamCreepScore += totalCS;
-            playerData['VisionScore'] = riotParticipantStatsDto.visionScore;
-            teamVisionScore += riotParticipantStatsDto.visionScore;
-            playerData['WardsPlaced'] = riotParticipantStatsDto.wardsPlaced;
-            teamWardsPlaced += riotParticipantStatsDto.wardsPlaced;
-            playerData['ControlWardsBought'] = riotParticipantStatsDto.visionWardsBoughtInGame;
-            teamControlWardsBought += riotParticipantStatsDto.visionWardsBoughtInGame;
-            playerData['WardsCleared'] = riotParticipantStatsDto.wardsKilled;
-            teamWardsCleared += riotParticipantStatsDto.wardsKilled;
-            playerData['FirstBloodKill'] = riotParticipantStatsDto.firstBloodKill;
-            playerData['FirstBloodAssist'] = riotParticipantStatsDto.firstBloodAssist;
+            playerData['VisionScore'] = riotParticipantDto.visionScore;
+            teamVisionScore += riotParticipantDto.visionScore;
+            playerData['WardsPlaced'] = riotParticipantDto.wardsPlaced;
+            teamWardsPlaced += riotParticipantDto.wardsPlaced;
+            playerData['ControlWardsBought'] = riotParticipantDto.visionWardsBoughtInGame;
+            teamControlWardsBought += riotParticipantDto.visionWardsBoughtInGame;
+            playerData['WardsCleared'] = riotParticipantDto.wardsKilled;
+            teamWardsCleared += riotParticipantDto.wardsKilled;
+            playerData['FirstBloodKill'] = riotParticipantDto.firstBloodKill;
+            playerData['FirstBloodAssist'] = riotParticipantDto.firstBloodAssist;
             playerData['FirstBloodVictim'] = false; // Logic in Timeline
-            playerData['FirstTower'] = (riotParticipantStatsDto.firstTowerKill || riotParticipantStatsDto.firstTowerAssist);
+            playerData['FirstTower'] = (riotParticipantDto.firstTowerKill || riotParticipantDto.firstTowerAssist);
             playerData['SoloKills'] = 0; // Logic in Timeline
-            playerData['PentaKills'] = riotParticipantStatsDto.pentaKills;
-            playerData['QuadraKills'] = riotParticipantStatsDto.quadraKills - riotParticipantStatsDto.pentaKills;
-            playerData['TripleKills'] = riotParticipantStatsDto.tripleKills - riotParticipantStatsDto.quadraKills;
-            playerData['DoubleKills'] = riotParticipantStatsDto.doubleKills - riotParticipantStatsDto.tripleKills;
-            playerData['DamageToTurrets'] = riotParticipantStatsDto.damageDealtToTurrets;
-            playerData['DamageToObjectives'] = riotParticipantStatsDto.damageDealtToObjectives;
+            playerData['PentaKills'] = riotParticipantDto.pentaKills;
+            playerData['QuadraKills'] = riotParticipantDto.quadraKills - riotParticipantDto.pentaKills;
+            playerData['TripleKills'] = riotParticipantDto.tripleKills - riotParticipantDto.quadraKills;
+            playerData['DoubleKills'] = riotParticipantDto.doubleKills - riotParticipantDto.tripleKills;
+            playerData['DamageToTurrets'] = riotParticipantDto.damageDealtToTurrets;
+            playerData['DamageToObjectives'] = riotParticipantDto.damageDealtToObjectives;
             playerData['BountyLevel'] = riotParticipantDto.bountyLevel;
-            playerData['TotalHeal'] = riotParticipantStatsDto.totalHeal;
-            playerData['TimeCrowdControl'] = riotParticipantStatsDto.timeCCingOthers;
-            playerData['TotalHealsOnTeammates'] = riotParticipantStatsDto.totalHealOnTeammates;
+            playerData['TotalHeal'] = riotParticipantDto.totalHeal;
+            playerData['TimeCrowdControl'] = riotParticipantDto.timeCCingOthers;
+            playerData['TotalHealsOnTeammates'] = riotParticipantDto.totalHealOnTeammates;
             playerData['TotalDamageShieldedOnTeammates'] = riotParticipantDto.totalDamageShieldedOnTeammates;
             playerData['TotalTimeSpentDead'] = riotParticipantDto.totalTimeSpentDead;
             playerData['ItemsPurchased'] = riotParticipantDto.itemsPurchased;
-            playerData['ItemsFinal'] = [riotParticipantStatsDto.item0, riotParticipantStatsDto.item1,
-              riotParticipantStatsDto.item2, riotParticipantStatsDto.item3, riotParticipantStatsDto.item4,
-              riotParticipantStatsDto.item5, riotParticipantStatsDto.item6];
+            playerData['ItemsFinal'] = [riotParticipantDto.item0, riotParticipantDto.item1,
+              riotParticipantDto.item2, riotParticipantDto.item3, riotParticipantDto.item4,
+              riotParticipantDto.item5, riotParticipantDto.item6];
             playerData['ItemBuild'] = {}; // Logic in Timeline
             // Runes
             const playerRunes = {}
-            const riotPerksDto = riotParticipantStatsDto.perks;
-            const { statsPerks } = riotPerksDto;
-            playerRunes['ShardSlot0Id'] = statsPerks.offense;
-            playerRunes['ShardSlot1Id'] = statsPerks.flex;
-            playerRunes['ShardSlot2Id'] = statsPerks.defense;
+            const riotPerksDto = riotParticipantDto.perks;
+            const { statPerks } = riotPerksDto;
+            playerRunes['ShardSlot0Id'] = statPerks.offense;
+            playerRunes['ShardSlot1Id'] = statPerks.flex;
+            playerRunes['ShardSlot2Id'] = statPerks.defense;
             const { styles } = riotPerksDto; // Should just an array of 2
             for (const styleDto of styles) {
               // A little scuffed because this is how I originally set with v4
@@ -318,7 +315,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
            * - Turret Plate
            */
           if (riotEventDto.type === 'ELITE_MONSTER_KILL') {
-            const teamId = teamIdByPartId[riotEventDto.killerTeamId];
+            const teamId = riotEventDto.killerTeamId;
             eventItem['TeamId'] = teamId;
             eventItem['Timestamp'] = riotEventDto.timestamp;
             eventItem['KillerId'] = riotEventDto.killerId;
@@ -354,7 +351,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             // FROM RIOT API, THE ABOVE IS TEAM_ID OF TOWER DESTROYED. NOT KILLED (which is what we intend)
             eventItem['Timestamp'] = riotEventDto.timestamp;
             eventItem['KillerId'] = riotEventDto.killerId;
-            if (riotEventDto.assistingParticipantIds.length > 0) {
+            if (riotEventDto.assistingParticipantIds) {
               eventItem['AssistIds'] = riotEventDto.assistingParticipantIds;
             }
             const LANE_STRING_MAP = {
@@ -393,32 +390,38 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             eventItem['VictimId'] = victimId;
             eventItem['EventType'] = 'Kill';
             // playerData: Solo Kills
-            if (riotEventDto.assistingParticipantIds.length === 0 && killerId != 0) {
+            if (!riotEventDto.assistingParticipantIds && killerId != 0) {
               playerObjects[killerId]['SoloKills']++;
             }
-            else {
+            else if (riotEventDto.assistingParticipantIds) {
               eventItem['AssistIds'] = riotEventDto.assistingParticipantIds;
             }
             // playerData: First Blood
             if (!firstBloodFound && killerId != 0 && victimId != 0) {
               playerObjects[killerId]['FirstBloodKill'] = true;
-              riotEventDto.assistingParticipantIds.forEach(function (assistPId) {
-                playerObjects[assistPId]['FirstBloodAssist'] = true;
-              });
+              if (riotEventDto.assistingParticipantIds) {
+                riotEventDto.assistingParticipantIds.forEach(function (assistPId) {
+                  playerObjects[assistPId]['FirstBloodAssist'] = true;
+                });
+              }
               playerObjects[victimId]['FirstBloodVictim'] = true;
               firstBloodFound = true;
             }
             // playerData: KillsAtEarly/KillsAtMid
             if (minute < MINUTE.EARLY) {
               playerKillsAtEarly[killerId]++;
-              for (const assistId of riotEventDto.assistingParticipantIds) {
-                playerAssistsAtEarly[assistId]++;
+              if (riotEventDto.assistingParticipantIds) {
+                for (const assistId of riotEventDto.assistingParticipantIds) {
+                  playerAssistsAtEarly[assistId]++;
+                }
               }
             }
             if (minute < MINUTE.MID) {
               playerKillsAtMid[killerId]++;
-              for (const assistId of riotEventDto.assistingParticipantIds) {
-                playerAssistsAtMid[assistId]++;
+              if (riotEventDto.assistingParticipantIds) {
+                for (const assistId of riotEventDto.assistingParticipantIds) {
+                  playerAssistsAtMid[assistId]++;
+                }
               }
             }
             // teamData: EARLY_MINUTE and MID_MINUTE Kills
@@ -624,7 +627,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
  * @return {number}
  */
 const processGameDuration = (participantArray) => {
-  const maxValue = 0;
+  let maxValue = 0;
   for (const participantDto of participantArray) {
     maxValue = Math.max(maxValue, participantDto.timePlayed);
   }
