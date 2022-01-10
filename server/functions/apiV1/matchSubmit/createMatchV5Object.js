@@ -82,7 +82,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         else if (teamId == TEAM_ID.RED) {
           teamData['TeamHId'] = getTeamHashId(matchTeamsSetupObject['RedTeam']['TeamPId']);
         }
-        if (riotTeamDto.win === 'Win') {
+        if (riotTeamDto.win) {
           teamData['Win'] = true;
         }
         else {
@@ -95,8 +95,8 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
         teamData['FirstInhibitor'] = objectives.inhibitor.first;
         teamData['Barons'] = objectives.baron.kills;
         teamData['FirstBaron'] = objectives.baron.first;
-        teamData['RiftHeralds'] = objectives.riftHerald.kills;
-        teamData['FirstRiftHerald'] = objectives.riftHerald.first;
+        teamData['Heralds'] = objectives.riftHerald.kills;
+        teamData['FirstHerald'] = objectives.riftHerald.first;
         teamData['TeamKills'] = objectives.champion.kills;
         teamData['FirstBlood'] = objectives.champion.first;
         teamData['Dragons'] = []; // Will be built upon in Timeline
@@ -176,7 +176,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
             playerData['BountyLevel'] = riotParticipantDto.bountyLevel;
             playerData['TotalHeal'] = riotParticipantDto.totalHeal;
             playerData['TimeCrowdControl'] = riotParticipantDto.timeCCingOthers;
-            playerData['TotalHealsOnTeammates'] = riotParticipantDto.totalHealOnTeammates;
+            playerData['TotalHealsOnTeammates'] = riotParticipantDto.totalHealsOnTeammates;
             playerData['TotalDamageShieldedOnTeammates'] = riotParticipantDto.totalDamageShieldedOnTeammates;
             playerData['TotalTimeSpentDead'] = riotParticipantDto.totalTimeSpentDead;
             playerData['ItemsPurchased'] = riotParticipantDto.itemsPurchased;
@@ -465,11 +465,9 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
           }
           else if (riotEventDto.type === 'TURRET_PLATE_DESTROYED') {
             eventItem['EventType'] = 'Plate';
-            eventItem['TeamId'] = (riotEventDto.teamId == TEAM_ID.BLUE)
-              ? parseInt(TEAM_ID.RED) : parseInt(TEAM_ID.BLUE);
+            eventItem['TeamId'] = riotEventDto.teamId;
             // FROM RIOT API, THE ABOVE IS TEAM_ID OF TOWER DESTROYED. NOT KILLED (which is what we intend)
             eventItem['Timestamp'] = riotEventDto.timestamp;
-            eventItem['KillerId'] = riotEventDto.killerId;
             const LANE_STRING_MAP = {
               'TOP_LANE': 'Top',
               'MID_LANE': 'Middle',
