@@ -25,7 +25,7 @@ const MID_TIME = "Mid";
  * @param {string} matchId 
  * @param {object} matchSetupObject
  */
-export const createDbMatchObject = (matchId, matchSetupObject) => {
+export const createDbMatchV5Object = (matchId, matchSetupObject) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Call Riot API

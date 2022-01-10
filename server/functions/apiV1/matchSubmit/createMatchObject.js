@@ -24,7 +24,7 @@ import {
  * @param {string} matchId 
  * @param {object} matchSetupObject
  */
-export const createDbMatchObject = (matchId, matchSetupObject) => {
+export const createDbMatchV4Object = (matchId, matchSetupObject) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Call Riot API

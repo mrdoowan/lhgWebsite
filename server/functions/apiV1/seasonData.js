@@ -181,10 +181,10 @@ export const getSeasonInformation = (seasonId) => {
   return new Promise(function (resolve, reject) {
     cache.get(cacheKey, async (err, data) => {
       if (err) { console(err); reject(err); return; }
-      else if (data != null) { resolve(JSON.parse(data)); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        let seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
-        if (seasonInfoJson != null) {
+        const seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
+        if (seasonInfoJson) {
           if (seasonInfoJson['TournamentPIds']['RegTournamentPId']) {
             seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
           }
@@ -360,6 +360,25 @@ export const getSeasonPlayoffs = (seasonId) => {
 }
 
 /**
+ * Gets most recent team HId
+ * @param {number} seasonId 
+ * @param {string} profileHId 
+ */
+export const getMostRecentTeam = (seasonId, profileHId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const seasonRosterJson = await getSeasonRosterById(seasonId);
+      const { Profiles } = seasonRosterJson;
+      resolve(Profiles[profileHId]?.MostRecentTeamHId);
+    }
+    catch (err) {
+      console.error(err);
+      reject(err);
+    }
+  });
+}
+
+/**
  * Adds new team into Season Roster. Initializes a new object if null
  * @param {number} seasonId     Assume valid
  * @param {array} teamPIdList   Assume valid
@@ -444,6 +463,8 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
           profileMessages.push(`${profileName} - Profile added to the Team.`)
         }
       }
+
+      // Update "Profiles" key
 
       if (errorList.length > 0) {
         resolve({ errorList: errorList });

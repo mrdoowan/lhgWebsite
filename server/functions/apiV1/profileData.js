@@ -144,10 +144,10 @@ export const getProfileName = (profileId, hash = true) => {
     const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId;
     cache.get(cacheKey, (err, data) => {
       if (err) { console.error(err); reject(err); return; }
-      else if (data != null) { resolve(data); return; }
+      else if (data) { resolve(data); return; }
       dynamoDbGetItem('Profile', profilePId)
         .then((obj) => {
-          if (obj == null) { resolve(null); return; } // Not Found
+          if (!obj) { resolve(null); return; } // Not Found
           cache.set(cacheKey, obj['ProfileName'], 'EX', GLOBAL_CONSTS.TTL_DURATION);
           resolve(obj['ProfileName']);
         }).catch((error) => { console.error(error); reject(error) });
