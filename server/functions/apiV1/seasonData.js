@@ -449,7 +449,10 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         resolve({ errorList: `Season Object does not have Roster` });
         return;
       }
+
+      // Update "Teams" and "Profiles" key
       const rosterTeamDbObject = seasonDbObject.Roster.Teams;
+      const rosterProfilesDbObject = seasonDbObject.Roster.Profiles;
       const teamHId = getTeamHashId(teamPId);
       const teamName = await getTeamName(teamHId);
       if (!(teamHId in rosterTeamDbObject)) {
@@ -469,11 +472,10 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         else {
           // Create new object
           rosterPlayersDbObject[profileHId] = {};
+          rosterProfilesDbObject[profileHId] = { MostRecentTeamHId: teamHId }
           profileMessages.push(`${profileName} - Profile added to the Team.`)
         }
       }
-
-      // Update "Profiles" key
 
       if (errorList.length > 0) {
         resolve({ errorList: errorList });
@@ -531,7 +533,7 @@ export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
 
       // Remove cache
       cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
-      
+
       await dynamoDbPutItem('Season', seasonDbObject, seasonId);
       resolve({
         'SeasonId': seasonId,
