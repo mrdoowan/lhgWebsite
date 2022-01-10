@@ -44,20 +44,6 @@ matchV1Routes.get('/data/:matchId', (req, res) => {
 });
 
 /**
- * @route   GET api/match/v1/data/matchV5/:matchId
- * @desc    Get Match Data
- * @access  Private (TEST ONLY TEMPORARY)
- */
-matchV1Routes.get('/data/matchV5/:matchId', (req, res) => {
-  const { matchId } = req.params;
-
-  getRiotMatchV5Dto(matchId).then((data) => {
-    if (!data) { return res400sClientError(res, req, `Match ID '${matchId}' Not Found`); }
-    return res200sOK(res, req, data);
-  }).catch((err) => error500sServerError(err, res, "GET Riot MatchV5 DTO Error."));
-})
-
-/**
  * @route   GET api/match/v1/setup/data/:matchId
  * @desc    Get Match Setup
  * @access  Public
