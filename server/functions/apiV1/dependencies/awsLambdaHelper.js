@@ -1,6 +1,10 @@
-/*  Declaring AWS npm modules */
+import { GLOBAL_CONSTS } from '../dependencies/global';
+
+/*  Declaring npm modules */
 const AWS = require('aws-sdk'); // Interfacing with our AWS Lambda functions
+const twisted = require("twisted");
 /*  Configurations of npm modules */
+const { Constants } = twisted;
 AWS.config.update({ region: 'us-east-2' });
 const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 
@@ -13,10 +17,11 @@ const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Summoner Id of '${name}'`);
   const params = {
-    FunctionName: 'riotAPILambda',
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'SUMMONER_DATA',
       summonerName: name,
+      region: Constants.Regions.AMERICA_NORTH
     }),
   };
   lambda.invoke(params, (err, data) => {
@@ -27,17 +32,19 @@ export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
 
 /**
  * (AWS Lambda function)
- * Calls Riot API and gets the Match Data of the input Match ID
+ * DEPRECATED SINCE SEPTEMBER 6TH 2021
+ * Calls Riot API and gets MatchV4 Data of the input Match ID
  * Returns the request object of Match with items "Data" and "Timeline"
  * @param {string} matchId
  */
 export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Match Data and Timeline of Id '${matchId}'`);
   const params = {
-    FunctionName: 'riotAPILambda',
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'MATCH_DATA',
-      matchId,
+      matchId: `${Constants.Regions.AMERICA_NORTH}_${matchId}`,
+      regionGroup: Constants.RegionGroups.AMERICAS,
     }),
   };
   lambda.invoke(params, (err, data) => {
@@ -55,10 +62,11 @@ export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
 export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Spectate Data from Summoner Id '${summonerId}'`);
   const params = {
-    FunctionName: 'riotAPILambda',
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'SPECTATE_DATA',
-      summonerId,
+      summonerId: summonerId,
+      region: Constants.Regions.AMERICA_NORTH,
     }),
   };
   lambda.invoke(params, (err, data) => {

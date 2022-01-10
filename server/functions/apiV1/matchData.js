@@ -191,7 +191,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       }
 
       // Get data from Riot API
-      const matchDataRiotJson = (await getRiotMatchData(matchId))['Data'];
+      const matchDataRiotJson = (await getRiotMatchData(matchId))['Data']['info'];
 
       const setupObject = {}
       setupObject['Invalid'] = invalidFlag;
@@ -230,12 +230,11 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         newPlayerObject['ChampId'] = playerRiotJson['championId'];
         newPlayerObject['Spell1Id'] = playerRiotJson['spell1Id'];
         newPlayerObject['Spell2Id'] = playerRiotJson['spell2Id'];
-        const playerTimelineRiotJson = playerRiotJson['timeline'];
-        newPlayerObject['Role'] = (playerTimelineRiotJson['lane'] === 'TOP') ? "Top" :
-          (playerTimelineRiotJson['lane'] === 'JUNGLE') ? "Jungle" :
-            (playerTimelineRiotJson['lane'] === 'MIDDLE') ? "Middle" :
-              (playerTimelineRiotJson['lane'] === 'BOTTOM' && playerTimelineRiotJson['role'] == 'DUO_CARRY') ? "Bottom" :
-                (playerTimelineRiotJson['lane'] === 'BOTTOM' && playerTimelineRiotJson['role'] == 'DUO_SUPPORT') ? "Support" :
+        newPlayerObject['Role'] = (playerRiotJson['individualPosition'] === 'TOP') ? "Top" :
+          (playerRiotJson['individualPosition'] === 'JUNGLE') ? "Jungle" :
+            (playerRiotJson['individualPosition'] === 'MIDDLE') ? "Middle" :
+              (playerRiotJson['individualPosition'] === 'BOTTOM') ? "Bottom" :
+                (playerRiotJson['individualPosition'] === 'UTILITY') ? "Support" :
                   "Unknown";
         // Add to List
         if (playerRiotJson['teamId'] === 100) { newBluePlayerList.push(newPlayerObject); }
