@@ -19,7 +19,6 @@ import {
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 import { authenticateJWT } from './dependencies/jwtHelper';
-import { getRiotMatchV5Dto } from '../../functions/apiV1/dependencies/riotEndpoints';
 
 /*  
     ----------------------
