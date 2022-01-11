@@ -89,8 +89,9 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '44px',
   },
   nameColumn: {
-    margin: 'auto 8px',
+    margin: 'auto 4px',
     color: 'blue',
+    wordBreak: 'break-all',
   },
   itemWrapper: {
     display: 'flex',
@@ -112,12 +113,12 @@ const useStyles = makeStyles((theme) => ({
   blueBorderCell: {
     borderLeft: BORDER_LEFT,
     borderBottom: BORDER_GRAY,
-    width: '14%',
+    width: '17%',
   },
   redBorderCell: {
     borderRight: BORDER_RIGHT,
     borderBottom: BORDER_GRAY,
-    width: '14%',
+    width: '17%',
   },
   itemsCell: {
     border: BORDER_GRAY,
@@ -125,7 +126,7 @@ const useStyles = makeStyles((theme) => ({
   },
   statsCell: {
     border: BORDER_GRAY,
-    width: '6%',
+    width: '5%',
   },
   roleCell: {
     fontSize: 'large',
@@ -319,9 +320,11 @@ export default function MatchSummary({ match }) {
   };
   const spellComponent = (teamColor, role) => {
     const playerData = thisPlayerData(teamColor, role);
+    const summ1Id = (playerData.Spell1Id) ? playerData.Spell1Id : playerData.Summoner1Id;
+    const summ2Id = (playerData.Spell2Id) ? playerData.Spell2Id : playerData.Summoner2Id;
     return <span className={classes.spellColumn}>
-      <div><SpellSquare id={playerData.Spell1Id} key={playerData.Spell1Id} patch={patch} width="40" height="40" /></div>
-      <div><SpellSquare id={playerData.Spell2Id} key={playerData.Spell2Id} patch={patch} width="40" height="40" /></div>
+      <div><SpellSquare id={summ1Id} key={summ1Id} patch={patch} width="40" height="40" /></div>
+      <div><SpellSquare id={summ2Id} key={summ2Id} patch={patch} width="40" height="40" /></div>
     </span>;
   }
   const nameComponent = (teamColor, role) => {
