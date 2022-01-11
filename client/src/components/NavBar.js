@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     fontSize: '15px',
+    color: 'black',
   },
   menuItem: {
     position: 'relative',
@@ -57,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: '1em',
     transition: theme.transitions.create('width'),
     width: '100%',
+    color: 'black',
   },
   searchIcon: {
     position: 'relative',
@@ -95,11 +97,6 @@ export default function NavBar() {
     <AppBar>
       <Toolbar className={classes.menu}>
         <Button color="inherit" href="/" className={classes.menuFirstItem}>Home</Button>
-        {/*
-          <Button color="inherit" href="/season/w2021ul" className={classes.menuItem}>LHGUL</Button>
-          <Button color="inherit" href="/season/w2021pl" className={classes.menuItem}>LHGPL</Button>
-          <Button color="inherit" href="/season/w2021al" className={classes.menuItem}>LHGAL</Button>
-        */}
         <div className={classes.searchBar}>
           <DropdownButton title={dropDownValue} id="NavBarSearch">
             {itemList.map((item) => (
