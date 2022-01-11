@@ -1,7 +1,7 @@
 // This function needs its own file because it is massive.
 
 /*  Import dependency modules */
-import { createDbMatchObject } from './createMatchObject';
+import { createDbMatchV5Object } from './createMatchV5Object';
 import { getProfilePIdByName } from '../profileData';
 import { getTeamPIdByName } from '../teamData';
 import { checkRdsStatus } from '../dependencies/awsRdsHelper';
@@ -53,7 +53,7 @@ export const submitMatchSetup = (id) => {
       }
 
       // Create Db object for databases
-      const newMatchDbObject = await createDbMatchObject(id, matchDbObject.Setup);
+      const newMatchDbObject = await createDbMatchV5Object(id, matchDbObject.Setup);
 
       // Push into MySQL and DynamoDb
       await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);

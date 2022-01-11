@@ -9,7 +9,7 @@ export const CACHE_KEYS = {
   SEASON_ROSTER_PREFIX: 'SnRoster-',          // Key: SeasonId
   SEASON_REGULAR_PREFIX: 'SnRegular-',        // Key: SeasonId
   SEASON_PLAYOFF_PREFIX: 'SnPlayoff-',        // Key: SeasonId
-  SEASON_TAB_PREFIX: 'SnTab-',                // Key: SeasonId
+  SEASON_TAB_PREFIX: 'SnTab-',                // Key: SeasonId\
   TN_CODE_PREFIX: 'TnCode-',                  // Key: TourneyId
   TN_NAME_PREFIX: 'TnName-',                  // Key: TourneyId
   TN_ID_PREFIX: 'TnId-',                      // Key: TournShortName

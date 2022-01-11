@@ -15,6 +15,7 @@ import { CACHE_KEYS } from './dependencies/cacheKeys'
 import {
   getSeasonName,
   getSeasonShortName,
+  getMostRecentTeam,
 } from './seasonData';
 import {
   getTournamentInfo,
@@ -26,6 +27,7 @@ import {
 import {
   getProfileName,
   getProfileGamesBySeason,
+  getProfilePIdBySummonerId,
 } from './profileData';
 import {
   getTeamName,
@@ -193,16 +195,14 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       // Get data from Riot API
       const matchDataRiotJson = (await getRiotMatchData(matchId))['Data']['info'];
 
-      const setupObject = {}
+      const setupObject = {};
       setupObject['Invalid'] = invalidFlag;
       setupObject['RiotMatchId'] = matchId;
       setupObject['SeasonPId'] = seasonId;
       setupObject['TournamentPId'] = tournamentId;
-      setupObject['Teams'] = {}
-      setupObject['Teams']['BlueTeam'] = {}
-      setupObject['Teams']['BlueTeam']['TeamName'] = '';
-      setupObject['Teams']['RedTeam'] = {}
-      setupObject['Teams']['RedTeam']['TeamName'] = '';
+      setupObject['Teams'] = {};
+      setupObject['Teams']['BlueTeam'] = {};
+      setupObject['Teams']['RedTeam'] = {};
       // Iterate through Riot's 'teams' Object:
       // 1) Make Bans List
       for (let teamIdx = 0; teamIdx < matchDataRiotJson['teams'].length; ++teamIdx) {
@@ -223,10 +223,12 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       // 1) Make Players List
       const newBluePlayerList = [];
       const newRedPlayerList = [];
-      for (let playerIdx = 0; playerIdx < matchDataRiotJson['participants'].length; ++playerIdx) {
-        const newPlayerObject = {}
-        const playerRiotJson = matchDataRiotJson['participants'][playerIdx];
-        newPlayerObject['ProfileName'] = '';
+      const blueMostRecentObject = {}; // used to determine team name based on profile name
+      const redMostRecentObject = {};  // Key: TeamName -> # of times
+      for (const playerRiotJson of matchDataRiotJson['participants']) {
+        const newPlayerObject = {};
+        const profilePId = await getProfilePIdBySummonerId(playerRiotJson['summonerId']);
+        newPlayerObject['ProfileName'] = await getProfileName(profilePId, false);
         newPlayerObject['ChampId'] = playerRiotJson['championId'];
         newPlayerObject['Spell1Id'] = playerRiotJson['spell1Id'];
         newPlayerObject['Spell2Id'] = playerRiotJson['spell2Id'];
@@ -236,9 +238,22 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
               (playerRiotJson['individualPosition'] === 'BOTTOM') ? "Bottom" :
                 (playerRiotJson['individualPosition'] === 'UTILITY') ? "Support" :
                   "Unknown";
-        // Add to List
-        if (playerRiotJson['teamId'] === 100) { newBluePlayerList.push(newPlayerObject); }
-        else if (playerRiotJson['teamId'] === 200) { newRedPlayerList.push(newPlayerObject); }
+        // Team Related objects
+        const mostRecentTeamHId = await getMostRecentTeam(seasonId, getProfileHashId(profilePId));
+        if (playerRiotJson['teamId'] === 100) {
+          newBluePlayerList.push(newPlayerObject);
+          if (!blueMostRecentObject[mostRecentTeamHId]) {
+            blueMostRecentObject[mostRecentTeamHId] = 0
+          }
+          blueMostRecentObject[mostRecentTeamHId]++;
+        }
+        else if (playerRiotJson['teamId'] === 200) {
+          newRedPlayerList.push(newPlayerObject);
+          if (!redMostRecentObject[mostRecentTeamHId]) {
+            redMostRecentObject[mostRecentTeamHId] = 0
+          }
+          redMostRecentObject[mostRecentTeamHId]++;
+        }
       }
 
       // https://stackoverflow.com/questions/13304543/javascript-sort-array-based-on-another-array
@@ -248,6 +263,18 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       }
       setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList.sort(sortRoles);
       setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
+
+      // Find Team name associated with the players
+      /**
+       * https://michaelmovsesov.com/articles/get-key-with-highest-value-from-javascript-object
+       * @param {object} obj 
+       * @returns TeamHId
+       */
+      const getTeamHIdFromMostRecent = (obj) => {
+        return Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b);
+      }
+      setupObject['Teams']['BlueTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(blueMostRecentObject));
+      setupObject['Teams']['RedTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(redMostRecentObject));
 
       // Push into 'Matches' DynamoDb
       await dynamoDbUpdateItem('Matches', matchId,

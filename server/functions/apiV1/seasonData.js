@@ -181,10 +181,10 @@ export const getSeasonInformation = (seasonId) => {
   return new Promise(function (resolve, reject) {
     cache.get(cacheKey, async (err, data) => {
       if (err) { console(err); reject(err); return; }
-      else if (data != null) { resolve(JSON.parse(data)); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        let seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
-        if (seasonInfoJson != null) {
+        const seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
+        if (seasonInfoJson) {
           if (seasonInfoJson['TournamentPIds']['RegTournamentPId']) {
             seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
           }
@@ -224,30 +224,36 @@ export const getSeasonInformation = (seasonId) => {
  * @param {number} seasonId 
  */
 export const getSeasonRosterById = (seasonId) => {
+  const cacheKey = CACHE_KEYS.SEASON_ROSTER_PREFIX + seasonId;
   return new Promise(function (resolve, reject) {
-    // Gonna avoid caching for this one
-    dynamoDbGetItem('Season', seasonId).then(async (seasonJson) => {
-      if (!seasonJson) { resolve(null); return; }
-      const seasonRosterJson = seasonJson['Roster'];
-      if (seasonRosterJson) {
-        if ('Teams' in seasonRosterJson) {
-          for (const teamHId in seasonRosterJson['Teams']) {
-            const teamJson = seasonRosterJson['Teams'][teamHId];
-            teamJson['TeamName'] = await getTeamName(teamHId);
-            teamJson['TeamHId'] = teamHId;
-            for (const profileHId in teamJson['Players']) {
-              const playerJson = teamJson['Players'][profileHId];
-              playerJson['ProfileName'] = await getProfileName(profileHId);
-              playerJson['ProfileHId'] = profileHId;
+    cache.get(cacheKey, async (err, data) => {
+      if (err) { console(err); reject(err); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
+      dynamoDbGetItem('Season', seasonId).then(async (seasonJson) => {
+        if (!seasonJson) { resolve(null); return; }
+        const seasonRosterJson = seasonJson['Roster'];
+        if (seasonRosterJson) {
+          if ('Teams' in seasonRosterJson) {
+            for (const teamHId in seasonRosterJson['Teams']) {
+              const teamJson = seasonRosterJson['Teams'][teamHId];
+              teamJson['TeamName'] = await getTeamName(teamHId);
+              teamJson['TeamHId'] = teamHId;
+              for (const profileHId in teamJson['Players']) {
+                const playerJson = teamJson['Players'][profileHId];
+                playerJson['ProfileName'] = await getProfileName(profileHId);
+                playerJson['ProfileHId'] = profileHId;
+              }
             }
           }
+          cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+          resolve(seasonRosterJson);
         }
-        resolve(seasonRosterJson);
-      }
-      else {
-        resolve(null);    // If 'Roster' does not exist
-      }
-    }).catch((error) => { console.error(error); reject(error); });
+        else {
+          resolve(null);    // If 'Roster' does not exist
+        }
+      }).catch((error) => { console.error(error); reject(error); });
+    });
+    
   });
 }
 
@@ -360,6 +366,25 @@ export const getSeasonPlayoffs = (seasonId) => {
 }
 
 /**
+ * Gets most recent team HId
+ * @param {number} seasonId 
+ * @param {string} profileHId 
+ */
+export const getMostRecentTeam = (seasonId, profileHId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const seasonRosterJson = await getSeasonRosterById(seasonId);
+      const { Profiles } = seasonRosterJson;
+      resolve(Profiles[profileHId]?.MostRecentTeamHId);
+    }
+    catch (err) {
+      console.error(err);
+      reject(err);
+    }
+  });
+}
+
+/**
  * Adds new team into Season Roster. Initializes a new object if null
  * @param {number} seasonId     Assume valid
  * @param {array} teamPIdList   Assume valid
@@ -395,6 +420,9 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
         resolve({ errorList: errorList });
       }
       else {
+        // Remove cache
+        cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
+
         await dynamoDbPutItem('Season', seasonObject, seasonId);
         resolve({
           'SeasonId': seasonId,
@@ -421,7 +449,10 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         resolve({ errorList: `Season Object does not have Roster` });
         return;
       }
+
+      // Update "Teams" and "Profiles" key
       const rosterTeamDbObject = seasonDbObject.Roster.Teams;
+      const rosterProfilesDbObject = seasonDbObject.Roster.Profiles;
       const teamHId = getTeamHashId(teamPId);
       const teamName = await getTeamName(teamHId);
       if (!(teamHId in rosterTeamDbObject)) {
@@ -441,6 +472,7 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         else {
           // Create new object
           rosterPlayersDbObject[profileHId] = {};
+          rosterProfilesDbObject[profileHId] = { MostRecentTeamHId: teamHId }
           profileMessages.push(`${profileName} - Profile added to the Team.`)
         }
       }
@@ -449,6 +481,9 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         resolve({ errorList: errorList });
       }
       else {
+        // Remove cache
+        cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
+
         await dynamoDbPutItem('Season', seasonDbObject, seasonId);
         resolve({
           'SeasonId': seasonId,
@@ -495,6 +530,9 @@ export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
           profileMessages.push(`${profileName} - Profile not found in Team`);
         }
       }
+
+      // Remove cache
+      cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
 
       await dynamoDbPutItem('Season', seasonDbObject, seasonId);
       resolve({
