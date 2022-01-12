@@ -45,3 +45,25 @@ export const createChampObjectFromDdragon = (patch = null) => {
     });
   });
 }
+
+/**
+ * Creates a Version List from DDragon
+ * @returns Promise<List>
+ */
+export const createVersionListFromDdragon = () => {
+  const cacheKey = `${CACHE_KEYS.VERSIONS}`;
+  return new Promise((resolve, reject) => {
+    cache.get(cacheKey, async (err, data) => {
+      if (err) { console(err); reject(err); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
+      axios.get(`https://ddragon.leagueoflegends.com/api/versions.json`)
+      .then((res) => {
+        const versionList = res.data;
+        cache.set(cacheKey, JSON.stringify(versionList, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
+        resolve(versionList);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  });
+}

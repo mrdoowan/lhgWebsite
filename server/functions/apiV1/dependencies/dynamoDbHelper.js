@@ -51,9 +51,9 @@ export const dynamoDbGetItem = (tableName, keyName) => {
  * PUTs a DynamoDb Item into DynamoDb
  * @param {string} tableName    Table name of DynamoDb
  * @param {Object} items        The entire object being put into DynamoDb
- * @param {*} keyItem           Only used for debugging purposes
+ * @param {string} keyName           Only used for debugging purposes
  */
-export const dynamoDbPutItem = (tableName, items, keyItem) => {
+export const dynamoDbPutItem = (tableName, items, keyName) => {
   const params = {
     TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
     Item: items
@@ -65,7 +65,7 @@ export const dynamoDbPutItem = (tableName, items, keyItem) => {
         reject(err);
       }
       else {
-        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyItem}' into '${tableName}' Table!"`);
+        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Put Item '${keyName}' into '${tableName}' Table!"`);
         resolve(data);
       }
     });

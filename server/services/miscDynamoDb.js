@@ -1,10 +1,18 @@
 import { CACHE_KEYS } from "../functions/apiV1/dependencies/cacheKeys";
-import { dynamoDbGetItem } from "../functions/apiV1/dependencies/dynamoDbHelper";
+import { 
+  dynamoDbGetItem,
+  dynamoDbPutItem,
+  dynamoDbUpdateItem,
+} from "../functions/apiV1/dependencies/dynamoDbHelper";
 import { GLOBAL_CONSTS } from "../functions/apiV1/dependencies/global";
 import {
   DYNAMODB_TABLENAMES,
   MISC_KEYS
 } from "./constants";
+import {
+  createChampObjectFromDdragon,
+  createVersionListFromDdragon
+} from "./ddragonService";
 
 /*  Declaring npm modules */
 const redis = require('redis');
@@ -42,10 +50,26 @@ const callMiscDynamoDb = (dynamoDbKey) => {
 
 /**
  * Calls the DynamoDb stored static data ChampIds
- * @returns object
+ * @returns Promise<object>
  */
 export const getChampIdObject = () => {
   return callMiscDynamoDb(MISC_KEYS.CHAMP_IDS);
+}
+
+/**
+ * Calls the DynamoDb stored static data SummonerSpellIds
+ * @returns Promise<object>
+ */
+ export const getSpellIdObject = () => {
+  return callMiscDynamoDb(MISC_KEYS.SPELL_IDS);
+}
+
+/**
+ * Calls the DynamoDb stored static data Versions.json
+ * @returns Promise<list>
+ */
+export const getVersionList = () => {
+  return callMiscDynamoDb(MISC_KEYS.VERSIONS);
 }
 
 /**
@@ -85,27 +109,11 @@ export const getServerChampName = (key) => {
 }
 
 /**
- * Calls the DynamoDb stored static data SummonerSpellIds
- * @returns object
- */
-export const getSpellIdObject = () => {
-  return callMiscDynamoDb(MISC_KEYS.SPELL_IDS);
-}
-
-/**
- * Calls the DynamoDb stored static data Versions.json
- * @returns array
- */
-export const getVersionList = () => {
-  return callMiscDynamoDb(MISC_KEYS.VERSIONS);
-}
-
-/**
  * 
  * @param {string} patch 
  * @returns string
  */
- export const getDdragonVersion = (patch) => {
+export const getDdragonVersion = (patch) => {
   return new Promise((resolve, reject) => {
     getVersionList().then((versionList) => {
       if (patch) {
@@ -120,5 +128,68 @@ export const getVersionList = () => {
     }).catch((err) => {
       reject(err);
     });
+  });
+}
+
+/**
+ * Updates the miscellaneous DynamoDb ChampById by looking at Ddragon
+ * This one will involve an update query instead of a Put
+ */
+export const updateChampByIds = () => {
+  console.log("Updating ChampByIds from Ddragon.");
+  createChampObjectFromDdragon().then((ddragonObject) => {
+    getChampIdObject().then((dynamoDbObject) => {
+      const missingKey = {};
+      // Compare the two objects and store the missing key for update
+      for (const key in ddragonObject) {
+        if (!(key in dynamoDbObject)) {
+          missingKey[key] = ddragonObject[key];
+        }
+      }
+      // Update DynamoDbObject of all missing keys
+      if (missingKey.length > 0) {
+        for (const [champKey, value] of Object.entries(missingKey)) {
+          dynamoDbUpdateItem('Miscellaneous', MISC_KEYS.CHAMP_IDS,
+            'SET #key = :val',
+            {
+              '#key': champKey
+            },
+            {
+              ':val': value,
+            }
+          ).then(() => {
+            console.log(`DynamoDb champ ${value.name} (${champKey}) updated into DynamoDb.`);
+          }).catch((err) => {
+            console.log("ERROR: DynamoDb ChampById failed to update.");
+            throw err 
+          });
+        }
+      }
+      else {
+        console.log("No updates made to ChampByIds.");
+      }      
+    }).catch((err) => { throw err });
+  }).catch((err) => console.error(err));
+}
+
+/**
+ * Updates the miscellaneous DynamoDb ChampById by looking at Ddragon
+ */
+export const updateVersionList = () => {
+  console.log("Updating VersionList from Ddragon.");
+  createVersionListFromDdragon().then((versionList) => {
+    const data = {
+      Key: MISC_KEYS.VERSIONS,
+      VersionList: versionList
+    }
+    dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, data, MISC_KEYS.VERSIONS)
+    .then(() => {
+      console.log("DynamoDb version list updated from Ddragon.");
+    }).catch((err) => {
+      console.log("ERROR: DynamoDb version failed to update.");
+      throw err;
+    });
+  }).catch((err) => {
+    console.error(err);
   });
 }
