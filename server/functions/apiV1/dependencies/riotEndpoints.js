@@ -1,11 +1,12 @@
 /**
+ * deprecated since Jan 2022
  * Ultimate Helper file for calling Riot endpoints
+ * 
  */
 
 import axios from "axios";
 
 /*
-TODO: Complete in the future
 
 // CONSTANTS
 const AMERICAS = 'AMERICAS';
@@ -50,7 +51,7 @@ const axiosRequestCall = (endpointObject, params) => {
 // Export functions
 
 /**
- * 
+ * @deprecated
  * @param {number} matchId 
  * @returns {Promise} RiotMatchV5DTO
  */
@@ -69,7 +70,7 @@ export const getRiotMatchV5Dto = (matchId) => {
 }
 
 /**
- * 
+ * @deprecated
  * @param {number} matchId 
  * @returns {Promise} RiotMatchTimelineV5DTO
  */

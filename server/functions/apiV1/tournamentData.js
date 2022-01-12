@@ -33,8 +33,8 @@ import {
   getTeamStatsByTourney,
 } from './teamData';
 import { 
-  createChampObjectFromDdragon 
-} from '../../services/ddragonChampion';
+  createChampObjectFromDdragon
+} from '../../services/ddragonService';
 import { 
   getServerChampName
 } from '../../services/miscDynamoDb';

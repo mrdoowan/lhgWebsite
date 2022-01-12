@@ -1,10 +1,11 @@
 import { CACHE_KEYS } from "../functions/apiV1/dependencies/cacheKeys";
-import { dynamoDbGetItem } from "../functions/apiV1/dependencies/dynamoDbHelper";
+import { dynamoDbGetItem, dynamoDbPutItem } from "../functions/apiV1/dependencies/dynamoDbHelper";
 import { GLOBAL_CONSTS } from "../functions/apiV1/dependencies/global";
 import {
   DYNAMODB_TABLENAMES,
   MISC_KEYS
 } from "./constants";
+import { createVersionListFromDdragon } from "./ddragonService";
 
 /*  Declaring npm modules */
 const redis = require('redis');
@@ -49,6 +50,22 @@ export const getChampIdObject = () => {
 }
 
 /**
+ * Calls the DynamoDb stored static data SummonerSpellIds
+ * @returns object
+ */
+ export const getSpellIdObject = () => {
+  return callMiscDynamoDb(MISC_KEYS.SPELL_IDS);
+}
+
+/**
+ * Calls the DynamoDb stored static data Versions.json
+ * @returns array
+ */
+export const getVersionList = () => {
+  return callMiscDynamoDb(MISC_KEYS.VERSIONS);
+}
+
+/**
  * @param {string} key      The id of each Champion (i.e. '1' is Annie)
  */
  export const getServerChampUrlId = (key) => {
@@ -85,27 +102,11 @@ export const getServerChampName = (key) => {
 }
 
 /**
- * Calls the DynamoDb stored static data SummonerSpellIds
- * @returns object
- */
-export const getSpellIdObject = () => {
-  return callMiscDynamoDb(MISC_KEYS.SPELL_IDS);
-}
-
-/**
- * Calls the DynamoDb stored static data Versions.json
- * @returns array
- */
-export const getVersionList = () => {
-  return callMiscDynamoDb(MISC_KEYS.VERSIONS);
-}
-
-/**
  * 
  * @param {string} patch 
  * @returns string
  */
- export const getDdragonVersion = (patch) => {
+export const getDdragonVersion = (patch) => {
   return new Promise((resolve, reject) => {
     getVersionList().then((versionList) => {
       if (patch) {
@@ -120,5 +121,33 @@ export const getVersionList = () => {
     }).catch((err) => {
       reject(err);
     });
+  });
+}
+
+/**
+ * Updates the miscellaneous DynamoDb ChampById by looking at Ddragon
+ */
+export const updateChampByIds = () => {
+
+}
+
+/**
+ * Updates the miscellaneous DynamoDb ChampById by looking at Ddragon
+ */
+export const updateVersionList = () => {
+  createVersionListFromDdragon().then((versionList) => {
+    const data = {
+      Key: MISC_KEYS.VERSIONS,
+      VersionList: versionList
+    }
+    dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, data, MISC_KEYS.VERSIONS)
+    .then(() => {
+      console.log("DynamoDb version list updated from Ddragon.")
+    }).catch((err) => {
+      console.log("ERROR: DynamoDb version failed to update.")
+      throw err;
+    });
+  }).catch((err) => {
+    console.error(err);
   });
 }
