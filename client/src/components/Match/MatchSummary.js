@@ -91,7 +91,9 @@ const useStyles = makeStyles((theme) => ({
   nameColumn: {
     margin: 'auto 4px',
     color: 'blue',
-    wordBreak: 'break-all',
+    minWidth: 0,
+    whiteSpace: 'pre-line',
+    wordBreak: 'break-word',
   },
   itemWrapper: {
     display: 'flex',
@@ -113,19 +115,20 @@ const useStyles = makeStyles((theme) => ({
   blueBorderCell: {
     borderLeft: BORDER_LEFT,
     borderBottom: BORDER_GRAY,
-    width: '17%',
+    width: '19%',
   },
   redBorderCell: {
     borderRight: BORDER_RIGHT,
     borderBottom: BORDER_GRAY,
-    width: '17%',
+    width: '19%',
   },
   itemsCell: {
     border: BORDER_GRAY,
-    width: '14%',
+    width: '12%',
   },
   statsCell: {
     border: BORDER_GRAY,
+    fontSize: 'medium',
     width: '5%',
   },
   roleCell: {
