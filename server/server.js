@@ -26,6 +26,10 @@ import teamV1Routes from './routes/apiV1/teamRoutes.js';
 import matchV1Routes from './routes/apiV1/matchRoutes.js';
 import staffV1Routes from './routes/apiV1/staffRoutes.js';
 import serviceV1Routes from './routes/apiV1/serviceRoutes';
+import {
+  updateChampByIds,
+  updateVersionList
+} from './services/miscDynamoDb';
 
 /*  Declaring npm modules */
 const express = require('express');
@@ -134,6 +138,15 @@ rule5.dayOfWeek = 0;
 rule5.hour = 0;
 rule5.minute = 1;
 schedule.scheduleJob(rule5, createDynamoDbTestTables);
+
+// Task 4: Update VersionList and ChampByIds from Ddragon once a week 
+// (on Thursday @6pmEST since patch day is Wednesday)
+const rule6 = new schedule.RecurrenceRule();
+rule6.dayofWeek = 4;
+rule5.hour = 18;
+rule5.minute = 1;
+schedule.scheduleJob(rule6, updateVersionList);
+schedule.scheduleJob(rule6, updateChampByIds);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
