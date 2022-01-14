@@ -85,7 +85,7 @@ matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
 matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
   const { riotMatchId, tournamentName, invalidFlag } = req.body;
 
-  console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
+  console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName} by manual entry.`);
   getTournamentId(tournamentName).then((tournamentId) => {
     if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
     postMatchNewSetup(riotMatchId, tournamentId, invalidFlag).then((data) => {
@@ -96,11 +96,17 @@ matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
 });
 
 /**
- * @route   POST api/match/v1/setup/new/spectate
- * @desc    Create Match "Setup" Item by the ID of a CURRENT (through Spectate) match
+ * @route   POST api/match/v1/setup/new/tournament
+ * @desc    Create Match "Setup" Item from Riot's Tournament API. This will be used as a callback.
  * @access  Private (to Admins)
  */
+matchV1Routes.post('/setup/new/callback', (req, res) => {
+  const { gameId, metaData } = req.body;
+  const metaDataJson = JSON.parse(metaData);
 
+  console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName} by Tournament API.`);
+
+});
 
 /**
  * @route   GET api/match/v1/setup/list
