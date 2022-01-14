@@ -13,6 +13,8 @@ import Paper from '@material-ui/core/Paper';
 import GoldEmblem from '../../static/Emblem_Gold.png';
 import PlatinumEmblem from '../../static/Emblem_Platinum.png';
 import DiamondEmblem from '../../static/Emblem_Diamond.png';
+import MasterEmblem from '../../static/Emblem_Master.png';
+import GrandmasterEmblem from '../../static/Emblem_Grandmaster.png';
 import ChallengerEmblem from '../../static/Emblem_Challenger.png';
 
 const StyledTableCell = withStyles((theme) => ({
@@ -42,6 +44,7 @@ const useStyles = makeStyles({
   },
   header: {
     fontSize: 'large',
+    width: '20%',
   },
   link: {
     color: 'blue',
@@ -73,6 +76,8 @@ export default function LeagueTable(props) {
   const { seasonList } = props;
 
   const challengerImage = <img src={ChallengerEmblem} alt="Uncapped" width="50" height="50" />;
+  const grandmasterImage = <img src={GrandmasterEmblem} alt="Uncapped" width="50" height="50" />;
+  const masterImage = <img src={MasterEmblem} alt="Uncapped" width="50" height="50" />;
   const diamondImage = <img src={DiamondEmblem} alt="Diamond" width="50" height="50" />;
   const platinumImage = <img src={PlatinumEmblem} alt="Platinum" width="50" height="50" />;
   const goldImage = <img src={GoldEmblem} alt="Gold" width="50" height="50" />;
@@ -84,7 +89,13 @@ export default function LeagueTable(props) {
           <TableHead>
             <TableRow>
               <StyledTableCell className={classes.header} align="center"><u>Split</u></StyledTableCell>
-              <StyledTableCell className={classes.header} align="center">{challengerImage}</StyledTableCell>
+              <StyledTableCell className={classes.header} align="center">
+                <span>
+                  {challengerImage}
+                  {grandmasterImage}
+                  {masterImage}
+                </span>
+              </StyledTableCell>
               <StyledTableCell className={classes.header} align="center">{diamondImage}</StyledTableCell>
               <StyledTableCell className={classes.header} align="center">{platinumImage}</StyledTableCell>
               <StyledTableCell className={classes.header} align="center">{goldImage}</StyledTableCell>
