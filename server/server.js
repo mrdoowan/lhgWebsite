@@ -93,21 +93,21 @@ const checkRdsStatusFunction = () => {
 }
 // Check Rds availability daily at 3amEST, 10amEST, 9pmEST
 const TZ_STRING = 'America/New_York';
-const rule1 = new schedule.RecurrenceRule();
-rule1.hour = 3;
-rule1.minute = 0;
-rule1.tz = TZ_STRING;
-const rule2 = new schedule.RecurrenceRule();
-rule2.hour = 9;
-rule2.minute = 0;
-rule2.tz = TZ_STRING;
-const rule3 = new schedule.RecurrenceRule();
-rule3.hour = 21;
-rule3.minute = 0;
-rule3.tz = TZ_STRING;
-schedule.scheduleJob(rule1, checkRdsStatusFunction);
-schedule.scheduleJob(rule2, checkRdsStatusFunction);
-schedule.scheduleJob(rule3, checkRdsStatusFunction);
+const rule_checkRdsStatus1 = new schedule.RecurrenceRule();
+rule_checkRdsStatus1.hour = 3;
+rule_checkRdsStatus1.minute = 0;
+rule_checkRdsStatus1.tz = TZ_STRING;
+const rule_checkRdsStatus2 = new schedule.RecurrenceRule();
+rule_checkRdsStatus2.hour = 9;
+rule_checkRdsStatus2.minute = 0;
+rule_checkRdsStatus2.tz = TZ_STRING;
+const rule_checkRdsStatus3 = new schedule.RecurrenceRule();
+rule_checkRdsStatus3.hour = 21;
+rule_checkRdsStatus3.minute = 0;
+rule_checkRdsStatus3.tz = TZ_STRING;
+schedule.scheduleJob(rule_checkRdsStatus1, checkRdsStatusFunction);
+schedule.scheduleJob(rule_checkRdsStatus2, checkRdsStatusFunction);
+schedule.scheduleJob(rule_checkRdsStatus3, checkRdsStatusFunction);
 
 // Task 2: Create DynamoDb backups once per week on Saturday
 const createDynamoDbBackups = () => {
@@ -117,11 +117,11 @@ const createDynamoDbBackups = () => {
     });
   });
 }
-const rule4 = new schedule.RecurrenceRule();
-rule4.dayOfWeek = 6;
-rule4.hour = 0;
-rule4.minute = 1;
-schedule.scheduleJob(rule4, createDynamoDbBackups);
+const rule_createDynamoDbBackups = new schedule.RecurrenceRule();
+rule_createDynamoDbBackups.dayOfWeek = 6;
+rule_createDynamoDbBackups.hour = 0;
+rule_createDynamoDbBackups.minute = 1;
+schedule.scheduleJob(rule_createDynamoDbBackups, createDynamoDbBackups);
 
 // Task 3: Create DynamoDb Test Tables from the backups once every month (on the 1st)
 const createDynamoDbTestTables = async () => {
@@ -132,21 +132,21 @@ const createDynamoDbTestTables = async () => {
   }
   console.log("Test Table restoration completed.");
 }
-const rule5 = new schedule.RecurrenceRule();
-rule5.date = 1;
-rule5.dayOfWeek = 0;
-rule5.hour = 0;
-rule5.minute = 1;
-schedule.scheduleJob(rule5, createDynamoDbTestTables);
+const rule_createDynamoDbTests = new schedule.RecurrenceRule();
+rule_createDynamoDbTests.date = 1;
+rule_createDynamoDbTests.dayOfWeek = 0;
+rule_createDynamoDbTests.hour = 0;
+rule_createDynamoDbTests.minute = 1;
+schedule.scheduleJob(rule_createDynamoDbTests, createDynamoDbTestTables);
 
 // Task 4: Update VersionList and ChampByIds from Ddragon once a week 
 // (on Thursday @6pmEST since patch day is Wednesday)
-const rule6 = new schedule.RecurrenceRule();
-rule6.dayofWeek = 4;
-rule5.hour = 18;
-rule5.minute = 1;
-schedule.scheduleJob(rule6, updateVersionList);
-schedule.scheduleJob(rule6, updateChampByIds);
+const rule_updateVersionAndChamps = new schedule.RecurrenceRule();
+rule_updateVersionAndChamps.dayofWeek = 4;
+rule_updateVersionAndChamps.hour = 18;
+rule_updateVersionAndChamps.minute = 1;
+schedule.scheduleJob(rule_updateVersionAndChamps, updateVersionList);
+schedule.scheduleJob(rule_updateVersionAndChamps, updateChampByIds);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));
