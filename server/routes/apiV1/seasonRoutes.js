@@ -226,7 +226,7 @@ seasonV1Routes.post('/new', authenticateJWT, (req, res) => {
   const { seasonShortName } = req.body; 
 
   getSeasonId(seasonShortName).then((seasonId) => {
-    if (!seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' Not Found`); }
+    if (seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' already exists.`); }
     createNewSeason(req.body).then((response) => {
       return res200sOK(res, req, response);
     }).catch((err) => error500sServerError(err, res, "POST New Season Error."));

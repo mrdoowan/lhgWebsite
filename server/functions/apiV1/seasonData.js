@@ -369,7 +369,7 @@ export const getSeasonPlayoffs = (seasonId) => {
 }
 
 /**
- * Gets most recent team HId
+ * Gets most recent teamHId of the profileHId
  * @param {number} seasonId 
  * @param {string} profileHId 
  */
@@ -401,9 +401,9 @@ export const getMostRecentTeam = (seasonId, profileHId) => {
  */
 export const createNewSeason = (body) => {
   const { seasonName, seasonShortName, leagueCode, leagueRank } = body;
-  return new Promise((resolve, reject) => {
-    getSeasonId(seasonShortName).then(async (Id) => {
-      const split = seasonName.split();
+  return new Promise(async (resolve, reject) => {
+    try {
+      const split = seasonName.split(' ');
       if (split.length !== 5) { reject(`'${seasonName}' does not have proper length of 5.`); return; }
       // split[0] Season    ('Summer')
       // split[1] Year      ('2021')
@@ -451,7 +451,7 @@ export const createNewSeason = (body) => {
 
       const newSeasonInformation = {
         Status: "Open",
-        DateCreated: Date.now(),
+        DateCreated: Math.ceil(Date.now() / 1000),
         SeasonTabName: tabName,
         Description: "Description here.",
         LeagueRank: leagueRank,
@@ -476,7 +476,11 @@ export const createNewSeason = (body) => {
       };
       await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, newSeasonItem, newSeasonId);
 
-    }).catch((err) => { console.error(err); reject(err); });
+      resolve(newSeasonItem);
+    }
+    catch (err) {
+      console.error(err); reject(err);
+    }
   });
 }
 

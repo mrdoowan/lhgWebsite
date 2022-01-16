@@ -81,18 +81,22 @@ export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject)
  * @returns {Promise<number>}       Tournament ID (number)
  */
 export const createTournamentId = (seasonShortName) => {
-  new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     console.log(`AWS Lambda: Create new Tournament Id for season '${seasonShortName}'`);
     const params = {
       FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
       Payload: JSON.stringify({
         type: 'CREATE_TOURNAMENT',
+        test: false,
         seasonName: seasonShortName
       }),
     }
     lambda.invoke(params, (err, data) => {
       if (err) { console.error(err); reject(err); return; }
-      resolve(JSON.parse(data.Payload));
+      const res = JSON.parse(data.Payload);
+      if (typeof(res) !== 'number') { reject({ error: res }); return; }
+      console.log(`AWS Lambda: New Tournament ID '${res}' has been created in the Tournament API.`);
+      resolve(res);
     });
   });
 }
@@ -107,7 +111,7 @@ export const createTournamentId = (seasonShortName) => {
  * @returns {Promise<string[]>}     List of Tournament Codes
  */
 export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1, team2) => {
-  new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     console.log(`AWS Lambda: Generate new codes for season '${seasonShortName}'`);
     const params = {
       FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
