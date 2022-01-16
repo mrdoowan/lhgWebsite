@@ -214,4 +214,12 @@ seasonV1Routes.put('/roster/profile/remove', authenticateJWT, (req, res) => {
 
 //#endregion
 
+//#region POST Requests - Season
+
+seasonV1Routes.post('/new', authenticateJWT, (req, res) => {
+  
+});
+
+//#endregion
+
 export default seasonV1Routes;
