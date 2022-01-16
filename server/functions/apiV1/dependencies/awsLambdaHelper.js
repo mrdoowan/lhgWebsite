@@ -87,7 +87,6 @@ export const createTournamentId = (seasonShortName) => {
       FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
       Payload: JSON.stringify({
         type: 'CREATE_TOURNAMENT',
-        test: process.env.TEST_DB.toLowerCase() == 'true',
         seasonName: seasonShortName
       }),
     }
