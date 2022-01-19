@@ -51,7 +51,7 @@ export const dynamoDbGetItem = (tableName, keyName) => {
  * PUTs a DynamoDb Item into DynamoDb
  * @param {string} tableName    Table name of DynamoDb
  * @param {Object} items        The entire object being put into DynamoDb
- * @param {string} keyName           Only used for debugging purposes
+ * @param {string} keyName      Only used for debugging purposes
  */
 export const dynamoDbPutItem = (tableName, items, keyName) => {
   const params = {
@@ -111,9 +111,9 @@ export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, val
  * https://stackoverflow.com/questions/44589967/how-to-fetch-scan-all-items-from-aws-dynamodb-using-node-js
  * Returns empty array [] if key item does NOT EXIST
  * @param {string} tableName        DynamoDb Table Name
- * @param {List} getAttributes      Root Item to get
+ * @param {List} getAttributes      Root Item to get (essentially column names to return)
  * @param {string} attributeName    Criteria Column Name (to refine search/condition)
- * @param {string} attributeValue   Root value for attributeName
+ * @param {string} attributeValue   Root value for attributeName (to refine search/condition)
  */
 export const dynamoDbScanTable = (tableName, getAttributes = [], attributeName = null, attributeValue = null) => {
   const params = {

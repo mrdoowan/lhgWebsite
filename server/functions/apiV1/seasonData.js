@@ -19,6 +19,9 @@ import { CACHE_KEYS } from './dependencies/cacheKeys'
 import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
 import { getTeamName } from './teamData';
+import { createTournamentId } from './dependencies/awsLambdaHelper';
+import { DYNAMODB_TABLENAMES } from '../../services/constants';
+import { getDdragonVersion } from '../../services/miscDynamoDb';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -27,16 +30,16 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
  * @param {string} shortName    Season shortName (i.e. 'w2020pl')
  */
 export const getSeasonId = (shortName) => {
-  let simpleName = filterName(shortName);
-  const cacheKey = CACHE_KEYS.SEASON_ID_PREFIX + simpleName;
+  const simpleName = filterName(shortName);
+  const cacheKey = `${CACHE_KEYS.SEASON_ID_PREFIX}${simpleName}`;
   return new Promise(function (resolve, reject) {
     cache.get(cacheKey, (err, data) => {
       if (err) { console.error(err); reject(err); return; }
-      else if (data != null) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
-      dynamoDbScanTable('Season', ['SeasonPId'], 'SeasonShortName', simpleName)
+      else if (data) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
+      dynamoDbScanTable(DYNAMODB_TABLENAMES.SEASON, ['SeasonPId'], 'SeasonShortName', simpleName)
         .then((obj) => {
           if (obj.length === 0) { resolve(null); return; } // Not Found
-          let Id = obj[0]['SeasonPId'];
+          const Id = obj[0]['SeasonPId'];
           cache.set(cacheKey, Id);
           resolve(Id);
         }).catch((error) => { console.error(error); reject(error) });
@@ -53,11 +56,11 @@ export const getSeasonShortName = (seasonId) => {
   return new Promise(function (resolve, reject) {
     cache.get(cacheKey, (err, data) => {
       if (err) { console(err); reject(err); return; }
-      else if (data != null) { resolve(data); return; }
-      dynamoDbGetItem('Season', seasonId)
+      else if (data) { resolve(data); return; }
+      dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId)
         .then((obj) => {
-          let shortName = obj['SeasonShortName'];
-          if (shortName == null) { resolve(null); return; } // Not Found
+          const shortName = obj['SeasonShortName'];
+          if (!shortName) { resolve(null); return; } // Not Found
           cache.set(cacheKey, shortName);
           resolve(shortName);
         }).catch((error) => { console.error(error); reject(error) });
@@ -75,7 +78,7 @@ export const getSeasonName = (seasonId) => {
     cache.get(cacheKey, (err, data) => {
       if (err) { console(err); reject(err); return; }
       else if (data != null) { resolve(data); return; }
-      dynamoDbGetItem('Season', seasonId)
+      dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId)
         .then((obj) => {
           if (obj == null) { resolve(null); return; } // Not Found
           let name = obj['Information']['SeasonName'];
@@ -96,7 +99,7 @@ export const getSeasonTime = (seasonId) => {
     cache.get(cacheKey, (err, data) => {
       if (err) { console(err); reject(err); return; }
       else if (data != null) { resolve(data); return; }
-      dynamoDbGetItem('Season', seasonId)
+      dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId)
         .then((obj) => {
           if (obj == null) { resolve(null); return; } // Not Found
           let time = obj['Information']['SeasonTime'];
@@ -117,7 +120,7 @@ export const getSeasonTabName = (seasonId) => {
     cache.get(cacheKey, (err, data) => {
       if (err) { console(err); reject(err); return; }
       else if (data != null) { resolve(data); return; }
-      dynamoDbGetItem('Season', seasonId)
+      dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId)
         .then((obj) => {
           if (obj == null) { resolve(null); return; } // Not Found
           let time = obj['Information']['SeasonTabName'];
@@ -137,7 +140,7 @@ export const getLeagues = () => {
       if (err) { console.error(err); reject(err); return; }
       else if (data != null) { resolve(JSON.parse(data)); return; }
       try {
-        const seasonList = await dynamoDbScanTable('Season', ['Information']);
+        const seasonList = await dynamoDbScanTable(DYNAMODB_TABLENAMES.SEASON, ['Information']);
         if (seasonList != null) {
           const leagueObject = {};
           seasonList.map((seasonInfoObject) => {
@@ -183,7 +186,7 @@ export const getSeasonInformation = (seasonId) => {
       if (err) { console(err); reject(err); return; }
       else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        const seasonInfoJson = (await dynamoDbGetItem('Season', seasonId))['Information'];
+        const seasonInfoJson = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId))['Information'];
         if (seasonInfoJson) {
           if (seasonInfoJson['TournamentPIds']['RegTournamentPId']) {
             seasonInfoJson['TournamentPIds']['RegTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['RegTournamentPId']);
@@ -229,7 +232,7 @@ export const getSeasonRosterById = (seasonId) => {
     cache.get(cacheKey, async (err, data) => {
       if (err) { console(err); reject(err); return; }
       else if (data) { resolve(JSON.parse(data)); return; }
-      dynamoDbGetItem('Season', seasonId).then(async (seasonJson) => {
+      dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonJson) => {
         if (!seasonJson) { resolve(null); return; }
         const seasonRosterJson = seasonJson['Roster'];
         if (seasonRosterJson) {
@@ -296,7 +299,7 @@ export const getSeasonRegular = (seasonId) => {
       if (err) { console(err); reject(err); return; }
       else if (data != null) { resolve(JSON.parse(data)); return; }
       try {
-        let seasonRegularJson = (await dynamoDbGetItem('Season', seasonId))['Regular'];
+        let seasonRegularJson = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId))['Regular'];
         if (seasonRegularJson != null) {
           for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
             let divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
@@ -316,7 +319,7 @@ export const getSeasonRegular = (seasonId) => {
           resolve(seasonRegularJson);
         }
         else {
-          resolve(null);    // If 'Season' does not exist
+          resolve(null);    // If DYNAMODB_TABLENAMES.SEASON does not exist
         }
       }
       catch (error) { console.error(error); reject(error); }
@@ -335,7 +338,7 @@ export const getSeasonPlayoffs = (seasonId) => {
       if (err) { console(err); reject(err); return }
       else if (data != null) { resolve(JSON.parse(data)); return }
       try {
-        let playoffJson = (await dynamoDbGetItem('Season', seasonId))['Playoffs'];
+        let playoffJson = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId))['Playoffs'];
         if (playoffJson != null) {
           for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
             let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
@@ -366,7 +369,7 @@ export const getSeasonPlayoffs = (seasonId) => {
 }
 
 /**
- * Gets most recent team HId
+ * Gets most recent teamHId of the profileHId
  * @param {number} seasonId 
  * @param {string} profileHId 
  */
@@ -385,13 +388,110 @@ export const getMostRecentTeam = (seasonId, profileHId) => {
 }
 
 /**
+ * Creates the following:
+ * - A new Season item in DynamoDb 
+ * - Two tournament items in DynamoDb
+ * - A tournament Id through Riot's Tournament API
+ * @param {object} body
+ * @param {string} body.seasonName  (i.e. "Summer 2021 Aegis Guardians League")
+ * @param {string} body.seasonShortName (i.e. "s2021agl")
+ * @param {string} body.leagueCode  ("AVL", "ADL", "APL", "AGL")
+ * @param {string} body.leagueRank  ("Uncapped", "Diamond", "Platinum", "Gold")
+ * @returns 
+ */
+export const createNewSeason = (body) => {
+  const { seasonName, seasonShortName, leagueCode, leagueRank } = body;
+  return new Promise(async (resolve, reject) => {
+    try {
+      const split = seasonName.split(' ');
+      if (split.length !== 5) { reject(`'${seasonName}' does not have proper length of 5.`); return; }
+      // split[0] Season    ('Summer')
+      // split[1] Year      ('2021')
+      // split[2] "Aegis"   ('Aegis')
+      // split[3] Type      ('Guardians')
+      // split[4] "League"  ('League')
+      const tabName = `${split[0]} ${split[1]} ${split[3]}`;
+      const seasonTime = `${split[0]} ${split[1]}`;
+      const leagueType = `${split[3]}`;
+
+      // Create new Tournament in the Riot Tournament API through AWS Lambda
+      const riotTournamentId = await createTournamentId(seasonShortName);
+
+      // Create new DynamoDb SeasonId by grabbing the max value and +1
+      const seasonList = await dynamoDbScanTable(DYNAMODB_TABLENAMES.SEASON, ['SeasonPId']);
+      const maxSeasonId = Math.max.apply(Math, seasonList.map((obj) => { return obj.SeasonPId; }));
+      const newSeasonId = maxSeasonId + 1;
+
+      // Create 2 new DynamoDb TournamentIds by grabbing the max value and +1,+2
+      const tournamentList = await dynamoDbScanTable(DYNAMODB_TABLENAMES.TOURNAMENT, ['TournamentPId']);
+      const maxTournamentId = Math.max.apply(Math, tournamentList.map((obj) => { return obj.TournamentPId; }));
+      const newTournamentIds = [ maxTournamentId + 1, maxTournamentId + 2 ];
+
+      const mostRecentPatch = (ddragonVersion) => {
+        const versions = ddragonVersion.split('.');
+        return `${versions[0]}.${versions[1]}`;
+      }
+      for (const [idx, newId] of Object.entries(newTournamentIds)) {
+        const tournamentShortName = `${seasonShortName}${(idx === 0) ? 'reg' : 'post'}`;
+        const newTournamentInformation = {
+          TournamentName: `${seasonName} ${(idx === 0) ? 'Regular Season' : 'Playoffs'}`,
+          TournamentType: (idx === 0) ? 'Regular' : 'Playoffs',
+          MostRecentPatch: mostRecentPatch(await getDdragonVersion()),
+          TournamentShortName: tournamentShortName,
+          TournamentTabName: `${seasonTime} ${(idx === 0) ? 'Regular Season' : 'Playoffs'}`,
+          SeasonPId: newSeasonId,
+        };
+        const newTournamentItem = {
+          TournamentPId: newId,
+          TournamentShortName: tournamentShortName,
+          Information: newTournamentInformation,
+        };
+        await dynamoDbPutItem(DYNAMODB_TABLENAMES.TOURNAMENT, newTournamentItem, newId);
+      }
+
+      const newSeasonInformation = {
+        Status: "Open",
+        DateCreated: Math.ceil(Date.now() / 1000),
+        SeasonTabName: tabName,
+        Description: "Description here.",
+        LeagueRank: leagueRank,
+        SeasonName: seasonName,
+        LeagueType: leagueType,
+        SeasonShortName: seasonShortName,
+        LeagueCode: leagueCode,
+        TournamentPIds: {
+          RegTourmamentPId: newTournamentIds[0],
+          PostTournamentPId: newTournamentIds[1],
+        },
+        SeasonTime: seasonTime,
+      };
+      const newSeasonItem = {
+        SeasonPId: newSeasonId,
+        Information: newSeasonInformation,
+        SeasonShortName: seasonShortName,
+        Codes: {
+          RiotTournamentId: riotTournamentId,
+          Weeks: {},
+        }
+      };
+      await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, newSeasonItem, newSeasonId);
+
+      resolve(newSeasonItem);
+    }
+    catch (err) {
+      console.error(err); reject(err);
+    }
+  });
+}
+
+/**
  * Adds new team into Season Roster. Initializes a new object if null
  * @param {number} seasonId     Assume valid
  * @param {array} teamPIdList   Assume valid
  */
 export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
   return new Promise((resolve, reject) => {
-    dynamoDbGetItem('Season', seasonId).then(async (seasonObject) => {
+    dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonObject) => {
       const errorList = [];
 
       // Check if Roster property exists. If not, init new one
@@ -423,7 +523,7 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
         // Remove cache
         cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
 
-        await dynamoDbPutItem('Season', seasonObject, seasonId);
+        await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, seasonObject, seasonId);
         resolve({
           'SeasonId': seasonId,
           'SeasonRoster': seasonRosterObject,
@@ -441,7 +541,7 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
  */
 export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
   return new Promise((resolve, reject) => {
-    dynamoDbGetItem('Season', seasonId).then(async (seasonDbObject) => {
+    dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonDbObject) => {
       const errorList = [];
 
       // Check if Roster or Team property exists.
@@ -484,7 +584,7 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         // Remove cache
         cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
 
-        await dynamoDbPutItem('Season', seasonDbObject, seasonId);
+        await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, seasonDbObject, seasonId);
         resolve({
           'SeasonId': seasonId,
           'TeamName': teamName,
@@ -504,7 +604,7 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
  */
 export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
   return new Promise((resolve, reject) => {
-    dynamoDbGetItem('Season', seasonId).then(async (seasonDbObject) => {
+    dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonDbObject) => {
       if (!('Roster' in seasonDbObject) || !('Teams' in seasonDbObject.Roster)) {
         resolve({ error: `Season Object does not have Roster.` });
         return;
@@ -534,7 +634,7 @@ export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
       // Remove cache
       cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
 
-      await dynamoDbPutItem('Season', seasonDbObject, seasonId);
+      await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, seasonDbObject, seasonId);
       resolve({
         'SeasonId': seasonId,
         'TeamName': teamName,

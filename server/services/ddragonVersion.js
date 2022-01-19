@@ -7,6 +7,7 @@ import { CACHE_KEYS } from "../functions/apiV1/dependencies/cacheKeys";
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
 /**
+ * @deprecated Use "createVersionListFromDdragon" function from ddragonService.js now
  * Gets the DDragon version of the LoL patch based on: https://ddragon.leagueoflegends.com/api/versions.json
  * @param {string} patch    Specified League of Legends patch (i.e. "10.23"). 'null' to get latest Patch
  * @returns 

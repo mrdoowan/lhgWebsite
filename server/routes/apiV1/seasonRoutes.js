@@ -16,6 +16,7 @@ import {
   addProfilesToRoster,
   getSeasonRosterByName,
   removeProfileFromRoster,
+  createNewSeason,
 } from '../../functions/apiV1/seasonData';
 import {
   getTeamPIdByName,
@@ -210,6 +211,26 @@ seasonV1Routes.put('/roster/profile/remove', authenticateJWT, (req, res) => {
       });
     });
   })
+});
+
+//#endregion
+
+//#region POST Requests - Season
+
+/**
+ * @route   POST api/season/v1/new
+ * @desc    Creates a new Season Item and a Tournament through Riot API
+ * @access  Private
+ */
+seasonV1Routes.post('/new', authenticateJWT, (req, res) => {
+  const { seasonShortName } = req.body; 
+
+  getSeasonId(seasonShortName).then((seasonId) => {
+    if (seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' already exists.`); }
+    createNewSeason(req.body).then((response) => {
+      return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "POST New Season Error."));
+  }).catch((err) => error500sServerError(err, res, "GET season ID Error."));
 });
 
 //#endregion

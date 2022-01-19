@@ -109,11 +109,11 @@ export const getServerChampName = (key) => {
 }
 
 /**
- * 
+ * Gets DDragon version based on patch
  * @param {string} patch 
- * @returns string
+ * @returns {Promise<string>}  Ddragon version (i.e. "12.1.1")
  */
-export const getDdragonVersion = (patch) => {
+export const getDdragonVersion = (patch = null) => {
   return new Promise((resolve, reject) => {
     getVersionList().then((versionList) => {
       if (patch) {

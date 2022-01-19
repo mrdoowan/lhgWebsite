@@ -73,3 +73,61 @@ export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject)
     resolve(JSON.parse(data.Payload));
   });
 });
+
+/**
+ * (AWS Lambda function)
+ * Calls a POST Riot API request and creates a new tournament ID
+ * @param {string} seasonShortName  seasonShortName (i.e. "w2021agl")
+ * @returns {Promise<number>}       Tournament ID (number)
+ */
+export const createTournamentId = (seasonShortName) => {
+  return new Promise((resolve, reject) => {
+    console.log(`AWS Lambda: Create new Tournament Id for season '${seasonShortName}'`);
+    const params = {
+      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
+      Payload: JSON.stringify({
+        type: 'CREATE_TOURNAMENT',
+        test: false,
+        seasonName: seasonShortName
+      }),
+    }
+    lambda.invoke(params, (err, data) => {
+      if (err) { console.error(err); reject(err); return; }
+      const res = JSON.parse(data.Payload);
+      if (typeof(res) !== 'number') { reject({ error: res }); return; }
+      console.log(`AWS Lambda: New Tournament ID '${res}' has been created in the Tournament API.`);
+      resolve(res);
+    });
+  });
+}
+
+/**
+ * Calls a POST Riot API request and generates Tournament Codes with a given tournament ID
+ * @param {string} week             i.e. "W1", "W2", etc., "PI1", "PI2", etc. "RO16", "QF", "SF", "F"
+ * @param {number} tournamentId     Tournament ID provided from createTournamentId
+ * @param {string} seasonShortName  i.e. "w2022agl"
+ * @param {string} team1            Team Name i.e. "Team Ambition"
+ * @param {string} team2            Team Name i.e. "Omega Gaming"
+ * @returns {Promise<string[]>}     List of Tournament Codes
+ */
+export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1, team2) => {
+  return new Promise((resolve, reject) => {
+    console.log(`AWS Lambda: Generate new codes for season '${seasonShortName}'`);
+    const params = {
+      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
+      Payload: JSON.stringify({
+        type: 'GENERATE_CODES',
+        test: process.env.TEST_DB.toLowerCase() == 'true',
+        week: week,
+        tournamentId: tournamentId,
+        seasonName: seasonShortName,
+        team1: team1,
+        team2: team2,
+      }),
+    }
+    lambda.invoke(params, (err, data) => {
+      if (err) { console.error(err); reject(err); return; }
+      resolve(JSON.parse(data.Payload));
+    });
+  });
+}
