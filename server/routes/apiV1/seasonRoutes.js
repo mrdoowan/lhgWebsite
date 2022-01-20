@@ -213,6 +213,17 @@ seasonV1Routes.put('/roster/profile/remove', authenticateJWT, (req, res) => {
   })
 });
 
+/**
+ * @route   PUT api/season/v1/codes/new
+ * @desc    
+ * @access  Private
+ */
+seasonV1Routes.put('/codes/generate', authenticateJWT, (req, res) => {
+
+
+  console.log(`PUT Request creating new week '${}' for generating new Tournament Codes.`)
+});
+
 //#endregion
 
 //#region POST Requests - Season

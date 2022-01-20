@@ -108,9 +108,10 @@ export const createTournamentId = (seasonShortName) => {
  * @param {string} seasonShortName  i.e. "w2022agl"
  * @param {string} team1            Team Name i.e. "Team Ambition"
  * @param {string} team2            Team Name i.e. "Omega Gaming"
+ * @param {string} numCodes         Number of codes to generate
  * @returns {Promise<string[]>}     List of Tournament Codes
  */
-export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1, team2) => {
+export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1 = null, team2 = null, numCodes = null) => {
   return new Promise((resolve, reject) => {
     console.log(`AWS Lambda: Generate new codes for season '${seasonShortName}'`);
     const params = {
@@ -121,6 +122,7 @@ export const generateTournamentCodes = (week, tournamentId, seasonShortName, tea
         week: week,
         tournamentId: tournamentId,
         seasonName: seasonShortName,
+        numCodes: numCodes,
         team1: team1,
         team2: team2,
       }),

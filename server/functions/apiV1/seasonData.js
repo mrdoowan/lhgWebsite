@@ -12,6 +12,7 @@ import {
   dynamoDbGetItem,
   dynamoDbPutItem,
   dynamoDbScanTable,
+  dynamoDbUpdateItem,
 } from './dependencies/dynamoDbHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
 
@@ -19,7 +20,10 @@ import { CACHE_KEYS } from './dependencies/cacheKeys'
 import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
 import { getTeamName } from './teamData';
-import { createTournamentId } from './dependencies/awsLambdaHelper';
+import {
+  createTournamentId,
+  generateTournamentCodes
+} from './dependencies/awsLambdaHelper';
 import { DYNAMODB_TABLENAMES } from '../../services/constants';
 import { getDdragonVersion } from '../../services/miscDynamoDb';
 
@@ -481,6 +485,79 @@ export const createNewSeason = (body) => {
     catch (err) {
       console.error(err); reject(err);
     }
+  });
+}
+
+/**
+ * Generates new codes under a NEW week
+ * @param {number} seasonId         
+ * @param {string} week             ("W1", "W2", etc., "PI1", "PI2", etc., "RO16", "QF", "SF", "F")
+ * @param {string} teamList         List of teams that are matched up. Length must be even.
+ * @returns 
+ */
+export const generateNewCodes = (seasonId, week, teamList) => {
+  return new Promise((resolve, reject) => {
+    dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonObject) => {
+      try {
+        const weekUppercase = week.toUpperCase();
+        const seasonShortName = seasonObject.SeasonShortName;
+        const seasonCodes = seasonObject.Codes;
+        // Check for "Codes" property on seasonObject
+        if (!seasonCodes) {
+          reject(`Season '${seasonId}' does not have a "Codes" property.`); 
+          return;
+        }
+        // Check for TeamList length
+        const filteredTeamList = teamList.filter(team => team.length !== 0);
+        if (filteredTeamList.length % 2 > 0) {
+          reject(`Team List provided does not have an even amount of teams (Length: ${filteredTeamList.length}).`); 
+          return;
+        }
+
+        const riotTournamentId = seasonCodes.RiotTournamentId;
+        if (!seasonCodes[weekUppercase]) {
+          // Make new property
+          seasonCodes[weekUppercase] = {
+            Timestamp: Date.now() / 1000,
+            Primary: [],
+            Backups: [],
+          }
+          // Create Backups
+          seasonCodes[weekUppercase].Backups = await generateTournamentCodes(weekUppercase, 
+            riotTournamentId, seasonShortName, team1=null, team2=null, numCodes=10);
+        }
+        const primaryCodesList = seasonCodes[week.toUpperCase()].Primary;
+        for (const i = 0; i < filteredTeamList.length; i++) {
+          const teamName1 = filteredTeamList[i];
+          const teamName2 = filteredTeamList[++i];
+          const codesList = await generateTournamentCodes(weekUppercase, 
+            riotTournamentId, seasonShortName, teamName1, teamName2);
+          primaryCodesList.append({
+            Team1: teamName1,
+            Team2: teamName2,
+            Codes: codesList,
+          });
+        }
+
+        await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.SEASON, seasonId,
+          'SET #codes = :obj',
+          {
+            '#codes': 'Codes',
+          },
+          {
+            ':obj': seasonCodes,
+          }
+        );
+
+        resolve({
+          response: `Season '${seasonShortName}' successfully generated new codes.`,
+          numMatches: filteredTeamList.length / 2,
+        });
+      }
+      catch (err) { 
+        reject(err);
+      }
+    }).catch((err) => { console.error(err); reject(err); });
   });
 }
 
