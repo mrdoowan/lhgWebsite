@@ -492,7 +492,7 @@ export const createNewSeason = (body) => {
  * Generates new codes under a NEW week
  * @param {number} seasonId         
  * @param {string} week             ("W1", "W2", etc., "PI1", "PI2", etc., "RO16", "QF", "SF", "F")
- * @param {string} teamList         List of teams that are matched up. Length must be even.
+ * @param {string[]} teamList         List of teams that are matched up. Length must be even.
  * @returns 
  */
 export const generateNewCodes = (seasonId, week, teamList) => {
@@ -501,10 +501,11 @@ export const generateNewCodes = (seasonId, week, teamList) => {
       try {
         const weekUppercase = week.toUpperCase();
         const seasonShortName = seasonObject.SeasonShortName;
-        const seasonCodes = seasonObject.Codes;
+        const riotTournamentId = seasonObject.Codes?.RiotTournamentId;
+        const seasonCodesWeeks = seasonObject.Codes?.Weeks;
         // Check for "Codes" property on seasonObject
-        if (!seasonCodes) {
-          reject(`Season '${seasonId}' does not have a "Codes" property.`); 
+        if (!seasonCodesWeeks) {
+          reject(`Season '${seasonId}' does not have a "Codes.Weeks" property.`); 
           return;
         }
         // Check for TeamList length
@@ -514,25 +515,24 @@ export const generateNewCodes = (seasonId, week, teamList) => {
           return;
         }
 
-        const riotTournamentId = seasonCodes.RiotTournamentId;
-        if (!seasonCodes[weekUppercase]) {
+        if (!seasonCodesWeeks[weekUppercase]) {
           // Make new property
-          seasonCodes[weekUppercase] = {
-            Timestamp: Date.now() / 1000,
+          seasonCodesWeeks[weekUppercase] = {
+            Timestamp: Math.ceil(Date.now() / 1000),
             Primary: [],
             Backups: [],
           }
           // Create Backups
-          seasonCodes[weekUppercase].Backups = await generateTournamentCodes(weekUppercase, 
-            riotTournamentId, seasonShortName, team1=null, team2=null, numCodes=10);
+          seasonCodesWeeks[weekUppercase].Backups = await generateTournamentCodes(weekUppercase, 
+            riotTournamentId, seasonShortName, null, null, 10);
         }
-        const primaryCodesList = seasonCodes[week.toUpperCase()].Primary;
-        for (const i = 0; i < filteredTeamList.length; i++) {
+        const primaryCodesList = seasonCodesWeeks[weekUppercase].Primary;
+        for (let i = 0; i < filteredTeamList.length; i++) {
           const teamName1 = filteredTeamList[i];
           const teamName2 = filteredTeamList[++i];
           const codesList = await generateTournamentCodes(weekUppercase, 
             riotTournamentId, seasonShortName, teamName1, teamName2);
-          primaryCodesList.append({
+          primaryCodesList.push({
             Team1: teamName1,
             Team2: teamName2,
             Codes: codesList,
@@ -540,12 +540,13 @@ export const generateNewCodes = (seasonId, week, teamList) => {
         }
 
         await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.SEASON, seasonId,
-          'SET #codes = :obj',
+          'SET #codes.#weeks = :obj',
           {
             '#codes': 'Codes',
+            '#weeks': 'Weeks',
           },
           {
-            ':obj': seasonCodes,
+            ':obj': seasonCodesWeeks,
           }
         );
 
@@ -574,7 +575,7 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
       // Check if Roster property exists. If not, init new one
       if (!('Roster' in seasonObject)) {
         seasonObject.Roster = {
-          Teams: {}
+          Teams: {},
         };
       }
       const seasonRosterObject = seasonObject.Roster;
@@ -645,12 +646,11 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         if (rosterPlayersDbObject && profileHId in rosterPlayersDbObject) {
           // Duplicate found
           profileMessages.push(`${profileName} - Profile is already in the Team.`);
-        }
-        else {
+        } else {
           // Create new object
           rosterPlayersDbObject[profileHId] = {};
           rosterProfilesDbObject[profileHId] = { MostRecentTeamHId: teamHId }
-          profileMessages.push(`${profileName} - Profile added to the Team.`)
+          profileMessages.push(`${profileName} - Profile added to the Team.`);
         }
       }
 

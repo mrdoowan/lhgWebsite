@@ -113,12 +113,12 @@ export const createTournamentId = (seasonShortName) => {
  */
 export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1 = null, team2 = null, numCodes = null) => {
   return new Promise((resolve, reject) => {
-    console.log(`AWS Lambda: Generate new codes for season '${seasonShortName}'`);
+    console.log(`AWS Lambda: Generating new codes for season '${seasonShortName}'`);
     const params = {
       FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
       Payload: JSON.stringify({
         type: 'GENERATE_CODES',
-        test: process.env.TEST_DB.toLowerCase() == 'true',
+        test: false,
         week: week,
         tournamentId: tournamentId,
         seasonName: seasonShortName,
@@ -129,7 +129,10 @@ export const generateTournamentCodes = (week, tournamentId, seasonShortName, tea
     }
     lambda.invoke(params, (err, data) => {
       if (err) { console.error(err); reject(err); return; }
-      resolve(JSON.parse(data.Payload));
+      const res = JSON.parse(data.Payload);
+      if (!Array.isArray(res)) { reject({ error: res }); return; }
+      console.log(`AWS Lambda: Tournament ID '${tournamentId}' generated ${res.length} codes.`);
+      resolve(res);
     });
   });
 }
