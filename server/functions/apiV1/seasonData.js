@@ -12,6 +12,7 @@ import {
   dynamoDbGetItem,
   dynamoDbPutItem,
   dynamoDbScanTable,
+  dynamoDbUpdateItem,
 } from './dependencies/dynamoDbHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
 
@@ -19,7 +20,10 @@ import { CACHE_KEYS } from './dependencies/cacheKeys'
 import { getTournamentShortName } from './tournamentData';
 import { getProfileName } from './profileData';
 import { getTeamName } from './teamData';
-import { createTournamentId } from './dependencies/awsLambdaHelper';
+import {
+  createTournamentId,
+  generateTournamentCodes
+} from './dependencies/awsLambdaHelper';
 import { DYNAMODB_TABLENAMES } from '../../services/constants';
 import { getDdragonVersion } from '../../services/miscDynamoDb';
 
@@ -485,6 +489,80 @@ export const createNewSeason = (body) => {
 }
 
 /**
+ * Generates new codes under a NEW week
+ * @param {number} seasonId         
+ * @param {string} week             ("W1", "W2", etc., "PI1", "PI2", etc., "RO16", "QF", "SF", "F")
+ * @param {string[]} teamList         List of teams that are matched up. Length must be even.
+ * @returns 
+ */
+export const generateNewCodes = (seasonId, week, teamList) => {
+  return new Promise((resolve, reject) => {
+    dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonObject) => {
+      try {
+        const weekUppercase = week.toUpperCase();
+        const seasonShortName = seasonObject.SeasonShortName;
+        const riotTournamentId = seasonObject.Codes?.RiotTournamentId;
+        const seasonCodesWeeks = seasonObject.Codes?.Weeks;
+        // Check for "Codes" property on seasonObject
+        if (!seasonCodesWeeks) {
+          reject(`Season '${seasonId}' does not have a "Codes.Weeks" property.`); 
+          return;
+        }
+        // Check for TeamList length
+        const filteredTeamList = teamList.filter(team => team.length !== 0);
+        if (filteredTeamList.length % 2 > 0) {
+          reject(`Team List provided does not have an even amount of teams (Length: ${filteredTeamList.length}).`); 
+          return;
+        }
+
+        if (!seasonCodesWeeks[weekUppercase]) {
+          // Make new property
+          seasonCodesWeeks[weekUppercase] = {
+            Timestamp: Math.ceil(Date.now() / 1000),
+            Primary: [],
+            Backups: [],
+          }
+          // Create Backups
+          seasonCodesWeeks[weekUppercase].Backups = await generateTournamentCodes(weekUppercase, 
+            riotTournamentId, seasonShortName, null, null, 10);
+        }
+        const primaryCodesList = seasonCodesWeeks[weekUppercase].Primary;
+        for (let i = 0; i < filteredTeamList.length; i++) {
+          const teamName1 = filteredTeamList[i];
+          const teamName2 = filteredTeamList[++i];
+          const codesList = await generateTournamentCodes(weekUppercase, 
+            riotTournamentId, seasonShortName, teamName1, teamName2);
+          primaryCodesList.push({
+            Team1: teamName1,
+            Team2: teamName2,
+            Codes: codesList,
+          });
+        }
+
+        await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.SEASON, seasonId,
+          'SET #codes.#weeks = :obj',
+          {
+            '#codes': 'Codes',
+            '#weeks': 'Weeks',
+          },
+          {
+            ':obj': seasonCodesWeeks,
+          }
+        );
+
+        resolve({
+          response: `Season '${seasonShortName}' successfully generated new codes.`,
+          numMatches: filteredTeamList.length / 2,
+        });
+      }
+      catch (err) { 
+        reject(err);
+      }
+    }).catch((err) => { console.error(err); reject(err); });
+  });
+}
+
+/**
  * Adds new team into Season Roster. Initializes a new object if null
  * @param {number} seasonId     Assume valid
  * @param {array} teamPIdList   Assume valid
@@ -497,7 +575,7 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
       // Check if Roster property exists. If not, init new one
       if (!('Roster' in seasonObject)) {
         seasonObject.Roster = {
-          Teams: {}
+          Teams: {},
         };
       }
       const seasonRosterObject = seasonObject.Roster;
@@ -568,12 +646,11 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         if (rosterPlayersDbObject && profileHId in rosterPlayersDbObject) {
           // Duplicate found
           profileMessages.push(`${profileName} - Profile is already in the Team.`);
-        }
-        else {
+        } else {
           // Create new object
           rosterPlayersDbObject[profileHId] = {};
           rosterProfilesDbObject[profileHId] = { MostRecentTeamHId: teamHId }
-          profileMessages.push(`${profileName} - Profile added to the Team.`)
+          profileMessages.push(`${profileName} - Profile added to the Team.`);
         }
       }
 
