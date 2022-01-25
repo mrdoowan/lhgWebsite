@@ -115,6 +115,7 @@ export default function MatchSetup({ setupData }) {
    * for the Save Match Setup PUT API request
    * @param {*} values
    */
+  // TODO: add a "week" property
   const transformValueData = (values) => {
     const transformedObject = {
       matchId: setupData.RiotMatchId,

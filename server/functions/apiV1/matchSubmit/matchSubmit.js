@@ -16,7 +16,7 @@ import {
   TEAM_STRING,
 } from '../../../services/constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
-import { getMatchSetupList } from '../matchData';
+import { getMatchSetupMap } from '../matchData';
 import { getChampIdObject } from '../../../services/miscDynamoDb';
 
 /**
@@ -60,11 +60,11 @@ export const submitMatchSetup = (id) => {
       await dynamoDbPutItem('Matches', newMatchDbObject, id);
 
       // Delete from MatchSetup list in the Miscellaneous DynamoDb table.
-      const setupIdList = await getMatchSetupList();
-      const newSetupIdList = setupIdList.filter(e => e !== id);
+      const setupIdMap = await getMatchSetupMap();
+      delete setupIdMap[id];
       const newDbItem = {
         Key: MISC_KEYS.MATCH_SETUP_IDS,
-        MatchSetupIdList: newSetupIdList
+        MatchSetupIdMap: setupIdMap
       };
       await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
 
