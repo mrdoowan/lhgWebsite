@@ -151,9 +151,10 @@ export const getMatchSetupList = () => {
  * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
  * @param {string} tournamentId ID of Tournament (number)
+ * @param {string} week         Week Type (i.e. "W1", "W2", etc. "PI1", etc. "RO12")
  * @param {boolean} invalidFlag 
  */
-export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
+export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
   return new Promise(async function (resolve, reject) {
     try {
       const tournamentInfoObject = await getTournamentInfo(tournamentId);
@@ -175,7 +176,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         });
         return;
       }
-      // Check if seasonId exists
+      // Check if tournamentId exists
       if (!(await dynamoDbGetItem('Tournament', tournamentId))) {
         resolve({
           'MatchId': matchId,
@@ -183,7 +184,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         });
         return;
       }
-      // Check if tournamentId exists
+      // Check if seasonId exists
       if (!(await dynamoDbGetItem('Season', seasonId))) {
         resolve({
           'MatchId': matchId,
@@ -198,6 +199,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       const setupObject = {};
       setupObject['Invalid'] = invalidFlag;
       setupObject['RiotMatchId'] = matchId;
+      setupObject['Week'] = week.toUpperCase();
       setupObject['SeasonPId'] = seasonId;
       setupObject['TournamentPId'] = tournamentId;
       setupObject['Teams'] = {};
@@ -289,12 +291,19 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
 
       // Push into Miscellaneous DynamoDb
       const setupIdList = await getMatchSetupList();
-      setupIdList.push(matchId)
+      const setupListItem = {
+        blueTeam: setupObject.Teams.BlueTeam.TeamName,
+        redTeam: setupObject.Teams.RedTeam.TeamName,
+        timestamp: matchDataRiotJson.gameEndTimestamp,
+        week: week.toUpperCase(),
+        seasonShortName: await getSeasonShortName(seasonId),
+      };
+      setupIdList.push(setupListItem)
       const newDbItem = {
         Key: MISC_KEYS.MATCH_SETUP_IDS,
         MatchSetupIdList: setupIdList
       };
-      await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS,);
+      await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
 
       resolve({
         response: `New Setup for Match ID '${matchId}' successfully created.`,

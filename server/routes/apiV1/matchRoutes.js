@@ -83,12 +83,12 @@ matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
-  const { riotMatchId, tournamentName, invalidFlag } = req.body;
+  const { riotMatchId, tournamentName, week, invalidFlag } = req.body;
 
   console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName}`);
   getTournamentId(tournamentName).then((tournamentId) => {
     if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
-    postMatchNewSetup(riotMatchId, tournamentId, invalidFlag).then((data) => {
+    postMatchNewSetup(riotMatchId, tournamentId, week, invalidFlag).then((data) => {
       if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
       return res200sOK(res, req, data);
     }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
@@ -110,7 +110,7 @@ matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
 matchV1Routes.get('/setup/list', (req, res) => {
   console.log(`GET Request Match Ids of Setup Key`);
   getMatchSetupList().then((data) => {
-    if (data == null) { return res400sClientError(res, req, `Match Setup List GET Request Failed`); }
+    if (!data) { return res400sClientError(res, req, `Match Setup List GET Request Failed`); }
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Match Setup List Error"));
 });
