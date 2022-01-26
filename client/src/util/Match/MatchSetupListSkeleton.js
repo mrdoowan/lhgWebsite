@@ -3,7 +3,7 @@ import React from 'react';
 import DataWrapper from '../../components/DataWrapper';
 import MatchSetupList from '../../components/Match/MatchSetupList';
 
-export default function MatchSetupSkeleton({ setupListData }) {
+export default function MatchSetupListSkeleton({ setupListData }) {
   const setupListComponent = (<MatchSetupList setupListData={setupListData} />);
   const setupListEmpty = 'There is no Setup List data.';
 
