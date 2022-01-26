@@ -444,6 +444,7 @@ export default function MatchSetup({ setupData }) {
   };
   // #endregion
 
+  console.log(setupData);
   return (
     <div>
       <Grid container spacing={3}>

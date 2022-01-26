@@ -98,7 +98,6 @@ export default function MatchSetupList({ setupListData }) {
                   </tr>
                 ))}
               </tbody>
-              
             </table>
           </Paper>
         </Grid>
