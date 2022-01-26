@@ -436,13 +436,13 @@ export const createNewSeason = (body) => {
         return `${versions[0]}.${versions[1]}`;
       }
       for (const [idx, newId] of Object.entries(newTournamentIds)) {
-        const tournamentShortName = `${seasonShortName}${(idx === 0) ? 'reg' : 'post'}`;
+        const tournamentShortName = `${seasonShortName}${(idx == 0) ? 'reg' : 'post'}`;
         const newTournamentInformation = {
-          TournamentName: `${seasonName} ${(idx === 0) ? 'Regular Season' : 'Playoffs'}`,
-          TournamentType: (idx === 0) ? 'Regular' : 'Playoffs',
+          TournamentName: `${seasonName} ${(idx == 0) ? 'Regular Season' : 'Playoffs'}`,
+          TournamentType: (idx == 0) ? 'Regular' : 'Playoffs',
           MostRecentPatch: mostRecentPatch(await getDdragonVersion()),
           TournamentShortName: tournamentShortName,
-          TournamentTabName: `${seasonTime} ${(idx === 0) ? 'Regular Season' : 'Playoffs'}`,
+          TournamentTabName: `${seasonTime} ${(idx == 0) ? 'Regular' : 'Playoffs'}`,
           SeasonPId: newSeasonId,
         };
         const newTournamentItem = {
