@@ -57,7 +57,7 @@ export default function MatchSetupList({ setupListData }) {
     if (!(matchupString in mapByMatchUp)) {
       mapByMatchUp[matchupString] = [];
     }
-    mapByMatchUp.push({
+    mapByMatchUp[matchupString].push({
       ...setupObject,
       matchId: matchId
     });
@@ -85,16 +85,21 @@ export default function MatchSetupList({ setupListData }) {
             <h1 className={classes.title}>
               Match Setup Ids List
             </h1>
-            {sortedSetupList.map((setupObject, idx) => (
-              <div className={classes.row} key={`matchSetup${idx}Link`}>
-                <span className={classes.column}>
-                  <Link to={`/match/${setupObject.matchId}/setup`} className={classes.link}>{setupObject.matchId}</Link>
-                </span>
-                <span className={classes.column}>
-                  {setupDescription(setupObject)}
-                </span>
-              </div>
-            ))}
+            <table>
+              <tbody>
+                {sortedSetupList.map((setupObject, idx) => (
+                  <tr className={classes.row} key={`matchSetup${idx}Link`}>
+                    <td className={classes.column}>
+                      <Link to={`/match/${setupObject.matchId}/setup`} className={classes.link}>{setupObject.matchId}</Link>
+                    </td>
+                    <td className={classes.column}>
+                      {setupDescription(setupObject)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              
+            </table>
           </Paper>
         </Grid>
       </Grid>
