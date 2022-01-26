@@ -376,13 +376,13 @@ export const getSeasonPlayoffs = (seasonId) => {
  * Gets most recent teamHId of the profileHId
  * @param {number} seasonId 
  * @param {string} profileHId 
+ * @return {string} teamHId. 'null' 
  */
 export const getMostRecentTeam = (seasonId, profileHId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const seasonRosterJson = await getSeasonRosterById(seasonId);
-      const { Profiles } = seasonRosterJson;
-      resolve(Profiles[profileHId]?.MostRecentTeamHId);
+      resolve(seasonRosterJson?.Profiles?.[profileHId]?.MostRecentTeamHId);
     }
     catch (err) {
       console.error(err);
@@ -476,6 +476,10 @@ export const createNewSeason = (body) => {
         Codes: {
           RiotTournamentId: riotTournamentId,
           Weeks: {},
+        },
+        Roster: {
+          Teams: {},
+          Profiles: {},
         }
       };
       await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, newSeasonItem, newSeasonId);
@@ -571,13 +575,6 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
   return new Promise((resolve, reject) => {
     dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonObject) => {
       const errorList = [];
-
-      // Check if Roster property exists. If not, init new one
-      if (!('Roster' in seasonObject)) {
-        seasonObject.Roster = {
-          Teams: {},
-        };
-      }
       const seasonRosterObject = seasonObject.Roster;
 
       // Check if there is a duplicate
@@ -621,12 +618,6 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
   return new Promise((resolve, reject) => {
     dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonDbObject) => {
       const errorList = [];
-
-      // Check if Roster or Team property exists.
-      if (!('Roster' in seasonDbObject) || !('Teams' in seasonDbObject.Roster)) {
-        resolve({ errorList: `Season Object does not have Roster` });
-        return;
-      }
 
       // Update "Teams" and "Profiles" key
       const rosterTeamDbObject = seasonDbObject.Roster.Teams;
