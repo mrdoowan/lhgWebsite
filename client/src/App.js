@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
 // MUI
-import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 // Components
 import NavBar from './components/NavBar';
 // Pages
@@ -42,7 +42,7 @@ import {
   MatchSetupListPage,
 } from './pages/Match';
 
-const theme = createTheme({
+const theme = createMuiTheme({
   palette: {
     type: 'light',
     primary: {

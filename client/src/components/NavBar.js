@@ -5,7 +5,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 import InputBase from '@material-ui/core/InputBase';
-import { alpha } from '@material-ui/core/styles';
+import { fade } from '@material-ui/core/styles/colorManipulator';
 import SearchIcon from '@material-ui/icons/Search';
 import IconButton from '@material-ui/core/IconButton';
 // react-bootstrap
@@ -36,9 +36,9 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     display: 'flex',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    backgroundColor: fade(theme.palette.common.white, 0.15),
     '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     [theme.breakpoints.up('sm')]: {
       marginLeft: '50px',

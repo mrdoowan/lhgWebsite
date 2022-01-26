@@ -381,8 +381,7 @@ export const getMostRecentTeam = (seasonId, profileHId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const seasonRosterJson = await getSeasonRosterById(seasonId);
-      const { Profiles } = seasonRosterJson;
-      resolve(Profiles[profileHId]?.MostRecentTeamHId);
+      resolve(seasonRosterJson?.Profiles?.[profileHId]?.MostRecentTeamHId);
     }
     catch (err) {
       console.error(err);
