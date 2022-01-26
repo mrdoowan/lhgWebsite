@@ -74,7 +74,9 @@ export default function MatchSetupList({ setupListData }) {
   const setupDescription = (setupObject) => {
     const blueTeam = (setupObject.blueTeam) ? setupObject.blueTeam : 'UNKNOWN';
     const redTeam = (setupObject.redTeam) ? setupObject.redTeam : 'UNKNOWN';
-    return `[${setupObject.seasonShortName} - ${setupObject.week}] ${blueTeam} vs. ${redTeam}`;
+    const teams = [blueTeam, redTeam];
+    teams.sort();
+    return `[${setupObject.seasonShortName} - ${setupObject.week}] ${teams[0]} vs. ${teams[1]}`;
   }
 
   return (

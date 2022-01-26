@@ -16,6 +16,9 @@ import {
 } from 'formik-material-ui';
 // Components
 import ChampionSquare from '../ChampionSquare';
+// react-bootstrap
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -115,10 +118,10 @@ export default function MatchSetup({ setupData }) {
    * for the Save Match Setup PUT API request
    * @param {*} values
    */
-  // TODO: add a "week" property
   const transformValueData = (values) => {
     const transformedObject = {
       matchId: setupData.RiotMatchId,
+      week: values.week,
       teams: {
         BlueTeam: {
           Bans: [],
@@ -199,6 +202,8 @@ export default function MatchSetup({ setupData }) {
   const [saveButtonPressed, setSaveButtonPressed] = useState(false);
   // Validation list
   const [messageList, setMessageList] = useState([]);
+  // Dropdown Weeks
+  const [dropDownValue, setDropDownValue] = useState("W1");
 
   useEffect(() => {
     axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
@@ -444,7 +449,29 @@ export default function MatchSetup({ setupData }) {
   };
   // #endregion
 
-  console.log(setupData);
+  const changeValue = (text) => {
+    setDropDownValue(text);
+  }
+
+  const weekList = [
+    '',
+    'W1',
+    'W2',
+    'W3',
+    'W4',
+    'W5',
+    'W6',
+    'W7',
+    'PI1',
+    'PI2',
+    'PI3',
+    'RO16',
+    'RO12',
+    'QF',
+    'SF',
+    'F',
+  ];
+
   return (
     <div>
       <Grid container spacing={3}>
@@ -469,6 +496,7 @@ export default function MatchSetup({ setupData }) {
             && (
             <Formik
               initialValues={{
+                week: setupData.Week || '',
                 blueTeamName:  blueTeamSetupObject?.TeamName || '',
                 redTeamName: redTeamSetupObject?.TeamName || '',
                 bluePlayerName0: blueTeamSetupObject?.Players[0]?.ProfileName || '',
@@ -507,6 +535,14 @@ export default function MatchSetup({ setupData }) {
             >
               {({ setFieldValue }) => (
                 <Form>
+                  <span><b>Week</b></span>
+                  <span>
+                    <DropdownButton title={dropDownValue} id="weekDropDown" name="week">
+                      {weekList.map((week) => (
+                        <Dropdown.Item key={week} as="button"><div onClick={(e) => changeValue(e.target.textContent)}>{week}</div></Dropdown.Item>
+                      ))}
+                    </DropdownButton>
+                  </span>
                   <table>
                     <thead>
                       <tr className={classes.rowTeam}>
