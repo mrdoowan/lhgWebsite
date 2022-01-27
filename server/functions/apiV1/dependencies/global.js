@@ -50,6 +50,7 @@ export const GLOBAL_CONSTS = {
   CURRENT_BARON_DURATION: 180, // in seconds
   LEADERBOARD_NUM: 5,
   AWS_LAMBDA_NAME: 'twistedRiotApiLambda',
+  AWS_LAMBDA_TOURNAMENT: 'tournamentRiotApiLambda',
 }
 
 /**

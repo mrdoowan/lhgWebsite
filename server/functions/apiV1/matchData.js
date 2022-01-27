@@ -137,10 +137,10 @@ export const getMatchSetup = (id) => {
 /**
  * Get all the Match Ids with Setup from the Miscellaneous DynamoDb table
  */
-export const getMatchSetupList = () => {
+export const getMatchSetupMap = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS,))['MatchSetupIdList'];
+      const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS,))['MatchSetupIdMap'];
       resolve(matchIdList);
     }
     catch (error) { console.error(error); reject(error); }
@@ -148,12 +148,24 @@ export const getMatchSetupList = () => {
 }
 
 /**
+ * Helper function for updating MatchSetupMapIds in Miscellaneous table
+ */
+const updateMatchSetupIds = async (setupIdMap) => {
+  const newDbItem = {
+    Key: MISC_KEYS.MATCH_SETUP_IDS,
+    MatchSetupIdMap: setupIdMap
+  };
+  await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
+}
+
+/**
  * POST new MatchId and initializes its Setup
  * @param {string} matchId      Match Id (string)
  * @param {string} tournamentId ID of Tournament (number)
+ * @param {string} week         Week Type (i.e. "W1", "W2", etc. "PI1", etc. "RO12")
  * @param {boolean} invalidFlag 
  */
-export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
+export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
   return new Promise(async function (resolve, reject) {
     try {
       const tournamentInfoObject = await getTournamentInfo(tournamentId);
@@ -175,7 +187,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         });
         return;
       }
-      // Check if seasonId exists
+      // Check if tournamentId exists
       if (!(await dynamoDbGetItem('Tournament', tournamentId))) {
         resolve({
           'MatchId': matchId,
@@ -183,7 +195,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         });
         return;
       }
-      // Check if tournamentId exists
+      // Check if seasonId exists
       if (!(await dynamoDbGetItem('Season', seasonId))) {
         resolve({
           'MatchId': matchId,
@@ -198,6 +210,7 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       const setupObject = {};
       setupObject['Invalid'] = invalidFlag;
       setupObject['RiotMatchId'] = matchId;
+      setupObject['Week'] = week.toUpperCase();
       setupObject['SeasonPId'] = seasonId;
       setupObject['TournamentPId'] = tournamentId;
       setupObject['Teams'] = {};
@@ -242,14 +255,14 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
         const mostRecentTeamHId = await getMostRecentTeam(seasonId, getProfileHashId(profilePId));
         if (playerRiotJson['teamId'] === 100) {
           newBluePlayerList.push(newPlayerObject);
-          if (!blueMostRecentObject[mostRecentTeamHId]) {
+          if (mostRecentTeamHId && !blueMostRecentObject[mostRecentTeamHId]) {
             blueMostRecentObject[mostRecentTeamHId] = 0
           }
           blueMostRecentObject[mostRecentTeamHId]++;
         }
         else if (playerRiotJson['teamId'] === 200) {
           newRedPlayerList.push(newPlayerObject);
-          if (!redMostRecentObject[mostRecentTeamHId]) {
+          if (mostRecentTeamHId && !redMostRecentObject[mostRecentTeamHId]) {
             redMostRecentObject[mostRecentTeamHId] = 0
           }
           redMostRecentObject[mostRecentTeamHId]++;
@@ -288,13 +301,16 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
       );
 
       // Push into Miscellaneous DynamoDb
-      const setupIdList = await getMatchSetupList();
-      setupIdList.push(matchId)
-      const newDbItem = {
-        Key: MISC_KEYS.MATCH_SETUP_IDS,
-        MatchSetupIdList: setupIdList
+      const setupIdMap = await getMatchSetupMap();
+      const setupListItem = {
+        blueTeam: setupObject.Teams.BlueTeam.TeamName,
+        redTeam: setupObject.Teams.RedTeam.TeamName,
+        timestamp: matchDataRiotJson.gameEndTimestamp,
+        week: week.toUpperCase(),
+        seasonShortName: await getSeasonShortName(seasonId),
       };
-      await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS,);
+      setupIdMap[matchId] = setupListItem;
+      await updateMatchSetupIds(setupIdMap);
 
       resolve({
         response: `New Setup for Match ID '${matchId}' successfully created.`,
@@ -310,7 +326,18 @@ export const postMatchNewSetup = (matchId, tournamentId, invalidFlag) => {
 //     "matchId": "3779688658",
 //     "teams": // Setup Object
 // }
-export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
+
+/**
+ * 
+ * @param {number} matchId          Match ID
+ * @param {string} week             "W1", "W2", etc. "PI1", "PI2", etc. "RO16", "QF", "SF"
+ * @param {Object} bodyTeamsObject  BODY EXAMPLE:
+ * {
+ *   "matchId": "3779688658",
+ *   "teams": // Setup Object
+ * }
+ */
+export const putMatchSaveSetup = (matchId, week, bodyTeamsObject) => {
   return new Promise(function (resolve, reject) {
     const payloadBlueTeam = bodyTeamsObject.BlueTeam;
     const payloadRedTeam = bodyTeamsObject.RedTeam;
@@ -328,7 +355,9 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
 
     dynamoDbGetItem('Matches', matchId).then(async (dbMatchObject) => {
       if (!dbMatchObject || !('Setup' in dbMatchObject)) { resolve(null); return; } // Not Found
-      const newTeamsObject = dbMatchObject['Setup']['Teams'];
+      const newSetupObject = dbMatchObject.Setup;
+      newSetupObject['Week'] = week.toUpperCase();
+      const newTeamsObject = newSetupObject.Teams;
       newTeamsObject['BlueTeam']['TeamName'] = payloadBlueTeam.TeamName;
       newTeamsObject['RedTeam']['TeamName'] = payloadRedTeam.TeamName;
       newTeamsObject['BlueTeam']['Bans'] = payloadBlueTeam.Bans;
@@ -338,15 +367,25 @@ export const putMatchSaveSetup = (matchId, bodyTeamsObject) => {
 
       // Update to DynamoDb
       await dynamoDbUpdateItem('Matches', matchId,
-        'SET #setup.#teams = :obj',
+        'SET #setup = :obj',
         {
           '#setup': 'Setup',
-          '#teams': 'Teams',
         },
         {
-          ':obj': newTeamsObject
+          ':obj': newSetupObject
         }
       );
+      // Update MatchSetupList too
+      const setupIdMap = await getMatchSetupMap();
+      const setupMapObject = setupIdMap[matchId];
+      if (payloadBlueTeam.TeamName !== setupMapObject.blueTeam ||
+        payloadRedTeam.TeamName !== setupMapObject.redTeam ||
+        week.toUpperCase() !== setupMapObject.week) {
+        setupMapObject.blueTeam = payloadBlueTeam.TeamName;
+        setupMapObject.redTeam = payloadRedTeam.TeamName;
+        setupMapObject.week = week.toUpperCase();
+        await updateMatchSetupIds(setupIdMap);
+      }
 
       resolve({
         response: `Setup object successfully updated for Match ID '${matchId}'.`,
@@ -480,13 +519,9 @@ export const deleteMatchData = (matchId) => {
       const setupFlag = !!matchData.Setup;
       if (matchData.Setup) {
         // Remove from Miscellaneous Table
-        let setupIdList = await getMatchSetupList();
-        setupIdList = setupIdList.filter(id => id !== matchId);
-        const newDbItem = {
-          Key: MISC_KEYS.MATCH_SETUP_IDS,
-          MatchSetupIdList: setupIdList
-        };
-        await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
+        const setupIdMap = await getMatchSetupMap();
+        delete setupIdMap[matchId];
+        await updateMatchSetupIds(setupIdMap);
 
         // 3) 
         await dynamoDbDeleteItem('Matches', matchId);

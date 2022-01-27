@@ -326,6 +326,7 @@ export const createDbMatchV5Object = (matchId, matchSetupObject) => {
                 'FIRE_DRAGON': 'Infernal',
                 'EARTH_DRAGON': 'Mountain',
                 'WATER_DRAGON': 'Ocean',
+                'HEXTECH_DRAGON': 'Hextech',
                 'ELDER_DRAGON': 'Elder'
               };
               const dragonString = DRAGON_STRING_MAP[riotEventDto.monsterSubType];

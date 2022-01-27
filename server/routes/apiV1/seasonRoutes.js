@@ -16,6 +16,8 @@ import {
   addProfilesToRoster,
   getSeasonRosterByName,
   removeProfileFromRoster,
+  createNewSeason,
+  generateNewCodes,
 } from '../../functions/apiV1/seasonData';
 import {
   getTeamPIdByName,
@@ -207,9 +209,46 @@ seasonV1Routes.put('/roster/profile/remove', authenticateJWT, (req, res) => {
           }
           return res200sOK(res, req, data);
         }).catch((err) => error500sServerError(err, res, "PUT Remove Profile from Season Roster Error."));
-      });
-    });
-  })
+      }).catch((err) => error500sServerError(err, res, "GET Profile PIDs From List Error."));;
+    }).catch((err) => error500sServerError(err, res, "GET Team PID Error."));
+  }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
+});
+
+/**
+ * @route   PUT api/season/v1/codes/new
+ * @desc    
+ * @access  Private
+ */
+seasonV1Routes.put('/codes/generate', authenticateJWT, (req, res) => {
+  const { seasonShortName, week, teamList } = req.body;
+
+  console.log(`PUT Request creating new week '${week}' for generating new Tournament Codes.`);
+  getSeasonId(seasonShortName).then((seasonId) => {
+    generateNewCodes(seasonId, week, teamList).then((response) => {
+      return res200sOK(res, req, response); 
+    }).catch((err) => error500sServerError(err, res, "PUT Generate Codes Error."));
+  }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));
+});
+
+//#endregion
+
+//#region POST Requests - Season
+
+/**
+ * @route   POST api/season/v1/new
+ * @desc    Creates a new Season Item and a Tournament through Riot API
+ * @access  Private
+ */
+seasonV1Routes.post('/new', authenticateJWT, (req, res) => {
+  const { seasonShortName } = req.body; 
+
+  console.log(`POST Request creating a new Season '${seasonShortName}' and Tournament Ids.`);
+  getSeasonId(seasonShortName).then((seasonId) => {
+    if (seasonId) { return res400sClientError(res, req, `Season Name '${seasonShortName}' already exists.`); }
+    createNewSeason(req.body).then((response) => {
+      return res200sOK(res, req, response);
+    }).catch((err) => error500sServerError(err, res, "POST New Season Error."));
+  }).catch((err) => error500sServerError(err, res, "GET season ID Error."));
 });
 
 //#endregion

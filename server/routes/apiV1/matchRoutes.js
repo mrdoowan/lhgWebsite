@@ -12,7 +12,7 @@ import {
   postMatchNewSetup,
   putMatchPlayerFix,
   deleteMatchData,
-  getMatchSetupList,
+  getMatchSetupMap,
   putMatchSaveSetup,
   invalidateMatch,
 } from '../../functions/apiV1/matchData';
@@ -83,12 +83,12 @@ matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
-  const { riotMatchId, tournamentName, invalidFlag } = req.body;
+  const { riotMatchId, tournamentName, week, invalidFlag } = req.body;
 
   console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName} by manual entry.`);
   getTournamentId(tournamentName).then((tournamentId) => {
     if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
-    postMatchNewSetup(riotMatchId, tournamentId, invalidFlag).then((data) => {
+    postMatchNewSetup(riotMatchId, tournamentId, week, invalidFlag).then((data) => {
       if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
       return res200sOK(res, req, data);
     }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
@@ -115,8 +115,8 @@ matchV1Routes.post('/setup/new/callback', (req, res) => {
  */
 matchV1Routes.get('/setup/list', (req, res) => {
   console.log(`GET Request Match Ids of Setup Key`);
-  getMatchSetupList().then((data) => {
-    if (data == null) { return res400sClientError(res, req, `Match Setup List GET Request Failed`); }
+  getMatchSetupMap().then((data) => {
+    if (!data) { return res400sClientError(res, req, `Match Setup List GET Request Failed`); }
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "GET Match Setup List Error"));
 });
@@ -127,10 +127,10 @@ matchV1Routes.get('/setup/list', (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.put('/setup/save', authenticateJWT, (req, res) => {
-  const { matchId, teams } = req.body;
+  const { matchId, week, teams } = req.body;
 
   console.log(`PUT Request Match '${matchId}' Save Setup`);
-  putMatchSaveSetup(matchId, teams).then((response) => {
+  putMatchSaveSetup(matchId, week, teams).then((response) => {
     if (!response) { return res400sClientError(res, req, `Match ID '${riotMatchId}' PUT Request Save Setup Failed`); }
     return res200sOK(res, req, response);
   }).catch((err) => error500sServerError(err, res, "PUT Match Setup Save Error."));
@@ -142,10 +142,10 @@ matchV1Routes.put('/setup/save', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.put('/setup/submit', authenticateJWT, (req, res) => {
-  const { matchId, teams } = req.body;
+  const { matchId, week, teams } = req.body;
 
   console.log(`PUT Request Match '${matchId}' Setup Submit.`);
-  putMatchSaveSetup(matchId, teams).then((saveResponse) => {
+  putMatchSaveSetup(matchId, week, teams).then((saveResponse) => {
     if (!saveResponse) { return res400sClientError(res, req, `Match ID '${riotMatchId}' Save Setup Failed`); }
     submitMatchSetup(matchId).then((submitResponse) => {
       if (!submitResponse) { return res400sClientError(res, req, `Match ID '${matchId} PUT Request Submit Setup Failed`); }
