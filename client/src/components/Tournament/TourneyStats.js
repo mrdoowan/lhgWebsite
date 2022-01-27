@@ -58,12 +58,14 @@ export default function TourneyStats({ stats }) {
   ];
 
   const totalDragons = stats.CloudDrakes + stats.InfernalDrakes
-    + stats.MountainDrakes + stats.OceanDrakes + stats.ElderDrakes;
+    + stats.MountainDrakes + stats.OceanDrakes + stats.HextechDrakes
+    + stats.ElderDrakes;
   const dragonData = [
     { dragon: 'Cloud', number: stats.CloudDrakes },
     { dragon: 'Infernal', number: stats.InfernalDrakes },
     { dragon: 'Mountain', number: stats.MountainDrakes },
     { dragon: 'Ocean', number: stats.OceanDrakes },
+    { dragon: 'Hextech', number: stats.HextechDrakes },
     { dragon: 'Elder', number: stats.ElderDrakes },
   ];
   const dragonPalette = [
