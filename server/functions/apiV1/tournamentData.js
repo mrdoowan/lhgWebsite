@@ -451,6 +451,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
         'OceanDrakes': 0,
         'InfernalDrakes': 0,
         'MountainDrakes': 0,
+        'HextechDrakes': 0,
         'ElderDrakes': 0,
       }
       const pickBansObject = await initPickBansObject(tourneyDbObject.Information.MostRecentPatch);
@@ -484,6 +485,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
         tourneyStatsItem['OceanDrakes'] += matchStatsSqlRow.oceanDragons;
         tourneyStatsItem['InfernalDrakes'] += matchStatsSqlRow.infernalDragons;
         tourneyStatsItem['MountainDrakes'] += matchStatsSqlRow.mountainDragons;
+        tourneyStatsItem['HextechDrakes'] += matchStatsSqlRow.hextechDragons;
         tourneyStatsItem['ElderDrakes'] += matchStatsSqlRow.elderDragons;
 
         const matchObject = await dynamoDbGetItem('Matches', matchPId.toString());
