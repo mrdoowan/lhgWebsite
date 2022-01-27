@@ -73,6 +73,7 @@ export default function TourneyStats({ stats }) {
     '#be3921', // Infernal
     '#ad7941', // Mountain
     '#5ab1a4', // Ocean
+    '#4ebceb', // Hextech
     '#29727b', // Elder
   ];
 
