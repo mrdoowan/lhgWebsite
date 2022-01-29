@@ -180,7 +180,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         return;
       }
       // Check if matchId already exists
-      if (await dynamoDbGetItem('Matches', matchId, true)) {
+      if (await dynamoDbGetItem('Matches', matchId)) {
         resolve({
           'MatchId': matchId,
           'Error': `Match ID ${matchId} already exists.`,
@@ -188,7 +188,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         return;
       }
       // Check if tournamentId exists
-      if (!(await dynamoDbGetItem('Tournament', tournamentId, true))) {
+      if (!(await dynamoDbGetItem('Tournament', tournamentId))) {
         resolve({
           'MatchId': matchId,
           'Error': `Tournament ID ${tournamentId} doesn't exists.`,
@@ -196,7 +196,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         return;
       }
       // Check if seasonId exists
-      if (!(await dynamoDbGetItem('Season', seasonId, true))) {
+      if (!(await dynamoDbGetItem('Season', seasonId))) {
         resolve({
           'MatchId': matchId,
           'Error': `Season ID ${seasonId} doesn't exists.`,
@@ -312,7 +312,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         seasonShortName: await getSeasonShortName(seasonId),
       };
       setupIdMap[matchId] = setupListItem;
-      await updateMatchSetupIds(setupIdMap);
+      await updateMatchSetupIds(setupIdMap, true);
 
       resolve({
         response: `New Setup for Match ID '${matchId}' successfully created.`,
