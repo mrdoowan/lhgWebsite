@@ -19,6 +19,7 @@ import {
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 import { authenticateJWT } from './dependencies/jwtHelper';
+import { getSeasonId, getSeasonInformation } from '../../functions/apiV1/seasonData';
 
 /*  
     ----------------------
@@ -103,9 +104,21 @@ matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
 matchV1Routes.post('/setup/new/callback', (req, res) => {
   const { gameId, metaData } = req.body;
   const metaDataJson = JSON.parse(metaData);
+  const seasonShortName = metaDataJson.seasonName;
+  const week = metaDataJson.week.toUpperCase();
 
-  console.log(`POST Request Match '${riotMatchId}' New Setup in ${tournamentName} by Tournament API.`);
-
+  console.log(`POST Request Match '${gameId}' New Setup in ${seasonShortName} by Tournament API callback.`);
+  getSeasonId(seasonShortName).then((seasonId) => {
+    if (!seasonId) { res400sClientError(res, req, `Tournament shortname '${seasonShortName}' Not Found.`); }
+    getSeasonInformation(seasonId).then((seasonInfo) => {
+      const tournamentId = (["RO16", "RO12", "QF", "SF", "F"].includes(week)) ? 
+        seasonInfo?.TournamentPIds?.PostTournamentPId : seasonInfo?.TournamentPIds?.RegTournamentPId;
+      postMatchNewSetup(gameId, tournamentId, week, invalidFlag).then((data) => {
+        if ('Error' in data) { return res400sClientError(res, req, `Match ID '${gameId}' POST Request New Setup Failed`, data); }
+        return res200sOK(res, req, data);
+      }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Season Info Error."));
+  }).catch((err) => error500sServerError(err, res, "GET Season Id Error."));
 });
 
 /**

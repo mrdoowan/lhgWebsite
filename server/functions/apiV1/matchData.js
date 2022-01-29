@@ -277,6 +277,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList.sort(sortRoles);
       setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
 
+      
       // Find Team name associated with the players
       /**
        * https://michaelmovsesov.com/articles/get-key-with-highest-value-from-javascript-object
@@ -290,7 +291,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['RedTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(redMostRecentObject));
 
       // Push into 'Matches' DynamoDb
-      await dynamoDbUpdateItem('Matches', matchId,
+      await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.MATCHES, matchId,
         'SET #setup = :obj',
         {
           '#setup': 'Setup',
