@@ -298,7 +298,8 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         },
         {
           ':obj': setupObject,
-        }
+        },
+        true
       );
 
       // Push into Miscellaneous DynamoDb
