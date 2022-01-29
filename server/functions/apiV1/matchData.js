@@ -137,10 +137,10 @@ export const getMatchSetup = (id) => {
 /**
  * Get all the Match Ids with Setup from the Miscellaneous DynamoDb table
  */
-export const getMatchSetupMap = () => {
+export const getMatchSetupMap = (test=false) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS,))['MatchSetupIdMap'];
+      const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS, test))['MatchSetupIdMap'];
       resolve(matchIdList);
     }
     catch (error) { console.error(error); reject(error); }
@@ -150,12 +150,12 @@ export const getMatchSetupMap = () => {
 /**
  * Helper function for updating MatchSetupMapIds in Miscellaneous table
  */
-const updateMatchSetupIds = async (setupIdMap) => {
+const updateMatchSetupIds = async (setupIdMap, test=false) => {
   const newDbItem = {
     Key: MISC_KEYS.MATCH_SETUP_IDS,
     MatchSetupIdMap: setupIdMap
   };
-  await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
+  await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS, test);
 }
 
 /**
@@ -277,6 +277,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList.sort(sortRoles);
       setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
 
+      
       // Find Team name associated with the players
       /**
        * https://michaelmovsesov.com/articles/get-key-with-highest-value-from-javascript-object
@@ -290,18 +291,19 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['RedTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(redMostRecentObject));
 
       // Push into 'Matches' DynamoDb
-      await dynamoDbUpdateItem('Matches', matchId,
+      await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.MATCHES, matchId,
         'SET #setup = :obj',
         {
           '#setup': 'Setup',
         },
         {
           ':obj': setupObject,
-        }
+        },
+        true
       );
 
       // Push into Miscellaneous DynamoDb
-      const setupIdMap = await getMatchSetupMap();
+      const setupIdMap = await getMatchSetupMap(true);
       const setupListItem = {
         blueTeam: setupObject.Teams.BlueTeam.TeamName,
         redTeam: setupObject.Teams.RedTeam.TeamName,
@@ -310,7 +312,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         seasonShortName: await getSeasonShortName(seasonId),
       };
       setupIdMap[matchId] = setupListItem;
-      await updateMatchSetupIds(setupIdMap);
+      await updateMatchSetupIds(setupIdMap, true);
 
       resolve({
         response: `New Setup for Match ID '${matchId}' successfully created.`,

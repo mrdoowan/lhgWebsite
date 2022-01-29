@@ -19,11 +19,12 @@ const CHANGE_DYNAMO = (process.env.TEST_DB === 'false') || (process.env.NODE_ENV
  * Gets an item from the Table based on keyValue. Returns 'undefined' if key item does NOT EXIST
  * @param {string} tableName        Table name of DynamoDb
  * @param {*} keyName               Specific item to look for
+ * @param {boolean} test            (default: 'false') If true, forces to use Test DynamoDb tables
  */
-export const dynamoDbGetItem = (tableName, keyName) => {
+export const dynamoDbGetItem = (tableName, keyName, test=false) => {
   const partitionKey = PARTITION_KEY_MAP[tableName];
   const params = {
-    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    TableName: (test || !CHANGE_DYNAMO) ? `Test-${tableName}` : tableName,
     Key: {
       [partitionKey]: keyName
     }
@@ -52,10 +53,11 @@ export const dynamoDbGetItem = (tableName, keyName) => {
  * @param {string} tableName    Table name of DynamoDb
  * @param {Object} items        The entire object being put into DynamoDb
  * @param {string} keyName      Only used for debugging purposes
+ * @param {boolean} test        (default: 'false') If true, forces to use Test DynamoDb tables
  */
-export const dynamoDbPutItem = (tableName, items, keyName) => {
+export const dynamoDbPutItem = (tableName, items, keyName, test=false) => {
   const params = {
-    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    TableName: (test || !CHANGE_DYNAMO) ? `Test-${tableName}` : tableName,
     Item: items
   };
   return new Promise(function (resolve, reject) {
@@ -79,11 +81,12 @@ export const dynamoDbPutItem = (tableName, items, keyName) => {
  * @param {string} updateExp        The Condition to update (i.e. 'SET #glog.#sId = :data')
  * @param {Object} keyObject        Map of Keys (i.e. { '#glog': 'GameLog' })
  * @param {Object} valueObject      Map of Values (i.e. { ':data': (DATA) })
+ * @param {boolean} test            (default: 'false') If true, forces to use Test DynamoDb tables
  */
-export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, valueObject) => {
+export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, valueObject, test=false) => {
   const partitionKey = PARTITION_KEY_MAP[tableName];
   const params = {
-    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    TableName: (test || !CHANGE_DYNAMO) ? `Test-${tableName}` : tableName,
     Key: {
       [partitionKey]: keyName
     },
@@ -114,10 +117,11 @@ export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, val
  * @param {List} getAttributes      Root Item to get (essentially column names to return)
  * @param {string} attributeName    Criteria Column Name (to refine search/condition)
  * @param {string} attributeValue   Root value for attributeName (to refine search/condition)
+ * @param {boolean} test            (default: 'false') If true, forces to use Test DynamoDb tables
  */
-export const dynamoDbScanTable = (tableName, getAttributes = [], attributeName = null, attributeValue = null) => {
+export const dynamoDbScanTable = (tableName, getAttributes = [], attributeName = null, attributeValue = null, test=false) => {
   const params = {
-    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    TableName: (test || !CHANGE_DYNAMO) ? `Test-${tableName}` : tableName,
   };
   if (getAttributes.length > 0) {
     params['ProjectionExpression'] = getAttributes.join();
@@ -148,11 +152,12 @@ export const dynamoDbScanTable = (tableName, getAttributes = [], attributeName =
  * Deletes an item from the specific Table
  * @param {string} tableName        DynamoDb Table Name
  * @param {*} keyName               Value of Partition Key to remove
+ * @param {boolean} test            (default: 'false') If true, forces to use Test DynamoDb tables
  */
-export const dynamoDbDeleteItem = (tableName, keyName) => {
+export const dynamoDbDeleteItem = (tableName, keyName, test=false) => {
   const partitionKey = PARTITION_KEY_MAP[tableName];
   const params = {
-    TableName: (CHANGE_DYNAMO) ? tableName : `Test-${tableName}`,
+    TableName: (test || !CHANGE_DYNAMO) ? `Test-${tableName}` : tableName,
     Key: {
       [partitionKey]: keyName,
     }
