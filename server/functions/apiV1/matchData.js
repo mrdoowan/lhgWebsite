@@ -180,7 +180,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         return;
       }
       // Check if matchId already exists
-      if (await dynamoDbGetItem('Matches', matchId)) {
+      if (await dynamoDbGetItem('Matches', matchId, true)) {
         resolve({
           'MatchId': matchId,
           'Error': `Match ID ${matchId} already exists.`,

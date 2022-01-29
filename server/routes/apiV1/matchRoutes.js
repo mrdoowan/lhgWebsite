@@ -113,7 +113,7 @@ matchV1Routes.post('/setup/new/callback', (req, res) => {
     getSeasonInformation(seasonId).then((seasonInfo) => {
       const tournamentId = (["RO16", "RO12", "QF", "SF", "F"].includes(week)) ? 
         seasonInfo?.TournamentPIds?.PostTournamentPId : seasonInfo?.TournamentPIds?.RegTournamentPId;
-      postMatchNewSetup(gameId, tournamentId, week, invalidFlag).then((data) => {
+      postMatchNewSetup(gameId.toString(), tournamentId, week, invalidFlag).then((data) => {
         if ('Error' in data) { return res400sClientError(res, req, `Match ID '${gameId}' POST Request New Setup Failed`, data); }
         return res200sOK(res, req, data);
       }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
