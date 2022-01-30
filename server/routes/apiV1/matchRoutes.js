@@ -102,6 +102,7 @@ matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/callback', (req, res) => {
+  console.log(req);
   const { gameId, metaData } = req.body;
   const metaDataJson = JSON.parse(metaData);
   const seasonShortName = metaDataJson.seasonName;
@@ -119,6 +120,13 @@ matchV1Routes.post('/setup/new/callback', (req, res) => {
       }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season Info Error."));
   }).catch((err) => error500sServerError(err, res, "GET Season Id Error."));
+});
+
+matchV1Routes.post('/setup/new/profile', (req, res) => {
+  const { summonerName, tournamentId, week } = req.body;
+
+  console.log(`POST Request Match New Setups in by summoner name '${summonerName}'`);
+  
 });
 
 /**
