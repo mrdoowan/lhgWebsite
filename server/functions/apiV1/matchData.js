@@ -298,12 +298,11 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         },
         {
           ':obj': setupObject,
-        },
-        true
+        }
       );
 
       // Push into Miscellaneous DynamoDb
-      const setupIdMap = await getMatchSetupMap(true);
+      const setupIdMap = await getMatchSetupMap();
       const setupListItem = {
         blueTeam: setupObject.Teams.BlueTeam.TeamName,
         redTeam: setupObject.Teams.RedTeam.TeamName,
@@ -312,7 +311,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         seasonShortName: await getSeasonShortName(seasonId),
       };
       setupIdMap[matchId] = setupListItem;
-      await updateMatchSetupIds(setupIdMap, true);
+      await updateMatchSetupIds(setupIdMap);
 
       resolve({
         response: `New Setup for Match ID '${matchId}' successfully created.`,
