@@ -12,7 +12,7 @@ const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
  * (AWS Lambda function)
  * Calls Riot API and gets the Summoner ID of the summoner account
  * Returns the request object from Riot API
- * @param {string} name     Summoner IGN
+ * @param {string} name     Summoner Name/IGN
  */
 export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Summoner Id of '${name}'`);
@@ -73,6 +73,31 @@ export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject)
     resolve(JSON.parse(data.Payload));
   });
 });
+
+/**
+ * 
+ * @param {string} puuid 
+ * @param {string} date 
+ * @returns {Promise<string[]>}
+ */
+export const getTournamentMatchIdsByPuuid = (puuid, date) => {
+  return new Promise((resolve, reject) => {
+    console.log(`AWS Lambda: Getting list of Tournament Match Ids from puuid '${puuid}'`);
+    const params = {
+      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
+      Payload: JSON.stringify({
+        type: 'TOURNEY_GAMES',
+        date: date,
+        puuid: puuid,
+        regionGroup: Constants.RegionGroups.AMERICAS,
+      }),
+    };
+    lambda.invoke(params, (err, data) => {
+      if (err) { console.error(err); reject(err); return; }
+      resolve(JSON.parse(data.Payload));
+    });
+  });
+}
 
 /**
  * (AWS Lambda function)

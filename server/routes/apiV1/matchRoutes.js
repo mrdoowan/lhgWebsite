@@ -15,11 +15,13 @@ import {
   getMatchSetupMap,
   putMatchSaveSetup,
   invalidateMatch,
+  postNewMatchesByPuuid,
 } from '../../functions/apiV1/matchData';
 import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 import { authenticateJWT } from './dependencies/jwtHelper';
 import { getSeasonId, getSeasonInformation } from '../../functions/apiV1/seasonData';
+import { getRiotSummonerId } from '../../functions/apiV1/dependencies/awsLambdaHelper';
 
 /*  
     ----------------------
@@ -102,6 +104,7 @@ matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/callback', (req, res) => {
+  console.log(req);
   const { gameId, metaData } = req.body;
   const metaDataJson = JSON.parse(metaData);
   const seasonShortName = metaDataJson.seasonName;
@@ -119,6 +122,26 @@ matchV1Routes.post('/setup/new/callback', (req, res) => {
       }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season Info Error."));
   }).catch((err) => error500sServerError(err, res, "GET Season Id Error."));
+});
+
+/**
+ * @route   POST api/match/v1/setup/new/profile
+ * @desc    Create multiple Match "Setup" items based on tourney games played in the last 2 days by a Summoner name.
+ * @access  Private (to Admins)
+ */
+matchV1Routes.post('/setup/new/profile', (req, res) => {
+  const { summonerName, date, week, tournamentName } = req.body;
+
+  console.log(`POST Request Match New Setups in by summoner name '${summonerName}'`);
+  getTournamentId(tournamentName).then((tournamentId) => {
+    getRiotSummonerId(summonerName).then((summonerData) => {
+      const { puuid } = summonerData;
+      postNewMatchesByPuuid(puuid, date, week, tournamentId).then((data) => {
+        if (data.errors.length > 0) { return res400sClientError(res, req, `POST Request New Setup Failed by puuid '${summonerName}'`, data.errors); }
+        return res200sOK(res, req, data.success);
+      }).catch((err) => error500sServerError(err, res, "POST Matches New Setup by puuid Error."));
+    }).catch((err) => error500sServerError(err, res, "GET Riot Summoner Id Error."));
+  }).catch((err) => error500sServerError(err, res, "GET Tournament Id Error."));
 });
 
 /**

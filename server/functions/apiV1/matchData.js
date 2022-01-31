@@ -1,5 +1,7 @@
 /*  Declaring npm modules */
 const redis = require('redis');
+const twisted = require("twisted");
+const { Constants } = twisted;
 
 /*  Import dependency modules */
 import {
@@ -9,7 +11,7 @@ import {
   dynamoDbPutItem,
 } from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
-import { getRiotMatchData } from './dependencies/awsLambdaHelper';
+import { getRiotMatchData, getTournamentMatchIdsByPuuid } from './dependencies/awsLambdaHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import {
@@ -171,6 +173,10 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       const tournamentInfoObject = await getTournamentInfo(tournamentId);
       const seasonId = tournamentInfoObject.SeasonPId;
 
+      if (matchId.startsWith(Constants.Regions.AMERICA_NORTH)) {
+        matchId = matchId.substring(Constants.Regions.AMERICA_NORTH.length+1);
+      }
+
       // Make sure matchId is a valid value
       if (!(/^\d+$/.test(matchId))) {
         resolve({
@@ -322,11 +328,34 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
   });
 }
 
-// BODY EXAMPLE:
-// {
-//     "matchId": "3779688658",
-//     "teams": // Setup Object
-// }
+/**
+ * 
+ * @param {string} puuid 
+ * @param {string} date 
+ * @param {string} week 
+ * @param {number} tournamentId 
+ */
+export const postNewMatchesByPuuid = (puuid, date, week, tournamentId) => {
+  return new Promise((resolve, reject) => {
+    try {
+      getTournamentMatchIdsByPuuid(puuid, date).then(async (matchList) => {
+        const responseList = {
+          errors: [],
+          success: [],
+        };
+        for (const matchId of matchList) {
+          const resData = await postMatchNewSetup(matchId, tournamentId, week, false);
+          if ('Error' in resData) { responseList.errors.push(resData); }
+          else { responseList.success.push(resData); }
+        }
+        resolve(responseList);
+      });
+    }
+    catch (err) {
+      reject(err);
+    }
+  });
+}
 
 /**
  * 
