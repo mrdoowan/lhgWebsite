@@ -64,6 +64,7 @@ export const createDbMatchV5Object = (matchId, matchSetupObject) => {
       const patch = await getPatch(riotMatchDto.gameVersion);
       matchObject['GamePatchVersion'] = patch;
       matchObject['DDragonVersion'] = await getDdragonVersion(patch);
+      matchObject['Week'] = matchSetupObject['Week'];
       matchObject['TournamentCode'] = riotMatchDto.tournamentCode;
 
       // #region 2.1) - MatchV5 Endpoint
