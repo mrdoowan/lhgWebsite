@@ -455,7 +455,7 @@ export const createNewSeason = (body) => {
 
       const newSeasonInformation = {
         Status: "Open",
-        DateCreated: Math.ceil(Date.now() / 1000),
+        DateOpened: Math.ceil(Date.now() / 1000),
         SeasonTabName: tabName,
         Description: "Description here.",
         LeagueRank: leagueRank,
@@ -464,7 +464,7 @@ export const createNewSeason = (body) => {
         SeasonShortName: seasonShortName,
         LeagueCode: leagueCode,
         TournamentPIds: {
-          RegTourmamentPId: newTournamentIds[0],
+          RegTournamentPId: newTournamentIds[0],
           PostTournamentPId: newTournamentIds[1],
         },
         SeasonTime: seasonTime,
