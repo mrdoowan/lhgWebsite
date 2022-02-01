@@ -141,12 +141,16 @@ schedule.scheduleJob(rule_createDynamoDbTests, createDynamoDbTestTables);
 
 // Task 4: Update VersionList and ChampByIds from Ddragon once a week 
 // (on Thursday @6pmEST since patch day is Wednesday)
-const rule_updateVersionAndChamps = new schedule.RecurrenceRule();
-rule_updateVersionAndChamps.dayofWeek = 4;
-rule_updateVersionAndChamps.hour = 18;
-rule_updateVersionAndChamps.minute = 1;
-schedule.scheduleJob(rule_updateVersionAndChamps, updateVersionList);
-schedule.scheduleJob(rule_updateVersionAndChamps, updateChampByIds);
+const rule_updateVersion = new schedule.RecurrenceRule();
+rule_updateVersion.dayofWeek = 4;
+rule_updateVersion.hour = 18;
+rule_updateVersion.minute = 0;
+const rule_updateChamps = new schedule.RecurrenceRule();
+rule_updateChamps.dayofWeek = 4;
+rule_updateChamps.hour = 18;
+rule_updateChamps.minute = 1;
+schedule.scheduleJob(rule_updateVersion, updateVersionList);
+schedule.scheduleJob(rule_updateChamps, updateChampByIds);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Stats server started on port ${port}`));

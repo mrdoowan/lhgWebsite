@@ -147,7 +147,7 @@ export const updateChampByIds = () => {
         }
       }
       // Update DynamoDbObject of all missing keys
-      if (missingKey.length > 0) {
+      if (Object.keys(missingKey).length > 0) {
         for (const [champKey, value] of Object.entries(missingKey)) {
           dynamoDbUpdateItem('Miscellaneous', MISC_KEYS.CHAMP_IDS,
             'SET #key = :val',

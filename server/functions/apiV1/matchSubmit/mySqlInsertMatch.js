@@ -25,6 +25,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
     const insertMatchStatsColumn = {
       'invalid': matchSetupObject['Invalid'],
       'riotMatchId': matchSetupObject['RiotMatchId'],
+      'matchWeek': matchSetupObject['Week'],
       'seasonPId': matchSetupObject['SeasonPId'],
       'tournamentPId': matchSetupObject['TournamentPId'],
       'tournamentType': (await dynamoDbGetItem('Tournament', matchSetupObject['TournamentPId']))['Information']['TournamentType'],
@@ -46,6 +47,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
       const insertTeamStatsColumn = {
         'riotMatchId': matchSetupObject['RiotMatchId'],
         'teamPId': thisTeamPId,
+        'matchWeek': matchSetupObject['Week'],
         'side': TEAM_STRING.SIDE[teamSide],
         'win': teamObject.Win,
         'dmgDealtPerMin': (teamObject.TeamDamageDealt / durationByMinute).toFixed(2),
@@ -110,6 +112,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
           'profilePId': getProfilePIdFromHash(playerObject.ProfileHId),
           'riotMatchId': matchSetupObject['RiotMatchId'],
           'teamPId': getTeamPIdFromHash(teamObject.TeamHId),
+          'matchWeek': matchSetupObject['Week'],
           'side': TEAM_STRING.SIDE[teamSide],
           'role': playerObject.Role,
           'champId': playerObject.ChampId,
