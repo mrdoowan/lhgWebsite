@@ -134,9 +134,9 @@ const createDynamoDbTestTables = async () => {
 }
 const rule_createDynamoDbTests = new schedule.RecurrenceRule();
 rule_createDynamoDbTests.date = 1;
-rule_createDynamoDbTests.dayOfWeek = 0;
 rule_createDynamoDbTests.hour = 0;
 rule_createDynamoDbTests.minute = 1;
+rule_createDynamoDbTests.second = 0;
 schedule.scheduleJob(rule_createDynamoDbTests, createDynamoDbTestTables);
 
 // Task 4: Update VersionList and ChampByIds from Ddragon once a week 
