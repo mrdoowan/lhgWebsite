@@ -97,11 +97,11 @@ export const dynamoDbUpdateItem = (tableName, keyName, updateExp, keyObject, val
   return new Promise(function (resolve, reject) {
     dynamoDBClient.update(params, function (err, data) {
       if (err) {
-        console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - updateItemInDynamoDB '${tableName}' Promise rejected.`);
+        console.error(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}ERROR - updateItemInDynamoDB '${tableName}' Promise rejected with query '${updateExp}'.`);
         reject(err);
       }
       else {
-        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Update Item '${keyName}' in Table '${tableName}'`);
+        console.log(`${(!CHANGE_DYNAMO) ? '[TEST] ' : ''}Dynamo DB: Updated Item '${keyName}' in Table '${tableName}' with query '${updateExp}'`);
         resolve(data);
       }
     });
