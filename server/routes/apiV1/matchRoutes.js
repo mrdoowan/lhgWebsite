@@ -92,7 +92,7 @@ matchV1Routes.post('/setup/new/id', authenticateJWT, (req, res) => {
   getTournamentId(tournamentName).then((tournamentId) => {
     if (!tournamentId) { res400sClientError(res, req, `Tournament shortname '${tournamentName}' Not Found.`); }
     postMatchNewSetup(riotMatchId, tournamentId, week, invalidFlag).then((data) => {
-      if ('Error' in data) { return res400sClientError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
+      if ('Error' in data) { return error500sServerError(res, req, `Match ID '${riotMatchId}' POST Request New Setup Failed`, data); }
       return res200sOK(res, req, data);
     }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
   }).catch((err) => error500sServerError(err, res, "GET Tournament Id Error."));
@@ -117,7 +117,7 @@ matchV1Routes.post('/setup/new/callback', (req, res) => {
       const tournamentId = (["RO16", "RO12", "QF", "SF", "F"].includes(week)) ? 
         seasonInfo?.TournamentPIds?.PostTournamentPId : seasonInfo?.TournamentPIds?.RegTournamentPId;
       postMatchNewSetup(gameId.toString(), tournamentId, week, invalidFlag).then((data) => {
-        if ('Error' in data) { return res400sClientError(res, req, `Match ID '${gameId}' POST Request New Setup Failed`, data); }
+        if ('Error' in data) { return error500sServerError(res, req, `Match ID '${gameId}' POST Request New Setup Failed`, data); }
         return res200sOK(res, req, data);
       }).catch((err) => error500sServerError(err, res, "POST Match New Setup Error."));
     }).catch((err) => error500sServerError(err, res, "GET Season Info Error."));
@@ -137,7 +137,8 @@ matchV1Routes.post('/setup/new/profile', (req, res) => {
     getRiotSummonerId(summonerName).then((summonerData) => {
       const { puuid } = summonerData;
       postNewMatchesByPuuid(puuid, date, week, tournamentId).then((data) => {
-        if (data.errors.length > 0) { return res400sClientError(res, req, `POST Request New Setup Failed by puuid '${summonerName}'`, data.errors); }
+        if (data.errors.length > 0) { return error500sServerError(res, req, `POST Request New Setup Failed by puuid '${summonerName}'`, data.errors); }
+        if (data.success.length === 0) { return res400sClientError(res, req, `summonerName '${summonerName}' did not have a Tournament match on ${date}`); }
         return res200sOK(res, req, data.success);
       }).catch((err) => error500sServerError(err, res, "POST Matches New Setup by puuid Error."));
     }).catch((err) => error500sServerError(err, res, "GET Riot Summoner Id Error."));
