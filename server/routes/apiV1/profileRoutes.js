@@ -139,7 +139,7 @@ profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
   console.log(`POST Request Profile '${profileName}' - Add New Profile`);
 
   // Check Regex for profileName. Only include a-A, 1-9, and spaces
-  if (/^[A-Za-z0-9\s]*$/.test(profileName)) {
+  if (!/^[A-Za-z0-9\s]*$/.test(profileName)) {
     return res400sClientError(res, req, `${profileName} has a character outside of whitespace, a-z, A-Z, and 0-9`);
   }
 
