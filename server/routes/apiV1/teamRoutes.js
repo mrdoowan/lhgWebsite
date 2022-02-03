@@ -181,7 +181,7 @@ teamV1Routes.post('/add/new', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 teamV1Routes.put('/update/name', authenticateJWT, (req, res) => {
-  const { currentName, newName } = req.body;
+  const { currentName, newName, newShortName } = req.body;
   console.log(`PUT Request Team '${currentName} - Changing Name to '${newName}'`);
 
   // Check if currentName and newName exist
@@ -195,7 +195,7 @@ teamV1Routes.put('/update/name', authenticateJWT, (req, res) => {
         // New name already exists in Db
         return res400sClientError(res, req, `New Team name '${newName}' is already taken!`);
       }
-      updateTeamName(teamPId, newName, currentName).then((data) => {
+      updateTeamName(teamPId, newName, currentName, newShortName).then((data) => {
         return res200sOK(res, req, data);
       }).catch((err) => error500sServerError(err, res, "PUT Team Name Change - Update Function Error."));
     }).catch((err) => error500sServerError(err, res, "PUT Team Name Change - Get Team PId NewName Error."));

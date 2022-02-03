@@ -393,12 +393,13 @@ export const postNewTeam = (teamName, shortName) => {
 
 /**
  * 
- * @param {*} teamPId 
- * @param {*} newName 
- * @param {*} oldName 
+ * @param {string} teamPId 
+ * @param {string} newName 
+ * @param {string} oldName 
+ * @param {string} newShortName
  * @returns 
  */
-export const updateTeamName = (teamPId, newName, oldName) => {
+export const updateTeamName = (teamPId, newName, oldName, newShortName) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Update "Team" table
@@ -412,6 +413,18 @@ export const updateTeamName = (teamPId, newName, oldName) => {
           ':new': newName,
         }
       );
+      if (newShortName) {
+        await dynamoDbUpdateItem('Team', teamPId,
+          'SET #info.#shortName = :new',
+          {
+            '#shortName': 'TeamShortName',
+            '#info': 'Information',
+          },
+          {
+            ':new': newShortName,
+          }
+        );
+      }
       // Add newName to "TeamNameMap" table
       await dynamoDbPutItem('TeamNameMap', {
         'TeamName': filterName(newName),
@@ -421,14 +434,16 @@ export const updateTeamName = (teamPId, newName, oldName) => {
       await dynamoDbDeleteItem('TeamNameMap', filterName(oldName));
 
       // Del Cache
-      cache.del(CACHE_KEYS.TEAM_PID_PREFIX + filterName(oldName));
-      cache.del(CACHE_KEYS.TEAM_NAME_PREFIX + teamPId);
-      cache.del(CACHE_KEYS.TEAM_INFO_PREFIX + teamPId);
+      cache.del(`${CACHE_KEYS.TEAM_PID_PREFIX}${filterName(oldName)}`);
+      cache.del(`${CACHE_KEYS.TEAM_NAME_PREFIX}${teamPId}`);
+      cache.del(`${CACHE_KEYS.TEAM_INFO_PREFIX}${teamPId}`);
+      cache.del(`${CACHE_KEYS.TEAM_SHORTNAME_PREFIX}${teamPId}`);
 
       resolve({
         'TeamPId': teamPId,
         'NewProfileName': newName,
         'OldProfileName': oldName,
+        'NewShortName': newShortName,
       });
     }
     catch (err) {
