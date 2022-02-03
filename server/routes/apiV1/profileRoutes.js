@@ -135,11 +135,28 @@ profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
  * @access  Private (to Admins)
  */
 profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
-  const { profileName, summonerNameList } = req.body;
+  const { profileName, summonerNameList, multiOpggUrl } = req.body;
   console.log(`POST Request Profile '${profileName}' - Add New Profile`);
 
+  /**
+   * 
+   * @param {string} opggUrl    
+   * @returns {string[]} List of summoner names. Return null if 'query=' does not exist
+   */
+  const parseOpggUrl = (opggUrl) => {
+    // find "query=" or 
+    const QUERY_KEYWORD = 'query=';
+    const queryIndex = opggUrl.lastIndexOf(QUERY_KEYWORD);
+    if (queryIndex === -1) { return null; }
+    opggUrl = opggUrl.substring(queryIndex + QUERY_KEYWORD.length);
+    opggUrl = opggUrl.replace(/%20/g, '');
+    return opggUrl.split('%2C');
+  }
+
   // Filter out empty strings
-  const filteredSummonerNameList = summonerNameList.filter(name => name !== '');
+  const summonerNameListParse = (multiOpggUrl) ? parseOpggUrl(multiOpggUrl) : null;
+  const finalSummonerNameList = (summonerNameListParse) ? summonerNameListParse : summonerNameList;
+  const filteredSummonerNameList = finalSummonerNameList.filter(name => name !== '');
   // Check if the IGNs exist. 
   getSummonerIdsFromList(filteredSummonerNameList).then((summIdListData) => {
     if (summIdListData.errorList) {

@@ -409,7 +409,7 @@ export const postNewProfile = (profileName, summIdList) => {
       const newLeagueAccountsObject = {};
       for (const [idx, summId] of summIdList.entries()) {
         newLeagueAccountsObject[summId] = {
-          MainAccount: (idx === 0) ? true : false,
+          MainAccount: (idx === 0) ? true : false, // Designate 1st account listed as the Main
         }
       }
 
