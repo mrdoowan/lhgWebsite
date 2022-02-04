@@ -431,16 +431,15 @@ export const createNewSeason = (body) => {
       const maxTournamentId = Math.max.apply(Math, tournamentList.map((obj) => { return obj.TournamentPId; }));
       const newTournamentIds = [ maxTournamentId + 1, maxTournamentId + 2 ];
 
-      const mostRecentPatch = (ddragonVersion) => {
-        const versions = ddragonVersion.split('.');
-        return `${versions[0]}.${versions[1]}`;
-      }
+      // const mostRecentPatch = (ddragonVersion) => {
+      //   const versions = ddragonVersion.split('.');
+      //   return `${versions[0]}.${versions[1]}`;
+      // }
       for (const [idx, newId] of Object.entries(newTournamentIds)) {
         const tournamentShortName = `${seasonShortName}${(idx == 0) ? 'reg' : 'post'}`;
         const newTournamentInformation = {
           TournamentName: `${seasonName} ${(idx == 0) ? 'Regular Season' : 'Playoffs'}`,
           TournamentType: (idx == 0) ? 'Regular' : 'Playoffs',
-          MostRecentPatch: mostRecentPatch(await getDdragonVersion()),
           TournamentShortName: tournamentShortName,
           TournamentTabName: `${seasonTime} ${(idx == 0) ? 'Regular' : 'Playoffs'}`,
           SeasonPId: newSeasonId,
