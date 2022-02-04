@@ -454,7 +454,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
         'HextechDrakes': 0,
         'ElderDrakes': 0,
       }
-      const pickBansObject = await initPickBansObject(tourneyDbObject.Information.MostRecentPatch);
+      const pickBansObject = await initPickBansObject(tourneyDbObject.Information?.MostRecentPatch);
       const profileHIdSet = new Set();
       const teamHIdSet = new Set();
       const gameLogTourneyItem = {};
@@ -524,7 +524,12 @@ export const updateTournamentOverallStats = (tournamentPId) => {
           'Patch': matchObject.GamePatchVersion,
         };
         // Update 'MostRecentPatch'
-        if (isPatch1LaterThanPatch2(matchObject.GamePatchVersion, tourneyDbObject.Information.MostRecentPatch)) {
+        if (tourneyDbObject.Information.MostRecentPatch) {
+          if (isPatch1LaterThanPatch2(matchObject.GamePatchVersion, tourneyDbObject.Information.MostRecentPatch)) {
+            tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
+          }
+        }
+        else {
           tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
         }
       }
@@ -748,7 +753,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
  * @param {string} patch        If null, will return latest
  * @returns Promise<Object>
  */
-function initPickBansObject(patch) {
+function initPickBansObject(patch=null) {
   return new Promise((resolve, reject) => {
     createChampObjectFromDdragon(patch).then((champObject) => {
       const newPickBansObject = {};
