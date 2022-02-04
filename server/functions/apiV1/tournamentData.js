@@ -524,8 +524,12 @@ export const updateTournamentOverallStats = (tournamentPId) => {
           'Patch': matchObject.GamePatchVersion,
         };
         // Update 'MostRecentPatch'
-        if (tourneyDbObject.Information.MostRecentPatch && 
-          isPatch1LaterThanPatch2(matchObject.GamePatchVersion, tourneyDbObject.Information.MostRecentPatch)) {
+        if (tourneyDbObject.Information.MostRecentPatch) {
+          if (isPatch1LaterThanPatch2(matchObject.GamePatchVersion, tourneyDbObject.Information.MostRecentPatch)) {
+            tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
+          }
+        }
+        else {
           tourneyDbObject.Information.MostRecentPatch = matchObject.GamePatchVersion;
         }
       }
