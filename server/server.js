@@ -119,7 +119,7 @@ const createDynamoDbBackups = () => {
 }
 const rule_createDynamoDbBackups = new schedule.RecurrenceRule();
 rule_createDynamoDbBackups.dayOfWeek = 6;
-rule_createDynamoDbBackups.hour = 0;
+rule_createDynamoDbBackups.hour = 6;
 rule_createDynamoDbBackups.minute = 1;
 schedule.scheduleJob(rule_createDynamoDbBackups, createDynamoDbBackups);
 
