@@ -211,7 +211,7 @@ export const createDbMatchV5Object = (matchId, matchSetupObject) => {
               }
               else if (styleDto.description === 'subStyle') {
                 playerRunes['SecondaryPathId'] = styleDto.style;
-                for (const selection of styleDto.selections) {
+                for (const [i, selection] of styleDto.selections.entries()) {
                   playerRunes[`SecondarySlot${i+1}Id`] = selection.perk;
                   playerRunes[`SecondarySlot${i+1}Var1`] = selection.var1;
                   playerRunes[`SecondarySlot${i+1}Var2`] = selection.var2;
