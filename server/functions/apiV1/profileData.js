@@ -164,10 +164,10 @@ export const getProfileInfo = (profilePId) => {
   return new Promise(function (resolve, reject) {
     if (!profilePId) { resolve(null); return; }
     cache.get(cacheKey, async (err, data) => {
-      if (err) { console(err); reject(err); return; }
-      else if (data != null) { resolve(JSON.parse(data)); return; }
+      if (err) { reject(err); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        let profileInfoJson = (await dynamoDbGetItem('Profile', profilePId))['Information'];
+        const profileInfoJson = (await dynamoDbGetItem('Profile', profilePId))['Information'];
         if (profileInfoJson != null) {
           if ('ActiveSeasonPId' in profileInfoJson) {
             profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
@@ -213,7 +213,7 @@ export const getProfileGamesBySeason = (pPId, sPId = null) => {
         const cacheKey = CACHE_KEYS.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
+          if (err) { reject(err); return; }
           else if (data) { resolve(JSON.parse(data)); return; }
           const profileGamesJson = gameLogJson[seasonId];
           if (!profileGamesJson) { resolve(null); return; } // Not Found
@@ -265,7 +265,7 @@ export const getProfileStatsByTourney = (pPId, tPId = null) => {
         const cacheKey = CACHE_KEYS.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
+          if (err) { reject(err); return; }
           else if (data) { resolve(JSON.parse(data)); return; }
           // Process Data
           const profileStatsJson = statsLogJson[tourneyId];

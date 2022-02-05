@@ -448,19 +448,19 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
       getMatchData(matchId).then(async (data) => {
         if (!data) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
         let changesMade = false;
-        let seasonId = data['SeasonPId'];
-        let namesChanged = [];
+        const seasonId = data['SeasonPId'];
+        const namesChanged = [];
         for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
-          let teamId = Object.keys(data.Teams)[tIdx];
-          let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
-          let { Players } = data.Teams[teamId];
+          const teamId = Object.keys(data.Teams)[tIdx];
+          const thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
+          const { Players } = data.Teams[teamId];
           for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
-            let playerObject = Object.values(Players)[pIdx];
-            let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
-            let champId = playerObject['ChampId'].toString();
+            const playerObject = Object.values(Players)[pIdx];
+            const thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
+            const champId = playerObject['ChampId'].toString();
             if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
-              let newProfilePId = playersToFix[champId];
-              let name = await getProfileName(newProfilePId, false); // For PId
+              const newProfilePId = playersToFix[champId];
+              const name = await getProfileName(newProfilePId, false); // For PId
               //await getProfileName(newProfileId); // For HId
               if (!name) { resolve({ error: `Profile ID '${newProfilePId}' in body object Not Found` }); return; } // Not found
               namesChanged.push(name); // For response
@@ -469,7 +469,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
               delete playerObject['ProfileName']; // In the database for no reason
 
               // Remove from Profile GameLog in former Profile Id and Team GameLog
-              let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
+              const profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
               if (matchId in profileGameLog['Matches']) {
                 delete profileGameLog['Matches'][matchId];
                 await dynamoDbUpdateItem('Profile', thisProfilePId,
@@ -483,7 +483,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
                   }
                 );
               }
-              let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
+              const teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
               if (matchId in teamGameLog['Matches']) {
                 delete teamGameLog['Matches'][matchId];
                 await dynamoDbUpdateItem('Team', thisTeamPId,

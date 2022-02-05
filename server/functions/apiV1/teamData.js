@@ -103,10 +103,10 @@ export const getTeamName = (teamHId) => {
     const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + teamPId;
     cache.get(cacheKey, (err, data) => {
       if (err) { reject(err); return; }
-      else if (data != null) { resolve(data); return; }
+      else if (data) { resolve(data); return; }
       dynamoDbGetItem('Team', teamPId)
         .then((obj) => {
-          if (obj == null) { resolve(null); return; } // Not Found
+          if (!obj) { resolve(null); return; } // Not Found
           const name = obj['TeamName'];
           cache.set(cacheKey, name, 'EX', GLOBAL_CONSTS.TTL_DURATION);
           resolve(name);
@@ -127,10 +127,10 @@ export const getTeamShortName = (teamHId) => {
     const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + teamPId;
     cache.get(cacheKey, (err, data) => {
       if (err) { reject(err); return; }
-      else if (data != null) { resolve(data); return; }
+      else if (data) { resolve(data); return; }
       dynamoDbGetItem('Team', teamPId)
         .then((obj) => {
-          if (obj == null) { resolve(null); return; } // Not Found
+          if (!obj) { resolve(null); return; } // Not Found
           const shortName = obj['Information']['TeamShortName'];
           cache.set(cacheKey, shortName, 'EX', GLOBAL_CONSTS.TTL_DURATION);
           resolve(shortName);
@@ -144,11 +144,11 @@ export const getTeamInfo = (teamPId) => {
     if (!teamPId) { resolve(null); return; }
     const cacheKey = CACHE_KEYS.TEAM_INFO_PREFIX + teamPId;
     cache.get(cacheKey, async (err, data) => {
-      if (err) { console(err); reject(err); return; }
-      else if (data != null) { resolve(JSON.parse(data)); return; }
+      if (err) { reject(err); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        let teamInfoJson = (await dynamoDbGetItem('Team', teamPId))['Information'];
-        if (teamInfoJson != null) {
+        const teamInfoJson = (await dynamoDbGetItem('Team', teamPId))['Information'];
+        if (teamInfoJson) {
           if ('TrophyCase' in teamInfoJson) {
             for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
               let sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
@@ -157,13 +157,13 @@ export const getTeamInfo = (teamPId) => {
             }
           }
           // Add Season List
-          let gameLogJson = (await dynamoDbGetItem('Team', teamPId))['GameLog'];
-          if (gameLogJson != null) {
+          const gameLogJson = (await dynamoDbGetItem('Team', teamPId))['GameLog'];
+          if (gameLogJson) {
             teamInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
           }
           // Add Tournament List
-          let statsLogJson = (await dynamoDbGetItem('Team', teamPId))['StatsLog'];
-          if (statsLogJson != null) {
+          const statsLogJson = (await dynamoDbGetItem('Team', teamPId))['StatsLog'];
+          if (statsLogJson) {
             teamInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
           }
           cache.set(cacheKey, JSON.stringify(teamInfoJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
@@ -193,8 +193,8 @@ export const getTeamScoutingBySeason = (teamPId, sPId = null) => {
         const cacheKey = CACHE_KEYS.TEAM_SCOUT_PREFIX + teamPId + '-' + seasonId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
-          else if (data != null) { resolve(JSON.parse(data)); return; }
+          if (err) { reject(err); return; }
+          else if (data) { resolve(JSON.parse(data)); return; }
           const teamScoutingSeasonJson = scoutingJson[seasonId];
           if (teamScoutingSeasonJson == null) { resolve(null); return; } // Not Found
 
@@ -244,7 +244,7 @@ export const getTeamGamesBySeason = (teamPId, sPId = null) => {
         const cacheKey = CACHE_KEYS.TEAM_GAMES_PREFIX + teamPId + '-' + seasonId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
+          if (err) { reject(err); return; }
           else if (data) { resolve(JSON.parse(data)); return; }
           const teamSeasonGamesJson = gameLogJson[seasonId];
           if (!teamSeasonGamesJson) { resolve(null); return; } // Not Found
@@ -290,7 +290,7 @@ export const getTeamStatsByTourney = (teamPId, tPId = null) => {
         const cacheKey = CACHE_KEYS.TEAM_STATS_PREFIX + teamPId + '-' + tourneyId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
+          if (err) { reject(err); return; }
           else if (data) { resolve(JSON.parse(data)); return; }
           const tourneyStatsJson = statsLogJson[tourneyId];
           if (!tourneyStatsJson) { resolve(null); return; } // Not Found
@@ -363,8 +363,8 @@ export const postNewTeam = (teamName, shortName) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Generate new Team PId
-      let newPId = await generateNewPId('Team');
-      let newTeamItem = {
+      const newPId = await generateNewPId('Team');
+      const newTeamItem = {
         'Information': {
           'TeamName': teamName,
           'TeamShortName': shortName,
@@ -375,8 +375,8 @@ export const postNewTeam = (teamName, shortName) => {
       // Add to 'Team' Table
       await dynamoDbPutItem('Team', newTeamItem, newPId);
       // Add to 'TeamNameMap' Table
-      let simpleTeamName = filterName(newTeamItem['TeamName']);
-      let newTeamMap = {
+      const simpleTeamName = filterName(newTeamItem['TeamName']);
+      const newTeamMap = {
         'TeamName': simpleTeamName,
         'TeamHId': getTeamHashId(newPId),
       }
