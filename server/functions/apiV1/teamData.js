@@ -45,7 +45,7 @@ export const getTeamPIdByName = (name) => {
     const simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data != null) { resolve(data); return; }
       dynamoDbGetItem('TeamNameMap', simpleName)
         .then((obj) => {
@@ -102,7 +102,7 @@ export const getTeamName = (teamHId) => {
     const teamPId = getTeamPIdFromHash(teamHId);
     const cacheKey = CACHE_KEYS.TEAM_NAME_PREFIX + teamPId;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data != null) { resolve(data); return; }
       dynamoDbGetItem('Team', teamPId)
         .then((obj) => {
@@ -126,7 +126,7 @@ export const getTeamShortName = (teamHId) => {
     const teamPId = getTeamPIdFromHash(teamHId);
     const cacheKey = CACHE_KEYS.TEAM_SHORTNAME_PREFIX + teamPId;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data != null) { resolve(data); return; }
       dynamoDbGetItem('Team', teamPId)
         .then((obj) => {
@@ -173,7 +173,7 @@ export const getTeamInfo = (teamPId) => {
           resolve({});    // If 'Information' does not exist
         }
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   });
 }
@@ -224,7 +224,7 @@ export const getTeamScoutingBySeason = (teamPId, sPId = null) => {
         else { resolve(null); }      // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -270,7 +270,7 @@ export const getTeamGamesBySeason = (teamPId, sPId = null) => {
         else { resolve(null); }             // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -344,7 +344,7 @@ export const getTeamStatsByTourney = (teamPId, tPId = null) => {
         else { resolve(null); } // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -387,7 +387,7 @@ export const postNewTeam = (teamName, shortName) => {
         'TeamPId': newPId,
       });
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 

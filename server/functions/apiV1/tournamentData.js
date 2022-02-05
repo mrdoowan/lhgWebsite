@@ -50,7 +50,7 @@ export const getTournamentId = (shortName) => {
   const cacheKey = CACHE_KEYS.TN_ID_PREFIX + simpleName;
   return new Promise(function (resolve, reject) {
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
       dynamoDbScanTable('Tournament', ['TournamentPId'], 'TournamentShortName', simpleName)
         .then((obj) => {
@@ -163,7 +163,7 @@ export const getTournamentInfo = (tournamentPId) => {
           resolve({});    // If 'Information' does not exist
         }
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   });
 }
@@ -184,7 +184,7 @@ export const getTournamentStats = (tournamentPId) => {
           resolve({});    // If 'TourneyStats' does not exist
         }
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   });
 }
@@ -237,7 +237,7 @@ export const getTournamentLeaderboards = (tournamentPId) => {
           resolve({});    // If 'Leaderboards' does not exist
         }
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   });
 }
@@ -282,9 +282,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
         else {
           resolve({});    // If 'ProfileHIdList' does not exist
         }
-      }).catch((ex) => {
-        console.error(ex); reject(ex);
-      });
+      }).catch((err) => { reject(err); });
     });
   });
 }
@@ -321,9 +319,7 @@ export const getTournamentTeamStats = (tournamentPId) => {
         else {
           resolve({});    // If 'TeamHIdList' does not exist
         }
-      }).catch((ex) => {
-        console.error(ex); reject(ex);
-      });
+      }).catch((err) => { reject(err); });
     });
   });
 }
@@ -368,7 +364,7 @@ export const getTournamentPickBans = (tournamentPId) => {
         }
         resolve(pickBansJson);
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   });
 }
@@ -396,7 +392,7 @@ export const getTournamentGames = (tournamentPId) => {
           resolve({});    // If 'GameLog' does not exist
         }
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   });
 }
@@ -411,7 +407,7 @@ export const getTournamentPlayerList = (tournamentPId) => {
       const profileIdsSqlList = await mySqlCallSProc('profilePIdsByTournamentPId', tournamentPId);
       resolve(profileIdsSqlList.map(a => a.profilePId));
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 
@@ -425,7 +421,7 @@ export const getTournamentTeamList = (tournamentPId) => {
       const teamIdsSqlList = await mySqlCallSProc('teamPIdsByTournamentPId', tournamentPId);
       resolve(teamIdsSqlList.map(a => a.teamPId));
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 
@@ -737,7 +733,7 @@ export const updateTournamentOverallStats = (tournamentPId) => {
         gamesUpdated: matchStatsSqlList.length,
       });
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 

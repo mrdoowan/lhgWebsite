@@ -49,8 +49,8 @@ export const putNewStaff = (staff) => {
           cache.set(cacheKey, JSON.stringify(profileInfo, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
           profileInfo['Password'] = hash;
           resolve(profileInfo);
-        }).catch((err) => { console.error(err); reject(err); });
-      }).catch((err) => { console.error(err); reject(err); });
-    }).catch((err) => { console.error(err); reject(err); });
+        }).catch((err) => { reject(err); });
+      }).catch((err) => { reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }

@@ -59,7 +59,7 @@ export const getMatchData = (id) => {
   return new Promise(function (resolve, reject) {
     const cacheKey = CACHE_KEYS.MATCH_PREFIX + id;
     cache.get(cacheKey, async (err, data) => {
-      if (err) { console.error(err); reject(err); }
+      if (err) { reject(err); }
       else if (data != null) { resolve(JSON.parse(data)); return; }
       try {
         const matchObject = await dynamoDbGetItem('Matches', id);
@@ -99,7 +99,7 @@ export const getMatchData = (id) => {
         cache.set(cacheKey, JSON.stringify(matchObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
         resolve(matchObject);
       }
-      catch (error) { console.error(error); reject(error); }
+      catch (error) { reject(error); }
     });
   })
 }
@@ -132,7 +132,7 @@ export const getMatchSetup = (id) => {
 
       resolve(matchSetupJson);
     }
-    catch (error) { console.error(error); reject(error); }
+    catch (error) { reject(error); }
   })
 }
 
@@ -145,7 +145,7 @@ export const getMatchSetupMap = (test=false) => {
       const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS, test))['MatchSetupIdMap'];
       resolve(matchIdList);
     }
-    catch (error) { console.error(error); reject(error); }
+    catch (error) { reject(error); }
   })
 }
 
@@ -324,7 +324,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         objectCreated: setupObject,
       });
     }
-    catch (error) { console.error(error); reject(error); }
+    catch (error) { reject(error); }
   });
 }
 

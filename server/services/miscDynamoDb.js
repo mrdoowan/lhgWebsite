@@ -32,7 +32,7 @@ const callMiscDynamoDb = (dynamoDbKey) => {
 
   return new Promise((resolve, reject) => {
     cache.get(getCacheKey[dynamoDbKey], async (err, data) => {
-      if (err) { console.error(err); reject(err); }
+      if (err) { reject(err); }
       else if (data) { resolve(JSON.parse(data)); return; }
       try {
         let dynamoJson = await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, dynamoDbKey);

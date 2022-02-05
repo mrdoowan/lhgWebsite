@@ -45,7 +45,7 @@ export const getProfilePIdByName = (name) => {
     const simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + simpleName;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(data); return; }
       dynamoDbGetItem('ProfileNameMap', simpleName)
         .then((obj) => {
@@ -100,7 +100,7 @@ export const getProfilePIdBySummonerId = (summId) => {
   return new Promise(function (resolve, reject) {
     if (!summId) { resolve(null); return; }
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(data); return; }
       dynamoDbGetItem('SummonerIdMap', summId)
         .then((obj) => {
@@ -143,7 +143,7 @@ export const getProfileName = (profileId, hash = true) => {
     const profilePId = (hash) ? getProfilePIdFromHash(profileId) : profileId;
     const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(data); return; }
       dynamoDbGetItem('Profile', profilePId)
         .then((obj) => {
@@ -245,7 +245,7 @@ export const getProfileGamesBySeason = (pPId, sPId = null) => {
         else { resolve(null); return; } // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -328,7 +328,7 @@ export const getProfileStatsByTourney = (pPId, tPId = null) => {
         else { resolve(null); return; }     // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -442,7 +442,7 @@ export const postNewProfile = (profileName, summIdList) => {
 
       resolve(newProfileItem);
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 
@@ -487,7 +487,7 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
         leagueAccounts: item.LeagueAccounts
       });
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 
@@ -535,7 +535,7 @@ export const updateProfileName = (profilePId, newName, oldName) => {
         'OldProfileName': oldName,
       });
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   })
 }
 
@@ -586,7 +586,7 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
         profilePId: profilePId,
         leagueAccounts: leagueAccountsObject,
       });
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }
 
@@ -897,6 +897,6 @@ export const deleteProfileFromDb = (profilePId, profileName) => {
       resolve({
         'ProfileRemoved': profilePId,
       });
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }

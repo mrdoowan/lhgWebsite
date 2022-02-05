@@ -38,7 +38,7 @@ export const getSeasonId = (shortName) => {
   const cacheKey = `${CACHE_KEYS.SEASON_ID_PREFIX}${simpleName}`;
   return new Promise(function (resolve, reject) {
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(parseInt(data)); return; } // NOTE: Needs to be number
       dynamoDbScanTable(DYNAMODB_TABLENAMES.SEASON, ['SeasonPId'], 'SeasonShortName', simpleName)
         .then((obj) => {
@@ -141,7 +141,7 @@ export const getSeasonTabName = (seasonId) => {
 export const getLeagues = () => {
   return new Promise(function (resolve, reject) {
     cache.get(CACHE_KEYS.LEAGUE_KEY, async (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data != null) { resolve(JSON.parse(data)); return; }
       try {
         const seasonList = await dynamoDbScanTable(DYNAMODB_TABLENAMES.SEASON, ['Information']);
@@ -174,7 +174,7 @@ export const getLeagues = () => {
           resolve(null);   // Return empty if does not exist
         }
       }
-      catch (ex) { console.error(ex); reject(ex); }
+      catch (err) { reject(err); }
     });
   })
 }
@@ -486,7 +486,7 @@ export const createNewSeason = (body) => {
       resolve(newSeasonItem);
     }
     catch (err) {
-      console.error(err); reject(err);
+      reject(err);
     }
   });
 }
@@ -561,7 +561,7 @@ export const generateNewCodes = (seasonId, week, teamList) => {
       catch (err) { 
         reject(err);
       }
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }
 
@@ -603,7 +603,7 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
           'SeasonRoster': seasonRosterObject,
         });
       }
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }
 
@@ -659,7 +659,7 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
           'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
         });
       }
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }
 
@@ -709,6 +709,6 @@ export const removeProfileFromRoster = (seasonId, teamPId, profilePIdList) => {
         'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
       });
 
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }
