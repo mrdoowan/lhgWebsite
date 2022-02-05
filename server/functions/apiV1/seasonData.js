@@ -428,7 +428,7 @@ export const createNewSeason = (body) => {
       //   const versions = ddragonVersion.split('.');
       //   return `${versions[0]}.${versions[1]}`;
       // }
-      for (const [idx, newId] of Object.entries(newTournamentIds)) {
+      for (const [idx, newId] of newTournamentIds.entries()) {
         const tournamentShortName = `${seasonShortName}${(idx == 0) ? 'reg' : 'post'}`;
         const newTournamentInformation = {
           TournamentName: `${seasonName} ${(idx == 0) ? 'Regular Season' : 'Playoffs'}`,

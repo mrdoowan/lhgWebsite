@@ -222,7 +222,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['RedTeam'] = {};
       // Iterate through Riot's 'teams' Object:
       // 1) Make Bans List
-      for (const [teamIdx, teamDataRiotJson] of matchDataRiotJson['teams']) {
+      for (const [teamIdx, teamDataRiotJson] of matchDataRiotJson['teams'].entries()) {
         // Make Bans List
         // 0 = BlueTeam
         // 1 = RedTeam
@@ -371,7 +371,8 @@ export const putMatchSaveSetup = (matchId, week, bodyTeamsObject) => {
     const payloadRedPlayersList = payloadRedTeam.Players;
 
     const transformTeamsObject = (color, editedTeamObject) => {
-      for (const playerObject of editedTeamObject[`${color}Team`]['Players']) {
+      for (let i = 0; i < editedTeamObject[`${color}Team`]['Players'].length; ++i) {
+        const playerObject = editedTeamObject[`${color}Team`]['Players'][i];
         const payloadColorPlayersList = (color === 'Blue') ? payloadBluePlayersList : payloadRedPlayersList;
         playerObject['Role'] = payloadColorPlayersList[i]['Role'];
         playerObject['ProfileName'] = payloadColorPlayersList[i]['ProfileName'];

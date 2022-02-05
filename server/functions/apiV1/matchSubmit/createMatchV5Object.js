@@ -197,7 +197,7 @@ export const createDbMatchV5Object = (matchId, matchSetupObject) => {
               // A little scuffed because this is how I originally set with v4
               if (styleDto.description === 'primaryStyle') {
                 playerRunes['PrimaryPathId'] = styleDto.style;
-                for (const [i, selection] of styleDto.selections) {
+                for (const [i, selection] of styleDto.selections.entries()) {
                   if (i === 0) {
                     playerRunes['PrimaryKeystoneId'] = selection.perk;
                   }

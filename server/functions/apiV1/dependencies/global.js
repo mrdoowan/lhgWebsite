@@ -110,11 +110,10 @@ export const getTeamHashId = (teamPId) => {
 export const getSeasonItems = (idList) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let seasonList = [];
-      for (let i = 0; i < idList.length; ++i) {
-        let seasonId = parseInt(idList[i]);
+      const seasonList = [];
+      for (const seasonIdString of idList) {
         seasonList.push({
-          'PId': seasonId,
+          'PId': parseInt(seasonIdString),
           'ItemName': await getSeasonTabName(seasonId),
           'ShortName': await getSeasonShortName(seasonId),
         });
