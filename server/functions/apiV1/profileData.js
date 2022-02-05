@@ -221,8 +221,7 @@ export const getProfileGamesBySeason = (pPId, sPId = null) => {
           profileGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
           profileGamesJson['SeasonName'] = await getSeasonName(seasonId);
           profileGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
-          for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
-            const matchJson = Object.values(profileGamesJson['Matches'])[i];
+          for (const matchJson of Object.values(profileGamesJson['Matches'])) {
             matchJson['TeamName'] = await getTeamName(matchJson['TeamHId']);
             matchJson['EnemyTeamName'] = await getTeamName(matchJson['EnemyTeamHId']);
             matchJson['Kda'] = (matchJson['Deaths'] > 0) ? ((matchJson['Kills'] + matchJson['Assists']) / matchJson['Deaths']).toFixed(2) : "Perfect";
@@ -272,8 +271,7 @@ export const getProfileStatsByTourney = (pPId, tPId = null) => {
           if (!profileStatsJson) { resolve(null); return; }    // Not Found
           profileStatsJson['TournamentName'] = await getTournamentName(tourneyId);
           profileStatsJson['TournamentShortName'] = await getTournamentShortName(tourneyId);
-          for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
-            const role = Object.keys(profileStatsJson['RoleStats'])[i];
+          for (const role of Object.keys(profileStatsJson['RoleStats'])) {
             const statsJson = profileStatsJson['RoleStats'][role];
             const gameDurationMinute = statsJson['TotalGameDuration'] / 60;
             statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";

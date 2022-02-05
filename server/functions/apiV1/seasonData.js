@@ -199,8 +199,7 @@ export const getSeasonInformation = (seasonId) => {
             seasonInfoJson['TournamentPIds']['PostTournamentShortName'] = await getTournamentShortName(seasonInfoJson['TournamentPIds']['PostTournamentPId']);
           }
           if ('FinalStandings' in seasonInfoJson) {
-            for (let i = 0; i < seasonInfoJson['FinalStandings'].length; ++i) {
-              let teamObject = seasonInfoJson['FinalStandings'][i];
+            for (const teamObject of seasonInfoJson['FinalStandings']) {
               teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
             }
           }
@@ -305,15 +304,12 @@ export const getSeasonRegular = (seasonId) => {
       try {
         const seasonRegularJson = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId))['Regular'];
         if (seasonRegularJson != null) {
-          for (let i = 0; i < seasonRegularJson['RegularSeasonDivisions'].length; ++i) {
-            const divisionJson = seasonRegularJson['RegularSeasonDivisions'][i];
-            for (let j = 0; j < divisionJson['RegularSeasonTeams'].length; ++j) {
-              const teamJson = divisionJson['RegularSeasonTeams'][j];
+          for (const divisionJson of seasonRegularJson['RegularSeasonDivisions']) {
+            for (const teamJson of divisionJson['RegularSeasonTeams']) {
               teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']);
             }
           }
-          for (let i = 0; i < seasonRegularJson['RegularSeasonGames'].length; ++i) {
-            const gameJson = seasonRegularJson['RegularSeasonGames'][i];
+          for (const gameJson of seasonRegularJson['RegularSeasonGames']) {
             gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
             gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHid']);
             gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);
@@ -344,17 +340,14 @@ export const getSeasonPlayoffs = (seasonId) => {
       try {
         let playoffJson = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId))['Playoffs'];
         if (playoffJson != null) {
-          for (let i = 0; i < Object.values(playoffJson['PlayoffBracket']).length; ++i) {
-            let roundTypeArray = Object.values(playoffJson['PlayoffBracket'])[i];
-            for (let j = 0; j < roundTypeArray.length; ++j) {
-              let seriesJson = roundTypeArray[j];
+          for (const roundTypeArray of Object.values(playoffJson['PlayoffBracket'])) {
+            for (const seriesJson of roundTypeArray) {
               seriesJson['HigherTeamName'] = await getProfileName(seriesJson['HigherTeamHId']);
               seriesJson['LowerTeamName'] = await getProfileName(seriesJson['LowerTeamHId']);
               seriesJson['SeriesMvpName'] = await getProfileName(seriesJson['SeriesMvpHId']);
             }
           }
-          for (let i = 0; i < playoffJson['PlayoffGames'].length; ++i) {
-            let gameJson = playoffJson['PlayoffGames'][i];
+          for (const gameJson of playoffJson['PlayoffGames']) {
             gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
             gameJson['RedTeamName'] = await getTeamName(gameJson['RedTeamHId']);
             gameJson['ModeratorName'] = await getProfileName(gameJson['ModeratorHId']);

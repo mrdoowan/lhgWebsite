@@ -150,8 +150,7 @@ export const getTeamInfo = (teamPId) => {
         const teamInfoJson = (await dynamoDbGetItem('Team', teamPId))['Information'];
         if (teamInfoJson) {
           if ('TrophyCase' in teamInfoJson) {
-            for (let i = 0; i < Object.keys(teamInfoJson['TrophyCase']).length; ++i) {
-              let sPId = Object.keys(teamInfoJson['TrophyCase'])[i];
+            for (const sPId in teamInfoJson['TrophyCase']) {
               teamInfoJson['TrophyCase'][sPId]['Seasonname'] = getSeasonName(sPId);
               teamInfoJson['TrophyCase'][sPId]['SeasonShortName'] = getSeasonShortName(sPId);
             }
@@ -202,10 +201,8 @@ export const getTeamScoutingBySeason = (teamPId, sPId = null) => {
           teamScoutingSeasonJson['SeasonTime'] = await getSeasonTime(seasonId);
           teamScoutingSeasonJson['SeasonName'] = await getSeasonName(seasonId);
           teamScoutingSeasonJson['SeasonShortName'] = await getSeasonShortName(seasonId);
-          for (let i = 0; i < Object.values(teamScoutingSeasonJson['PlayerLog']).length; ++i) {
-            const roleMap = Object.values(teamScoutingSeasonJson['PlayerLog'])[i];
-            for (let j = 0; j < Object.keys(roleMap).length; ++j) {
-              const profileHId = Object.keys(roleMap)[j];
+          for (const roleMap of Object.values(teamScoutingSeasonJson['PlayerLog'])) {
+            for (const profileHId in roleMap) {
               const statsJson = roleMap[profileHId];
               statsJson['ProfileName'] = await getProfileName(profileHId);
               statsJson['TotalKdaPlayer'] = (statsJson['TotalDeathsPlayer'] > 0) ? ((statsJson['TotalKillsPlayer'] + statsJson['TotalAssistsPlayer']) / statsJson['TotalDeathsPlayer']).toFixed(2).toString() : "Perfect";
@@ -253,10 +250,8 @@ export const getTeamGamesBySeason = (teamPId, sPId = null) => {
           teamSeasonGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
           teamSeasonGamesJson['SeasonName'] = await getSeasonName(seasonId);
           teamSeasonGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
-          for (let i = 0; i < Object.values(teamSeasonGamesJson['Matches']).length; ++i) {
-            const matchObject = Object.values(teamSeasonGamesJson['Matches'])[i];
-            for (let j = 0; j < Object.values(matchObject['ChampPicks']).length; ++j) {
-              const champObject = Object.values(matchObject['ChampPicks'])[j];
+          for (const matchObject of Object.values(teamSeasonGamesJson['Matches'])) {
+            for (const champObject of Object.values(matchObject['ChampPicks'])) {
               champObject['ProfileName'] = await getProfileName(champObject['ProfileHId']);
             }
             matchObject['EnemyTeamName'] = await getTeamName(matchObject['EnemyTeamHId']);

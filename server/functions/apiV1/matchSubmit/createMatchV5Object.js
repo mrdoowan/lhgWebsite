@@ -197,8 +197,7 @@ export const createDbMatchV5Object = (matchId, matchSetupObject) => {
               // A little scuffed because this is how I originally set with v4
               if (styleDto.description === 'primaryStyle') {
                 playerRunes['PrimaryPathId'] = styleDto.style;
-                for (let i = 0; i < styleDto.selections.length; ++i) {
-                  const selection = styleDto.selections[i];
+                for (const [i, selection] of styleDto.selections) {
                   if (i === 0) {
                     playerRunes['PrimaryKeystoneId'] = selection.perk;
                   }
@@ -212,8 +211,7 @@ export const createDbMatchV5Object = (matchId, matchSetupObject) => {
               }
               else if (styleDto.description === 'subStyle') {
                 playerRunes['SecondaryPathId'] = styleDto.style;
-                for (let i = 0; i < styleDto.selections.length; ++i) {
-                  const selection = styleDto.selections[i];
+                for (const selection of styleDto.selections) {
                   playerRunes[`SecondarySlot${i+1}Id`] = selection.perk;
                   playerRunes[`SecondarySlot${i+1}Var1`] = selection.var1;
                   playerRunes[`SecondarySlot${i+1}Var2`] = selection.var2;

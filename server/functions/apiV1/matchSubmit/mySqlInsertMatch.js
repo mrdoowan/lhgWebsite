@@ -100,8 +100,7 @@ export const mySqlInsertMatch = async (newMatchDynamoDbItem, matchSetupObject) =
         'teamBannedById': thisTeamPId,
         'teamBannedAgainstId': enemyTeamPId
       };
-      for (let j = 0; j < teamObject.Bans.length; ++j) {
-        const champId = teamObject.Bans[j]
+      for (const champId of teamObject.Bans) {
         insertBannedChampsColumn['champId'] = champId;
         await mySqlInsertQuery(insertBannedChampsColumn, 'BannedChamps');
       }

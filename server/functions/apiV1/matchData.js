@@ -120,12 +120,10 @@ export const getMatchSetup = (id) => {
 
       // Edit names into the Json
       const teamsObject = matchSetupJson['Teams'];
-      for (let teamIdx = 0; teamIdx < Object.values(teamsObject).length; ++teamIdx) {
-        const teamJson = Object.values(teamsObject)[teamIdx];
+      for (const teamJson of Object.values(teamsObject)) {
         if ('TeamHId' in teamJson) { teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']) }
         const playersList = teamJson['Players'];
-        for (let i = 0; i < playersList.length; ++i) {
-          const playerJson = playersList[i];
+        for (const playerJson of playersList) {
           if ('ProfileHId' in playerJson) { playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']); }
         }
       }
@@ -224,10 +222,8 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['RedTeam'] = {};
       // Iterate through Riot's 'teams' Object:
       // 1) Make Bans List
-      for (let teamIdx = 0; teamIdx < matchDataRiotJson['teams'].length; ++teamIdx) {
+      for (const [teamIdx, teamDataRiotJson] of matchDataRiotJson['teams']) {
         // Make Bans List
-        const teamDataRiotJson = matchDataRiotJson['teams'][teamIdx];
-
         // 0 = BlueTeam
         // 1 = RedTeam
         // https://stackoverflow.com/questions/19590865/from-an-array-of-objects-extract-value-of-a-property-as-array
@@ -375,8 +371,7 @@ export const putMatchSaveSetup = (matchId, week, bodyTeamsObject) => {
     const payloadRedPlayersList = payloadRedTeam.Players;
 
     const transformTeamsObject = (color, editedTeamObject) => {
-      for (let i = 0; i < editedTeamObject[`${color}Team`]['Players'].length; ++i) {
-        const playerObject = editedTeamObject[`${color}Team`]['Players'][i];
+      for (const playerObject of editedTeamObject[`${color}Team`]['Players']) {
         const payloadColorPlayersList = (color === 'Blue') ? payloadBluePlayersList : payloadRedPlayersList;
         playerObject['Role'] = payloadColorPlayersList[i]['Role'];
         playerObject['ProfileName'] = payloadColorPlayersList[i]['ProfileName'];
@@ -450,12 +445,10 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
         let changesMade = false;
         const seasonId = data['SeasonPId'];
         const namesChanged = [];
-        for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
-          const teamId = Object.keys(data.Teams)[tIdx];
+        for (const teamId of Object.keys(data.Teams)) {
           const thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
           const { Players } = data.Teams[teamId];
-          for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
-            const playerObject = Object.values(Players)[pIdx];
+          for (const playerObject of Object.values(Players)) {
             const thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
             const champId = playerObject['ChampId'].toString();
             if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {

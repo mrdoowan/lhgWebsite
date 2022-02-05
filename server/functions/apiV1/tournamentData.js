@@ -199,18 +199,15 @@ export const getTournamentLeaderboards = (tournamentPId) => {
         const leaderboardJson = (await dynamoDbGetItem('Tournament', tournamentPId))['Leaderboards'];
         if (leaderboardJson != null) {
           const gameRecords = leaderboardJson['GameRecords'];
-          for (let i = 0; i < Object.values(gameRecords).length; ++i) {
-            const gameObject = Object.values(gameRecords)[i];
+          for (const gameObject of Object.values(gameRecords)) {
             gameObject['BlueTeamName'] = await getTeamName(gameObject['BlueTeamHId']);
             gameObject['RedTeamName'] = await getTeamName(gameObject['RedTeamHId']);
             gameObject['BlueTeamShortName'] = await getTeamShortName(gameObject['BlueTeamHId']);
             gameObject['RedTeamShortName'] = await getTeamShortName(gameObject['RedTeamHId']);
           }
           const playerRecords = leaderboardJson['PlayerSingleRecords'];
-          for (let i = 0; i < Object.values(playerRecords).length; ++i) {
-            const playerList = Object.values(playerRecords)[i];
-            for (let j = 0; j < playerList.length; ++j) {
-              let playerObject = playerList[j];
+          for (const playerList of Object.values(playerRecords)) {
+            for (const playerObject of playerList) {
               playerObject['ProfileName'] = await getProfileName(playerObject['ProfileHId']);
               playerObject['BlueTeamName'] = await getTeamName(playerObject['BlueTeamHId']);
               playerObject['RedTeamName'] = await getTeamName(playerObject['RedTeamHId']);
@@ -219,10 +216,8 @@ export const getTournamentLeaderboards = (tournamentPId) => {
             }
           }
           const teamRecords = leaderboardJson['TeamSingleRecords'];
-          for (let i = 0; i < Object.values(teamRecords).length; ++i) {
-            const teamList = Object.values(teamRecords)[i];
-            for (let j = 0; j < teamList.length; ++j) {
-              const teamObject = teamList[j];
+          for (const teamList of Object.values(teamRecords)) {
+            for (const teamObject of teamList) {
               teamObject['TeamName'] = await getTeamName(teamObject['TeamHId']);
               teamObject['BlueTeamName'] = await getTeamName(teamObject['BlueTeamHId']);
               teamObject['RedTeamName'] = await getTeamName(teamObject['RedTeamHId']);
@@ -339,8 +334,7 @@ export const getTournamentPickBans = (tournamentPId) => {
           pickBansJson['NumberGames'] = numberGames;
           pickBansJson['MostRecentPatch'] = tourneyJson.Information?.MostRecentPatch;
           let numberChampsWithPresence = 0;
-          for (let i = 0; i < Object.keys(tourneyJson['PickBans']).length; ++i) {
-            const champId = Object.keys(tourneyJson['PickBans'])[i];
+          for (const champId in tourneyJson['PickBans']) {
             const champObject = tourneyJson['PickBans'][champId];
             champObject['Id'] = champId;
             champObject['ChampNameObject'] = {
@@ -378,8 +372,7 @@ export const getTournamentGames = (tournamentPId) => {
       try {
         const gameLogJson = (await dynamoDbGetItem('Tournament', tournamentPId))['GameLog'];
         if (gameLogJson) {
-          for (let i = 0; i < Object.keys(gameLogJson).length; ++i) {
-            const matchId = Object.keys(gameLogJson)[i];
+          for (const matchId in gameLogJson) {
             const gameJson = gameLogJson[matchId];
             gameJson['MatchPId'] = matchId;
             gameJson['BlueTeamName'] = await getTeamName(gameJson['BlueTeamHId']);
