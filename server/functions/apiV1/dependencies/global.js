@@ -112,6 +112,7 @@ export const getSeasonItems = (idList) => {
     try {
       const seasonList = [];
       for (const seasonIdString of idList) {
+        const seasonId = parseInt(seasonIdString);
         seasonList.push({
           'PId': parseInt(seasonIdString),
           'ItemName': await getSeasonTabName(seasonId),
