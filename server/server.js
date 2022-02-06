@@ -119,8 +119,9 @@ const createDynamoDbBackups = () => {
 }
 const rule_createDynamoDbBackups = new schedule.RecurrenceRule();
 rule_createDynamoDbBackups.dayOfWeek = 6;
-rule_createDynamoDbBackups.hour = 0;
+rule_createDynamoDbBackups.hour = 6;
 rule_createDynamoDbBackups.minute = 1;
+rule_createDynamoDbBackups.tz = TZ_STRING;
 schedule.scheduleJob(rule_createDynamoDbBackups, createDynamoDbBackups);
 
 // Task 3: Create DynamoDb Test Tables from the backups once every month (on the 1st)
@@ -137,6 +138,7 @@ rule_createDynamoDbTests.date = 1;
 rule_createDynamoDbTests.hour = 0;
 rule_createDynamoDbTests.minute = 1;
 rule_createDynamoDbTests.second = 0;
+rule_createDynamoDbTests.tz = TZ_STRING;
 schedule.scheduleJob(rule_createDynamoDbTests, createDynamoDbTestTables);
 
 // Task 4: Update VersionList and ChampByIds from Ddragon once a week 
@@ -145,10 +147,12 @@ const rule_updateVersion = new schedule.RecurrenceRule();
 rule_updateVersion.dayofWeek = 4;
 rule_updateVersion.hour = 18;
 rule_updateVersion.minute = 0;
+rule_updateVersion.tz = TZ_STRING;
 const rule_updateChamps = new schedule.RecurrenceRule();
 rule_updateChamps.dayofWeek = 4;
 rule_updateChamps.hour = 18;
 rule_updateChamps.minute = 1;
+rule_updateChamps.tz = TZ_STRING;
 schedule.scheduleJob(rule_updateVersion, updateVersionList);
 schedule.scheduleJob(rule_updateChamps, updateChampByIds);
 

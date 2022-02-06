@@ -29,7 +29,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 export const putNewStaff = (staff) => {
   return new Promise((resolve, reject) => {
     getProfilePIdByName(staff.profile).then((pPId) => {
-      if (pPId == null) { resolve(null); return; } // Not Found
+      if (!pPId) { resolve(null); return; } // Not Found
       bcrypt.hash(staff.password, parseInt(process.env.SALT_ROUNDS)).then(function (hash) {
         getProfileInfo(pPId).then((profileInfo) => {
           profileInfo['Password'] = hash;
@@ -49,8 +49,8 @@ export const putNewStaff = (staff) => {
           cache.set(cacheKey, JSON.stringify(profileInfo, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
           profileInfo['Password'] = hash;
           resolve(profileInfo);
-        }).catch((err) => { console.error(err); reject(err); });
-      }).catch((err) => { console.error(err); reject(err); });
-    }).catch((err) => { console.error(err); reject(err); });
+        }).catch((err) => { reject(err); });
+      }).catch((err) => { reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }

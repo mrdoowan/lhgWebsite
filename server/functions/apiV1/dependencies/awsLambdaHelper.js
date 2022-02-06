@@ -25,7 +25,7 @@ export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
     }),
   };
   lambda.invoke(params, (err, data) => {
-    if (err) { console.error(err); reject(err); return; }
+    if (err) { reject(err); return; }
     resolve(JSON.parse(data.Payload));
   });
 });
@@ -47,7 +47,7 @@ export const getRiotMatchData = (matchId) => new Promise((resolve, reject) => {
     }),
   };
   lambda.invoke(params, (err, data) => {
-    if (err) { console.error(err); reject(err); return; }
+    if (err) { reject(err); return; }
     resolve(JSON.parse(data.Payload));
   });
 });
@@ -69,7 +69,7 @@ export const getRiotSpectateData = (summonerId) => new Promise((resolve, reject)
     }),
   };
   lambda.invoke(params, (err, data) => {
-    if (err) { console.error(err); reject(err); return; }
+    if (err) { reject(err); return; }
     resolve(JSON.parse(data.Payload));
   });
 });
@@ -93,7 +93,7 @@ export const getTournamentMatchIdsByPuuid = (puuid, date) => {
       }),
     };
     lambda.invoke(params, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       resolve(JSON.parse(data.Payload));
     });
   });
@@ -117,7 +117,7 @@ export const createTournamentId = (seasonShortName) => {
       }),
     }
     lambda.invoke(params, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       const res = JSON.parse(data.Payload);
       if (typeof(res) !== 'number') { reject({ error: res }); return; }
       console.log(`AWS Lambda: New Tournament ID '${res}' has been created in the Tournament API.`);
@@ -153,7 +153,7 @@ export const generateTournamentCodes = (week, tournamentId, seasonShortName, tea
       }),
     }
     lambda.invoke(params, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       const res = JSON.parse(data.Payload);
       if (!Array.isArray(res)) { reject({ error: res }); return; }
       console.log(`AWS Lambda: Tournament ID '${tournamentId}' generated ${res.length} codes.`);

@@ -25,8 +25,7 @@ export function mySqlCallSProc(sProcName) {
   return new Promise(function (resolve, reject) {
     try {
       let queryStr = `CALL ${sProcName}(`;
-      for (let i = 1; i < argArray.length; ++i) {
-        let arg = argArray[i];
+      for (let arg of argArray) {
         arg = (typeof arg === "string") ? `'${arg}'` : arg;
         queryStr += (arg + ",");
       }

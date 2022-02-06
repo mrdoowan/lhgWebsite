@@ -16,7 +16,7 @@ export const createDdragonVersionList = () => {
   const cacheKey = CACHE_KEYS.VERSIONS;
   return new Promise((resolve, reject) => {
     cache.get(cacheKey, async (err, data) => {
-      if (err) { console(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(JSON.parse(data)); return; }
       axios.get(`https://ddragon.leagueoflegends.com/api/versions.json`)
       .then((res) => {

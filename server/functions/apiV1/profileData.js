@@ -45,7 +45,7 @@ export const getProfilePIdByName = (name) => {
     const simpleName = filterName(name);
     const cacheKey = CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + simpleName;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(data); return; }
       dynamoDbGetItem('ProfileNameMap', simpleName)
         .then((obj) => {
@@ -100,7 +100,7 @@ export const getProfilePIdBySummonerId = (summId) => {
   return new Promise(function (resolve, reject) {
     if (!summId) { resolve(null); return; }
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(data); return; }
       dynamoDbGetItem('SummonerIdMap', summId)
         .then((obj) => {
@@ -143,7 +143,7 @@ export const getProfileName = (profileId, hash = true) => {
     const profilePId = (hash) ? getProfilePIdFromHash(profileId) : profileId;
     const cacheKey = CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId;
     cache.get(cacheKey, (err, data) => {
-      if (err) { console.error(err); reject(err); return; }
+      if (err) { reject(err); return; }
       else if (data) { resolve(data); return; }
       dynamoDbGetItem('Profile', profilePId)
         .then((obj) => {
@@ -164,10 +164,10 @@ export const getProfileInfo = (profilePId) => {
   return new Promise(function (resolve, reject) {
     if (!profilePId) { resolve(null); return; }
     cache.get(cacheKey, async (err, data) => {
-      if (err) { console(err); reject(err); return; }
-      else if (data != null) { resolve(JSON.parse(data)); return; }
+      if (err) { reject(err); return; }
+      else if (data) { resolve(JSON.parse(data)); return; }
       try {
-        let profileInfoJson = (await dynamoDbGetItem('Profile', profilePId))['Information'];
+        const profileInfoJson = (await dynamoDbGetItem('Profile', profilePId))['Information'];
         if (profileInfoJson != null) {
           if ('ActiveSeasonPId' in profileInfoJson) {
             profileInfoJson['ActiveSeasonShortName'] = await getSeasonShortName(profileInfoJson['ActiveSeasonPId']);
@@ -213,7 +213,7 @@ export const getProfileGamesBySeason = (pPId, sPId = null) => {
         const cacheKey = CACHE_KEYS.PROFILE_GAMES_PREFIX + pPId + '-' + seasonId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
+          if (err) { reject(err); return; }
           else if (data) { resolve(JSON.parse(data)); return; }
           const profileGamesJson = gameLogJson[seasonId];
           if (!profileGamesJson) { resolve(null); return; } // Not Found
@@ -221,8 +221,7 @@ export const getProfileGamesBySeason = (pPId, sPId = null) => {
           profileGamesJson['SeasonTime'] = await getSeasonTime(seasonId);
           profileGamesJson['SeasonName'] = await getSeasonName(seasonId);
           profileGamesJson['SeasonShortName'] = await getSeasonShortName(seasonId);
-          for (let i = 0; i < Object.values(profileGamesJson['Matches']).length; ++i) {
-            const matchJson = Object.values(profileGamesJson['Matches'])[i];
+          for (const matchJson of Object.values(profileGamesJson['Matches'])) {
             matchJson['TeamName'] = await getTeamName(matchJson['TeamHId']);
             matchJson['EnemyTeamName'] = await getTeamName(matchJson['EnemyTeamHId']);
             matchJson['Kda'] = (matchJson['Deaths'] > 0) ? ((matchJson['Kills'] + matchJson['Assists']) / matchJson['Deaths']).toFixed(2) : "Perfect";
@@ -245,7 +244,7 @@ export const getProfileGamesBySeason = (pPId, sPId = null) => {
         else { resolve(null); return; } // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -265,15 +264,14 @@ export const getProfileStatsByTourney = (pPId, tPId = null) => {
         const cacheKey = CACHE_KEYS.PROFILE_STATS_PREFIX + pPId + '-' + tourneyId;
 
         cache.get(cacheKey, async (err, data) => {
-          if (err) { console(err); reject(err); return; }
+          if (err) { reject(err); return; }
           else if (data) { resolve(JSON.parse(data)); return; }
           // Process Data
           const profileStatsJson = statsLogJson[tourneyId];
           if (!profileStatsJson) { resolve(null); return; }    // Not Found
           profileStatsJson['TournamentName'] = await getTournamentName(tourneyId);
           profileStatsJson['TournamentShortName'] = await getTournamentShortName(tourneyId);
-          for (let i = 0; i < Object.keys(profileStatsJson['RoleStats']).length; ++i) {
-            const role = Object.keys(profileStatsJson['RoleStats'])[i];
+          for (const role of Object.keys(profileStatsJson['RoleStats'])) {
             const statsJson = profileStatsJson['RoleStats'][role];
             const gameDurationMinute = statsJson['TotalGameDuration'] / 60;
             statsJson['Kda'] = (statsJson['TotalDeaths'] > 0) ? ((statsJson['TotalKills'] + statsJson['TotalAssists']) / statsJson['TotalDeaths']).toFixed(2).toString() : "Perfect";
@@ -328,7 +326,7 @@ export const getProfileStatsByTourney = (pPId, tPId = null) => {
         else { resolve(null); return; }     // Not Found
       }
     }).catch((err) => {
-      console.error(err); reject(err);
+      reject(err);
     });
   });
 }
@@ -442,7 +440,7 @@ export const postNewProfile = (profileName, summIdList) => {
 
       resolve(newProfileItem);
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 
@@ -487,7 +485,7 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
         leagueAccounts: item.LeagueAccounts
       });
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   });
 }
 
@@ -535,7 +533,7 @@ export const updateProfileName = (profilePId, newName, oldName) => {
         'OldProfileName': oldName,
       });
     }
-    catch (err) { console.error(err); reject(err); }
+    catch (err) { reject(err); }
   })
 }
 
@@ -586,7 +584,7 @@ export const putProfileRemoveAccount = (profilePId, summonerId) => {
         profilePId: profilePId,
         leagueAccounts: leagueAccountsObject,
       });
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }
 
@@ -897,6 +895,6 @@ export const deleteProfileFromDb = (profilePId, profileName) => {
       resolve({
         'ProfileRemoved': profilePId,
       });
-    }).catch((err) => { console.error(err); reject(err); });
+    }).catch((err) => { reject(err); });
   });
 }

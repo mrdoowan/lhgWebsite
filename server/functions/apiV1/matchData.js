@@ -59,7 +59,7 @@ export const getMatchData = (id) => {
   return new Promise(function (resolve, reject) {
     const cacheKey = CACHE_KEYS.MATCH_PREFIX + id;
     cache.get(cacheKey, async (err, data) => {
-      if (err) { console.error(err); reject(err); }
+      if (err) { reject(err); }
       else if (data != null) { resolve(JSON.parse(data)); return; }
       try {
         const matchObject = await dynamoDbGetItem('Matches', id);
@@ -99,7 +99,7 @@ export const getMatchData = (id) => {
         cache.set(cacheKey, JSON.stringify(matchObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
         resolve(matchObject);
       }
-      catch (error) { console.error(error); reject(error); }
+      catch (error) { reject(error); }
     });
   })
 }
@@ -120,19 +120,17 @@ export const getMatchSetup = (id) => {
 
       // Edit names into the Json
       const teamsObject = matchSetupJson['Teams'];
-      for (let teamIdx = 0; teamIdx < Object.values(teamsObject).length; ++teamIdx) {
-        const teamJson = Object.values(teamsObject)[teamIdx];
+      for (const teamJson of Object.values(teamsObject)) {
         if ('TeamHId' in teamJson) { teamJson['TeamName'] = await getTeamName(teamJson['TeamHId']) }
         const playersList = teamJson['Players'];
-        for (let i = 0; i < playersList.length; ++i) {
-          const playerJson = playersList[i];
+        for (const playerJson of playersList) {
           if ('ProfileHId' in playerJson) { playerJson['ProfileName'] = await getProfileName(playerJson['ProfileHId']); }
         }
       }
 
       resolve(matchSetupJson);
     }
-    catch (error) { console.error(error); reject(error); }
+    catch (error) { reject(error); }
   })
 }
 
@@ -145,7 +143,7 @@ export const getMatchSetupMap = (test=false) => {
       const matchIdList = (await dynamoDbGetItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, MISC_KEYS.MATCH_SETUP_IDS, test))['MatchSetupIdMap'];
       resolve(matchIdList);
     }
-    catch (error) { console.error(error); reject(error); }
+    catch (error) { reject(error); }
   })
 }
 
@@ -224,10 +222,8 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
       setupObject['Teams']['RedTeam'] = {};
       // Iterate through Riot's 'teams' Object:
       // 1) Make Bans List
-      for (let teamIdx = 0; teamIdx < matchDataRiotJson['teams'].length; ++teamIdx) {
+      for (const [teamIdx, teamDataRiotJson] of matchDataRiotJson['teams'].entries()) {
         // Make Bans List
-        const teamDataRiotJson = matchDataRiotJson['teams'][teamIdx];
-
         // 0 = BlueTeam
         // 1 = RedTeam
         // https://stackoverflow.com/questions/19590865/from-an-array-of-objects-extract-value-of-a-property-as-array
@@ -324,7 +320,7 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         objectCreated: setupObject,
       });
     }
-    catch (error) { console.error(error); reject(error); }
+    catch (error) { reject(error); }
   });
 }
 
@@ -448,19 +444,17 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
       getMatchData(matchId).then(async (data) => {
         if (!data) { resolve({ error: `Match ID '${matchId}' Not Found` }); return; } // Not found
         let changesMade = false;
-        let seasonId = data['SeasonPId'];
-        let namesChanged = [];
-        for (let tIdx = 0; tIdx < Object.keys(data.Teams).length; ++tIdx) {
-          let teamId = Object.keys(data.Teams)[tIdx];
-          let thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
-          let { Players } = data.Teams[teamId];
-          for (let pIdx = 0; pIdx < Object.values(Players).length; ++pIdx) {
-            let playerObject = Object.values(Players)[pIdx];
-            let thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
-            let champId = playerObject['ChampId'].toString();
+        const seasonId = data['SeasonPId'];
+        const namesChanged = [];
+        for (const teamId of Object.keys(data.Teams)) {
+          const thisTeamPId = getTeamPIdFromHash(data.Teams[teamId]['TeamHId']);
+          const { Players } = data.Teams[teamId];
+          for (const playerObject of Object.values(Players)) {
+            const thisProfilePId = getProfilePIdFromHash(playerObject['ProfileHId']);
+            const champId = playerObject['ChampId'].toString();
             if (champId in playersToFix && playersToFix[champId] !== thisProfilePId) {
-              let newProfilePId = playersToFix[champId];
-              let name = await getProfileName(newProfilePId, false); // For PId
+              const newProfilePId = playersToFix[champId];
+              const name = await getProfileName(newProfilePId, false); // For PId
               //await getProfileName(newProfileId); // For HId
               if (!name) { resolve({ error: `Profile ID '${newProfilePId}' in body object Not Found` }); return; } // Not found
               namesChanged.push(name); // For response
@@ -469,7 +463,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
               delete playerObject['ProfileName']; // In the database for no reason
 
               // Remove from Profile GameLog in former Profile Id and Team GameLog
-              let profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
+              const profileGameLog = await getProfileGamesBySeason(thisProfilePId, seasonId);
               if (matchId in profileGameLog['Matches']) {
                 delete profileGameLog['Matches'][matchId];
                 await dynamoDbUpdateItem('Profile', thisProfilePId,
@@ -483,7 +477,7 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
                   }
                 );
               }
-              let teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
+              const teamGameLog = await getTeamGamesBySeason(thisTeamPId, seasonId);
               if (matchId in teamGameLog['Matches']) {
                 delete teamGameLog['Matches'][matchId];
                 await dynamoDbUpdateItem('Team', thisTeamPId,

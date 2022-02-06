@@ -95,7 +95,7 @@ export default function PlayerDataGrid({
             <Paging enabled={false} />
 
             <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={playerLink} />
-            <Column dataField="TeamNameObject" caption="Team" alignment="center" width={50} dataType="string" 
+            <Column dataField="TeamNameObject" caption="Team" alignment="center" width={60} dataType="string" 
               calculateSortValue={sortByShortTeamName} calculateCellValue={sortByShortTeamName} fixed={true} cellRender={teamLink} />
             <Column dataField="Role" alignment="center" width={100} fixed={true} />
             <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" fixed={true} />

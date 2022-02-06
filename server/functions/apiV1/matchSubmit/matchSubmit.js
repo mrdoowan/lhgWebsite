@@ -89,8 +89,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
       // Check all the bans that they are actual champIds
       const checkBans = async (color, banList) => {
         const checkDuplicateBanList = [];
-        for (let i = 0; i < banList.length; ++i) {
-          const banId = banList[i];
+        for (const [i, banId] of banList.entries()) {
           if (!(banId in champObject)) {
             validateList.push(
               `${color} Team Bans of Id '${banId}' at index ${i} is invalid.`
@@ -113,8 +112,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
       const checkProfiles = async (color, playerList) => {
         const roleList = [];
         const checkDuplicateProfileList = [];
-        for (let i = 0; i < playerList.length; ++i) {
-          const playerObject = playerList[i];
+        for (const [i, playerObject] of playerList.entries()) {
           const profilePId = await getProfilePIdByName(playerObject.ProfileName);
           if (!profilePId) {
             validateList.push(
