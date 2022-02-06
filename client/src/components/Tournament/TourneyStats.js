@@ -57,25 +57,39 @@ export default function TourneyStats({ stats }) {
     '#cb2c31', // Red
   ];
 
-  const totalDragons = stats.CloudDrakes + stats.InfernalDrakes
-    + stats.MountainDrakes + stats.OceanDrakes + stats.HextechDrakes
-    + stats.ElderDrakes;
-  const dragonData = [
-    { dragon: 'Cloud', number: stats.CloudDrakes },
-    { dragon: 'Infernal', number: stats.InfernalDrakes },
-    { dragon: 'Mountain', number: stats.MountainDrakes },
-    { dragon: 'Ocean', number: stats.OceanDrakes },
-    { dragon: 'Hextech', number: stats.HextechDrakes },
-    { dragon: 'Elder', number: stats.ElderDrakes },
-  ];
-  const dragonPalette = [
-    '#bdc0cd', // Cloud
-    '#be3921', // Infernal
-    '#ad7941', // Mountain
-    '#5ab1a4', // Ocean
-    '#4ebceb', // Hextech
-    '#29727b', // Elder
-  ];
+  let totalDragons = 0;
+  const dragonData = [];
+  const dragonPalette = [];
+  if (stats.CloudDrakes) {
+    totalDragons += stats.CloudDrakes;
+    dragonData.push({ dragon: 'Cloud', number: stats.CloudDrakes });
+    dragonPalette.push('#bdc0cd');
+  }
+  if (stats.InfernalDrakes) {
+    totalDragons += stats.InfernalDrakes;
+    dragonData.push({ dragon: 'Infernal', number: stats.InfernalDrakes });
+    dragonPalette.push('#be3921');
+  }
+  if (stats.MountainDrakes) {
+    totalDragons += stats.MountainDrakes;
+    dragonData.push({ dragon: 'Mountain', number: stats.MountainDrakes });
+    dragonPalette.push('#ad7941');
+  } 
+  if (stats.OceanDrakes) {
+    totalDragons += stats.OceanDrakes;
+    dragonData.push({ dragon: 'Ocean', number: stats.OceanDrakes });
+    dragonPalette.push('#5ab1a4');
+  }
+  if (stats.HextechDrakes) {
+    totalDragons += stats.HextechDrakes;
+    dragonData.push({ dragon: 'Hextech', number: stats.HextechDrakes });
+    dragonPalette.push('#4ebceb');
+  }
+  if (stats.ElderDrakes) {
+    totalDragons += stats.ElderDrakes;
+    dragonData.push({ dragon: 'Elder', number: stats.ElderDrakes });
+    dragonPalette.push('#29727b');
+  }
 
   return (
     <div>
