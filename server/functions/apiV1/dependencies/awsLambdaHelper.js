@@ -8,6 +8,10 @@ const { Constants } = twisted;
 AWS.config.update({ region: 'us-east-2' });
 const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 
+const invokeLambda = (params) => new Promise((resolve, reject) => {
+  
+});
+
 /**
  * (AWS Lambda function)
  * Calls Riot API and gets the Summoner ID of the summoner account
@@ -101,6 +105,7 @@ export const getTournamentMatchIdsByPuuid = (puuid, date) => {
 
 /**
  * (AWS Lambda function)
+ * NOTE: There is something wrong with riot-api where a timeout occurs
  * Calls a POST Riot API request and creates a new tournament ID
  * @param {string} seasonShortName  seasonShortName (i.e. "w2021agl")
  * @returns {Promise<number>}       Tournament ID (number)
@@ -127,6 +132,7 @@ export const createTournamentId = (seasonShortName) => {
 }
 
 /**
+ * NOTE: There is something wrong with riot-api where a timeout occurs
  * Calls a POST Riot API request and generates Tournament Codes with a given tournament ID
  * @param {string} week             i.e. "W1", "W2", etc., "PI1", "PI2", etc. "RO16", "QF", "SF", "F"
  * @param {number} tournamentId     Tournament ID provided from createTournamentId
@@ -134,10 +140,10 @@ export const createTournamentId = (seasonShortName) => {
  * @param {string} team1            Team Name i.e. "Team Ambition"
  * @param {string} team2            Team Name i.e. "Omega Gaming"
  * @param {string} numCodes         Number of codes to generate
- * @returns {Promise<string[]>}     List of Tournament Codes
+ * @returns {Promise<object>}     List of Tournament Codes
  */
 export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1 = null, team2 = null, numCodes = null) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     console.log(`AWS Lambda: Generating new codes for season '${seasonShortName}'`);
     const params = {
       FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
@@ -152,12 +158,26 @@ export const generateTournamentCodes = (week, tournamentId, seasonShortName, tea
         team2: team2,
       }),
     }
-    lambda.invoke(params, (err, data) => {
-      if (err) { reject(err); return; }
-      const res = JSON.parse(data.Payload);
-      if (!Array.isArray(res)) { reject({ error: res }); return; }
-      console.log(`AWS Lambda: Tournament ID '${tournamentId}' generated ${res.length} codes.`);
-      resolve(res);
-    });
+    let timedOut = 0;
+    while (timedOut < 5) {
+      const res = await lambda.invoke(params).promise();
+      const payload = JSON.parse(res.Payload);
+      if (!res.FunctionError) {
+        console.log(`AWS Lambda: Tournament ID '${tournamentId}' generated ${payload.length} codes.`);
+        resolve({
+          data: payload,
+          timedOut,
+        });
+        return;
+      }
+      else if (payload?.errorMessage?.includes('timed out')) {
+        timedOut++;
+      }
+      else {
+        reject(err);
+        return;
+      }
+    }
+    reject({ error: `AWS Lambda function ${GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT} maxed on time outs.` });
   });
 }

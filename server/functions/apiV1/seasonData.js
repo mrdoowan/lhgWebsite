@@ -511,6 +511,7 @@ export const generateNewCodes = (seasonId, week, teamList) => {
           return;
         }
 
+        let timesRetried = 0;
         if (!seasonCodesWeeks[weekUppercase]) {
           // Make new property
           seasonCodesWeeks[weekUppercase] = {
@@ -519,15 +520,19 @@ export const generateNewCodes = (seasonId, week, teamList) => {
             Backups: [],
           }
           // Create Backups
-          seasonCodesWeeks[weekUppercase].Backups = await generateTournamentCodes(weekUppercase, 
+          const awsResponse = await generateTournamentCodes(weekUppercase, 
             riotTournamentId, seasonShortName, null, null, 10);
+          seasonCodesWeeks[weekUppercase].Backups = awsResponse.data;
+          timesRetried += awsResponse.timedOut;
         }
         const primaryCodesList = seasonCodesWeeks[weekUppercase].Primary;
         for (let i = 0; i < filteredTeamList.length; i++) {
           const teamName1 = filteredTeamList[i];
           const teamName2 = filteredTeamList[++i];
-          const codesList = await generateTournamentCodes(weekUppercase, 
+          const awsResponse = await generateTournamentCodes(weekUppercase, 
             riotTournamentId, seasonShortName, teamName1, teamName2);
+          const codesList = awsResponse.data;
+          timesRetried += awsResponse.timedOut;
           primaryCodesList.push({
             Team1: teamName1,
             Team2: teamName2,
@@ -549,6 +554,7 @@ export const generateNewCodes = (seasonId, week, teamList) => {
         resolve({
           response: `Season '${seasonShortName}' successfully generated new codes.`,
           numMatches: filteredTeamList.length / 2,
+          timesRetried,
         });
       }
       catch (err) { 
