@@ -177,12 +177,12 @@ export const getProfileInfo = (profilePId) => {
             profileInfoJson['ActiveTeamName'] = await getTeamName(profileInfoJson['ActiveTeamHId']);
           }
           // Add Season List
-          let gameLogJson = (await dynamoDbGetItem('Profile', profilePId))['GameLog'];
+          const gameLogJson = (await dynamoDbGetItem('Profile', profilePId))['GameLog'];
           if (gameLogJson != null) {
             profileInfoJson['SeasonList'] = await getSeasonItems(Object.keys(gameLogJson));
           }
           // Add Tournament List
-          let statsLogJson = (await dynamoDbGetItem('Profile', profilePId))['StatsLog'];
+          const statsLogJson = (await dynamoDbGetItem('Profile', profilePId))['StatsLog'];
           if (statsLogJson != null) {
             profileInfoJson['TournamentList'] = await getTourneyItems(Object.keys(statsLogJson));
           }
