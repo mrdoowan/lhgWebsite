@@ -275,54 +275,60 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         }
       }
 
-      // https://stackoverflow.com/questions/13304543/javascript-sort-array-based-on-another-array
-      const roleSortList = ["Top", "Jungle", "Middle", "Bottom", "Support"];
-      const sortRoles = (a, b) => {
-        return roleSortList.indexOf(a.Role) - roleSortList.indexOf(b.Role);
-      }
-      setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList.sort(sortRoles);
-      setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
-
-      
-      // Find Team name associated with the players
-      /**
-       * https://michaelmovsesov.com/articles/get-key-with-highest-value-from-javascript-object
-       * @param {object} obj 
-       * @returns TeamHId
-       */
-      const getTeamHIdFromMostRecent = (obj) => {
-        return Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b);
-      }
-      setupObject['Teams']['BlueTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(blueMostRecentObject));
-      setupObject['Teams']['RedTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(redMostRecentObject));
-
-      // Push into 'Matches' DynamoDb
-      await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.MATCHES, matchId,
-        'SET #setup = :obj',
-        {
-          '#setup': 'Setup',
-        },
-        {
-          ':obj': setupObject,
+      // If either Blue and Red are empty, we most likely grabbed an earlier tournament that happened
+      if (Object.keys(blueMostRecentObject).length > 0 && Object.keys(redMostRecentObject).length > 0) {
+        // https://stackoverflow.com/questions/13304543/javascript-sort-array-based-on-another-array
+        const roleSortList = ["Top", "Jungle", "Middle", "Bottom", "Support"];
+        const sortRoles = (a, b) => {
+          return roleSortList.indexOf(a.Role) - roleSortList.indexOf(b.Role);
         }
-      );
+        setupObject['Teams']['BlueTeam']['Players'] = newBluePlayerList.sort(sortRoles);
+        setupObject['Teams']['RedTeam']['Players'] = newRedPlayerList.sort(sortRoles);
 
-      // Push into Miscellaneous DynamoDb
-      const setupIdMap = await getMatchSetupMap();
-      const setupListItem = {
-        blueTeam: setupObject.Teams.BlueTeam.TeamName,
-        redTeam: setupObject.Teams.RedTeam.TeamName,
-        timestamp: matchDataRiotJson.gameEndTimestamp,
-        week: week.toUpperCase(),
-        seasonShortName: await getSeasonShortName(seasonId),
-      };
-      setupIdMap[matchId] = setupListItem;
-      await updateMatchSetupIds(setupIdMap);
+        
+        // Find Team name associated with the players
+        /**
+         * https://michaelmovsesov.com/articles/get-key-with-highest-value-from-javascript-object
+         * @param {object} obj 
+         * @returns TeamHId
+         */
+        const getTeamHIdFromMostRecent = (obj) => {
+          return Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b);
+        }
+        setupObject['Teams']['BlueTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(blueMostRecentObject));
+        setupObject['Teams']['RedTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(redMostRecentObject));
 
-      resolve({
-        response: `New Setup for Match ID '${matchId}' successfully created.`,
-        objectCreated: setupObject,
-      });
+        // Push into 'Matches' DynamoDb
+        await dynamoDbUpdateItem(DYNAMODB_TABLENAMES.MATCHES, matchId,
+          'SET #setup = :obj',
+          {
+            '#setup': 'Setup',
+          },
+          {
+            ':obj': setupObject,
+          }
+        );
+
+        // Push into Miscellaneous DynamoDb
+        const setupIdMap = await getMatchSetupMap();
+        const setupListItem = {
+          blueTeam: setupObject.Teams.BlueTeam.TeamName,
+          redTeam: setupObject.Teams.RedTeam.TeamName,
+          timestamp: matchDataRiotJson.gameEndTimestamp,
+          week: week.toUpperCase(),
+          seasonShortName: await getSeasonShortName(seasonId),
+        };
+        setupIdMap[matchId] = setupListItem;
+        await updateMatchSetupIds(setupIdMap);
+
+        resolve({
+          response: `New Setup for Match ID '${matchId}' successfully created.`,
+          objectCreated: setupObject,
+        });
+      }
+      else {
+        resolve({ response: `Match ID '${matchId}' was not played in Aegis leagues.` });
+      }
     }
     catch (error) { reject(error); }
   });
@@ -421,7 +427,7 @@ export const putMatchSaveSetup = (matchId, week, bodyTeamsObject) => {
         response: `Setup object successfully updated for Match ID '${matchId}'.`,
         objectUpdated: newTeamsObject,
       });
-    }).catch((error) => { console.error(error); reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -521,8 +527,8 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
         else {
           resolve({ response: `No changes made in Match ID '${matchId}'` })
         }
-      }).catch((error) => { console.error(error); reject(error); });
-    }).catch((error) => { console.error(error); reject(error); });
+      }).catch((error) => { reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -613,9 +619,9 @@ export const deleteMatchData = (matchId) => {
             setup: setupFlag,
             response: `Match ID '${matchId}' removed from the database.`
           });
-        }).catch((error) => { console.error(error); reject(error); });
+        }).catch((error) => { reject(error); });
       }
-    }).catch((error) => { console.error(error); reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -644,7 +650,7 @@ export const invalidateMatch = (matchId) => {
           message: `Match invalidated.`,
           matchId: matchId,
         });
-      }).catch((error) => { console.error(error); reject(error); });
-    }).catch((error) => { console.error(error); reject(error); });
+      }).catch((error) => { reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }

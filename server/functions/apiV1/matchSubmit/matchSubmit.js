@@ -71,7 +71,7 @@ export const submitMatchSetup = (id) => {
       resolve(newMatchDbObject);
     }
     catch (error) {
-      console.error(error); reject(error);
+      reject(error);
     }
   });
 }
