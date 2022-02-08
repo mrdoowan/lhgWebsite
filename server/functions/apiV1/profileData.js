@@ -193,7 +193,7 @@ export const getProfileInfo = (profilePId) => {
           resolve({}) // If 'Information' does not exist
         }
       }
-      catch (error) { console.error(error); reject(error); }
+      catch (error) { reject(error); }
     });
   });
 }

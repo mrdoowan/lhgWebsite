@@ -220,7 +220,7 @@ export const getSeasonInformation = (seasonId) => {
           resolve(null);    // If 'Information' does not exist
         }
       }
-      catch (error) { console.error(error); reject(error); }
+      catch (error) { reject(error); }
     });
   });
 }
@@ -257,7 +257,7 @@ export const getSeasonRosterById = (seasonId) => {
         else {
           resolve(null);    // If 'Roster' does not exist
         }
-      }).catch((error) => { console.error(error); reject(error); });
+      }).catch((error) => { reject(error); });
     });
     
   });
@@ -287,7 +287,7 @@ export const getSeasonRosterByName = (seasonId) => {
         delete teamsRosterObject[teamHId];
       }
       resolve(seasonRosterObject);
-    }).catch((error) => { console.error(error); reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -322,7 +322,7 @@ export const getSeasonRegular = (seasonId) => {
           resolve(null);    // If DYNAMODB_TABLENAMES.SEASON does not exist
         }
       }
-      catch (error) { console.error(error); reject(error); }
+      catch (error) { reject(error); }
     });
   });
 }
@@ -360,7 +360,7 @@ export const getSeasonPlayoffs = (seasonId) => {
           resolve(null);    // If 'Playoffs' does not exist
         }
       }
-      catch (error) { console.error(error); reject(error); }
+      catch (error) { reject(error); }
     });
   });
 }

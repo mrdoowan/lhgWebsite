@@ -295,8 +295,6 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         const getTeamHIdFromMostRecent = (obj) => {
           return Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b);
         }
-        console.log(blueMostRecentObject);
-        console.log(redMostRecentObject);
         setupObject['Teams']['BlueTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(blueMostRecentObject));
         setupObject['Teams']['RedTeam']['TeamName'] = await getTeamName(getTeamHIdFromMostRecent(redMostRecentObject));
 
@@ -429,7 +427,7 @@ export const putMatchSaveSetup = (matchId, week, bodyTeamsObject) => {
         response: `Setup object successfully updated for Match ID '${matchId}'.`,
         objectUpdated: newTeamsObject,
       });
-    }).catch((error) => { console.error(error); reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -529,8 +527,8 @@ export const putMatchPlayerFix = (playersToFix, matchId) => {
         else {
           resolve({ response: `No changes made in Match ID '${matchId}'` })
         }
-      }).catch((error) => { console.error(error); reject(error); });
-    }).catch((error) => { console.error(error); reject(error); });
+      }).catch((error) => { reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -621,9 +619,9 @@ export const deleteMatchData = (matchId) => {
             setup: setupFlag,
             response: `Match ID '${matchId}' removed from the database.`
           });
-        }).catch((error) => { console.error(error); reject(error); });
+        }).catch((error) => { reject(error); });
       }
-    }).catch((error) => { console.error(error); reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
 
@@ -652,7 +650,7 @@ export const invalidateMatch = (matchId) => {
           message: `Match invalidated.`,
           matchId: matchId,
         });
-      }).catch((error) => { console.error(error); reject(error); });
-    }).catch((error) => { console.error(error); reject(error); });
+      }).catch((error) => { reject(error); });
+    }).catch((error) => { reject(error); });
   });
 }
