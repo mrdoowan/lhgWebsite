@@ -369,11 +369,12 @@ export const getSeasonPlayoffs = (seasonId) => {
  * Gets most recent teamHId of the profileHId
  * @param {number} seasonId 
  * @param {string} profileHId 
- * @return {string} teamHId. 'null' 
+ * @return {string} teamHId or 'null' 
  */
 export const getMostRecentTeam = (seasonId, profileHId) => {
   return new Promise(async (resolve, reject) => {
     try {
+      if (!profileHId) { resolve(null); }
       const seasonRosterJson = await getSeasonRosterById(seasonId);
       resolve(seasonRosterJson?.Profiles?.[profileHId]?.MostRecentTeamHId);
     }

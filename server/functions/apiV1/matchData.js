@@ -257,17 +257,21 @@ export const postMatchNewSetup = (matchId, tournamentId, week, invalidFlag) => {
         const mostRecentTeamHId = await getMostRecentTeam(seasonId, getProfileHashId(profilePId));
         if (playerRiotJson['teamId'] === 100) {
           newBluePlayerList.push(newPlayerObject);
-          if (mostRecentTeamHId && !blueMostRecentObject[mostRecentTeamHId]) {
-            blueMostRecentObject[mostRecentTeamHId] = 0
+          if (mostRecentTeamHId) {
+            if (!blueMostRecentObject[mostRecentTeamHId]) {
+              blueMostRecentObject[mostRecentTeamHId] = 0
+            }
+            blueMostRecentObject[mostRecentTeamHId]++;
           }
-          blueMostRecentObject[mostRecentTeamHId]++;
         }
         else if (playerRiotJson['teamId'] === 200) {
           newRedPlayerList.push(newPlayerObject);
-          if (mostRecentTeamHId && !redMostRecentObject[mostRecentTeamHId]) {
-            redMostRecentObject[mostRecentTeamHId] = 0
+          if (mostRecentTeamHId) {
+            if (!redMostRecentObject[mostRecentTeamHId]) {
+              redMostRecentObject[mostRecentTeamHId] = 0
+            }
+            redMostRecentObject[mostRecentTeamHId]++;
           }
-          redMostRecentObject[mostRecentTeamHId]++;
         }
       }
 
