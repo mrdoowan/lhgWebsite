@@ -203,7 +203,7 @@ export default function MatchSetup({ setupData }) {
   // Validation list
   const [messageList, setMessageList] = useState([]);
   // Dropdown Weeks
-  const [dropDownValue, setDropDownValue] = useState("W1");
+  const [dropDownValue, setDropDownValue] = useState(setupData.Week);
 
   useEffect(() => {
     axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
