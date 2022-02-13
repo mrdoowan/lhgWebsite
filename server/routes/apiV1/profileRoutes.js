@@ -149,13 +149,14 @@ profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
    * @returns {string[]} List of summoner names. Return null if 'query=' does not exist
    */
   const parseOpggUrl = (opggUrl) => {
-    // find "query=" or 
-    const QUERY_KEYWORD = 'query=';
+    // find "multisearch/na?=" or 
+    const QUERY_KEYWORD = 'multisearch/na?summoners=';
     const queryIndex = opggUrl.lastIndexOf(QUERY_KEYWORD);
     if (queryIndex === -1) { return null; }
     opggUrl = opggUrl.substring(queryIndex + QUERY_KEYWORD.length);
     opggUrl = opggUrl.replace(/%20/g, '');
-    return opggUrl.split('%2C');
+    opggUrl = opggUrl.replace(/%2C/g, ',');
+    return opggUrl.split(',');
   }
 
   // Filter out empty strings
