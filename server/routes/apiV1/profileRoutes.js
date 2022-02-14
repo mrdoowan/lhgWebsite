@@ -135,7 +135,7 @@ profileV1Routes.get('/stats/latest/name/:profileName', (req, res) => {
  * @access  Private (to Admins)
  */
 profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
-  const { profileName, summonerNameList, multiOpggUrl } = req.body;
+  const { profileName, summonerNameList, opggUrl } = req.body;
   console.log(`POST Request Profile '${profileName}' - Add New Profile`);
 
   // Check Regex for profileName. Only include a-A, 1-9, and spaces
@@ -145,21 +145,31 @@ profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
 
   /**
    * 
-   * @param {string} opggUrl    
+   * @param {string} url    
    * @returns {string[]} List of summoner names. Return null if 'query=' does not exist
    */
-  const parseOpggUrl = (opggUrl) => {
-    // find "query=" or 
-    const QUERY_KEYWORD = 'query=';
-    const queryIndex = opggUrl.lastIndexOf(QUERY_KEYWORD);
-    if (queryIndex === -1) { return null; }
-    opggUrl = opggUrl.substring(queryIndex + QUERY_KEYWORD.length);
-    opggUrl = opggUrl.replace(/%20/g, '');
-    return opggUrl.split('%2C');
+  const parseOpggUrl = (url) => {
+    // find "multisearch/na?=" or "summoners/na/"
+    const MULTI_QUERY_KEYWORD = 'multisearch/na?summoners=';
+    const multiQueryIndex = url.lastIndexOf(MULTI_QUERY_KEYWORD);
+    if (multiQueryIndex !== -1) {
+      url = url.substring(multiQueryIndex + MULTI_QUERY_KEYWORD.length);
+      url = url.replace(/%20/g, '');
+      url = url.replace(/%2C/g, ',');
+      return url.split(',');
+    }
+    const SINGLE_QUERY_KEYWORD = 'summoners/na/';
+    const singleQueryIndex = url.lastIndexOf(SINGLE_QUERY_KEYWORD);
+    if (SINGLE_QUERY_KEYWORD !== -1) {
+      return [url.substring(singleQueryIndex + SINGLE_QUERY_KEYWORD.length)];
+    }
+    else {
+      return null;
+    }
   }
 
   // Filter out empty strings
-  const summonerNameListParse = (multiOpggUrl) ? parseOpggUrl(multiOpggUrl) : null;
+  const summonerNameListParse = (opggUrl) ? parseOpggUrl(opggUrl) : null;
   const finalSummonerNameList = (summonerNameListParse) ? summonerNameListParse : summonerNameList;
   const filteredSummonerNameList = finalSummonerNameList.filter(name => name !== '');
   // Check if the IGNs exist. 
