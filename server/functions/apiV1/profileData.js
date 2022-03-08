@@ -887,6 +887,7 @@ export const deleteProfileFromDb = (profilePId, profileName) => {
         resolve({
           error: `Profile '${profileName}' object has a GameLog or StatsLog property`
         });
+        return;
       }
 
       // Delete from 'SummonerIdMap'
