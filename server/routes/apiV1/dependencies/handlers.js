@@ -10,6 +10,7 @@ export const error500sServerError = (err, res, errorMessage) => {
   console.error(err);
   return res.status(500).json({
     error: errorMessage,
+    response: err,
   });
 }
 

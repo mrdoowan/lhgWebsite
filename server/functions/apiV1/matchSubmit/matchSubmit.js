@@ -1,11 +1,14 @@
 // This function needs its own file because it is massive.
 
 /*  Import dependency modules */
-import { createDbMatchObject } from './createMatchObject';
+import { createDbMatchV5Object } from './createMatchV5Object';
 import { getProfilePIdByName } from '../profileData';
 import { getTeamPIdByName } from '../teamData';
 import { checkRdsStatus } from '../dependencies/awsRdsHelper';
-import { dynamoDbGetItem, dynamoDbPutItem } from '../dependencies/dynamoDbHelper';
+import { 
+  dynamoDbGetItem,
+  dynamoDbPutItem
+} from '../dependencies/dynamoDbHelper';
 import {
   AWS_RDS_STATUS,
   DYNAMODB_TABLENAMES,
@@ -13,8 +16,8 @@ import {
   TEAM_STRING,
 } from '../../../services/constants';
 import { mySqlInsertMatch } from './mySqlInsertMatch';
-import { getMatchSetupList } from '../matchData';
-import { createChampObject } from '../../../services/ddragonChampion';
+import { getMatchSetupMap } from '../matchData';
+import { getChampIdObject } from '../../../services/miscDynamoDb';
 
 /**
  * Takes the Setup of matchId 
@@ -50,25 +53,25 @@ export const submitMatchSetup = (id) => {
       }
 
       // Create Db object for databases
-      const newMatchDbObject = await createDbMatchObject(id, matchDbObject.Setup);
+      const newMatchDbObject = await createDbMatchV5Object(id, matchDbObject.Setup);
 
       // Push into MySQL and DynamoDb
       await mySqlInsertMatch(newMatchDbObject, matchDbObject.Setup);
       await dynamoDbPutItem('Matches', newMatchDbObject, id);
 
       // Delete from MatchSetup list in the Miscellaneous DynamoDb table.
-      const setupIdList = await getMatchSetupList();
-      const newSetupIdList = setupIdList.filter(e => e !== id);
+      const setupIdMap = await getMatchSetupMap();
+      delete setupIdMap[id];
       const newDbItem = {
         Key: MISC_KEYS.MATCH_SETUP_IDS,
-        MatchSetupIdList: newSetupIdList
+        MatchSetupIdMap: setupIdMap
       };
       await dynamoDbPutItem(DYNAMODB_TABLENAMES.MISCELLANEOUS, newDbItem, MISC_KEYS.MATCH_SETUP_IDS);
 
       resolve(newMatchDbObject);
     }
     catch (error) {
-      console.error(error); reject(error);
+      reject(error);
     }
   });
 }
@@ -81,13 +84,12 @@ function validateSetupFormFields(setupTeamsDbObject) {
   return new Promise(async (resolve, reject) => {
     try {
       const validateList = [];
-      const champObject = await createChampObject();
+      const champObject = await getChampIdObject();
 
       // Check all the bans that they are actual champIds
       const checkBans = async (color, banList) => {
         const checkDuplicateBanList = [];
-        for (let i = 0; i < banList.length; ++i) {
-          const banId = banList[i];
+        for (const [i, banId] of banList.entries()) {
           if (!(banId in champObject)) {
             validateList.push(
               `${color} Team Bans of Id '${banId}' at index ${i} is invalid.`
@@ -110,8 +112,7 @@ function validateSetupFormFields(setupTeamsDbObject) {
       const checkProfiles = async (color, playerList) => {
         const roleList = [];
         const checkDuplicateProfileList = [];
-        for (let i = 0; i < playerList.length; ++i) {
-          const playerObject = playerList[i];
+        for (const [i, playerObject] of playerList.entries()) {
           const profilePId = await getProfilePIdByName(playerObject.ProfileName);
           if (!profilePId) {
             validateList.push(

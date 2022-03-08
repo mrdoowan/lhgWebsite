@@ -1,33 +1,18 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import React, { useState } from 'react';
 // MUI
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 import InputBase from '@material-ui/core/InputBase';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/styles';
-import { fade } from '@material-ui/core/styles';
+import { fade } from '@material-ui/core/styles/colorManipulator';
 import SearchIcon from '@material-ui/icons/Search';
 import IconButton from '@material-ui/core/IconButton';
 // react-bootstrap
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
-const muiTheme = createMuiTheme({
-  palette: {
-    primary: {
-      main: '#2196f3',
-    },
-    secondary: {
-      main: '#2196f3',
-    },
-    contrastThreshold: 3,
-  },
-});
-
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   menu: {
     margin: '0 auto',
     display: 'flex',
@@ -39,6 +24,7 @@ const styles = theme => ({
     height: '100%',
     display: 'flex',
     fontSize: '15px',
+    color: 'black',
   },
   menuItem: {
     position: 'relative',
@@ -72,89 +58,68 @@ const styles = theme => ({
     paddingLeft: '1em',
     transition: theme.transitions.create('width'),
     width: '100%',
+    color: 'black',
   },
   searchIcon: {
     position: 'relative',
     display: 'flex',
     padding: '7px 5px 5px 7px',
   },
-});
+}));
 
-class NavBar extends Component {
-  constructor() {
-    super();
+export default function NavBar() {
+  const classes = useStyles();
+  // Init State
+  const [dropDownValue, setDropDownValue] = useState("Profile");
+  const [searchField, setSearchField] = useState("");
 
-    this.state = {
-      dropDownValue: "Profile",
-      searchField: "",
-    }
+  const changeValue = (text) => {
+    setDropDownValue(text);
   }
 
-  changeValue(text) {
-    this.setState({ dropDownValue: text })
+  const handleSearchChange = (e) => {
+    setSearchField(e.target.value);
   }
 
-  handleSearchChange = (e) => {
-    this.setState({ searchField: e.target.value })
-  }
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    this.props.history.push(`/${this.state.dropDownValue.toLowerCase()}/${this.state.searchField.toLowerCase()}`);
     // Below is to force rerendering zzz
-    window.location.href = `/${this.state.dropDownValue.toLowerCase()}/${this.state.searchField.toLowerCase()}`;
-    this.setState({ searchField: '' });
+    window.location.href = `/${dropDownValue.toLowerCase()}/${searchField.toLowerCase()}`;
+    setSearchField('');
   }
 
-  itemList = [
+  const itemList = [
     'Profile',
     'Team',
   ]
 
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <ThemeProvider theme={muiTheme}>
-        <AppBar>
-          <Toolbar className={classes.menu}>
-            <Button color="inherit" href="/" className={classes.menuFirstItem}>Home</Button>
-            {/*
-                    <Button color="inherit" href="/season/w2021ul" className={classes.menuItem}>LHGUL</Button>
-                    <Button color="inherit" href="/season/w2021pl" className={classes.menuItem}>LHGPL</Button>
-                    <Button color="inherit" href="/season/w2021al" className={classes.menuItem}>LHGAL</Button>
-                    */}
-            <div className={classes.searchBar}>
-              <DropdownButton title={this.state.dropDownValue} id="NavBarSearch">
-                {this.itemList.map((item) => (
-                  <Dropdown.Item key={item} as="button"><div onClick={(e) => this.changeValue(e.target.textContent)}>{item}</div></Dropdown.Item>
-                ))}
-              </DropdownButton>
-              <form className={classes.searchForm} onSubmit={this.handleSubmit}>
-                <InputBase
-                  placeholder="Search..."
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  inputProps={{ 'aria-label': 'search' }}
-                  value={this.state.searchField}
-                  onChange={this.handleSearchChange}
-                />
-                <IconButton type="submit" className={classes.searchIcon} aria-label="search" >
-                  <SearchIcon />
-                </IconButton>
-              </form>
-            </div>
-          </Toolbar>
-        </AppBar>
-      </ThemeProvider>
-    );
-  };
+  return (
+    <AppBar>
+      <Toolbar className={classes.menu}>
+        <Button color="inherit" href="/" className={classes.menuFirstItem}>Home</Button>
+        <div className={classes.searchBar}>
+          <DropdownButton title={dropDownValue} id="NavBarSearch">
+            {itemList.map((item) => (
+              <Dropdown.Item key={item} as="button"><div onClick={(e) => changeValue(e.target.textContent)}>{item}</div></Dropdown.Item>
+            ))}
+          </DropdownButton>
+          <form className={classes.searchForm} onSubmit={handleSubmit}>
+            <InputBase
+              placeholder="Search..."
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+              value={searchField}
+              onChange={handleSearchChange}
+            />
+            <IconButton type="submit" className={classes.searchIcon} aria-label="search" >
+              <SearchIcon />
+            </IconButton>
+          </form>
+        </div>
+      </Toolbar>
+    </AppBar>
+  );
 }
-
-NavBar.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-export default withRouter(withStyles(styles)(NavBar));

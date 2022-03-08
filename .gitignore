@@ -88,7 +88,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+/.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -133,3 +133,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .sonarlint
+
+# Random tests
+test*

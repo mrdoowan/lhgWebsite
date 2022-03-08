@@ -20,6 +20,9 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
     background: '#A9A9A9',
   },
+  teamName: {
+    fontSize: 'small',
+  }
 }));
 
 export default function PlayerDataGrid({
@@ -50,8 +53,29 @@ export default function PlayerDataGrid({
   };
 
   const playerLink = (data) => {
-    return <Link to={`/profile/${data.value}/games/${seasonShortName}`}>{data.value}</Link>
+    const profileName = data.value;
+    return <Link to={`/profile/${profileName}/games/${seasonShortName}`}>{profileName}</Link>;
   };
+  
+  const teamLink = (data) => {
+    const { data: { TeamNameObject } } = data;
+    const teamName = TeamNameObject.TeamName;
+    const teamShortName = TeamNameObject.TeamShortName;
+    return <Link to={`/team/${teamName}/games/${seasonShortName}`} className={classes.teamName}>{teamShortName}</Link>
+  }
+
+  const sortByShortTeamName = (data) => {
+    return data.TeamNameObject.TeamShortName;
+  }
+
+  const sortByKda = (data) => {
+    if (data.Kda === "Perfect") {
+      return Number.POSITIVE_INFINITY;
+    }
+    else {
+      return parseFloat(data.Kda);
+    }
+  }
 
   return (
     <Grid container spacing={3}>
@@ -71,10 +95,12 @@ export default function PlayerDataGrid({
             <Paging enabled={false} />
 
             <Column dataField="ProfileName" caption="Name" width={150} fixed={true} cellRender={playerLink} />
+            <Column dataField="TeamNameObject" caption="Team" alignment="center" width={60} dataType="string" 
+              calculateSortValue={sortByShortTeamName} calculateCellValue={sortByShortTeamName} fixed={true} cellRender={teamLink} />
             <Column dataField="Role" alignment="center" width={100} fixed={true} />
             <Column dataField="GamesPlayed" alignment="center" dataType="number" caption="Games" fixed={true} />
             <Column dataField="GamesWin" alignment="center" dataType="number" caption="Wins" />
-            <Column dataField="Kda" alignment="center" dataType="number" caption="KDA" format={fixedPoint(2)} />
+            <Column dataField="Kda" alignment="center" dataType="number" caption="KDA" calculateSortValue={sortByKda} format={fixedPoint(2)} />
             <Column dataField="TotalKills" alignment="center" dataType="number" caption="Kills" />
             <Column dataField="TotalDeaths" alignment="center" dataType="number" caption="Deaths" />
             <Column dataField="TotalAssists" alignment="center" dataType="number" caption="Assists" />

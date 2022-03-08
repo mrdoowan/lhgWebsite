@@ -48,7 +48,9 @@ export const GLOBAL_CONSTS = {
   // Baron duration is 3 minutes after this patch, 3.5 minutes before it
   OLD_BARON_DURATION: 210, // in seconds
   CURRENT_BARON_DURATION: 180, // in seconds
-  LEADERBOARD_NUM: 5
+  LEADERBOARD_NUM: 5,
+  AWS_LAMBDA_NAME: 'twistedRiotApiLambda',
+  AWS_LAMBDA_TOURNAMENT: 'tournamentRiotApiLambda',
 }
 
 /**
@@ -108,11 +110,11 @@ export const getTeamHashId = (teamPId) => {
 export const getSeasonItems = (idList) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let seasonList = [];
-      for (let i = 0; i < idList.length; ++i) {
-        let seasonId = parseInt(idList[i]);
+      const seasonList = [];
+      for (const seasonIdString of idList) {
+        const seasonId = parseInt(seasonIdString);
         seasonList.push({
-          'PId': seasonId,
+          'PId': parseInt(seasonIdString),
           'ItemName': await getSeasonTabName(seasonId),
           'ShortName': await getSeasonShortName(seasonId),
         });

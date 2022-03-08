@@ -1,10 +1,16 @@
+/**
+ * This file is for Riot Endpoint MatchV4.
+ * Now deprecated since September 6th, 2021
+ * Please use createMatchV5Object.js instead
+ */
+
 /*  Import dependency modules */
 import {
   TEAM_ID,
   MINUTE,
   BARON_DURATION,
 } from '../../../services/constants';
-import { getDDragonVersion } from '../../../services/ddragonVersion';
+import { getDdragonVersion } from '../../../services/miscDynamoDb';
 import { getRiotMatchData } from '../dependencies/awsLambdaHelper';
 import {
   getProfileHashId,
@@ -13,11 +19,12 @@ import {
 } from '../dependencies/global';
 
 /**
+ * @deprecated since MatchV5 was released in October 2021
  * Creates object tailored for database
  * @param {string} matchId 
  * @param {object} matchSetupObject
  */
-export const createDbMatchObject = (matchId, matchSetupObject) => {
+export const createDbMatchV4Object = (matchId, matchSetupObject) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Call Riot API
@@ -54,7 +61,7 @@ export const createDbMatchObject = (matchId, matchSetupObject) => {
       matchObject['GameDuration'] = matchDataRiotJson.gameDuration;
       const patch = await getPatch(matchDataRiotJson.gameVersion);
       matchObject['GamePatchVersion'] = patch;
-      matchObject['DDragonVersion'] = await getDDragonVersion(patch);
+      matchObject['DDragonVersion'] = await getDdragonVersion(patch);
 
       // #region 2.1) - Teams+Players
       const teamItems = {}; // teamId (100 or 200) -> teamData {}

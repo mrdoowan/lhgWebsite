@@ -21,6 +21,7 @@ export const CACHE_KEYS = {
   TN_PICKBANS_PREFIX: 'TnPB-',                // Key: TourneyId
   TN_GAMES_PREFIX: 'TnGames-',                // Key: TourneyId
   TN_TAB_PREFIX: 'TnTab-',                    // Key: TourneyId
+  TN_TYPE_PREFIX: 'TnType-',                  // Key: TourneyId
   PROFILE_NAME_PREFIX: 'PName-',              // Key: ProfileId
   PROFILE_PID_BYNAME_PREFIX: 'PPId-',         // Key: ProfileName
   PROFILE_INFO_PREFIX: 'PInfo-',              // Key: ProfileId
@@ -36,8 +37,8 @@ export const CACHE_KEYS = {
   TEAM_STATS_PREFIX: 'TStats-',               // Key: TeamId-TourneyId
   MATCH_PREFIX: 'Match-',                     // Key: MatchId
   LATEST_PATCH: 'LatestPatch',                // 
-  CHAMP_OBJECT: 'ChampObject',                // 
-  CHAMP_IDS: 'ChampIds',
-  SPELL_IDS: 'SpellIds',
-  VERSIONS: 'Versions',
+  CHAMP_OBJECT: 'ChampObject-',               // Key: Patch
+  CHAMP_IDS: 'ChampIds',                      // From Misc DynamDb
+  SPELL_IDS: 'SpellIds',                      // From Misc DynamDb
+  VERSIONS: 'Versions',                       // From Misc DynamDb
 }
