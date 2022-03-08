@@ -25,6 +25,13 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 'x-large',
     padding: theme.spacing(2),
   },
+  topBorderRow: {
+    padding: theme.spacing(2),
+    borderTop: '0.5pt solid',
+  },
+  table: {
+    borderCollapse: 'collapse',
+  },
   row: {
     padding: theme.spacing(2),
   },
@@ -86,7 +93,38 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TourneyGames({ games }) {
   const classes = useStyles();
-  const gamesListSorted = Object.values(games).sort((a, b) => (a.DatePlayed <= b.DatePlayed) ? 1 : -1);
+
+  const teamKeyMap = {} // string -> []
+  for (const gameEntry of Object.values(games)) {
+    const teams = [gameEntry.BlueTeamName, gameEntry.RedTeamName];
+    teams.sort();
+    const key = `${gameEntry.Patch}-${teams[0]}-${teams[1]}`;
+    if (!(key in teamKeyMap)) {
+      teamKeyMap[key] = {
+        key,
+        latestTimeStamp: 0,
+        gameList: [],
+      };
+    }
+    teamKeyMap[key].latestTimeStamp = Math.max(teamKeyMap[key].latestTimeStamp, gameEntry.DatePlayed);
+    teamKeyMap[key].gameList.push(gameEntry);
+  }
+  const matchesSortedbyTime = Object.values(teamKeyMap).sort((a,b) => (a.latestTimeStamp <= b.latestTimeStamp) ? 1 : -1);
+  console.log(matchesSortedbyTime)
+
+  // Flatten array of property
+  const gamesListSorted = [];
+  for (const matchEntry of matchesSortedbyTime) {
+    for (const [i, gameEntry] of matchEntry.gameList.entries()) {
+      if (i === 0) { gameEntry.FirstGame = true; }
+      gamesListSorted.push(gameEntry);
+    }
+  }
+
+  const rowBorderClass = (gameEntry) => {
+    if (gameEntry.FirstGame) { return classes.topBorderRow; }
+    else { return classes.row; }
+  }
 
   return (
     <div>
@@ -94,7 +132,7 @@ export default function TourneyGames({ games }) {
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <div className={classes.title}>Game Log</div>
-            <table>
+            <table className={classes.table} cellpadding="0" cellspacing="0">
               <thead>
                 <tr className={classes.row}>
                   <td className={classes.header}>Date Played</td>
@@ -107,15 +145,15 @@ export default function TourneyGames({ games }) {
                 </tr>
               </thead>
               <tbody>
-                {gamesListSorted.map((match) => (
-                  <tr key={match.MatchPId} className={classes.row}>
-                    <td className={classes.colDate}>{getDateString(match.DatePlayed / 1000)}</td>
-                    <td className={classes.colDuration}>{getTimeString(match.Duration)}</td>
-                    <td className={classes.colPatch}>{match.Patch}</td>
-                    <td className={classes.colBlueTeam}>{teamName(classes, match.BlueTeamName, match.BlueWin)}</td>
+                {gamesListSorted.map((game) => (
+                  <tr key={game.MatchPId} className={rowBorderClass(game)}>
+                    <td className={classes.colDate}>{getDateString(game.DatePlayed / 1000)}</td>
+                    <td className={classes.colDuration}>{getTimeString(game.Duration)}</td>
+                    <td className={classes.colPatch}>{game.Patch}</td>
+                    <td className={classes.colBlueTeam}>{teamName(classes, game.BlueTeamName, game.BlueWin)}</td>
                     <td className={classes.colVs}>VS.</td>
-                    <td className={classes.colRedTeam}>{teamName(classes, match.RedTeamName, !match.BlueWin)}</td>
-                    <td className={classes.colLink}><Link className={classes.matchLink} to={`/match/${match.MatchPId}`}>Match Details</Link></td>
+                    <td className={classes.colRedTeam}>{teamName(classes, game.RedTeamName, !game.BlueWin)}</td>
+                    <td className={classes.colLink}><Link className={classes.matchLink} to={`/match/${game.MatchPId}`}>Match Details</Link></td>
                   </tr>
                 ))}
               </tbody>
