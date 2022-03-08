@@ -32,6 +32,7 @@ import {
   getTournamentShortName,
 } from './tournamentData';
 import { getTeamName } from './teamData';
+import { DYNAMODB_TABLENAMES } from '../../services/constants';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -886,12 +887,23 @@ export const deleteProfileFromDb = (profilePId, profileName) => {
         resolve({
           error: `Profile '${profileName}' object has a GameLog or StatsLog property`
         });
+        return;
       }
 
+      // Delete from 'SummonerIdMap'
+      for (const summId of Object.keys(profileObject.Information.LeagueAccounts)) {
+        await dynamoDbDeleteItem(DYNAMODB_TABLENAMES.SUMMONERIDMAP, summId)
+        cache.del(`${CACHE_KEYS.PROFILE_PID_BYSUMM_PREFIX}${summId}`);
+      }
       // Delete from 'ProfileNameMap'
-      await dynamoDbDeleteItem('ProfileNameMap', filterName(profileName));
+      await dynamoDbDeleteItem(DYNAMODB_TABLENAMES.PROFILENAMEMAP, filterName(profileName));
       // Delete from 'Profile'
-      await dynamoDbDeleteItem('Profile', profilePId);
+      await dynamoDbDeleteItem(DYNAMODB_TABLENAMES.PROFILE, profilePId);
+
+      // Delete cache
+      cache.del(`${CACHE_KEYS.PROFILE_NAME_PREFIX}${profilePId}`);
+      cache.del(`${CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX}${profileName}`);
+
       resolve({
         'ProfileRemoved': profilePId,
       });
