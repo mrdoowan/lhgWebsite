@@ -155,6 +155,7 @@ profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
     if (multiQueryIndex !== -1) {
       url = url.substring(multiQueryIndex + MULTI_QUERY_KEYWORD.length);
       url = url.replace(/%20/g, '');
+      url = url.replace('+', '');
       url = url.replace(/%2C/g, ',');
       return url.split(',');
     }

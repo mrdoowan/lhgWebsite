@@ -89,6 +89,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '44px',
   },
   nameColumn: {
+    fontSize: 'small',
     margin: 'auto 4px',
     color: 'blue',
     minWidth: 0,
