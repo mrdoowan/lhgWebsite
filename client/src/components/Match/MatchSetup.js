@@ -80,6 +80,34 @@ export default function MatchSetup({ setupData }) {
   const NUMBER_OF_BANS = 5;
   const history = useHistory();
 
+  /**
+   * Initializes the array and add 0s if length < 5
+   * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
+   */
+  const initBansList = (dataBansList) => {
+    for (let i = 0; i < NUMBER_OF_BANS - dataBansList.length; i += 1) {
+      dataBansList.push(0);
+    }
+    return dataBansList;
+  };
+
+  // API data
+  const [rosterData, setRosterData] = useState(null);
+  // Form fields
+  const [teamList, setTeamList] = useState([]);
+  const [bluePlayerNameList, setBluePlayerNameList] = useState([]);
+  const [redPlayerNameList, setRedPlayerNameList] = useState([]);
+  const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamSetupObject.Bans));
+  const [redBansList, setRedBansList] = useState(initBansList(redTeamSetupObject.Bans));
+  // Button states
+  const [apiRequestSent, setApiRequestSent] = useState(false);
+  const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
+  const [saveButtonPressed, setSaveButtonPressed] = useState(false);
+  // Validation list
+  const [messageList, setMessageList] = useState([]);
+  // Dropdown Weeks
+  const [weekDropDownValue, setWeekDropDownValue] = useState(setupData.Week);
+
   // #region Helper Functions
   /**
    * Add to message list that will be displayed at the bottom of page
@@ -91,17 +119,6 @@ export default function MatchSetup({ setupData }) {
     } else {
       setMessageList((oldMessageList) => [...oldMessageList, message]);
     }
-  };
-
-  /**
-   * Initializes the array and add 0s if length < 5
-   * @param {Array} dataBansList  BlueTeam.Bans / RedTeam.Bans
-   */
-  const initBansList = (dataBansList) => {
-    for (let i = 0; i < NUMBER_OF_BANS - dataBansList.length; i += 1) {
-      dataBansList.push(0);
-    }
-    return dataBansList;
   };
 
   /**
@@ -173,6 +190,7 @@ export default function MatchSetup({ setupData }) {
     loadPlayersIntoObject(BLUE);
     loadPlayersIntoObject(RED);
 
+    console.log(transformedObject);
     return transformedObject;
   };
 
@@ -187,23 +205,6 @@ export default function MatchSetup({ setupData }) {
     return profileNamesList.sort();
   };
   // #endregion
-
-  // API data
-  const [rosterData, setRosterData] = useState(null);
-  // Form fields
-  const [teamList, setTeamList] = useState([]);
-  const [bluePlayerNameList, setBluePlayerNameList] = useState([]);
-  const [redPlayerNameList, setRedPlayerNameList] = useState([]);
-  const [blueBansList, setBlueBansList] = useState(initBansList(blueTeamSetupObject.Bans));
-  const [redBansList, setRedBansList] = useState(initBansList(redTeamSetupObject.Bans));
-  // Button states
-  const [apiRequestSent, setApiRequestSent] = useState(false);
-  const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
-  const [saveButtonPressed, setSaveButtonPressed] = useState(false);
-  // Validation list
-  const [messageList, setMessageList] = useState([]);
-  // Dropdown Weeks
-  const [dropDownValue, setDropDownValue] = useState(setupData.Week);
 
   useEffect(() => {
     axios.get(`/api/season/v1/roster/name/${setupData.SeasonShortName}`)
@@ -236,8 +237,7 @@ export default function MatchSetup({ setupData }) {
   const handleSubmit = async (values, {setSubmitting}) => {
     const callMatchSetupSubmit = () => {
       setApiRequestSent(true);
-      axios.put('/api/match/v1/setup/submit',
-        transformValueData(values)).then(() => {
+      axios.put('/api/match/v1/setup/submit', transformValueData(values)).then(() => {
         // Redirect link to new match link
         history.push(`/match/${setupData.RiotMatchId}`);
       }).catch((err) => {
@@ -449,8 +449,9 @@ export default function MatchSetup({ setupData }) {
   };
   // #endregion
 
-  const changeValue = (text) => {
-    setDropDownValue(text);
+  const changeWeekValue = (weekString, setFieldValue) => {
+    setWeekDropDownValue(weekString);
+    setFieldValue('week', weekString);
   }
 
   const weekList = [
@@ -537,9 +538,13 @@ export default function MatchSetup({ setupData }) {
                 <Form>
                   <span><b>Week</b></span>
                   <span>
-                    <DropdownButton title={dropDownValue} id="weekDropDown" name="week">
+                    <DropdownButton title={weekDropDownValue} id="weekDropDown" name="week">
                       {weekList.map((week) => (
-                        <Dropdown.Item key={week} as="button"><div onClick={(e) => changeValue(e.target.textContent)}>{week}</div></Dropdown.Item>
+                        <Dropdown.Item key={week} as="button">
+                          <div onClick={(e) => changeWeekValue(e.target.textContent, setFieldValue)}>
+                            {week}
+                          </div>
+                        </Dropdown.Item>
                       ))}
                     </DropdownButton>
                   </span>
