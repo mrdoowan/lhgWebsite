@@ -37,6 +37,7 @@ export default function MatchTitle({ match }) {
   const generateWeekString = (weekStr) => {
     if (weekStr.includes('W')) { return weekStr.replace("W", "Week "); }
     if (weekStr.includes('PI')) { return weekStr.replace("PI", "Play-Ins "); }
+    if (weekStr.includes('RO')) { return weekStr.replace("RO", "Round of "); }
     if (weekStr.includes('QF')) { return "Quarterfinals"; }
     if (weekStr.includes('SF')) { return "Semifinals"; }
     if (weekStr.includes('3')) { return "3rd Place"; }
