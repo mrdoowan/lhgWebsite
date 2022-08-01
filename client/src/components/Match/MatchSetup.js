@@ -466,10 +466,14 @@ export default function MatchSetup({ setupData }) {
     'PI1',
     'PI2',
     'PI3',
+    'Q1',
+    'Q2',
+    'Q3',
     'RO16',
     'RO12',
     'QF',
     'SF',
+    '3',
     'F',
   ];
 
