@@ -463,6 +463,8 @@ export default function MatchSetup({ setupData }) {
     'W5',
     'W6',
     'W7',
+    'W8',
+    'W9',
     'PI1',
     'PI2',
     'PI3',
