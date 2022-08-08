@@ -475,6 +475,13 @@ export default function MatchSetup({ setupData }) {
     'SF',
     '3',
     'F',
+    'LRO8',
+    'USF',
+    'LQF',
+    'LSF',
+    'UF',
+    'LF',
+    'GF'
   ];
 
   return (
