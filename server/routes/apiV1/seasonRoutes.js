@@ -220,11 +220,11 @@ seasonV1Routes.put('/roster/profile/remove', authenticateJWT, (req, res) => {
  * @access  Private
  */
 seasonV1Routes.put('/codes/generate', authenticateJWT, (req, res) => {
-  const { seasonShortName, week, teamList } = req.body;
+  const { seasonShortName, week, numCodes, teamList } = req.body;
 
   console.log(`PUT Request creating new week '${week}' for generating new Tournament Codes.`);
   getSeasonId(seasonShortName).then((seasonId) => {
-    generateNewCodes(seasonId, week, teamList).then((response) => {
+    generateNewCodes(seasonId, week, numCodes, teamList).then((response) => {
       return res200sOK(res, req, response); 
     }).catch((err) => error500sServerError(err, res, "PUT Generate Codes Error."));
   }).catch((err) => error500sServerError(err, res, "GET Season ID Error."));

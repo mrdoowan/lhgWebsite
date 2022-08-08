@@ -488,11 +488,11 @@ export const createNewSeason = (body) => {
 /**
  * Generates new codes under a NEW week
  * @param {number} seasonId         
- * @param {string} week             ("W1", "W2", etc., "PI1", "PI2", etc., "RO16", "QF", "SF", "F")
+ * @param {string} week             ("W1", "W2", etc., "Q1", "Q2", etc., "RO16", "QF", "SF", "F")
  * @param {string[]} teamList         List of teams that are matched up. Length must be even.
  * @returns 
  */
-export const generateNewCodes = (seasonId, week, teamList) => {
+export const generateNewCodes = (seasonId, week, numCodes, teamList) => {
   return new Promise((resolve, reject) => {
     dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonObject) => {
       try {
@@ -522,7 +522,7 @@ export const generateNewCodes = (seasonId, week, teamList) => {
           }
           // Create Backups
           const awsResponse = await generateTournamentCodes(weekUppercase, 
-            riotTournamentId, seasonShortName, null, null, 10);
+            riotTournamentId, seasonShortName, 10);
           seasonCodesWeeks[weekUppercase].Backups = awsResponse.data;
           timesRetried += awsResponse.timedOut;
         }
@@ -531,7 +531,7 @@ export const generateNewCodes = (seasonId, week, teamList) => {
           const teamName1 = filteredTeamList[i];
           const teamName2 = filteredTeamList[++i];
           const awsResponse = await generateTournamentCodes(weekUppercase, 
-            riotTournamentId, seasonShortName, teamName1, teamName2);
+            riotTournamentId, seasonShortName, numCodes, teamName1, teamName2);
           const codesList = awsResponse.data;
           timesRetried += awsResponse.timedOut;
           primaryCodesList.push({

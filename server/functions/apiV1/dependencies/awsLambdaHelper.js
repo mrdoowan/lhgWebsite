@@ -137,12 +137,12 @@ export const createTournamentId = (seasonShortName) => {
  * @param {string} week             i.e. "W1", "W2", etc., "PI1", "PI2", etc. "RO16", "QF", "SF", "F"
  * @param {number} tournamentId     Tournament ID provided from createTournamentId
  * @param {string} seasonShortName  i.e. "w2022agl"
+ * @param {string} numCodes         Number of codes to generate
  * @param {string} team1            Team Name i.e. "Team Ambition"
  * @param {string} team2            Team Name i.e. "Omega Gaming"
- * @param {string} numCodes         Number of codes to generate
  * @returns {Promise<object>}     List of Tournament Codes
  */
-export const generateTournamentCodes = (week, tournamentId, seasonShortName, team1 = null, team2 = null, numCodes = null) => {
+export const generateTournamentCodes = (week, tournamentId, seasonShortName, numCodes, team1 = null, team2 = null) => {
   return new Promise(async (resolve, reject) => {
     console.log(`AWS Lambda: Generating new codes for season '${seasonShortName}'`);
     const params = {
@@ -174,7 +174,7 @@ export const generateTournamentCodes = (week, tournamentId, seasonShortName, tea
         timedOut++;
       }
       else {
-        reject(err);
+        reject(res.FunctionError);
         return;
       }
     }

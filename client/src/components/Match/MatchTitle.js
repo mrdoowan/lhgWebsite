@@ -39,13 +39,13 @@ export default function MatchTitle({ match }) {
     if (weekStr.includes('U')) { return weekStr.replace("U", "Upper "); }
     if (weekStr.includes('G')) { return weekStr.replace("G", "Grand "); }
     if (weekStr.includes('W')) { return weekStr.replace("W", "Week "); }
-    if (weekStr.includes('PI')) { return weekStr.replace("PI", "Play-Ins "); }
-    if (weekStr.includes('Q')) { return weekStr.replace("Q", "Qualifiers "); }
     if (weekStr.includes('RO')) { return weekStr.replace("RO", "Round of "); }
     if (weekStr.includes('QF')) { return "Quarterfinals"; }
     if (weekStr.includes('SF')) { return "Semifinals"; }
     if (weekStr.includes('3')) { return "3rd Place"; }
     if (weekStr.includes('F')) { return "Finals"; }
+    if (weekStr.includes('PI')) { return weekStr.replace("PI", "Play-Ins "); }
+    if (weekStr.includes('Q')) { return weekStr.replace("Q", "Qualifiers "); }
     return null;
   }
 
