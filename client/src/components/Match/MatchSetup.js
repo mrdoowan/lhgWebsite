@@ -475,7 +475,7 @@ export default function MatchSetup({ setupData }) {
     'RO12',
     'QF',
     'SF',
-    '3',
+    '3RD',
     'F',
     'LRO8',
     'USF',
