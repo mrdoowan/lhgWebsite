@@ -36,18 +36,18 @@ export default function MatchTitle({ match }) {
    */
   const generateWeekString = (weekStr) => {
     // 1st part
-    if (weekStr.includes('L')) { weekStr.replace("L", "Lower "); }
-    else if (weekStr.includes('U')) { weekStr.replace("U", "Upper "); }
-    else if (weekStr.includes('G')) { weekStr.replace("G", "Grand "); }
-    else if (weekStr.includes('W')) { weekStr.replace("W", "Week "); }
-    else if (weekStr.includes('RO')) { weekStr.replace("RO", "Round of "); }
-    else if (weekStr.includes('PI')) { return weekStr.replace("PI", "Play-Ins "); }
-    else if (weekStr.includes('Q')) { weekStr.replace("Q", "Qualifiers Week "); }
+    if (weekStr.includes('L')) { weekStr = weekStr.replace("L", "Lower "); }
+    else if (weekStr.includes('U')) { weekStr = weekStr.replace("U", "Upper "); }
+    else if (weekStr.includes('G')) { weekStr = weekStr.replace("G", "Grand "); }
+    else if (weekStr.includes('W')) { weekStr = weekStr.replace("W", "Week "); }
+    else if (weekStr.includes('RO')) { weekStr = weekStr.replace("RO", "Round of "); }
+    else if (weekStr.includes('PI')) { weekStr = weekStr.replace("PI", "Play-Ins Week "); }
+    else if (weekStr.includes('Q')) { weekStr = weekStr.replace("Q", "Qualifiers Week "); }
     // 2nd part
-    if (weekStr.includes('QF')) { weekStr.replace("QF","Quarterfinals"); }
-    else if (weekStr.includes('SF')) { weekStr.replace("SF", "Semifinals"); }
-    else if (weekStr.includes('3RD')) { weekStr.replace("3RD", "3rd Place"); }
-    else if (weekStr.includes('F')) { weekStr.replace("F", "Finals"); }
+    if (weekStr.includes('QF')) { weekStr = weekStr.replace("QF","Quarterfinals"); }
+    else if (weekStr.includes('SF')) { weekStr = weekStr.replace("SF", "Semifinals"); }
+    else if (weekStr.includes('3RD')) { weekStr = weekStr.replace("3RD", "3rd Place"); }
+    else if (weekStr.includes('F')) { weekStr = weekStr.replace("F", "Finals"); }
     return weekStr;
   }
 
