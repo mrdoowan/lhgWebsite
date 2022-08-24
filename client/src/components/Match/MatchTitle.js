@@ -40,11 +40,11 @@ export default function MatchTitle({ match }) {
     else if (weekStr.includes('U')) { weekStr = weekStr.replace("U", "Upper "); }
     else if (weekStr.includes('G')) { weekStr = weekStr.replace("G", "Grand "); }
     else if (weekStr.includes('W')) { weekStr = weekStr.replace("W", "Week "); }
-    else if (weekStr.includes('RO')) { weekStr = weekStr.replace("RO", "Round of "); }
     else if (weekStr.includes('PI')) { weekStr = weekStr.replace("PI", "Play-Ins Week "); }
     else if (weekStr.includes('Q')) { weekStr = weekStr.replace("Q", "Qualifiers Week "); }
     // 2nd part
-    if (weekStr.includes('QF')) { weekStr = weekStr.replace("QF","Quarterfinals"); }
+    if (weekStr.includes('RO')) { weekStr = weekStr.replace("RO", "Round of "); }
+    else if (weekStr.includes('QF')) { weekStr = weekStr.replace("QF","Quarterfinals"); }
     else if (weekStr.includes('SF')) { weekStr = weekStr.replace("SF", "Semifinals"); }
     else if (weekStr.includes('3RD')) { weekStr = weekStr.replace("3RD", "3rd Place"); }
     else if (weekStr.includes('F')) { weekStr = weekStr.replace("F", "Finals"); }
