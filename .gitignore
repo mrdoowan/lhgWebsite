@@ -3,6 +3,10 @@ client/node_modules/
 external/
 intermediates/
 
+# Remove package-lock.json
+package-lock.json
+client/package-lock.json
+
 # Scripts
 *.sh
 
