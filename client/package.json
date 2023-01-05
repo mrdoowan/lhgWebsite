@@ -16,7 +16,7 @@
     "eslint-plugin-flowtype": "^3.13.0",
     "formik": "^2.2.6",
     "formik-material-ui": "^3.0.1",
-    "moment-timezone": "^0.5.33",
+    "moment-timezone": "^0.5.35",
     "react": "^16.14.0",
     "react-bootstrap": "^1.4.3",
     "react-dom": "^16.14.0",
