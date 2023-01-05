@@ -299,15 +299,14 @@ profileV1Routes.put('/update/name', authenticateJWT, (req, res) => {
       // Profile Name does not exist
       return res400sClientError(res, req, `Profile '${currentName}' does not exist.`);
     }
-    getProfilePIdByName(newName).then((checkId) => {
-      if (checkId) {
-        // New name already exists in Db
-        return res400sClientError(res, req, `New profile name '${newName}' is already taken!`);
+    updateProfileName(newName, currentName).then((data) => {
+      if (data.error) {
+        return res400sClientError(res, req, data.error);
       }
-      updateProfileName(profileId, newName, currentName).then((data) => {
+      else {
         return res200sOK(res, req, data);
-      }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Update Function Error."));
-    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId NewName Error."));
+      }
+    }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Update Function Error."));
   }).catch((err) => error500sServerError(err, res, "PUT Profile Name Change - Get Profile PId OldName Error."));
 });
 

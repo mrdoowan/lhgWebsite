@@ -497,45 +497,57 @@ export const updateProfileInfoSummonerList = (profilePId, summIdList, item) => {
 // }
 /**
  * Change Profile name. Update "Profile", "ProfileNameMap" table
- * @param {string} profilePId 
  * @param {string} newName 
  * @param {string} oldName 
  */
-export const updateProfileName = (profilePId, newName, oldName) => {
+export const updateProfileName = (newName, oldName) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // Update "Profile" table
-      await dynamoDbUpdateItem('Profile', profilePId,
+      // Check if name is case sensitive of oldName
+      const isCaseSens = filterName(newName) == filterName(oldName);
+      // Check if name already exists and is NOT a case sensitive of oldName
+      const profilePId = await getProfilePIdByName(newName);
+      if (profilePId && !isCaseSens) {
+        resolve({
+          error: `New profile name '${newName}' is already taken!`
+        });
+        return;
+      }
+      else {
+        // Update "Profile" table
+        await dynamoDbUpdateItem('Profile', profilePId,
         'SET #name = :new, #info.#name = :new',
-        {
-          '#name': 'ProfileName',
-          '#info': 'Information',
-        },
-        {
-          ':new': newName,
+          {
+              '#name': 'ProfileName',
+              '#info': 'Information',
+          },
+          {
+              ':new': newName,
+          }
+        );
+        if (!isCaseSens) {
+          // Add newName to "ProfileNameMap" table
+          await dynamoDbPutItem('ProfileNameMap', {
+            'ProfileName': filterName(newName),
+            'ProfileHId': getProfileHashId(profilePId),
+          }, filterName(newName));
+          // Delete oldName from "ProfileNameMap" table
+          await dynamoDbDeleteItem('ProfileNameMap', filterName(oldName));
         }
-      );
-      // Add newName to "ProfileNameMap" table
-      await dynamoDbPutItem('ProfileNameMap', {
-        'ProfileName': filterName(newName),
-        'ProfileHId': getProfileHashId(profilePId),
-      }, filterName(newName));
-      // Delete oldName from "ProfileNameMap" table
-      await dynamoDbDeleteItem('ProfileNameMap', filterName(oldName));
+        // Del Cache
+        cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + filterName(oldName));
+        cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId);
+        cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
 
-      // Del Cache
-      cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + filterName(oldName));
-      cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId);
-      cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
-
-      resolve({
-        'ProfilePId': profilePId,
-        'NewProfileName': newName,
-        'OldProfileName': oldName,
-      });
+        resolve({
+          'ProfilePId': profilePId,
+          'NewProfileName': newName,
+          'OldProfileName': oldName,
+        });
+      }
     }
     catch (err) { reject(err); }
-  })
+  });
 }
 
 /**
