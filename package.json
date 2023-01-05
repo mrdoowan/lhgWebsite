@@ -34,7 +34,7 @@
     "hashids": "^2.2.8",
     "jest": "^27.4.7",
     "jsonwebtoken": "^8.5.1",
-    "moment-timezone": "^0.5.33",
+    "moment-timezone": "^0.5.35",
     "mysql": "^2.18.1",
     "node-schedule": "^2.0.0",
     "random-js": "^2.1.0",
