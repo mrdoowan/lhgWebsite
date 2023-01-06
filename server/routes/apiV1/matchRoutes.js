@@ -10,7 +10,6 @@ import {
   getMatchData,
   getMatchSetup,
   postMatchNewSetup,
-  putMatchPlayerFix,
   deleteMatchData,
   getMatchSetupMap,
   putMatchSaveSetup,
@@ -63,22 +62,6 @@ matchV1Routes.get('/setup/data/:matchId', (req, res) => {
 //#endregion
 
 //#region POST / PUT / DELETE Requests - Match
-
-/**
- * Uses MySQL
- * @route   PUT api/match/v1/players/update
- * @desc    Fix Player assignment to champions
- * @access  Private (to Admins)
- */
-matchV1Routes.put('/players/update', authenticateJWT, (req, res) => {
-  const { playersToFix, matchId } = req.body;
-
-  console.log(`PUT Request Match '${matchId}' Players`);
-  putMatchPlayerFix(playersToFix, matchId).then((data) => {
-    if (data.error) { return res400sClientError(res, req, data.error); }
-    return res200sOK(res, req, data);
-  }).catch((err) => error500sServerError(err, res, "PUT Match Update Error."));
-});
 
 /**
  * @route   POST api/match/v1/setup/new/id
