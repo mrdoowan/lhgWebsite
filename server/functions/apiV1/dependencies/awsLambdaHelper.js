@@ -18,7 +18,7 @@ const invokeLambda = (params) => new Promise((resolve, reject) => {
  * Returns the request object from Riot API
  * @param {string} name     Summoner Name/IGN
  */
-export const getRiotSummonerId = (name) => new Promise((resolve, reject) => {
+export const getRiotSummonerData = (name) => new Promise((resolve, reject) => {
   console.log(`AWS Lambda: Getting Summoner Id of '${name}'`);
   const params = {
     FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
