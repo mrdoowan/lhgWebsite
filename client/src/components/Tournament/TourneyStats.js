@@ -85,6 +85,11 @@ export default function TourneyStats({ stats }) {
     dragonData.push({ dragon: 'Hextech', number: stats.HextechDrakes });
     dragonPalette.push('#4ebceb');
   }
+  if (stats.ChemtechDrakes) {
+    totalDragons += stats.ChemtechDrakes;
+    dragonData.push({ dragon: 'Chemtech', number: stats.ChemtechDrakes });
+    dragonPalette.push('#a7bd72');
+  }
   if (stats.ElderDrakes) {
     totalDragons += stats.ElderDrakes;
     dragonData.push({ dragon: 'Elder', number: stats.ElderDrakes });
