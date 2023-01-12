@@ -1,5 +1,6 @@
 /*  Declaring npm modules */
 const redis = require('redis');
+import replaceSpecialCharacters from 'replace-special-characters';
 
 /*  Import dependency modules */
 import {
@@ -18,14 +19,22 @@ import { CACHE_KEYS } from './dependencies/cacheKeys'
 
 /*  Import data functions */
 import { getTournamentShortName } from './tournamentData';
-import { getProfileName } from './profileData';
-import { getTeamName } from './teamData';
+import { 
+  checkNewProfile,
+  getProfileName,
+  getProfilePIdsFromList,
+  opggUrlCheckProfiles,
+  postNewProfile,
+  putProfileAddAccount } from './profileData';
+import { 
+  getTeamName,
+  getTeamPIdByName
+} from './teamData';
 import {
   createTournamentId,
   generateTournamentCodes
 } from './dependencies/awsLambdaHelper';
 import { DYNAMODB_TABLENAMES } from '../../services/constants';
-import { getDdragonVersion } from '../../services/miscDynamoDb';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -608,25 +617,35 @@ export const putSeasonRosterTeams = (seasonId, teamPIdList) => {
 }
 
 /**
- * Adds new Profiles into a team in the Season Roster.
- * @param {number} seasonId         Assume valid 
- * @param {string} teamPId          Assume valid
- * @param {string} profilePIdList   Assume valid
+ * 
+ * @param {number} seasonId 
+ * @param {string} teamPId 
  */
-export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
-  return new Promise((resolve, reject) => {
-    dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonDbObject) => {
-      const errorList = [];
+const isTeamInSeasonRoster = async (seasonId, teamPId) => {
+  const seasonDbObject = await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId);
+  const teamHId = getTeamHashId(teamPId);
+  if (!(teamHId in seasonDbObject.Roster.Teams)) {
+    return false;
+  }
+  return true;
+}
 
+/**
+ * 
+ * @param {number} seasonId 
+ * @param {string} teamPId 
+ * @param {string[]} profilePIdList 
+ * @return {Promise<*>}
+ */
+const putProfilesIntoRoster = (seasonId, teamPId, profilePIdList) => {
+  return new Promise(async (resolve, reject) => {
+    try {
       // Update "Teams" and "Profiles" key
+      const teamHId = getTeamHashId(teamPId);
+      const seasonDbObject = await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId);
       const rosterTeamDbObject = seasonDbObject.Roster.Teams;
       const rosterProfilesDbObject = seasonDbObject.Roster.Profiles;
-      const teamHId = getTeamHashId(teamPId);
-      const teamName = await getTeamName(teamHId);
-      if (!(teamHId in rosterTeamDbObject)) {
-        resolve({ errorList: `${teamName} - Team is not in the Season Roster` });
-        return;
-      }
+
       // Check for duplicate in ProfilePId
       const rosterPlayersDbObject = rosterTeamDbObject[teamHId].Players;
       const profileMessages = [];
@@ -636,7 +655,8 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         if (rosterPlayersDbObject && profileHId in rosterPlayersDbObject) {
           // Duplicate found
           profileMessages.push(`${profileName} - Profile is already in the Team.`);
-        } else {
+        } 
+        else {
           // Create new object
           rosterPlayersDbObject[profileHId] = {};
           rosterProfilesDbObject[profileHId] = { MostRecentTeamHId: teamHId }
@@ -644,22 +664,171 @@ export const addProfilesToRoster = (seasonId, teamPId, profilePIdList) => {
         }
       }
 
-      if (errorList.length > 0) {
-        resolve({ errorList: errorList });
-      }
-      else {
-        // Remove cache
-        cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
+      // Remove cache
+      cache.del(`${CACHE_KEYS.SEASON_ROSTER_PREFIX}${seasonId}`);
 
-        await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, seasonDbObject, seasonId);
-        resolve({
-          'SeasonId': seasonId,
-          'TeamName': teamName,
-          'Profiles': profileMessages,
-          'SeasonRoster': { [teamHId]: rosterPlayersDbObject },
+      await dynamoDbPutItem(DYNAMODB_TABLENAMES.SEASON, seasonDbObject, seasonId);
+      resolve({
+        'SeasonId': seasonId,
+        'TeamName': await getTeamName(teamHId),
+        'Profiles': profileMessages,
+        'SeasonRoster': rosterPlayersDbObject,
+      });
+    }
+    catch (err) { reject(err); }
+  });
+  
+}
+
+/**
+ * Adds new Profiles into a team in the Season Roster.
+ * @param {string} seasonShortName
+ * @param {string} teamName
+ * @param {string[]} profileNameList
+ * @return {Promise<object>}
+ */
+export const addExistingProfilesToRoster = (seasonShortName, teamName, profileNameList) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const filteredProfileNameList = profileNameList.filter(name => name !== '');
+      const seasonId = await getSeasonId(seasonShortName);
+      if (!seasonId) { 
+        return resolve({ errorMsg: `Season Name '${seasonShortName}' Not Found` });
+      }
+      const teamPId = await getTeamPIdByName(teamName);
+      if (!teamPId) {
+        return resolve({ errorMsg: `Team Name '${teamName}' Not Found` });
+      }
+      if (!await isTeamInSeasonRoster(seasonId, teamPId)) {
+        return resolve({ errorMsg: `${teamName} - Team is not in the Season Roster` })
+      }
+      const profilePIdsResponse = await getProfilePIdsFromList(filteredProfileNameList);
+      if (profilePIdsResponse.errorList) {
+        return resolve({
+          errorMsg: `Error in getting ProfilePIds from profileNames list`,
+          errorList: profilePIdsResponse.errorList,
         });
       }
-    }).catch((err) => { reject(err); });
+      const profilePIdList = profilePIdsResponse.data;
+      
+      return await putProfilesIntoRoster(seasonId, teamPId, profilePIdList);
+    }
+    catch (err) { reject(err); }
+  });
+}
+
+/**
+ * Ugh this needs to be refactored. TEMPORARY SOLUTION
+ * @param {string[]} opggUrlList 
+ * @param {string[]} newNameList 
+ * @param {string} teamName 
+ * @param {string} seasonShortName 
+ * 
+ */
+export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seasonShortName) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Validity checks
+      if (opggUrlList.length !== newNameList.length) {
+        return resolve({ errorMsg: `Season Name '${seasonShortName}' Not Found` });
+      }
+      const seasonId = await getSeasonId(seasonShortName);
+      if (!seasonId) { 
+        return resolve({ errorMsg: `Season Name '${seasonShortName}' Not Found` });
+      }
+      const teamPId = await getTeamPIdByName(teamName);
+      if (!teamPId) { 
+        return resolve({ errorMsg: `Team Name '${teamName}' Not Found` }); 
+      }
+      if (!await isTeamInSeasonRoster(seasonId, teamPId)) {
+        return resolve({ errorMsg: `${teamName} - Team is not in the Season Roster` })
+      }
+      // Check for each summonerName from the opggUrl
+      const allProfileNamesList = [];
+      const newProfileList = [];
+      const addAccountsList = [];
+      const opggUrlCheckRes = await opggUrlCheckProfiles(opggUrlList);
+      const multiProfileErrorList = [];
+      if (opggUrlCheckRes.errorMsg) {
+        return resolve(opggUrlCheckRes);
+      }
+      for (const idx in opggUrlList) {
+        const opggUrl = opggUrlList[idx];
+        const newName = newNameList[idx];
+        const opggCheckItem = opggUrlCheckRes[opggUrl];
+        if (opggCheckItem.newProfile) { // New profile
+          const newProfileName = replaceSpecialCharacters((newName) || opggCheckItem.summNames[0]);
+          allProfileNamesList.push(newProfileName);
+          newProfileList.push({
+            profileName: newProfileName,
+            summIdList: opggCheckItem.summIds,
+          });
+        }
+        else { // Existing profile
+          const nonNullProfileNames = [...new Set(opggCheckItem.profileNames.filter((id) => id))];
+          if (nonNullProfileNames.length > 1) {
+            multiProfileErrorList.push({
+              opggUrl: opggUrl,
+              profileNames: nonNullProfileNames,
+            });
+          }
+          else {
+            allProfileNamesList.push(nonNullProfileNames[0]);
+            const accountsWithNoProfile = [];
+            for (const jdx in opggCheckItem.profileNames) {
+              if (!opggCheckItem.profileNames[jdx]) {
+                accountsWithNoProfile.push({
+                  summIds: opggCheckItem.summIds[jdx],
+                  summNames: opggCheckItem.summNames[jdx]
+                });
+              }
+            }
+            if (accountsWithNoProfile.length > 0) {
+              addAccountsList.push({
+                profileName: nonNullProfileNames[0],
+                summNames: accountsWithNoProfile.map((item) => item.summNames),
+                summIds: accountsWithNoProfile.map((item) => item.summIds),
+              });
+            }
+          }
+        }
+      }
+      if (multiProfileErrorList.length > 0) {
+        return resolve({
+          errorMsg: `The following opggUrls have at least two profiles associated.`,
+          errorList: multiProfileErrorList,
+        });
+      }
+
+      // Checks finished.
+      const newProfileInDbList = [];
+      // New Profiles: Add to Dynamodb
+      for (const newProfile of newProfileList) {
+        newProfileInDbList.push(await postNewProfile(newProfile.profileName, newProfile.summIdList));
+      }
+      // Existing Profiles: Add new summoner accounts
+      const addSummsResList = []
+      for (const item of addAccountsList) {
+        await putProfileAddAccount(item.profileName, item.summIds);
+        addSummsResList.push(`Account names '${item.summNames}' were added to profile '${item.profileName}'`);
+      }
+      // Add to season roster
+      const profilePIdsResponse = await getProfilePIdsFromList(allProfileNamesList);
+      if (profilePIdsResponse.errorList) {
+        return resolve({
+          errorMsg: `Error in getting ProfilePIds from profileNames list`,
+          errorList: profilePIdsResponse.errorList,
+        });
+      }
+      const seasonDataRes = await putProfilesIntoRoster(seasonId, teamPId, profilePIdsResponse.data);
+
+      return resolve({
+        newProfiles: newProfileInDbList,
+        addSumms: addSummsResList,
+        seasonRoster: seasonDataRes,
+      });
+    }
+    catch (err) { reject(err); }
   });
 }
 
