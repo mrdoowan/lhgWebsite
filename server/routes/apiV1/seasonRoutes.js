@@ -19,6 +19,7 @@ import {
   createNewSeason,
   generateNewCodes,
   addNewProfilesToRoster,
+  addNewTeamsToSeason,
 } from '../../functions/apiV1/seasonData';
 import {
   getTeamPIdByName,
@@ -242,10 +243,13 @@ seasonV1Routes.post('/new', authenticateJWT, (req, res) => {
  * @access  Private
  */
 seasonV1Routes.post('/roster/team/new', authenticateJWT, (req, res) => {
-  const { teamNameList, teamCodeList, seasonShortName } = req.body;
-  console.log(`PUT Request adding ${teamNameList.length} new team(s) into the database and in season '${seasonShortName}'.`);
+  const { teamNameTuples, seasonShortName } = req.body;
+  console.log(`PUT Request adding ${teamNameTuples.length} new team(s) into the database and in season '${seasonShortName}'.`);
 
-
+  addNewTeamsToSeason(seasonShortName, teamNameTuples).then((data) => {
+    if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg, data.errorList); };
+    return res200sOK(res, req, data);
+  }).catch((err) => error500sServerError(err, res, "PUT new Profiles in Season Roster Error."))
 })
 
 /**

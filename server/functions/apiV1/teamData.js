@@ -37,6 +37,7 @@ const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(proce
 /**
  * Get the TeamPId of its Name from DynamoDb
  * @param {string} name       Team's name
+ * @return {Promise<string>}
  */
 // Get TeamPId from TeamName
 export const getTeamPIdByName = (name) => {
@@ -353,10 +354,17 @@ export const getTeamStatsByTourney = (teamPId, tPId = null) => {
  * Add a new team into the DB. Add new Team to "Team", "TeamNameMap"
  * @param {string} teamName 
  * @param {string} shortName    i.e. "TSM"
+ * @return {Promise<*>}
  */
 export const postNewTeam = (teamName, shortName) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // Check
+      const teamPId = await getTeamPIdByName(teamName);
+      if (teamPId) {
+        return resolve({ errorMsg: `Team '${teamName}' already exists under Team ID '${teamPId}'` });
+      }
+
       // Generate new Team PId
       const newPId = await generateNewPId('Team');
       const newTeamItem = {
@@ -378,8 +386,8 @@ export const postNewTeam = (teamName, shortName) => {
       await dynamoDbPutItem('TeamNameMap', newTeamMap, simpleTeamName);
 
       resolve({
-        'TeamName': newTeamItem['TeamName'],
-        'TeamPId': newPId,
+        teamName: newTeamItem['TeamName'],
+        teamPId: newPId,
       });
     }
     catch (err) { reject(err); }
