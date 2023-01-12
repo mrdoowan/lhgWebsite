@@ -162,17 +162,10 @@ teamV1Routes.get('/stats/latest/name/:teamName', (req, res) => {
  */
 teamV1Routes.post('/add/new', authenticateJWT, (req, res) => {
   const { teamName, shortName } = req.body;
-  // Check if Team Name already exists
-  getTeamPIdByName(teamName).then((tPId) => {
-    if (tPId != null) {
-      // Id found in DB. Team name exists. Reject.
-      res400sClientError(res, req, `Team '${teamName}' already exists under Team ID '${tPId}'`);
-      return;
-    }
-    postNewTeam(teamName, shortName).then((data) => {
-      return res200sOK(res, req, data);
-    }).catch((err) => error500sServerError(err, res, "POST Team Add New Error 1"));
-  }).catch((err) => error500sServerError(err, res, "POST Team Add New Error 2"));
+  postNewTeam(teamName, shortName).then((data) => {
+    if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg); }
+    return res200sOK(res, req, data);
+  }).catch((err) => error500sServerError(err, res, "POST add new Team Error"));
 });
 
 /**
