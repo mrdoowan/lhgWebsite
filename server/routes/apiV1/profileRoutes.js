@@ -18,6 +18,8 @@ import {
   putProfileRemoveAccount,
   deleteProfileFromDb,
   opggUrlCheckProfiles,
+  getProfileInfoByProfileName,
+  getProfileNameBySummName,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -38,14 +40,27 @@ import { authenticateJWT } from './dependencies/jwtHelper';
  */
 profileV1Routes.get('/information/name/:profileName', (req, res) => {
   const { profileName } = req.params;
-  console.log(`GET Request Profile '${profileName}' Information.`);
+  console.log(`GET Request Profile of profile name '${profileName}' Information.`);
 
-  getProfilePIdByName(profileName).then((pPId) => {
-    if (pPId == null) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
-    getProfileInfo(pPId).then((data) => {
-      return res200sOK(res, req, data);
-    }).catch((err) => error500sServerError(err, res, "GET Profile Information Error."));
-  }).catch((err) => error500sServerError(err, res, "GET Profile ID Error."));
+  getProfileInfoByProfileName(profileName).then((data) => {
+    if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg); }
+    return res200sOK(res, req, data);
+  }).catch((err) => error500sServerError(err, res, "GET Profile ID error by profile name."));
+});
+
+/**
+ * @route   GET api/profile/v1/name/summ/:summname
+ * @desc    Get Profile Information
+ * @access  Public
+ */
+profileV1Routes.get('/name/summ/:summName', (req, res) => {
+  const { summName } = req.params;
+  console.log(`GET Request Profile of summoner account '${summName}' Information.`);
+
+  getProfileNameBySummName(summName).then((data) => {
+    if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg); }
+    return res200sOK(res, req, data);
+  }).catch((err) => error500sServerError(err, res, "GET Profile ID error by summoner name."));
 });
 
 /**

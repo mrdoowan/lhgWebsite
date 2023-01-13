@@ -4,13 +4,14 @@
         "es2020": true
     },
     "extends": [
-        "plugin:react/recommended",
-        "airbnb"
+        "plugin:react/recommended"
     ],
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
+        "requireConfigFile": false,
         "ecmaVersion": 11,
         "sourceType": "module"
     },

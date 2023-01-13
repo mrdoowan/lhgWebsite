@@ -139,6 +139,7 @@ export const getProfilePIdsFromSummDataList = (summDataList) => {
  * Get ProfileName from DynamoDb
  * @param {string} profileId    Profile PId or HId
  * @param {boolean} hash        hash=true if id is HId, hash=false if id is PId. hash is 'true' by default
+ * @return {Promise<string>}
  */
 export const getProfileName = (profileId, hash = true) => {
   return new Promise(function (resolve, reject) {
@@ -384,6 +385,46 @@ export const getRiotSummonerDataFromList = (summonerNameList) => {
       else {
         resolve({ data: summonerDataList });
       }
+    }
+    catch (err) { reject(err); }
+  });
+}
+
+/**
+ * 
+ * @param {string} profileName
+ * @return {*} 
+ */
+export const getProfileInfoByProfileName = (profileName) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const profilePId = await getProfilePIdByName(profileName);
+      if (!profilePId) {
+        return resolve({ errorMsg: `Profile Name '${profileName}' Not Found` });
+      }
+      return resolve(await getProfileInfo(profilePId));
+    }
+    catch (err) { reject(err); }
+  });
+}
+
+/**
+ * 
+ * @param {string} summName 
+ * @return {*} 
+ */
+export const getProfileNameBySummName = (summName) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const summId = (await getRiotSummonerDataBySummonerName(summName)).id;
+      if (!summId) {
+        return resolve({ errorMsg: `Summoner name '${summName}' does not exist.` });
+      }
+      const profilePId = await getProfilePIdBySummonerId(summId);
+      if (!profilePId) {
+        return resolve({ errorMsg: `Summoner name '${summName}' does not have a profile associated.` });
+      }
+      return resolve(await getProfileName(profilePId, false));
     }
     catch (err) { reject(err); }
   });
