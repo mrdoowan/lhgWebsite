@@ -10,6 +10,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 // Images
+import IronEmblem from '../../static/Emblem_Iron.png';
+import BronzeEmblem from '../../static/Emblem_Bronze.png';
+import SilverEmblem from '../../static/Emblem_Silver.png';
 import GoldEmblem from '../../static/Emblem_Gold.png';
 import PlatinumEmblem from '../../static/Emblem_Platinum.png';
 import DiamondEmblem from '../../static/Emblem_Diamond.png';
@@ -44,7 +47,7 @@ const useStyles = makeStyles({
   },
   header: {
     fontSize: 'large',
-    width: '20%',
+    width: '16.66%',
   },
   link: {
     color: 'blue',
@@ -81,6 +84,9 @@ export default function LeagueTable(props) {
   const diamondImage = <img src={DiamondEmblem} alt="Diamond" width="50" height="50" />;
   const platinumImage = <img src={PlatinumEmblem} alt="Platinum" width="50" height="50" />;
   const goldImage = <img src={GoldEmblem} alt="Gold" width="50" height="50" />;
+  const silverImage = <img src={SilverEmblem} alt="Silver" width="50" height="50" />;
+  const bronzeImage = <img src={BronzeEmblem} alt="Bronze" width="50" height="50" />;
+  const ironImage = <img src={IronEmblem} alt="Iron" width="50" height="50" />;
 
   return (
     <div>
@@ -93,12 +99,23 @@ export default function LeagueTable(props) {
                 <span>
                   {challengerImage}
                   {grandmasterImage}
+                </span>
+              </StyledTableCell>
+              <StyledTableCell className={classes.header} align="center">
+                <span>
+                  {diamondImage}
                   {masterImage}
                 </span>
               </StyledTableCell>
-              <StyledTableCell className={classes.header} align="center">{diamondImage}</StyledTableCell>
               <StyledTableCell className={classes.header} align="center">{platinumImage}</StyledTableCell>
               <StyledTableCell className={classes.header} align="center">{goldImage}</StyledTableCell>
+              <StyledTableCell className={classes.header} align="center">
+                <span>
+                  {silverImage}
+                  {bronzeImage}
+                  {ironImage}
+                </span>
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -106,9 +123,10 @@ export default function LeagueTable(props) {
               <StyledTableRow key={season.SeasonTime}>
                 <StyledTableCell component="th" scope="row" align="center"><b>{season.SeasonTime}</b></StyledTableCell>
                 <SeasonTableCell list={season.Uncapped} />
-                <SeasonTableCell list={season.Diamond} />
+                <SeasonTableCell list={(season.Diamond) ? season.Diamond : season.Master} />
                 <SeasonTableCell list={season.Platinum} />
                 <SeasonTableCell list={season.Gold} />
+                <SeasonTableCell list={season.Silver} />
               </StyledTableRow>
             ))}
           </TableBody>
