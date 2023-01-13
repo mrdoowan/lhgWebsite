@@ -913,7 +913,7 @@ export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seaso
       // Existing Profiles: Add new summoner accounts
       const addSummsResList = []
       for (const item of addAccountsList) {
-        await putProfileAddAccount(item.profileName, item.summIds);
+        await putProfileAddAccount(item.profileName, item.summIds, item.summNames);
         addSummsResList.push(`Account names '${item.summNames}' were added to profile '${item.profileName}'`);
       }
       // Add to season roster

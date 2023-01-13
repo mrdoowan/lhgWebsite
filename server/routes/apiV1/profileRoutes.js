@@ -168,13 +168,11 @@ profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 profileV1Routes.put('/add/account', authenticateJWT, (req, res) => {
-  const { profileName, summonerNameList } = req.body;
+  const { profileName, opggUrl } = req.body;
   console.log(`PUT Request Profile '${profileName}' - Add Summoners`);
 
-  updateProfileInfoSummonerList(profileName, summonerNameList).then((data) => {
-    if (data.errorMsg) {
-      return res400sClientError(res, req, data.errorMsg, data.errorList);
-    }
+  updateProfileInfoSummonerList(profileName, opggUrl).then((data) => {
+    if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg, data.errorList); }
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "PUT Profile Add Summoner Accounts - PUT Profile Info Error."));
 });
@@ -191,16 +189,13 @@ profileV1Routes.put('/add/account', authenticateJWT, (req, res) => {
  * @access  Private (to Admins)
  */
 profileV1Routes.put('/remove/account', authenticateJWT, (req, res) => {
-  const { profileName, summonerId } = req.body;
-  console.log(`PUT Request Profile '${profileName}' - Removing summoner Id ${summonerId}`);
+  const { profileName, summName } = req.body;
+  console.log(`PUT Request Profile '${profileName}' - Removing summoner name ${summName}`);
 
-  getProfilePIdByName(profileName).then((profilePId) => {
-    if (!profilePId) { return res400sClientError(res, req, `Profile Name '${profileName}' Not Found`); }
-    putProfileRemoveAccount(profilePId, summonerId).then((data) => {
-      if (data.error) { return res400sClientError(res, req, `Error in removing Summoner Account`, data.error); }
-      return res200sOK(res, req, data);
-    }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - PUT function removing account."));
-  }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account - Get ProfilePId."));
+  putProfileRemoveAccount(profileName, summName).then((data) => {
+    if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg); }
+    return res200sOK(res, req, data);
+  }).catch((err) => error500sServerError(err, res, "PUT Profile Remove Summoner Account."));
 });
 
 /**
