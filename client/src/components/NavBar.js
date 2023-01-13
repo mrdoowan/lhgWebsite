@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 // MUI
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from "@material-ui/core/AppBar";
@@ -72,8 +73,11 @@ export default function NavBar() {
   // Init State
   const [dropDownValue, setDropDownValue] = useState("Profile");
   const [searchField, setSearchField] = useState("");
+  const PROFILE = 'Profile';
+  const TEAM = 'Team';
+  const IGN = 'IGN';
 
-  const changeValue = (text) => {
+  const changeDropdownValue = (text) => {
     setDropDownValue(text);
   }
 
@@ -81,16 +85,39 @@ export default function NavBar() {
     setSearchField(e.target.value);
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Below is to force rerendering zzz
-    window.location.href = `/${dropDownValue.toLowerCase()}/${searchField.toLowerCase()}`;
+  const reRenderSite = (firstParam, secondParam) => {
+    window.location.href = `/${firstParam}/${secondParam}`;
     setSearchField('');
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // searching summName
+    const dropDownMap = {
+      [PROFILE]: PROFILE.toLowerCase(),
+      [TEAM]: TEAM.toLowerCase(),
+      [IGN]: PROFILE.toLowerCase(),
+    }
+    if (dropDownValue === IGN) {
+      axios.get(`/api/profile/v1/name/summ/${searchField}`).then((res) => {
+        const name = res.data;
+        if (typeof name === 'string') {
+          reRenderSite(dropDownMap[dropDownValue], name);
+        }
+        else {
+          reRenderSite(dropDownMap[dropDownValue], searchField);
+        }
+      });
+    }
+    else {
+      reRenderSite(dropDownMap[dropDownValue], searchField.toLowerCase());
+    }
+  }
+
   const itemList = [
-    'Profile',
-    'Team',
+    PROFILE,
+    TEAM,
+    IGN,
   ]
 
   return (
@@ -100,7 +127,7 @@ export default function NavBar() {
         <div className={classes.searchBar}>
           <DropdownButton title={dropDownValue} id="NavBarSearch">
             {itemList.map((item) => (
-              <Dropdown.Item key={item} as="button"><div onClick={(e) => changeValue(e.target.textContent)}>{item}</div></Dropdown.Item>
+              <Dropdown.Item key={item} as="button"><div onClick={(e) => changeDropdownValue(e.target.textContent)}>{item}</div></Dropdown.Item>
             ))}
           </DropdownButton>
           <form className={classes.searchForm} onSubmit={handleSubmit}>
