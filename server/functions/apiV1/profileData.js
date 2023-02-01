@@ -746,20 +746,20 @@ export const updateProfileInfoSummonerList = (profileName, opggUrl) => {
 export const updateProfileName = (newName, currentName) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const oldProfileId = await getProfilePIdByName(currentName);
-      if (!oldProfileId) {
+      const profileId = await getProfilePIdByName(currentName);
+      if (!profileId) {
         return resolve({ error: `Profile '${currentName}' does not exist.` });
       }
       // Check if name is case sensitive of currentName
       const isCaseSens = filterName(newName) == filterName(currentName);
       // Check if name already exists and is NOT a case sensitive of currentName
-      const profilePId = await getProfilePIdByName(newName);
-      if (profilePId && !isCaseSens) {
+      const checkProfilePId = await getProfilePIdByName(newName);
+      if (checkProfilePId && !isCaseSens) {
         return resolve({ error: `New profile name '${newName}' is already taken!` });
       }
       else {
         // Update "Profile" table
-        await dynamoDbUpdateItem('Profile', profilePId,
+        await dynamoDbUpdateItem('Profile', profileId,
         'SET #name = :new, #info.#name = :new',
           {
               '#name': 'ProfileName',
@@ -773,18 +773,18 @@ export const updateProfileName = (newName, currentName) => {
           // Add newName to "ProfileNameMap" table
           await dynamoDbPutItem('ProfileNameMap', {
             'ProfileName': filterName(newName),
-            'ProfileHId': getProfileHashId(profilePId),
+            'ProfileHId': getProfileHashId(profileId),
           }, filterName(newName));
           // Delete oldName from "ProfileNameMap" table
           await dynamoDbDeleteItem('ProfileNameMap', filterName(currentName));
         }
         // Del Cache
         cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + filterName(currentName));
-        cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profilePId);
-        cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
+        cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + checkProfilePId);
+        cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + checkProfilePId);
 
         resolve({
-          'ProfilePId': profilePId,
+          'ProfilePId': profileId,
           'NewProfileName': newName,
           'OldProfileName': currentName,
         });
