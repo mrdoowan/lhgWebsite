@@ -815,7 +815,7 @@ export const addExistingProfilesToRoster = (seasonShortName, teamName, profileNa
       }
       const profilePIdList = profilePIdsResponse.data;
       
-      return await putProfilesIntoRoster(seasonId, teamPId, profilePIdList);
+      return resolve(await putProfilesIntoRoster(seasonId, teamPId, profilePIdList));
     }
     catch (err) { reject(err); }
   });
