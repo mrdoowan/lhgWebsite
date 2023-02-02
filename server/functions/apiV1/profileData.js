@@ -33,7 +33,11 @@ import {
   getTournamentShortName,
 } from './tournamentData';
 import { getTeamName } from './teamData';
-import { DYNAMODB_TABLENAMES } from '../../services/constants';
+import {
+  DYNAMODB_TABLENAMES,
+  SINGLE_QUERY_KEYWORD,
+  MULTI_QUERY_KEYWORD
+} from '../../services/constants';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -440,15 +444,13 @@ const parseOpggUrl = (opggUrl) => {
   opggUrl = opggUrl.replace(/\+/g, ' ');
   opggUrl = opggUrl.replace(/%2C/g, ',');
   // find "multisearch/na?=" or "summoners/na/"
-  const MULTI_QUERY_KEYWORD = 'multisearch/na?summoners=';
   const multiQueryIndex = opggUrl.lastIndexOf(MULTI_QUERY_KEYWORD);
   if (multiQueryIndex !== -1) {
     opggUrl = opggUrl.substring(multiQueryIndex + MULTI_QUERY_KEYWORD.length);
     return opggUrl.split(',').map(name => name.trim()).filter((name) => name !== '');
   }
-  const SINGLE_QUERY_KEYWORD = 'summoners/na/';
   const singleQueryIndex = opggUrl.lastIndexOf(SINGLE_QUERY_KEYWORD);
-  if (SINGLE_QUERY_KEYWORD !== -1) {
+  if (singleQueryIndex !== -1) {
     return [opggUrl.substring(singleQueryIndex + SINGLE_QUERY_KEYWORD.length).trim()];
   }
   else {

@@ -35,7 +35,11 @@ import {
   createTournamentId,
   generateTournamentCodes
 } from './dependencies/awsLambdaHelper';
-import { DYNAMODB_TABLENAMES } from '../../services/constants';
+import { 
+  DYNAMODB_TABLENAMES,
+  MULTI_QUERY_KEYWORD,
+  SINGLE_QUERY_KEYWORD 
+} from '../../services/constants';
 
 const cache = (process.env.NODE_ENV === 'production') ? redis.createClient(process.env.REDIS_URL) : redis.createClient(process.env.REDIS_PORT);
 
@@ -847,17 +851,23 @@ export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seaso
       if (!await isTeamInSeasonRoster(seasonId, teamPId)) {
         return resolve({ errorMsg: `${teamName} - Team is not in the Season Roster` })
       }
+      // Update opggUrlList if it doesn't start with the opggUrl (this is for convenience lol)
+      const newOpggUrlList = opggUrlList.map((item) => {
+        if (item.startsWith(SINGLE_QUERY_KEYWORD) || item.startsWith(MULTI_QUERY_KEYWORD)) { return item; }
+        else { return SINGLE_QUERY_KEYWORD + item; }
+      });
+      console.log(newOpggUrlList);
       // Check for each summonerName from the opggUrl
       const allProfileNamesList = [];
       const newProfileList = [];
       const addAccountsList = [];
-      const opggUrlCheckRes = await opggUrlCheckProfiles(opggUrlList);
+      const opggUrlCheckRes = await opggUrlCheckProfiles(newOpggUrlList);
       const multiProfileErrorList = [];
       if (opggUrlCheckRes.errorMsg) {
         return resolve(opggUrlCheckRes);
       }
-      for (const idx in opggUrlList) {
-        const opggUrl = opggUrlList[idx];
+      for (const idx in newOpggUrlList) {
+        const opggUrl = newOpggUrlList[idx];
         const newName = newNameList[idx];
         const opggCheckItem = opggUrlCheckRes[opggUrl];
         if (opggCheckItem.newProfile) { // New profile
