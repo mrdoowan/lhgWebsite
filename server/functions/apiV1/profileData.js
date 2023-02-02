@@ -484,7 +484,7 @@ export const opggUrlCheckProfiles = (opggUrlList) => {
           }
           resData[opggUrl] = {
             newProfile: profilePIdList.every(id => id === null), // boolean
-            summNames: summonerNameList,
+            summNames: riotSummDataList.map((item) => item.name),
             summIds: riotSummDataList.map((item) => item.id),
             profilePIds: profilePIdList,
             profileNames: profileNameList,
