@@ -164,7 +164,7 @@ seasonV1Routes.put('/roster/profile/add', authenticateJWT, (req, res) => {
   const { profileNameList, teamName, seasonShortName } = req.body;
   console.log(`PUT Request Adding Profiles to Team '${teamName}' in Season '${seasonShortName}'.`);
 
-  addExistingProfilesToRoster(seasonId, teamPId, profileNameList).then((data) => {
+  addExistingProfilesToRoster(seasonShortName, teamName, profileNameList).then((data) => {
     if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg, data.errorList); }
     return res200sOK(res, req, data);
   }).catch((err) => error500sServerError(err, res, "PUT Profile in Season Roster Error."));
