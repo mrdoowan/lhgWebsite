@@ -67,3 +67,6 @@ export const MISC_KEYS = {
   SPELL_IDS: 'SummonerSpellById',
   VERSIONS: 'Versions',
 }
+
+export const SINGLE_QUERY_KEYWORD = 'summoners/na/';
+export const MULTI_QUERY_KEYWORD = 'multisearch/na?summoners=';
