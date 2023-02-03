@@ -576,6 +576,9 @@ export const checkNewProfile = (opggUrl, newName = null) => {
 export const postNewProfile = (profileName, summIdList) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // Trim
+      profileName = profileName.trim();
+
       // Generate a new Profile ID
       const newPId = await generateNewPId('Profile');
 
