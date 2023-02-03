@@ -1167,7 +1167,7 @@ export const deleteProfileFromDb = (profilePId, profileName) => {
 
       // Delete cache
       cache.del(`${CACHE_KEYS.PROFILE_NAME_PREFIX}${profilePId}`);
-      cache.del(`${CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX}${profileName}`);
+      cache.del(`${CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX}${filterName(profileName)}`);
 
       resolve({
         'ProfileRemoved': profilePId,
