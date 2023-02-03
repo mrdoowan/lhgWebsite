@@ -44,7 +44,7 @@ export const getTeamPIdByName = (name) => {
   return new Promise(function (resolve, reject) {
     if (!name) { resolve(null); return; }
     const simpleName = filterName(name);
-    const cacheKey = CACHE_KEYS.TEAM_PID_PREFIX + simpleName;
+    const cacheKey = `${CACHE_KEYS.TEAM_PID_PREFIX}${simpleName}`;
     cache.get(cacheKey, (err, data) => {
       if (err) { reject(err); return; }
       else if (data != null) { resolve(data); return; }
