@@ -20,7 +20,7 @@ import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit'
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 import { authenticateJWT } from './dependencies/jwtHelper';
 import { getSeasonId, getSeasonInformation } from '../../functions/apiV1/seasonData';
-import { getRiotSummonerId } from '../../functions/apiV1/dependencies/awsLambdaHelper';
+import { getRiotSummonerData } from '../../functions/apiV1/dependencies/awsLambdaHelper';
 
 /*  
     ----------------------
@@ -117,7 +117,7 @@ matchV1Routes.post('/setup/new/profile', (req, res) => {
 
   console.log(`POST Request Match New Setups in by summoner name '${summonerName}'`);
   getTournamentId(tournamentName).then((tournamentId) => {
-    getRiotSummonerId(summonerName).then((summonerData) => {
+    getRiotSummonerData(summonerName).then((summonerData) => {
       const { puuid } = summonerData;
       postNewMatchesByPuuid(puuid, date, week, tournamentId).then((data) => {
         if (data.errors.length > 0) { return error500sServerError(res, req, `POST Request New Setup Failed by puuid '${summonerName}'`, data.errors); }
