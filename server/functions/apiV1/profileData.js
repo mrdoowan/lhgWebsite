@@ -785,8 +785,8 @@ export const updateProfileName = (newName, currentName) => {
         }
         // Del Cache
         cache.del(CACHE_KEYS.PROFILE_PID_BYNAME_PREFIX + filterName(currentName));
-        cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + checkProfilePId);
-        cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + checkProfilePId);
+        cache.del(CACHE_KEYS.PROFILE_NAME_PREFIX + profileId);
+        cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profileId);
 
         resolve({
           'ProfilePId': profileId,
