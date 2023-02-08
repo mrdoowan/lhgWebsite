@@ -847,7 +847,9 @@ export const putProfileRemoveAccount = (profileName, summName) => {
       );
 
       // Delete Cache
-      cache.del(CACHE_KEYS.PROFILE_INFO_PREFIX + profilePId);
+      cache.del(`${CACHE_KEYS.PROFILE_INFO_PREFIX}${profilePId}`);
+      cache.del(`${CACHE_KEYS.PROFILE_PID_BYSUMM_PREFIX}${summId}`);
+
       resolve({
         profilePId: profilePId,
         leagueAccounts: leagueAccountsObject,

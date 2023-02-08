@@ -253,6 +253,7 @@ export const getSeasonRosterById = (seasonId) => {
         if (!seasonJson) { resolve(null); return; }
         const seasonRosterJson = seasonJson['Roster'];
         if (seasonRosterJson) {
+          cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
           if ('Teams' in seasonRosterJson) {
             for (const teamHId in seasonRosterJson['Teams']) {
               const teamJson = seasonRosterJson['Teams'][teamHId];
@@ -265,7 +266,6 @@ export const getSeasonRosterById = (seasonId) => {
               }
             }
           }
-          cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
           resolve(seasonRosterJson);
         }
         else {
