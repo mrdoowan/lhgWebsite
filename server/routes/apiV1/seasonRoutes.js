@@ -249,7 +249,7 @@ seasonV1Routes.post('/roster/team/new', authenticateJWT, (req, res) => {
   addNewTeamsToSeason(seasonShortName, teamNameTuples).then((data) => {
     if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg, data.errorList); };
     return res200sOK(res, req, data);
-  }).catch((err) => error500sServerError(err, res, "PUT new Profiles in Season Roster Error."))
+  }).catch((err) => error500sServerError(err, res, "PUT new Teams in Season Roster Error."))
 })
 
 /**

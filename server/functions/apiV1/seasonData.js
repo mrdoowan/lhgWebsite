@@ -21,6 +21,7 @@ import { CACHE_KEYS } from './dependencies/cacheKeys'
 import { getTournamentShortName } from './tournamentData';
 import {
   getProfileName,
+  getProfilePIdByName,
   getProfilePIdsFromList,
   opggUrlCheckProfiles,
   postNewProfile,
@@ -246,12 +247,10 @@ export const getSeasonInformation = (seasonId) => {
 export const getSeasonRosterById = (seasonId) => {
   const cacheKey = CACHE_KEYS.SEASON_ROSTER_PREFIX + seasonId;
   return new Promise(function (resolve, reject) {
-    cache.get(cacheKey, async (err, data) => {
-      if (err) { reject(err); return; }
-      else if (data) { resolve(JSON.parse(data)); return; }
-      dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId).then(async (seasonJson) => {
-        if (!seasonJson) { resolve(null); return; }
-        const seasonRosterJson = seasonJson['Roster'];
+    try {
+      cache.get(cacheKey, async (err, data) => {
+        if (err) { reject(err); return; }
+        const seasonRosterJson = (data) ? JSON.parse(data) : (await dynamoDbGetItem(DYNAMODB_TABLENAMES.SEASON, seasonId))['Roster'];
         if (seasonRosterJson) {
           cache.set(cacheKey, JSON.stringify(seasonRosterJson, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
           if ('Teams' in seasonRosterJson) {
@@ -269,11 +268,11 @@ export const getSeasonRosterById = (seasonId) => {
           resolve(seasonRosterJson);
         }
         else {
-          resolve(null);    // If 'Roster' does not exist
+          resolve(null);    // 'Roster' attribute does not exist
         }
-      }).catch((error) => { reject(error); });
-    });
-    
+      });
+    }
+    catch (err) { reject(err); }
   });
 }
 
@@ -862,7 +861,9 @@ export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seaso
       const newProfileList = [];
       const addAccountsList = [];
       const opggUrlCheckRes = await opggUrlCheckProfiles(newOpggUrlList);
+      // Error list
       const multiProfileErrorList = [];
+      const conflictProfileNameList = [];
       if (opggUrlCheckRes.errorMsg) {
         return resolve(opggUrlCheckRes);
       }
@@ -872,11 +873,19 @@ export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seaso
         const opggCheckItem = opggUrlCheckRes[opggUrl];
         if (opggCheckItem.newProfile) { // New profile
           const newProfileName = replaceSpecialCharacters((newName) || opggCheckItem.summNames[0]);
-          allProfileNamesList.push(newProfileName);
-          newProfileList.push({
-            profileName: newProfileName,
-            summIdList: opggCheckItem.summIds,
-          });
+          // Check if newProfileName already exists
+          const checkNewProfileId = await getProfilePIdByName(newProfileName);
+          if (checkNewProfileId) {
+            conflictProfileNameList.push(newProfileName);
+          }
+          else {
+            allProfileNamesList.push(newProfileName);
+            newProfileList.push({
+              profileName: newProfileName,
+              summIdList: opggCheckItem.summIds,
+            });
+          }
+          
         }
         else { // Existing profile
           const nonNullProfileNames = [...new Set(opggCheckItem.profileNames.filter((id) => id))];
@@ -906,6 +915,12 @@ export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seaso
             }
           }
         }
+      }
+      if (conflictProfileNameList.length > 0) {
+        return resolve({
+          errorMsg: `The following profile names have already been taken.`,
+          errorList: conflictProfileNameList,
+        });
       }
       if (multiProfileErrorList.length > 0) {
         return resolve({
