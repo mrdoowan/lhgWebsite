@@ -55,14 +55,17 @@ export default function HomeComponent({ leagueData }) {
               Hello players (and recruiters who found this website through my resume or LinkedIn).
             </p>
             <p>
-              This MERN full stack website was designed with the goal to provide
-              competitive players a resource to scout teams and analyze their own performance.
-              This resource is meant to fit my customers first mentality, and provide
-              an experience to players that will advance competition and improvement.
-              The entire website was designed by me, with the beginning
-              of additional help from a few developers. If you are interested in helping
-              to develop this website further, please contact
-              me on Discord at doowan#8888.
+              This is a MERN full stack website that is meant to give
+              competitive players a resource to scout teams and observe their own performance.
+              It was designed to fit a customers first mentality and provide
+              an analytical experience to players that want to advance their competition and improvement.
+              The entire website was designed by me.
+            </p>
+            <p>
+              Please note that this was my very first full stack website developed back in 2020. As is typical with
+              all amateur products, it will naturally look mediocre with bad design decisions. <b>A v2 is in progress</b> and will become
+              open sourced once data is migrated to a new server. If you are interested in helping
+              to develop this website further, please contact me on Discord (doowan).
             </p>
           </Paper>
         </Grid>

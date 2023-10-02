@@ -8,18 +8,18 @@ import {
 /*  Import helper Data function modules */
 import {
   getProfilePIdByName,
-  getProfileInfo,
   getProfileGamesBySeason,
   getProfileStatsByTourney,
   postNewProfile,
   updateProfileInfoSummonerList,
   updateProfileName,
-  checkNewProfile,
+  checkNewProfileByUrl,
   putProfileRemoveAccount,
   deleteProfileFromDb,
   opggUrlCheckProfiles,
   getProfileInfoByProfileName,
   getProfileNameBySummName,
+  checkNewProfileById,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
@@ -159,15 +159,34 @@ profileV1Routes.get('/check/opggurls', (req, res) => {
 //#region POST / PUT REQUESTS - Profile
 
 /**
- * @route   POST api/profile/v1/add/new
+ * @route   POST api/profile/v1/add/new/by-summid
+ * @desc    Add new Profile with the given summoner Id.
+ * @access  Private (to Admins)
+ */
+profileV1Routes.post('/add/new/by-summid', authenticateJWT, (req, res) => {
+  const { newName, summId } = req.body;
+  console.log(`POST Request Profile by summId '${newName}' / '${summId}' - Add New Profile`);
+
+  checkNewProfileById(summId).then((profileData) => {
+    if (profileData.errorMsg) {
+      return res400sClientError(res, req, profileData.errorMsg, profileData.errorList);
+    }
+    postNewProfile(newName, profileData.summIdList).then((data) => {
+      return res200sOK(res, req, data);
+    }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - postNewProfile function."));
+  }).catch((err) => error500sServerError(err, res, "POST Profile Add New Error - checkNewProfile function."));
+});
+
+/**
+ * @route   POST api/profile/v1/add/new/by-url
  * @desc    Add new Profile with a list of summoners. Main account is the first index
  * @access  Private (to Admins)
  */
-profileV1Routes.post('/add/new', authenticateJWT, (req, res) => {
+profileV1Routes.post('/add/new/by-url', authenticateJWT, (req, res) => {
   const { newName, opggUrl } = req.body;
-  console.log(`POST Request Profile '${newName}' / '${opggUrl}' - Add New Profile`);
+  console.log(`POST Request Profile by Url '${newName}' / '${opggUrl}' - Add New Profile`);
 
-  checkNewProfile(opggUrl, newName).then((profileData) => {
+  checkNewProfileByUrl(opggUrl, newName).then((profileData) => {
     if (profileData.errorMsg) {
       return res400sClientError(res, req, profileData.errorMsg, profileData.errorList);
     }

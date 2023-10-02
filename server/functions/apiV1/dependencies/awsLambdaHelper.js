@@ -8,23 +8,41 @@ const { Constants } = twisted;
 AWS.config.update({ region: 'us-east-2' });
 const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
 
-const invokeLambda = (params) => new Promise((resolve, reject) => {
-  
-});
-
 /**
  * (AWS Lambda function)
  * Calls Riot API and gets the Summoner ID of the summoner account
  * Returns the request object from Riot API
  * @param {string} name     Summoner Name/IGN
  */
-export const getRiotSummonerData = (name) => new Promise((resolve, reject) => {
-  console.log(`AWS Lambda: Getting Summoner Id of '${name}'`);
+export const getRiotSummonerDataByName = (name) => new Promise((resolve, reject) => {
+  console.log(`AWS Lambda: Getting Summoner data of name '${name}'`);
   const params = {
     FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'SUMMONER_DATA',
       summonerName: name,
+      region: Constants.Regions.AMERICA_NORTH
+    }),
+  };
+  lambda.invoke(params, (err, data) => {
+    if (err) { reject(err); return; }
+    resolve(JSON.parse(data.Payload));
+  });
+});
+
+/**
+ * (AWS Lambda function)
+ * Calls Riot API and gets the Summoner ID of the summoner account
+ * Returns the request object from Riot API
+ * @param {string} summId     Summoner Name/IGN
+ */
+export const getRiotSummonerDataBySummId = (summId) => new Promise((resolve, reject) => {
+  console.log(`AWS Lambda: Getting Summoner data of Id '${summId}'`);
+  const params = {
+    FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
+    Payload: JSON.stringify({
+      type: 'SUMMONER_DATA',
+      summonerId: summId,
       region: Constants.Regions.AMERICA_NORTH
     }),
   };
