@@ -20,7 +20,7 @@ import {
   dynamoDbDeleteItem,
 } from './dependencies/dynamoDbHelper';
 import { mySqlCallSProc } from './dependencies/mySqlHelper';
-import { getRiotSummonerData } from './dependencies/awsLambdaHelper';
+import { getRiotSummonerDataByName, getRiotSummonerDataBySummId } from './dependencies/awsLambdaHelper';
 import { CACHE_KEYS } from './dependencies/cacheKeys'
 /*  Import data functions */
 import {
@@ -340,13 +340,13 @@ export const getProfileStatsByTourney = (pPId, tPId = null) => {
 }
 
 /**
- * Returns Summoner Id from Summoner Name
+ * Returns Riot summoner data from Summoner Name
  * @param {string} summonerName
  */
 export const getRiotSummonerDataBySummonerName = (summonerName) => {
   // Won't need to cache this. Just call directly from Riot API
   return new Promise(function (resolve, reject) {
-    getRiotSummonerData(summonerName).then((data) => {
+    getRiotSummonerDataByName(summonerName).then((data) => {
       resolve(data);
     }).catch((err) => { reject(err); })
   });
@@ -506,13 +506,41 @@ export const opggUrlCheckProfiles = (opggUrlList) => {
   })
 }
 
+export const checkNewProfileById = (summId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // profilePId Found in DB. That means profile already exists.
+      const profilePId = await getProfilePIdBySummonerId(summId);
+      if (profilePId) {
+        return resolve({
+          errorMsg: `SummId '${summId}' already exists under Profile ID '${profilePId}'`,
+        });
+      }
+      const riotSummDataRes = await getRiotSummonerDataBySummId(summId);
+      if (riotSummDataRes.errorList) {
+        return resolve({
+          errorMsg: `Error in getting Summoner Ids from the opggUrl`,
+          errorList: riotSummDataRes.errorList,
+        });
+      }
+      
+      return resolve({
+        summonerId: summId,
+        summonerName: riotSummDataRes.name,
+        summIdList: [ riotSummDataRes.id ],
+      });
+    }
+    catch (err) { reject(err); }
+  });
+}
+
 /**
  * Checks if the list of summoners and profiles are new to the database.
  * @param {string} opggUrl
  * @param {string} newName If null, the first 'name' from opggUrl will be used instead.
  * @return {object} with attribute 'profileName' and 'summIdList'
  */
-export const checkNewProfile = (opggUrl, newName = null) => {
+export const checkNewProfileByUrl = (opggUrl, newName = null) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Filter out empty strings
