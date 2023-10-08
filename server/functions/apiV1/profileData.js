@@ -506,6 +506,11 @@ export const opggUrlCheckProfiles = (opggUrlList) => {
   })
 }
 
+/**
+ * Checks if the list of summoners and profiles are new to the database.
+ * @param {string} summId
+ * @return {object} with attribute 'profileName' and 'summIdList'
+ */
 export const checkNewProfileById = (summId) => {
   return new Promise(async (resolve, reject) => {
     try {
