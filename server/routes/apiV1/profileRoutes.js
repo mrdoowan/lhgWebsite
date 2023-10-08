@@ -49,6 +49,21 @@ profileV1Routes.get('/information/name/:profileName', (req, res) => {
 });
 
 /**
+ * @route   GET api/profile/v1/profile-id/name/:profileName
+ * @desc    Get Profile Information
+ * @access  Private
+ */
+profileV1Routes.get('/profile-id/name/:profileName', authenticateJWT, (req, res) => {
+  const { profileName } = req.params;
+  console.log(`GET Request Profile Profile PId of '${profileName}'.`);
+
+  getProfilePIdByName(profileName).then((data) => {
+    if (!data) { return res400sClientError(res, req, `${profileName} not found.`); }
+    return res200sOK(res, req, data);
+  })
+});
+
+/**
  * @route   GET api/profile/v1/name/summ/:summname
  * @desc    Get Profile Information
  * @access  Public
