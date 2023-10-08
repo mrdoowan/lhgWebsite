@@ -269,7 +269,7 @@ export const getTournamentPlayerStats = (tournamentPId) => {
             }
           })).then((statsLogArray) => {
             const profileObject = {};
-            profileObject['PlayerList'] = statsLogArray.flat();;
+            profileObject['PlayerList'] = statsLogArray.flat().filter(n => n);
             cache.set(cacheKey, JSON.stringify(profileObject, null, 2), 'EX', GLOBAL_CONSTS.TTL_DURATION);
             resolve(profileObject);
           });
