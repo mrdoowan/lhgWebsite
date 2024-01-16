@@ -855,7 +855,6 @@ export const addNewProfilesToRoster = (opggUrlList, newNameList, teamName, seaso
         if (item.startsWith(SINGLE_QUERY_KEYWORD) || item.startsWith(MULTI_QUERY_KEYWORD)) { return item; }
         else { return SINGLE_QUERY_KEYWORD + item; }
       });
-      console.log(newOpggUrlList);
       // Check for each summonerName from the opggUrl
       const allProfileNamesList = [];
       const newProfileList = [];

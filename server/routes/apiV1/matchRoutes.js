@@ -20,7 +20,7 @@ import { submitMatchSetup } from '../../functions/apiV1/matchSubmit/matchSubmit'
 import { getTournamentId } from '../../functions/apiV1/tournamentData';
 import { authenticateJWT } from './dependencies/jwtHelper';
 import { getSeasonId, getSeasonInformation } from '../../functions/apiV1/seasonData';
-import { getRiotSummonerDataByName } from '../../functions/apiV1/dependencies/awsLambdaHelper';
+import { getRiotSummonerData } from '../../functions/apiV1/profileData';
 
 /*  
     ----------------------
@@ -113,15 +113,15 @@ matchV1Routes.post('/setup/new/callback', (req, res) => {
  * @access  Private (to Admins)
  */
 matchV1Routes.post('/setup/new/profile', (req, res) => {
-  const { summonerName, date, week, tournamentName } = req.body;
+  const { riotTag, date, week, tournamentName } = req.body;
 
-  console.log(`POST Request Match New Setups in by summoner name '${summonerName}'`);
+  console.log(`POST Request Match New Setups in by riot Tag '${riotTag}'`);
   getTournamentId(tournamentName).then((tournamentId) => {
-    getRiotSummonerDataByName(summonerName).then((summonerData) => {
+    getRiotSummonerData(riotTag).then((summonerData) => {
       const { puuid } = summonerData;
       postNewMatchesByPuuid(puuid, date, week, tournamentId).then((data) => {
-        if (data.errors.length > 0) { return error500sServerError(res, req, `POST Request New Setup Failed by puuid '${summonerName}'`, data.errors); }
-        if (data.success.length === 0) { return res400sClientError(res, req, `summonerName '${summonerName}' did not have a Tournament match on ${date}`); }
+        if (data.errors.length > 0) { return error500sServerError(res, req, `POST Request New Setup Failed by puuid '${riotTag}'`, data.errors); }
+        if (data.success.length === 0) { return res400sClientError(res, req, `summonerName '${riotTag}' did not have a Tournament match on ${date}`); }
         return res200sOK(res, req, data.success);
       }).catch((err) => error500sServerError(err, res, "POST Matches New Setup by puuid Error."));
     }).catch((err) => error500sServerError(err, res, "GET Riot Summoner Id Error."));

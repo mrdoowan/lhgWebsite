@@ -12,15 +12,18 @@ const lambda = new AWS.Lambda({ apiVersion: '2015-03-31' });
  * (AWS Lambda function)
  * Calls Riot API and gets the Summoner ID of the summoner account
  * Returns the request object from Riot API
- * @param {string} name     Summoner Name/IGN
+ * @param {string} gameName   Riot name
+ * @param {string} tagLine    i.e. "NA1"
  */
-export const getRiotSummonerDataByName = (name) => new Promise((resolve, reject) => {
-  console.log(`AWS Lambda: Getting Summoner data of name '${name}'`);
+export const getSummonerDataByRiotTag = (gameName, tagLine) => new Promise((resolve, reject) => {
+  console.log(`AWS Lambda: Getting Summoner data of name '${gameName}#${tagLine}'`);
   const params = {
     FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
     Payload: JSON.stringify({
       type: 'SUMMONER_DATA',
-      summonerName: name,
+      gameName,
+      tagLine,
+      regionGroup: Constants.RegionGroups.AMERICAS,
       region: Constants.Regions.AMERICA_NORTH
     }),
   };
@@ -54,7 +57,7 @@ export const getRiotSummonerDataBySummId = (summId) => new Promise((resolve, rej
 
 /**
  * (AWS Lambda function)
- * Calls Riot API and gets MatchV4 Data of the input Match ID
+ * Calls Riot API and gets MatchV5 Data of the input Match ID
  * Returns the request object of Match with items "Data" and "Timeline"
  * @param {string} matchId
  */
@@ -132,7 +135,7 @@ export const createTournamentId = (seasonShortName) => {
   return new Promise((resolve, reject) => {
     console.log(`AWS Lambda: Create new Tournament Id for season '${seasonShortName}'`);
     const params = {
-      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
+      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
       Payload: JSON.stringify({
         type: 'CREATE_TOURNAMENT',
         test: false,
@@ -164,7 +167,7 @@ export const generateTournamentCodes = (week, tournamentId, seasonShortName, num
   return new Promise(async (resolve, reject) => {
     console.log(`AWS Lambda: Generating new codes for season '${seasonShortName}'`);
     const params = {
-      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_TOURNAMENT,
+      FunctionName: GLOBAL_CONSTS.AWS_LAMBDA_NAME,
       Payload: JSON.stringify({
         type: 'GENERATE_CODES',
         test: false,

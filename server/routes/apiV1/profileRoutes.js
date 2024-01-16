@@ -18,7 +18,7 @@ import {
   deleteProfileFromDb,
   opggUrlCheckProfiles,
   getProfileInfoByProfileName,
-  getProfileNameBySummName,
+  getProfileNameByRiotTag,
   checkNewProfileById,
 } from '../../functions/apiV1/profileData';
 import { getSeasonId } from '../../functions/apiV1/seasonData';
@@ -68,14 +68,14 @@ profileV1Routes.get('/profile-id/name/:profileName', authenticateJWT, (req, res)
  * @desc    Get Profile Information
  * @access  Public
  */
-profileV1Routes.get('/name/summ/:summName', (req, res) => {
-  const { summName } = req.params;
-  console.log(`GET Request Profile of summoner account '${summName}' Information.`);
+profileV1Routes.get('/name/summ/:riotTag', (req, res) => {
+  const { riotTag } = req.params;
+  console.log(`GET Request Profile of account '${riotTag.replace('-', '#')}' Information.`);
 
-  getProfileNameBySummName(summName).then((data) => {
+  getProfileNameByRiotTag(riotTag.replace('-', '#')).then((data) => {
     if (data.errorMsg) { return res400sClientError(res, req, data.errorMsg); }
     return res200sOK(res, req, data);
-  }).catch((err) => error500sServerError(err, res, "GET Profile ID error by summoner name."));
+  }).catch((err) => error500sServerError(err, res, "GET Profile ID error by riot Tag."));
 });
 
 /**
